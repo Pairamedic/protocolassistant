@@ -1,0 +1,500 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Paramedic Protocol Assistant</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #e3f2fd;
+      padding: 1em;
+      color: #0d47a1;
+    }
+    h1 {
+      text-align: center;
+      color: #0d47a1;
+    }
+    select, input {
+      padding: 0.5em;
+      margin: 0.5em 0;
+      width: 100%;
+      font-size: 1em;
+    }
+    .protocol {
+      background: white;
+      border: 1px solid #90caf9;
+      border-radius: 8px;
+      padding: 1em;
+      margin-bottom: 1em;
+    }
+    .protocol h3 {
+      margin-top: 0;
+    }
+    .protocol small {
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+<style id="theme-style">
+</style>
+
+<div style="text-align:right; margin-bottom: 0.5em;">
+  <button onclick="toggleDarkMode()" style="padding:0.5em 1em; background:#555; color:white; border:none; border-radius:5px; font-size:1em;">🌓 Toggle Dark Mode</button>
+</div>
+
+  
+<h1>Paramedic Protocol Assistant</h1>
+<div style="text-align: right;">
+  <button onclick="toggleFormModal()" style="padding:0.5em 1em; background:#0d47a1; color:white; border:none; border-radius:5px; font-size:1em;">+ Add New Protocol</button>
+</div>
+
+  <label for="serviceFilter">Filter by Service:</label>
+  <select id="serviceFilter">
+    <option value="">All Services</option>
+  </select>
+  
+<label for="categoryFilter">Filter by Category:</label>
+<select id="categoryFilter">
+  <option value="">All Categories</option>
+</select>
+<input type="text" id="searchInput"
+ placeholder="Type a question or keyword..." />
+
+  <div id="results"></div>
+
+  <script>
+
+
+function toggleFormModal() {
+  populateServiceAndCategoryDropdowns();
+
+  const modal = document.getElementById("entryModal");
+  if (modal) {
+    modal.style.display = modal.style.display === "none" ? "block" : "none";
+  }
+}
+    const protocols = [
+  {
+    "service": "Pafford EMS \u2013 Arkansas",
+    "category": "Admin \u2013 General",
+    "title": "Medical Director",
+    "content": [
+      "Pafford's Primary Medical Director is Michael Seymour.",
+      "Pafford's Associate Medical Director is Karl Wagenhauser."
+    ],
+    "last_updated": "May 08, 2025"
+  },
+  {
+    "service": "Pafford EMS \u2013 Arkansas",
+    "category": "Universal Care Guidelines",
+    "title": "Pediatric Considerations",
+    "content": [
+      "Pediatric Protocols are applicable to patients below 14 years of age and/or weigh > 40 KG, whichever comes first."
+    ],
+    "last_updated": "May 08, 2025"
+  },
+  {
+    "service": "Pafford EMS \u2013 Arkansas",
+    "category": "Universal Care Guidelines",
+    "title": "Geriatric Considerations",
+    "content": [
+      "Geriatric Protocols are applicable to patients who are 65 years of age or older."
+    ],
+    "last_updated": "May 08, 2025"
+  },
+  {
+    "service": "Pafford EMS \u2013 Arkansas",
+    "category": "Universal Care Guidelines",
+    "title": "Reduced Medication Doses",
+    "content": [
+      "Reduced medication doses apply to patients with renal disease, hepatic disease (liver), pediatrics, and/or geriatrics."
+    ],
+    "last_updated": "May 08, 2025"
+  }
+];
+
+    
+function populateServiceFilter() {
+      const categories = [...new Set(protocols.map(p => p.category))];
+      const categorySelect = document.getElementById("categoryFilter");
+      categorySelect.innerHTML = '<option value="">All Categories</option>';
+      categories.forEach(cat => {
+        const opt = document.createElement("option");
+        opt.value = cat;
+        opt.textContent = cat;
+        categorySelect.appendChild(opt);
+      });
+
+
+      const services = [...new Set(protocols.map(p => p.service))];
+      const select = document.getElementById('serviceFilter');
+      services.forEach(service => {
+        const option = document.createElement('option');
+        option.value = service;
+        option.textContent = service;
+        select.appendChild(option);
+      });
+    }
+
+    function searchProtocols() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const serviceFilter = document.getElementById("serviceFilter").value;
+      const categoryFilter = document.getElementById("categoryFilter").value;
+      const results = document.getElementById('results');
+      results.innerHTML = '';
+
+      const matched = protocols.filter(p => {
+        const inService = !serviceFilter || p.service === serviceFilter;
+        const inContent = (p.title + p.category + p.content.join(' ')).toLowerCase().includes(query);
+        const inCategory = !categoryFilter || p.category === categoryFilter;
+        return inService && inCategory && inContent;
+      });
+
+      matched.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'protocol';
+        div.innerHTML = `
+          <h3>${p.title}</h3>
+          <small><strong>Service:</strong> ${p.service}<br>
+          <strong>Category:</strong> ${p.category}<br>
+          <strong>Last Updated:</strong> ${p.last_updated}</small>
+          <ul>${p.content.map(c => `<li>${c}</li>`).join('')}</ul>
+        `;
+        results.appendChild(div);
+      });
+    }
+
+    document.getElementById('searchInput').addEventListener('input', searchProtocols);
+    document.getElementById('serviceFilter').addEventListener('change', searchProtocols);
+
+    populateServiceFilter();
+    searchProtocols();
+  </script>
+
+  <hr />
+  
+  
+<div id="entryModal" style="display:none; position:fixed; top:5%; left:5%; width:90%; max-height:90%; overflow:auto; background:white; border:2px solid #0d47a1; border-radius:10px; padding:1em; z-index:9999; box-shadow: 0 0 10px rgba(0,0,0,0.2);">
+  <div style="text-align:right;"><button onclick="toggleFormModal()" style="background:none; border:none; font-size:1.2em;">✖</button></div>
+  <h2>Add New Protocol</h2>
+
+    
+    <label>Service:</label>
+    <select id="newService" onchange="populateCategoryDropdown()" style="width:100%;"></select><br>
+    <label>Category:</label>
+    <select id="newCategory" style="width:100%;"></select><br>
+    
+    <label>Title:</label><input type="text" id="newTitle"><br>
+    <label>Content (one item per line):</label><textarea id="newContent" rows="5" style="width:100%;"></textarea><br>
+    <label>Last Updated:</label><input type="date" id="newDate"><br>
+    <button onclick="addProtocol()" style="margin-top:0.5em;">Save Protocol</button>
+    <button onclick="exportProtocols()" style="margin-top:0.5em;">Export Protocols (JSON)</button>
+    <pre id="exportedData" style="white-space:pre-wrap; background:white; padding:1em; border-radius:5px; display:none; margin-top:1em;"></pre>
+  </div>
+
+  <script>
+    function toggleForm() {
+      const form = document.getElementById("entryForm");
+      
+    if (form.style.display === "none") {
+      form.style.display = "block";
+      form.scrollIntoView({ behavior: "smooth" });
+    } else {
+      form.style.display = "none";
+    }
+    
+    }
+
+    function addProtocol() {
+      const service = document.getElementById("newService").value.trim();
+      const category = document.getElementById("newCategory").value.trim();
+      const title = document.getElementById("newTitle").value.trim();
+      const contentText = document.getElementById("newContent").value.trim();
+      const date = document.getElementById("newDate").value || new Date().toISOString().slice(0, 10);
+
+      if (!service || !category || !title || !contentText) {
+        alert("All fields must be filled out.");
+        return;
+      }
+
+      const newProtocol = {
+        service,
+        category,
+        title,
+        content: contentText.split("\n").filter(line => line.trim()),
+        last_updated: new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+      };
+
+      protocols.push(newProtocol);
+      populateServiceFilter();
+      searchProtocols();
+      alert("Protocol added!");
+    }
+
+    function exportProtocols() {
+      const exportBox = document.getElementById("exportedData");
+      exportBox.style.display = "block";
+      exportBox.textContent = JSON.stringify(protocols, null, 2);
+    }
+  </script>
+
+<div style="text-align:right; margin-top:1em;">
+  <button onclick="startQuiz()" style="padding:0.5em 1em; background:#388e3c; color:white; border:none; border-radius:5px; font-size:1em;">🧪 Start Quiz</button>
+</div>
+
+<div id="quizModal" style="display:none; position:fixed; top:5%; left:5%; width:90%; max-height:90%; overflow:auto; background:white; border:2px solid #0d47a1; border-radius:10px; padding:1em; z-index:9999;">
+  <div style="text-align:right;"><button onclick="closeQuiz()" style="background:none; border:none; font-size:1.2em;">✖</button></div>
+  <h2>Protocol Quiz</h2>
+  <label>Service:</label>
+  <select id="quizService">
+    <option value="Pafford EMS – Arkansas">Pafford EMS – Arkansas</option>
+  </select>
+  <label>Category:</label>
+  <select id="quizCategory">
+    <option value="Universal Care Guidelines">Universal Care Guidelines</option>
+  </select>
+  <button onclick="beginQuiz()" style="margin-top:1em;">Begin</button>
+  <div id="quizBox" style="margin-top:1em;"></div>
+</div>
+
+<script>
+const quizQuestions = [
+  {
+    service: "Pafford EMS – Arkansas",
+    category: "Universal Care Guidelines",
+    question: "What is the age cutoff for pediatric protocols?",
+    options: ["Under 18 years old", "Below 14 years of age and/or < 40kg", "Under 12 years old"],
+    answer: "Below 14 years of age and/or < 40kg",
+    reference: "Pediatric Protocols are applicable to patients below 14 years of age and/or weigh > 40 KG, whichever comes first."
+  },
+  {
+    service: "Pafford EMS – Arkansas",
+    category: "Universal Care Guidelines",
+    question: "Who qualifies for reduced medication doses?",
+    options: ["Only pediatric patients", "Anyone over 60", "Renal/hepatic disease, pediatric, or geriatric patients"],
+    answer: "Renal/hepatic disease, pediatric, or geriatric patients",
+    reference: "Reduced medication doses apply to patients with renal disease, hepatic disease (liver), pediatrics, and/or geriatrics."
+  }
+];
+
+let currentQuiz = [];
+let quizIndex = 0;
+let score = 0;
+
+function startQuiz() {
+  document.getElementById("quizModal").style.display = "block";
+}
+
+function closeQuiz() {
+  document.getElementById("quizModal").style.display = "none";
+  document.getElementById("quizBox").innerHTML = "";
+  quizIndex = 0;
+  score = 0;
+}
+
+function beginQuiz() {
+  const service = document.getElementById("quizService").value;
+  const category = document.getElementById("quizCategory").value;
+  currentQuiz = quizQuestions.filter(q => q.service === service && q.category === category);
+  quizIndex = 0;
+  score = 0;
+  document.getElementById("quizBox").innerHTML = "";
+  showNextQuestion();
+}
+
+function showNextQuestion() {
+  const box = document.getElementById("quizBox");
+  if (quizIndex >= currentQuiz.length) {
+    box.innerHTML = `<h3>Quiz Complete</h3><p>You got ${score} out of ${currentQuiz.length} correct.</p>`;
+    return;
+  }
+  const q = currentQuiz[quizIndex];
+  box.innerHTML = `
+    <h4>${q.question}</h4>
+    ${q.options.map(opt => `<button onclick="checkAnswer('${opt.replace(/'/g, "\'")}')" style="margin:0.25em; display:block;">${opt}</button>`).join("")}
+  `;
+}
+
+function checkAnswer(selected) {
+  const q = currentQuiz[quizIndex];
+  const box = document.getElementById("quizBox");
+  const correct = selected === q.answer;
+  if (correct) score++;
+  box.innerHTML = `
+    <h4>${q.question}</h4>
+    <p><strong>Your Answer:</strong> ${selected}</p>
+    <p style="color:${correct ? 'green' : 'red'};"><strong>${correct ? 'Correct!' : 'Incorrect.'}</strong></p>
+    <p><strong>Protocol Reference:</strong><br>${q.reference}</p>
+    <button onclick="nextQuestion()">Next</button>
+  `;
+}
+
+function nextQuestion() {
+  quizIndex++;
+  showNextQuestion();
+}
+</script>
+
+</body>
+</html>
+
+</html>
+
+
+
+<style id="theme-style"></style>
+<style>
+  .dark-mode {
+    background-color: #1e1e1e !important;
+    color: #e0e0e0 !important;
+    border-color: #555 !important;
+  }
+  .dark-mode button, .dark-mode select, .dark-mode input, .dark-mode textarea {
+    background-color: #333 !important;
+    color: #e0e0e0 !important;
+    border-color: #555 !important;
+  }
+</style>
+<script>
+function toggleDarkMode() {
+  const styleTag = document.getElementById("theme-style");
+  const isDark = styleTag.innerHTML.includes("background-color: #121212");
+  const entryModal = document.getElementById("entryModal");
+  const quizModal = document.getElementById("quizModal");
+
+  if (isDark) {
+    styleTag.innerHTML = "";
+    entryModal && entryModal.classList.remove("dark-mode");
+    quizModal && quizModal.classList.remove("dark-mode");
+  } else {
+    styleTag.innerHTML = `
+      body { background-color: #121212; color: #e0e0e0; }
+      .protocol { background-color: #1e1e1e; border-color: #444; }
+      select, input, textarea, button {
+        background-color: #333; color: #e0e0e0; border-color: #555;
+      }
+      button:hover {
+        background-color: #444;
+      }
+    `;
+    entryModal && entryModal.classList.add("dark-mode");
+    quizModal && quizModal.classList.add("dark-mode");
+  }
+}
+</script>
+
+
+<script>
+function populateServiceAndCategoryDropdowns() {
+  const services = [...new Set(protocols.map(p => p.service))];
+  const serviceSelect = document.getElementById("newService");
+  serviceSelect.innerHTML = '<option value="">Select Service</option>';
+  services.forEach(service => {
+    const opt = document.createElement("option");
+    opt.value = service;
+    opt.textContent = service;
+    serviceSelect.appendChild(opt);
+  });
+  populateCategoryDropdown();
+}
+
+function populateCategoryDropdown() {
+  const selectedService = document.getElementById("newService").value;
+  const categories = [
+    ...new Set(
+      protocols.filter(p => p.service === selectedService).map(p => p.category)
+    )
+  ];
+  const categorySelect = document.getElementById("newCategory");
+  categorySelect.innerHTML = '<option value="">Select Category</option>';
+  categories.forEach(cat => {
+    const opt = document.createElement("option");
+    opt.value = cat;
+    opt.textContent = cat;
+    categorySelect.appendChild(opt);
+  });
+}
+</script>
+
+
+<script>
+function generateQuizQuestions(service, category) {
+  const relevant = protocols.filter(p => p.service === service && p.category === category);
+  const lines = relevant.flatMap(p => p.content.map(line => ({
+    question: `What does the protocol say about '${p.title}'?`,
+    answer: line,
+    reference: line
+  })));
+
+  return lines.map(q => {
+    const distractors = lines.filter(l => l.reference !== q.reference).map(l => l.reference);
+    const sampled = distractors.sort(() => 0.5 - Math.random()).slice(0, 2);
+    const options = [q.answer, ...sampled].sort(() => 0.5 - Math.random());
+    return { ...q, service, category, options };
+  });
+}
+
+let currentQuiz = [];
+let quizIndex = 0;
+let score = 0;
+
+function startQuiz() {
+  document.getElementById("quizModal").style.display = "block";
+}
+
+function closeQuiz() {
+  document.getElementById("quizModal").style.display = "none";
+  document.getElementById("quizBox").innerHTML = "";
+  quizIndex = 0;
+  score = 0;
+}
+
+function beginQuiz() {
+  const service = document.getElementById("quizService").value;
+  const category = document.getElementById("quizCategory").value;
+  currentQuiz = generateQuizQuestions(service, category);
+  quizIndex = 0;
+  score = 0;
+  document.getElementById("quizBox").innerHTML = "";
+  showNextQuestion();
+}
+
+function showNextQuestion() {
+  const box = document.getElementById("quizBox");
+  if (quizIndex >= currentQuiz.length) {
+    box.innerHTML = `<h3>Quiz Complete</h3><p>You got ${score} out of ${currentQuiz.length} correct.</p>`;
+    return;
+  }
+  const q = currentQuiz[quizIndex];
+  box.innerHTML = `
+    <h4>${q.question}</h4>
+    ${q.options.map(opt => `<button onclick="checkAnswer('${opt.replace(/'/g, "\'")}')" style="margin:0.25em; display:block;">${opt}</button>`).join("")}
+  `;
+}
+
+function checkAnswer(selected) {
+  const q = currentQuiz[quizIndex];
+  const box = document.getElementById("quizBox");
+  const correct = selected === q.answer;
+  if (correct) score++;
+  box.innerHTML = `
+    <h4>${q.question}</h4>
+    <p><strong>Your Answer:</strong> ${selected}</p>
+    <p style="color:${correct ? 'green' : 'red'};"><strong>${correct ? 'Correct!' : 'Incorrect.'}</strong></p>
+    <p><strong>Protocol Reference:</strong><br>${q.reference}</p>
+    <button onclick="nextQuestion()">Next</button>
+  `;
+}
+
+function nextQuestion() {
+  quizIndex++;
+  showNextQuestion();
+}
+</script>
+
+</body>
+</html>
