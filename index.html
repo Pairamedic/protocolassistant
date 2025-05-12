@@ -114,6 +114,69 @@ function toggleFormModal() {
       "Reduced medication doses apply to patients with renal disease, hepatic disease (liver), pediatrics, and/or geriatrics."
     ],
     "last_updated": "May 08, 2025"
+  },
+  {
+    "service": "Pafford EMS – Arkansas",
+    "category": "Cardiovascular Protocols",
+    "title": "Adult Bradycardia",
+    "content": [
+      "HR < 50 BPM & stable administer Atropine @ 1 mg (3mg max) IV, repeat as needed to maintain HR.",
+      "HR < 50 BPM & unstable e.g. Hypotension, STEMI, High Degree Heart Block, or Heart Transplant proceed with transcutaneous pacing.",
+      "If pacing fails consider Epinephrine @ 2-10 mcg/minute IV. May consider Push-Dose EPI of 10-20 mcg up to x2 to maintain MAP > 65 mmHG.",
+      "If pacing succeeds and patient presents with hypotension consider Norepinephrine push-dose 16-32 mcg up to two times."
+    ],
+    "last_updated": "May 10, 2025"
+  },
+  {
+    "service": "Pafford EMS – Arkansas",
+    "category": "Cardiovascular Protocols",
+    "title": "Pediatric Bradycardia",
+    "content": [
+      "For infants and newborns, initiate CPR for HR > 60 BPM and signs of poor perfusion (AMS, Hypoxia, Hypotension, Delayed Capillary Refill, Cyanosis).",
+      "For the bradycardic pediatric that presents with hypotension consider Epinephrine @ 0.01 mg/kv IV (repeatable once).",
+      "For the bradycardic pediatric that presents with hypotension consider Atropine @ 0.02 mg/kg, minimum dose of 0.1 mg, maximum dose 1mg IV (repeatable once).",
+      "Potential Causes - ",
+      "* Hypovolemia",
+      "* Hypoxia",
+      "* Hydrogen (acidosis)",
+      "* Myocardial Infarction",
+      "* Hypokalemia/Hyperkalemia",
+      "* Hypoglycemia",
+      "* Hypothermia",
+      "* Toxins/Overdose",
+      "* Tamponade",
+      "* Tension Pneumothorax",
+      "* Thrombus - Central or Peripheral",
+      "* Trauma",
+      "* Hyperthyroidism"
+    ],
+    "last_updated": "May 10, 2025"
+  },
+  {
+    "service": "Pafford EMS – Arkansas",
+    "category": "Cardiovascular Protocols",
+    "title": "Adult Bradycardia",
+    "content": [
+      "HR < 50 BPM & stable administer Atropine @ 1 mg (3mg max) IV, repeat as needed to maintain HR.",
+      "HR < 50 BPM & unstable e.g. Hypotension, STEMI, High Degree Heart Block, or Heart Transplant proceed with transcutaneous pacing.",
+      "If pacing fails consider Epinephrine @ 2-10 mcg/minute IV. May consider Push-Dose EPI of 10-20 mcg up to x2 to maintain MAP > 65 mmHG.",
+      "If pacing succeeds and patient presents with hypotension consider Norepinephrine push-dose 16-32 mcg up to two times.",
+      "Potential Causes - ",
+      "* Hypovolemia",
+      "* Hypoxia",
+      "* Hydrogen (acidosis)",
+      "* Myocardial Infarction",
+      "* Hypokalemia/Hyperkalemia",
+      "* Hypoglycemia",
+      "* Hypothermia",
+      "* Toxins/Overdose",
+      "* Tamponade",
+      "* Tension Pneumothorax",
+      "* Thrombus - Central or Peripheral",
+      "* Trauma",
+      "* Hyperthyroidism"
+    ],
+    "last_updated": "May 10, 2025"
   }
 ];
 
@@ -493,6 +556,40 @@ function checkAnswer(selected) {
 function nextQuestion() {
   quizIndex++;
   showNextQuestion();
+}
+</script>
+
+
+<script>
+const masterCategories = {
+  "Pafford EMS – Arkansas": ["Cardiovascular Protocols", "General Medical Protocols", "Resuscitation Protocols", "Pediatric Specific Protocols", "OB/GYN Protocols", "Respiratory Protocols", "Trauma Protocols", "Toxins/Environment Protocols", "Medications", "Procedures", "Resources/Guides (PEARLS)"]
+};
+
+function populateServiceAndCategoryDropdowns() {
+  const services = [...new Set(protocols.map(p => p.service))];
+  const serviceSelect = document.getElementById("newService");
+  serviceSelect.innerHTML = '<option value="">Select Service</option>';
+  services.forEach(service => {
+    const opt = document.createElement("option");
+    opt.value = service;
+    opt.textContent = service;
+    serviceSelect.appendChild(opt);
+  });
+  populateCategoryDropdown();
+}
+
+function populateCategoryDropdown() {
+  const selectedService = document.getElementById("newService").value;
+  const categorySelect = document.getElementById("newCategory");
+  const categories = masterCategories[selectedService] ||
+    [...new Set(protocols.filter(p => p.service === selectedService).map(p => p.category))];
+  categorySelect.innerHTML = '<option value="">Select Category</option>';
+  categories.forEach(cat => {
+    const opt = document.createElement("option");
+    opt.value = cat;
+    opt.textContent = cat;
+    categorySelect.appendChild(opt);
+  });
 }
 </script>
 
