@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,1164 +38,136 @@
 </head>
 <body>
 
-<style id="theme-style">
-</style>
-
 <div style="text-align:right; margin-bottom: 0.5em;">
   <button onclick="toggleDarkMode()" style="padding:0.5em 1em; background:#555; color:white; border:none; border-radius:5px; font-size:1em;">🌓 Toggle Dark Mode</button>
 </div>
 
-  
 <h1>Paramedic Protocol Assistant</h1>
 <div style="text-align: right;">
   <button onclick="toggleFormModal()" style="padding:0.5em 1em; background:#0d47a1; color:white; border:none; border-radius:5px; font-size:1em;">+ Add New Protocol</button>
 </div>
 
-  <label for="serviceFilter">Filter by Service:</label>
-  <select id="serviceFilter">
-    <option value="">All Services</option>
-  </select>
-  
+<label for="serviceFilter">Filter by Service:</label>
+<select id="serviceFilter"></select>
+
 <label for="categoryFilter">Filter by Category:</label>
-<select id="categoryFilter">
-  <option value="">All Categories</option>
-</select>
-<input type="text" id="searchInput"
- placeholder="Type a question or keyword..." />
+<select id="categoryFilter"></select>
 
-  <div id="results"></div>
+<input type="text" id="searchInput" placeholder="Type a question or keyword..." />
 
-  <script>
+<div id="results"></div>
 
+<script>
 
-function toggleFormModal() {
-  populateServiceAndCategoryDropdowns();
-
-  const modal = document.getElementById("entryModal");
-  if (modal) {
-    modal.style.display = modal.style.display === "none" ? "block" : "none";
-  }
-}
-    const protocols = [
-  [
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Admin – General",
-    "title": "Medical Director",
-    "content": [
-      "ℹ️ Pafford's Primary Medical Director is Michael Seymour.",
-      "ℹ️ Pafford's Associate Medical Director is Karl Wagenhauser."
-    ],
-    "last_updated": "May 08, 2025"
-  },
+// FIXED PROTOCOL DECLARATION (no nested array)
+const protocols = [
   {
     "service": "Pafford EMS – Arkansas",
     "category": "Universal Care Guidelines",
     "title": "Pediatric Considerations",
-    "content": [
-      "ℹ️ Pediatric Protocols are applicable to patients below 14 years of age and/or weigh > 40 KG, whichever comes first."
-    ],
-    "last_updated": "May 08, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Universal Care Guidelines",
-    "title": "Geriatric Considerations",
-    "content": [
-      "ℹ️ Geriatric Protocols are applicable to patients who are 65 years of age or older."
-    ],
+    "content": ["Pediatric Protocols are applicable to patients below 14 years of age and/or weigh > 40 KG, whichever comes first."],
     "last_updated": "May 08, 2025"
   },
   {
     "service": "Pafford EMS – Arkansas",
     "category": "Universal Care Guidelines",
     "title": "Reduced Medication Doses",
-    "content": [
-      "ℹ️ Reduced medication doses apply to patients with renal disease, hepatic disease (liver), pediatrics, and/or geriatrics."
-    ],
+    "content": ["Reduced medication doses apply to patients with renal disease, hepatic disease (liver), pediatrics, and/or geriatrics."],
     "last_updated": "May 08, 2025"
   },
   {
     "service": "Pafford EMS – Arkansas",
     "category": "Cardiovascular Protocols",
     "title": "Adult Bradycardia",
-    "content": [
-      "💉 HR < 50 BPM & stable administer Atropine @ 1 mg (3mg max) IV, repeat as needed to maintain HR.",
-      "💉 HR < 50 BPM & unstable e.g. Hypotension, STEMI, High Degree Heart Block, or Heart Transplant proceed with transcutaneous pacing.",
-      "ℹ️ If pacing fails consider Epinephrine @ 2-10 mcg/minute IV. May consider Push-Dose EPI of 10-20 mcg up to x2 to maintain MAP > 65 mmHG.",
-      "ℹ️ If pacing succeeds and patient presents with hypotension consider Norepinephrine push-dose 16-32 mcg up to two times."
-    ],
+    "content": ["HR < 50 BPM & stable administer Atropine @ 1 mg (3mg max) IV, repeat as needed to maintain HR."],
     "last_updated": "May 10, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Cardiovascular Protocols",
-    "title": "Pediatric Bradycardia",
-    "content": [
-      "💉 For infants and newborns, initiate CPR for HR > 60 BPM and signs of poor perfusion (AMS, Hypoxia, Hypotension, Delayed Capillary Refill, Cyanosis).",
-      "💉 For the bradycardic pediatric that presents with hypotension consider Epinephrine @ 0.01 mg/kv IV (repeatable once).",
-      "💉 For the bradycardic pediatric that presents with hypotension consider Atropine @ 0.02 mg/kg, minimum dose of 0.1 mg, maximum dose 1mg IV (repeatable once).",
-      "ℹ️ Potential Causes - ",
-      "⚕️ Hypovolemia",
-      "⚕️ Hypoxia",
-      "⚕️ Hydrogen (acidosis)",
-      "⚕️ Myocardial Infarction",
-      "⚕️ Hypokalemia/Hyperkalemia",
-      "⚕️ Hypoglycemia",
-      "⚕️ Hypothermia",
-      "⚕️ Toxins/Overdose",
-      "⚕️ Tamponade",
-      "⚕️ Tension Pneumothorax",
-      "⚕️ Thrombus - Central or Peripheral",
-      "⚕️ Trauma",
-      "⚕️ Hyperthyroidism"
-    ],
-    "last_updated": "May 10, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Cardiovascular Protocols",
-    "title": "Adult Bradycardia",
-    "content": [
-      "🫀 HR < 50 BPM & stable administer Atropine @ 1 mg (3mg max) IV, repeat as needed to maintain HR.",
-      "🫀 HR < 50 BPM & unstable e.g. Hypotension, STEMI, High Degree Heart Block, or Heart Transplant proceed with transcutaneous pacing.",
-      "💉 If pacing fails consider Epinephrine @ 2-10 mcg/minute IV. May consider Push-Dose EPI of 10-20 mcg up to x2 to maintain MAP > 65 mmHG.",
-      "💉 If pacing succeeds and patient presents with hypotension consider Norepinephrine push-dose 16-32 mcg up to two times.",
-      "ℹ️ Potential Causes - ",
-      "⚕️ Hypovolemia",
-      "⚕️ Hypoxia",
-      "⚕️ Hydrogen (acidosis)",
-      "⚕️ Myocardial Infarction",
-      "⚕️ Hypokalemia/Hyperkalemia",
-      "⚕️ Hypoglycemia",
-      "⚕️ Hypothermia",
-      "⚕️ Toxins/Overdose",
-      "⚕️ Tamponade",
-      "⚕️ Tension Pneumothorax",
-      "⚕️ Thrombus - Central or Peripheral",
-      "⚕️ Trauma",
-      "⚕️ Hyperthyroidism"
-    ],
-    "last_updated": "May 10, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Cardiovascular Protocols",
-    "title": "Chest Pain / Acute Coronary Syndrome (ACS) / ST-Segment Elevation Myocardical Infarction (STEMI)",
-    "content": [
-      "🫁 Administer oxygen if 02 SAT < 94%",
-      "💊 Aspirin 324 mg PO",
-      "🫀 12-Lead EKG",
-      "💉 Assess Blood Glucose",
-      "💉 Vascular Access",
-      "💊 Nitroglycerin 0.4 mg SL every 5 minutes if Chest Pain persists & BP > 100 mmHG (max of 3 doses) - Withhold if pt has taken Viagra or Allergic",
-      "ℹ️ Potential Signs -",
-      "⚕️ Chest Pain or Discomfort in areas of the body (Jaw, Arm, Epigastrium) of suspected Cardiac Origin.",
-      "⚕️ Shortness of Breath",
-      "⚕️ Diaphoresis",
-      "⚕️ Nausea/Dizziness and/or Vomiting.",
-      "⚕️ Syncope/Shock",
-      "⚕️ CHF"
-    ],
-    "last_updated": "May 17, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Cardiovascular Protocols",
-    "title": "Left Ventricular Assist Device (LVAD) l Right Ventricular Assist Device (RVAD) l Biventricular Assist Device (BiVAD) with symptoms of Cardiovascular Compromise",
-    "content": [
-      "🫁 Administer Oxygen if O2 Sat < 94% ",
-      "🫀 Assess for pump malfunctions; Assess for alarms, Auscultate for pump sound (\"hum\"). Signs of perfusion including pallor, , AMS.",
-      "🩻 If VAD malfunctioned; Contact VAD Coordinator (# on Device), Verify connections to the system controller, have pt stop all activity, reassess.",
-      "🩻 If Cardiac Arrest withhold CPR if evidence exists pump is still functioning-contact Med Control/VAD Coordinator prior to CPR if possible.",
-      "🫀 Initiate CPR if pump is confirmed to have stopped and troubleshooting efforts to restart it fail, and the patient has no signs of life. ",
-      "🚑 If patient's complaint is related to the VAD transport to where the device was placed/VAD Ready facility if condition & time permits.",
-      "ℹ️ Special Considerations -",
-      "⚕️ The blood pressure, if measurable, may not be an accurate measure of perfusion.",
-      "⚕️ The \"normal\" underlying rhythm may be V-Fib, Ventricular Tach, or Asystole/PEA.",
-      "⚕️ Bring the patient's travel bag w/ back-up controller & spare batteries, power module, cable, and display module.",
-      "⚕️ Most common cause of VAD failure is low batteries/battery failures.",
-      "⚕️ NIBP monitors are usually ineffective at calculating blood pressures, although the MAP is usually accurate."
-    ],
-    "last_updated": "May 17, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Cardiovascular Protocols",
-    "title": "Suspected Stroke / Transient Ischemic Attack (TIA)",
-    "content": [
-      "🫁 Administer Oxygen if O2 Sat < 94% ",
-      "🫀 12-Lead EKG",
-      "💉 Assess Blood Glucose",
-      "🩻 Perform \"BE FAST\" stroke screen.",
-      "🚑 Early Hospital activation per local stroke plan.",
-      "💉 Vascular Access - Limit IV Sticks, especially if patient is eligible for thrombolytics.",
-      "🫀 Cardiac Monitoring - (Treat arrhythmias per appropriate guideline) - Do Not Treat Blood Pressures",
-      "ℹ️ Stroke Scale must be include - ",
-      "⚕️ Facial Smile/Grimace - Ask patient to smile.",
-      "⚕️ Arm Drift - Close yes and hold out arms for count of 10 seconds.",
-      "⚕️ Speech - Ask patient to say \"You can't teach an old dog new tricks.\"",
-      "⚕️ Assess for vision changes, sensory neglect, aphasia, or new onset of other neurological symptoms.",
-      "⚕️ Consider recent hx of trauma, seizure, surgery, a-fib, hemorrhage,, and actively taking anti-coagulants to be pertinent. ",
-      "⚕️ For positive stroke scale with time of onset < 4 1/2 hours transport to facility with thrombolytic agents.",
-      "⚕️ For positive stroke scale with time of onset < 24 hours transport to facility capable of mechanical thrombectomies.",
-      "⚕️ Last Known Well is the last time patient was known to be at baseline, not the time patient woke up with symptoms."
-    ],
-    "last_updated": "May 17, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Cardiovascular Protocols",
-    "title": "Syncope / Near Syncope",
-    "content": [
-      "Syncope is defined as both the loss of consciousness & the loss of postural tone and resolves spontaneously without medical intervention",
-      "Near Syncope is defined as symptoms of syncope w/o a loss of consciousness/loss of postural tone (Diaphoresis, Lightheaded, Visual Changes, Weak)",
-      "🫁 Supplemental Oxygen if O2 Sat < 94%",
-      "🫀 12-Lead EKG w/ Cardiac Monitoring (Treat dysrhythmias per appropriate protocol)",
-      "💉 Assess Blood Glucose",
-      "ℹ️ High-Risk Causes of Syncope include;",
-      "🫀 Myocardial Infarction",
-      "⚕️ Aortetic Stenosis",
-      "⚕️ Hypertrophic Cardiomyopathy (Consider in young patient with unexplained syncope during exertion).",
-      "⚕️ Pulmonary Embolus",
-      "⚕️ Aortic Dissection",
-      "⚕️ Dysrhytmia",
-      "⚕️ Mitral Valve Prolapse ",
-      "⚕️ Intracranial Hemorrhage",
-      "⚕️ Transient Ischemic Attack or Stroke",
-      "⚕️ Vertebral Basiclar Insufficiency",
-      "⚕️ Ruptured Ectopic Pregnancy",
-      "⚕️ GI Bleed",
-      "⚕️ Aortic Rupture"
-    ],
-    "last_updated": "May 18, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Cardiovascular Protocols",
-    "title": "Tachycardia with a Pulse",
-    "content": [
-      "ℹ️ Tachycardia is defined as a Heart Rate greater than 100 BPM in adults or relative tachycardia in pediatric patients.",
-      "🫁 Supplemental Oxygen if O2 Sat < 94%",
-      "🫀 12-LEAD EKG w/ continuous Cardiac Monitoring",
-      "💉 Assess Blood Glucose",
-      "💉 Vascular Access",
-      "💉 IV Fluids (as needed)",
-      "ℹ️ Symptomatic Criteria - ",
-      "⚕️Dyspnea ",
-      "⚕️Chest Pain",
-      "⚕️Palpitations",
-      "⚕️Weakness",
-      "⚕️Unstable / Hypotensive - ",
-      "⚕️Altered Mental Status",
-      "⚕️Hypoxemia",
-      "⚕️Pulmonary Edema",
-      "⚕️Hypotension, MAP < 65 mmHG or SBP < 70+ 2 x (age in years)",
-      "⚕️If HR > 150 in Adult or > 180 in a Pediatric patient consider Synchronized Cardioversion (A-Dose 1: 70J, A-Dose 2: 120 J, A-Dose 3: 150 J, Dose 4+: 200 J) (P-Dose 1: 0.5-1 j/kg, P-Dose 2+: 2 j/kg)"
-    ],
-    "last_updated": "May 18, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Cardiovascular Protocols",
-    "title": "Torsades",
-    "content": [
-      "Consider Magnesium Sulphate @ 2 mg IVP/1 minute.",
-      "For Pediatrics consult OLMC for permission & appropriate dose."
-    ],
-    "last_updated": "May 18, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Cardiovascular Protocols",
-    "title": "Supraventricular Tachycardia (SVT) l Proxisimal (PSVT)",
-    "content": [
-      "ℹ️ In the symptomatic patient consider (Check Tachycardia Protocol to determine symptomatic v unstable); ",
-      "💉 Valsalva Maneuver",
-      "💉 In the Adult patient consider Adenosine 12 mg IV Rapid Push, repeat one time if SVT/PSVT persists.",
-      "💉 In the Pediatric patient push 0.1 mg/kg IV Rapid Push (maximum push dose 6 mg), repeat 0.2 mg/kg IV Rapid Push (maximum push dose 12 mg) one time if SVT/PSVT persists.",
-      "💉 In the Unstable Adult Patient cardioversion doses are as followed; Dose 1: 70 Joules, Dose 2: 120 Joules, Dose 3: 150 Joules, and then subsequent shocks at Dose 4+: 200 Joules. ",
-      "💉 In the Unstable Pediatric Patient cardioversion doses are as followed; Dose 1: 0.5-1 j/kg, Dose 2: 2 j/kg."
-    ],
-    "last_updated": "May 18, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Cardiovascular Protocols",
-    "title": "Atrial Fibrillation  l Atrial Flutter",
-    "content": [
-      "ℹ️ In the adult patient w/ Atrial Fibrillation or Atrial Flutter HR goal should be < 125 BPM.",
-      "💉 IV Metoprolol @ 5 mg IV q 5 min, repeat one time in 5 minutes if needed. (Avoid in Asthma, COPD, and Acute Heart Failure).",
-      "💉 IV Diltiazem (if unable to give Metoprolol) @ 0.25 mg/kg/IVP O/V 5 mintues. IF HR does not decrease by 20% and patient remains symptomatic consider 0.35 mg/kg/IVP o/v 5 minutes (0.80 x HR)",
-      "ℹ️ CONSULT OLMC FOR PEDIATRIC TREATMENT"
-    ],
-    "last_updated": "May 18, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Cardiovascular Protocols",
-    "title": "Ventricular Tachycardia (Pulse) l Wide Complex Tachycardia (Pulse) l Monomorphic Ventricular Tachycardia (Pulse)",
-    "content": [
-      "💉 In the Adult patient administer Amiodarone @ 150 mg/IVP/ O/V 10 minutes. If ineffective or recurrent contact OLMC ",
-      "💉 In the Pediatric patient administer 5 mg/kg IV over 20-60 minutes, repeat if ineffective or recurrent contact OLMC."
-    ],
-    "last_updated": "May 18, 2025"
   },
   {
     "service": "Pafford EMS – Arkansas",
     "category": "General Medical Protocols",
     "title": "Pain Management",
-    "content": [
-      "ℹ️ For moderate to severe pain, analgesics include:",
-      "💉 Fentanyl, preferred in most cases - Adult (1 mcg/kg IV/IM/IN (max initial dose of 100 mcg, PRN 0.5 mcg/kg x2 (max single repeat dose of 50 mcg, total max of 250 mcg). ",
-      "💉 Morphine Sulfate - 0.1 mg/kg IV/IM (max initial single dose 5 mg), may repeat initial dose after 5 min for maximum total dose of 10 mg.",
-      "💉 Ketorolac - 15 M IV or 30 MG IM",
-      "💉 Consider administration  of antiemetics to prevent nausea.",
-      "ℹ️ Vascular Access preferred & patient's should be on a Cardiac Monitor w/ ETC02 Monitoring."
-    ],
+    "content": ["Fentanyl, Morphine, Ketorolac options available."],
     "last_updated": "May 18, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "Abdominal Pain",
-    "content": [
-      "If 02 SAT < 94 % administer supplemental oxygen ",
-      "12-LEAD EKG",
-      "💉 Blood Glucose ",
-      "💉 Vascular Access.",
-      "💉 If nausea or vomiting, consider ondansetron.",
-      "Cardiac Monitor - Monitor for and threat arrhythmias (if present, refer to appropriate guideline)",
-      "ℹ️ Provide evaluation and management of pain per Pain Management Guideline",
-      "ℹ️ Pertinent Assessment Findings - ",
-      "Rebound Tenderness",
-      "Guarding",
-      "Abdominal Distension",
-      "Abdominal tympany to percussion.",
-      "Tenderness focial to a specific abdominal quadrant.",
-      "Presence of “Pulsatile” abdominal mass.",
-      "Absence of or significant inequality of femoral or distal arterial pulses in lower extremities. ",
-      "Hyper or hypothermia.",
-      "Rectal Bleeding, Hematemesis, Vaginal Bleeding.",
-      "Juandice."
-    ],
-    "last_updated": "May 20, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "Abuse & Maltreatment",
-    "content": [
-      "EMS role is to;",
-      "Document Concerns.",
-      "Assess potentially serious injuries.",
-      "Disclose concerns to appropriate authorities.",
-      "Initiate help to get the patient and any other vulnerable persons at the scene into a safe situation.",
-      "Not to investigate or intervene beyond the steps above.",
-      "Leave further investigation to law enforcement personnel.",
-      "Abuse/Maltreatment - Any act or series of acts of commission or omission by a caregiver or person in a position of power over the pt that results in harm, potential for harm, or threat of harm.",
-      "Child abuse/Maltreatment - Any act or series of acts of commission or omission by a parent or other caregiver that results in harm, potential for heart, or threat of harm to a child. ",
-      "Human Trafficking - When people are abducted or coerced into service (e.g. being forced into servitude without compensation and/or prostitution)."
-    ],
-    "last_updated": "May 20, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "Agitated or Violent Patients l Behavioral Emergency",
-    "content": [
-      "OLM REQUIRED PRIOR TO PHYSICAL/CHEMICAL RESTRAINTS",
-      "Consider Ketamine IM-LATERAL THIGH @ 3 mg/kg (max of 300 mg) IM in lateral thigh. May be given through clothing if there are crew safety concerns.",
-      "OR",
-      "Ketamine IV @ 1 mg/kg (max dose of 150 mg) IV.",
-      "Consider Versed 5 mg/IM/IN/slow IV. Repeat once if needed. Allow time for IM/IN medications to work prior to administering additional doses.",
-      "DO NOT GIVE KETAMINE IF PT HAS UNDERLYING CONDITIONS IN WHICH INCREASED BLOOD PRESSURE WOULD POSE A RISK OF COMPLICATIONS E.G. AORTIC DISSECTION, MI, HTN.",
-      "DO NOT GIVE VERSED IF PT HAS HX OF HYPERSENSITIVITY, SEVERE RESP DEPRESSION, OR SLEEP APNEA."
-    ],
-    "last_updated": "May 20, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "POST-INTUBATION l POST INTUBATION l",
-    "content": [
-      "Consider Ketamine @ 1mg/kg IVP slow, repeat every 20 minutes as needed. ",
-      "OR INFUSION @ 1mg/min-titrate to 0.5 mg/min up to 2 mg/min IV to maintain sedation.",
-      "Consider Versed 0.3 mg/kg IV (max push dose 5mg), repeat as needed every 10 minutes (max total dose 20 mg.)",
-      "DO NOT GIVE KETAMINE IF PT HAS UNDERLYING CONDITIONS IN WHICH INCREASED BLOOD PRESSURE WOULD POSE A RISK OF COMPLICATIONS E.G. AORTIC DISSECTION, MI, HTN.",
-      "DO NOT GIVE VERSED IF PT HAS HX OF HYPERSENSITIVITY, SEVERE RESP DEPRESSION, OR SLEEP APNEA."
-    ],
-    "last_updated": "May 20, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "Anaphylaxis and Allergic Reaction",
-    "content": [
-      "Anaphylaxis - is character by the acute onset of urticaria w/ either resp compromise or low BP or signs of end-organ dysfunction.",
-      "OR ",
-      "Hypotension in patient after exposure to a known allergen (In an adult SBP less than 90).",
-      "OR ",
-      "Two or more signs & symptoms of an allergic reaction occuring rapidly after exposure to a likely allergen.",
-      "Non-Anaphylactic Allergic Reaction - Signs involving only one organ system.",
-      "If SBP < 90 mmHG or airway compromise consider Epi 1:1 (1 mg/1ml) ",
-      "Vascular Access",
-      "Cardiac Monitor",
-      "Epinephrine IV Infusion in conjunction with at least 60 mL/kg isotonic fluid boluses.",
-      "For urticaria or pruitis, administer Diphenhydramine @ 12.5 - 25 mg IV/IM-ADULT l 0.5 mg/kg IV/IM (max of 12.5 mg)-PEDIATRIC l ",
-      "Consider Solumedrol @ 125 mg IVP-ADULT l 2 mg/kg IV (max 125 mg)-PED",
-      "If respiratory distress continues or worsens consider CPAP/BIPAP",
-      "Auto-PEEP should be matched to maximize recruitment.",
-      "If respiratory failure develops consider Advanced Airway Management",
-      "Pertinent Assessment Findings -",
-      "Presence or absence of angioedema",
-      "Presence or absence of respiratory compromise.",
-      "Presence or absence of circulatory compromise.",
-      "Localized or generalized uritcaria",
-      "Response to therapy."
-    ],
-    "last_updated": "May 20, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "Altered Mental Status",
-    "content": [
-      "12-Lead EKG",
-      "Blood Glucose",
-      "Vascular Access",
-      "IV Fluids (if needed)",
-      "Cardiac Monitor-Treat Dysrhythmias per appropriate guideline.",
-      "Special Considerations; Use the mneomic AEIOU-TIPS ",
-      "A - Alcohol, Abuse, Atypical Mgiraine",
-      "E - Epilepsy, Electrolytes",
-      "I - Insulin (Hypoglycemia)",
-      "O - Oxygen, Overdose",
-      "U - Uremia (Kidney Failure).",
-      "T- Trauma, Tumor",
-      "I - Infection",
-      "P- Psych, Poisoning",
-      "S- Seizure, Subarachnoid Hemorrhage, Sepsis)"
-    ],
-    "last_updated": "May 20, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "Altered Mental Status",
-    "content": [
-      "12-Lead EKG",
-      "Blood Glucose",
-      "Vascular Access",
-      "IV Fluids (if needed)",
-      "Cardiac Monitor-Treat Auto-PEEP should be matched to maximize recruitment  per appropriate guideline.",
-      "Special Considerations; Use the mnemonic AEIOU-TIPS ",
-      "A - Alcohol, Abuse, Atypical Migraine",
-      "E - Epilepsy, Electrolytes",
-      "I - Insulin (Hypoglycemia)",
-      "O - Oxygen, Overdose",
-      "U - Uremia (Kidney Failure).",
-      "T- Trauma, Tumor",
-      "I - Infection",
-      "P- Psych, Poisoning",
-      "S- Seizure, Subarachnoid Hemorrhage, Sepsis)"
-    ],
-    "last_updated": "May 20, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "Hyperglycemia",
-    "content": [
-      "12-lead EKG",
-      "Blood Glucose",
-      "Vascular Access",
-      "Glucose > 250 mg/Dl with S&S of dehydration, vomiting, abd pain, and/or altered LOC consider NS Bolus up to 2 L then LR.",
-      "Cardiac Monitor - Treat arrhythmia's as they present.",
-      "If findings of hyperkalemia present (hemodynamic compromise w/ QRS Duration > 120ms) administter;",
-      "Calcium Chloride or Calcium Gluconate",
-      "Sodium Bicarb-GIVEN THROUGH A SEPARATE LINE FROM CALCIUM CHLORIDE",
-      "Pertinent Findings ; ",
-      "Concomitant Trauma",
-      "“Fruity Breath”",
-      "Rapid-Deep Respirations “Kussmaul Respirations”",
-      "Consider causes for Hyperglycemia, 3I’s “Insulin, Ischemia, Infection”"
-    ],
-    "last_updated": "May 20, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "Hypoglycemia",
-    "content": [
-      "Supplemental Oxygen if 02 SAT < 94 %",
-      "12-Lead EKG",
-      "Assess Blood Glucose",
-      "If blood glucose is < 60 mg/dL or less administer one of the following: ",
-      "Conscious Patient w/ Patent Airway: Oral Glucose",
-      "Unconscious Patient/Unable to Protect Airway: Administer Dextrose 10% until mental status improves (max adult dose of 25 g).",
-      "FOR PEDIATRICS/INFANT PEDIATRIC HYPOGLYCEMIA administer until mental status improves or maximum dose of 0.5-1 g/kg IV.",
-      "OR ",
-      "IF UNABLE TO PREFORM ABOVE TREATMENTS REMOVE OR DISABLED INSULIN PUMP (IF PRESENT).",
-      "Glucagon 1 mg/IM/IN-ADULT. < 25 KG: 0.5 mg/IM/IN-PED."
-    ],
-    "last_updated": "May 20, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "Nausea/Vomiting",
-    "content": [
-      "12-Lead EKG",
-      "Blood Glucose",
-      "Vascular Access",
-      "Consider Zofran 4 MG SL/IV/PO, repeat one time after 5 minutes (max of 8 mg)-ADULT & PED",
-      "If dystonic/extrapyramidal effects occurs due to Zofran administer Diphenhydramine 12.5-25 mg IV/IM-ADULT 0.5mg/kg IV/IM-PED",
-      "Safety Conditions - ",
-      "Zofran should be avoided in patient’s with a prolonged QT Interval due to risk of torsades.",
-      "For very young patients, Zofran ca be sedating."
-    ],
-    "last_updated": "May 20, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "Seizure",
-    "content": [
-      "12-Lead EKG",
-      "Blood Glucose",
-      "Vascular Access",
-      "Midazolam @ 0.2 mg/kg (max of 10 mg) IM/IN or 5 mg IV-ADULT, 0.2 mg/kg (max 10mg) IM/IN or 5 mg IV-PED. Repeat dose x1 in 5m",
-      "OR",
-      "Lorazepam @ 2 mg IV or 4 mg IM-ADULT, 0.05 mg/kg IV/IM (Max dose of 2 mg)",
-      "Key Documentation Elements - ",
-      "Actively seizing during transport and time of seizure onset/cessation.",
-      "Onset, focality, direction of eye deviation.",
-      "Concurrent symptoms of apnea, cyanosis, vomiting, bowel/bladder incontinence, or fever",
-      "Medication amts/routes given by bystanders or pre-hospital clinicians.",
-      "Neuro status (GCS), nystagmus, pupil size, focal neuro deficit, or signs of stroke).",
-      "Blood Glucose Level"
-    ],
-    "last_updated": "May 20, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "Shock",
-    "content": [
-      "If 02 SAT < 94 % administer oxygen.",
-      "12-Lead EKG",
-      "Blood Glucose",
-      "Vascular Access",
-      "IV Fluid w/ goal of MAP = 65 (30 ml/kg-ADULT), (20 ml/kg-PED).",
-      "If shock unresponsive to IV Fluids consider;",
-      "Norepinephrine 2-20 mcg/minute or push-dose Epi of 16-32 mcg (can repeat x2)-ADULT",
-      "Epinephrine 2-10 mcg/minute via IVINF or push-dose @10-20 mcg e/v two minutes(max of 2 doses) - ADULT",
-      "Epinephrine 10 mcg IVP e/v 5 minutes titrated to age appropriate SBP(SBP+(2 x Age). Max of two doses-PED",
-      "Hx adrenal insufficiency/long-term steroid dependence/fluid-refractory shock give Solumedrol-125mg-IV-ADULT or 2mg/kg-IV",
-      "DO NOT ADMINISTER VASOPRESSOR IF HYPOTENSION DUE TO BLOOD VOLUME DEFICIT.",
-      "Pertinent Findings - ",
-      "Decreased perfusion manifested by AMS, Abnormal Cap Refill, Pulses, and/or Urine Output (1 ml/kg/hr)."
-    ],
-    "last_updated": "May 20, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "Sickle Cell Pain Crisis",
-    "content": [
-      "Oxygen if 02 sat < 94%.",
-      "12-Lead EKG",
-      "Blood Glucose",
-      "Vascular Access",
-      "Consider IV Fluids up to 30ml/kg",
-      "Treat pain according to Pain Management Guideline"
-    ],
-    "last_updated": "May 20, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Resuscitation Protocols",
-    "title": "Cardiac Arrest l General",
-    "content": [
-      "For an unwitnessed arrest or with bystander CPR in progress, analyze immediately.",
-      "If unwitnessed arrest or no bystander CPR, provide 2 minutes of CPR prior to analyzing.",
-      "Perform 2-minute rounds of continuous chest compression.",
-      "The maximum setting onf the defibrillator should be used for initial and subsequent defibrillation",
-      "Compression rate should be at least 100 per minute and no more than 120 — allow for complete chest recoil following a compression.",
-      "Switch rescuers every 2 minutes.",
-      "Limit interruptions to less than 10 seconds.",
-      "If patient has a pulse but no or ineffective breathing:",
-      "Give one breath every 3 seconds (pediatric)",
-      "Every 6 seconds (adult).",
-      "Pulse/Rhythm check every 2 minutes.",
-      "If the cardiac arrest occurred prior to EMS arrival and the patient has no signs of clinical improvement after twenty minutes of resuscitation, consider termination with OLMC consultation.",
-      "For IO access the proximal humerus is preferred in children & the proximal tibia is preferred for infants and children."
-    ],
-    "last_updated": "May 29, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Resuscitation Protocols",
-    "title": "Cardiac Arrest l Asystole",
-    "content": [
-      "Asystole/PEA Protocol",
-      "Initiate CPR — 30:2",
-      "Cardiac Monitor / AED",
-      "Vascular Access",
-      "Administer Epinephrine",
-      "1:10,000 @ 1 mg FIVP every 3–5 minutes",
-      "Asystole should be confirmed in three or more leads",
-      "If asystole persists > 20 minutes of ACLS, consider field termination"
-    ],
-    "last_updated": "May 29, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Resuscitation Protocols",
-    "title": "Cardiac Arrest l Special Considerations l Hyperkalemia l Dialysis Cardiac Arrest l TCA Cardiac Arrest l Beta-Blocker Cardiac Arrest",
-    "content": [
-      "Hyperkalemia / Dialysis:",
-      "Calcium Chloride — 1 g IV/IO over 15 minutes",
-      "Sodium Bicarbonate — 50 mEq IV/IO bolus",
-      "May repeat x2 every 5 minutes",
-      "Goal: QRS < 120 ms",
-      "Note: Calcium Chloride & Sodium Bicarb should not be administered through the same line",
-      "TCA & Beta-Blocker Overdose:",
-      "Sodium Bicarbonate — 50 mEq IV/IO bolus",
-      "May repeat x2 every 5 minutes",
-      "Goal: QRS < 120 ms",
-      "Hypovolemia:",
-      "Normal Saline @ 2 L IV",
-      "Tension Pneumothorax (Suspected):",
-      "Needle Decompression"
-      "Trauma:",
-      "Needle Decompression"
-      "Initiate vlume resuscitation & hemorrhage control; Consider TXA @ 2 G IV/IO Bolus"
-    ],
-    "last_updated": "May 29, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Resuscitation Protocols",
-    "title": "Ventricular Fibrillation l Ventricular Tachycardia (Pulseless) l Pulseless V Tach l V Fib l V-Tach l V-Fib",
-    "content": [
-      "Ventricular Fibrillation / Pulseless Ventricular Tachycardia Protocol",
-      "Initiate CPR — 30:2",
-      "Cardiac Monitor / AED",
-      "Vascular Access",
-      "Administer Epinephrine",
-      "1:10,000 @ 1 mg FIVP every 3–5 minutes",
-      "Defibrillate every 2 minutes",
-      "200 joules or per manufacturer’s recommendation",
-      "Refractory VF/VT Management",
-      "If VF or VT is refractory to defibrillation:",
-      "First dose: Amiodarone 300 mg IV/IO",
-      "Second dose (if still refractory after second defib): Amiodarone 150 mg IV/IO",
-      "Third refractory episode: Consider Magnesium Sulfate 2 g IV/IO"
-    ],
-    "last_updated": "May 29, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Resuscitation Protocols",
-    "title": "Torsades De Pointes",
-    "content": [
-      "Epinephrine 1:10 @ 1 mg ",
-      "IF pulseless defibrillator at 100 Joules.",
-      "Administer magnesium sulfate 2 G o/v 10 mins."
-    ],
-    "last_updated": "May 29, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Resuscitation Protocols",
-    "title": "Adult Post-Rosc l ROSC",
-    "content": [
-      "Administer Oxygen if 02 SAT < 94 %",
-      "12-lead EKG / Cardiac Monitor - Treat arrhythmia per applicable guidelines. ",
-      "Blood Glucose",
-      "EtC02 Monitoring",
-      "Vascular Access",
-      "Avoid hyperthemia (temp greater than 99.5 F)"
-    ],
-    "last_updated": "May 29, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Resuscitation Protocols",
-    "title": "Determination of Death / Withholding Resuscitation",
-    "content": [
-      "Contraindications to CPR",
-      "(Unless patient is a lightning strike victim, drowning < 2 hrs submersion, or hypothermic)",
-      "Decapitation — Complete severing of the head from the body",
-      "Decomposition / Putrefaction — Skin bloated or ruptured, possible soft tissue sloughing",
-      "Torso Transection — Complete cut across torso (below shoulders, above hips) through major organs/vessels",
-      "Incineration — ≥90% full-thickness burns, ash present instead of clothing, no body hair, charred skin",
-      "Injuries Incompatible with Life — Massive crush injury, complete exsanguination, or visible brain extrusion",
-      "Trauma Arrest (Blunt/Penetrating) — Apneic, pulseless, and no signs of life (e.g., movement, EKG activity, pupillary response) upon EMS arrival",
-      "Non-Traumatic Arrest — Obvious signs of death such as dependent lividity or rigor mortis",
-      "If CPR has been initiated but all the components above have been subsequently confirmed, CPR should be discontinued."
-    ],
-    "last_updated": "May 29, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Resuscitation Protocols",
-    "title": "Termination of Resuscitation",
-    "content": [
-      "Asystole or Wide Complex PEA (< 40 BPM):",
-      "May terminate after 20 minutes of resuscitation",
-      "Only if no ROSC, ETCO₂ < 20 mmHg, and no hypothermia present",
-      "Requires OLMC consultation before termination ",
-      "Traumatic Arrest (≥18 y/o):",
-      "With blunt or penetrating trauma",
-      "And no signs of life (no pupillary reflex, movement, response to pain, or EKG activity)",
-      "Requires OLMC consultation before termination",
-      "Non-Traumatic Arrest:",
-      "Patient at least 18 years old.",
-      "Patient is in cadiac arrest at time of EMS arrival.",
-      "Patient is pulseless/apneic and has no meaningful cardiac activity (asystole or wide complex PEA less than 60 BPM with no Heart Sounds)",
-      "May terminate w/o OLMC."
-    ],
-    "last_updated": "May 29, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "OB Protocols",
-    "title": "Termination of Resuscitation",
-    "content": [
-      "Asystole or Wide Complex PEA (< 40 BPM):",
-      "May terminate after 20 minutes of resuscitation",
-      "Only if no ROSC, ETCO₂ < 20 mmHg, and no hypothermia present",
-      "Requires OLMC consultation before termination ",
-      "Traumatic Arrest (≥18 y/o):",
-      "With blunt or penetrating trauma",
-      "And no signs of life (no pupillary reflex, movement, response to pain, or EKG activity)",
-      "Requires OLMC consultation before termination",
-      "Non-Traumatic Arrest:",
-      "Patient at least 18 years old.",
-      "Patient is in cadiac arrest at time of EMS arrival.",
-      "Patient is pulseless/apneic and has no meaningful cardiac activity (asystole or wide complex PEA less than 60 BPM with no Heart Sounds)",
-      "May terminate w/o OLMC."
-    ],
-    "last_updated": "May 29, 2025"
-  }
-
-];
-
-    
-function populateServiceFilter() {
-      const categories = [...new Set(protocols.map(p => p.category))];
-      const categorySelect = document.getElementById("categoryFilter");
-      categorySelect.innerHTML = '<option value="">All Categories</option>';
-      categories.forEach(cat => {
-        const opt = document.createElement("option");
-        opt.value = cat;
-        opt.textContent = cat;
-        categorySelect.appendChild(opt);
-      });
-
-
-      const services = [...new Set(protocols.map(p => p.service))];
-      const select = document.getElementById('serviceFilter');
-      services.forEach(service => {
-        const option = document.createElement('option');
-        option.value = service;
-        option.textContent = service;
-        select.appendChild(option);
-      });
-    }
-
-    function searchProtocols() {
-      const query = document.getElementById('searchInput').value.toLowerCase();
-      const serviceFilter = document.getElementById("serviceFilter").value;
-      const categoryFilter = document.getElementById("categoryFilter").value;
-      const results = document.getElementById('results');
-      results.innerHTML = '';
-
-      const matched = protocols.filter(p => {
-        const inService = !serviceFilter || p.service === serviceFilter;
-        const inContent = (p.title + p.category + p.content.join(' ')).toLowerCase().includes(query);
-        const inCategory = !categoryFilter || p.category === categoryFilter;
-        return inService && inCategory && inContent;
-      });
-
-      matched.forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'protocol';
-        div.innerHTML = `
-          <h3>${p.title}</h3>
-          <small><strong>Service:</strong> ${p.service}<br>
-          <strong>Category:</strong> ${p.category}<br>
-          <strong>Last Updated:</strong> ${p.last_updated}</small>
-          <ul>${p.content.map(c => `<li>${c}</li>`).join('')}</ul>
-        `;
-        results.appendChild(div);
-      });
-    }
-
-    document.getElementById('searchInput').addEventListener('input', searchProtocols);
-    document.getElementById('serviceFilter').addEventListener('change', searchProtocols);
-
-    populateServiceFilter();
-    searchProtocols();
-  </script>
-
-  <hr />
-  
-  
-<div id="entryModal" style="display:none; position:fixed; top:5%; left:5%; width:90%; max-height:90%; overflow:auto; background:white; border:2px solid #0d47a1; border-radius:10px; padding:1em; z-index:9999; box-shadow: 0 0 10px rgba(0,0,0,0.2);">
-  <div style="text-align:right;"><button onclick="toggleFormModal()" style="background:none; border:none; font-size:1.2em;">✖</button></div>
-  <h2>Add New Protocol</h2>
-
-    
-    <label>Service:</label>
-    <select id="newService" onchange="populateCategoryDropdown()" style="width:100%;"></select><br>
-    <label>Category:</label>
-    <select id="newCategory" style="width:100%;"></select><br>
-    
-    <label>Title:</label><input type="text" id="newTitle"><br>
-    <label>Content (one item per line):</label><textarea id="newContent" rows="5" style="width:100%;"></textarea><br>
-    <label>Last Updated:</label><input type="date" id="newDate"><br>
-    <button onclick="addProtocol()" style="margin-top:0.5em;">Save Protocol</button>
-    <button onclick="exportProtocols()" style="margin-top:0.5em;">Export Protocols (JSON)</button>
-    <pre id="exportedData" style="white-space:pre-wrap; background:white; padding:1em; border-radius:5px; display:none; margin-top:1em;"></pre>
-  </div>
-
-  <script>
-    function toggleForm() {
-      const form = document.getElementById("entryForm");
-      
-    if (form.style.display === "none") {
-      form.style.display = "block";
-      form.scrollIntoView({ behavior: "smooth" });
-    } else {
-      form.style.display = "none";
-    }
-    
-    }
-
-    function addProtocol() {
-      const service = document.getElementById("newService").value.trim();
-      const category = document.getElementById("newCategory").value.trim();
-      const title = document.getElementById("newTitle").value.trim();
-      const contentText = document.getElementById("newContent").value.trim();
-      const date = document.getElementById("newDate").value || new Date().toISOString().slice(0, 10);
-
-      if (!service || !category || !title || !contentText) {
-        alert("All fields must be filled out.");
-        return;
-      }
-
-      const newProtocol = {
-        service,
-        category,
-        title,
-        content: contentText.split("\n").filter(line => line.trim()),
-        last_updated: new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-      };
-
-      protocols.push(newProtocol);
-      populateServiceFilter();
-      searchProtocols();
-      alert("Protocol added!");
-    }
-
-    function exportProtocols() {
-      const exportBox = document.getElementById("exportedData");
-      exportBox.style.display = "block";
-      exportBox.textContent = JSON.stringify(protocols, null, 2);
-    }
-  </script>
-
-<div style="text-align:right; margin-top:1em;">
-  <button onclick="startQuiz()" style="padding:0.5em 1em; background:#388e3c; color:white; border:none; border-radius:5px; font-size:1em;">🧪 Start Quiz</button>
-</div>
-
-<div id="quizModal" style="display:none; position:fixed; top:5%; left:5%; width:90%; max-height:90%; overflow:auto; background:white; border:2px solid #0d47a1; border-radius:10px; padding:1em; z-index:9999;">
-  <div style="text-align:right;"><button onclick="closeQuiz()" style="background:none; border:none; font-size:1.2em;">✖</button></div>
-  <h2>Protocol Quiz</h2>
-  <label>Service:</label>
-  <select id="quizService">
-    <option value="Pafford EMS – Arkansas">Pafford EMS – Arkansas</option>
-  </select>
-  <label>Category:</label>
-  <select id="quizCategory">
-    <option value="Universal Care Guidelines">Universal Care Guidelines</option>
-  </select>
-  <button onclick="beginQuiz()" style="margin-top:1em;">Begin</button>
-  <div id="quizBox" style="margin-top:1em;"></div>
-</div>
-
-<script>
-const quizQuestions = [
-  {
-    service: "Pafford EMS – Arkansas",
-    category: "Universal Care Guidelines",
-    question: "What is the age cutoff for pediatric protocols?",
-    options: ["Under 18 years old", "Below 14 years of age and/or < 40kg", "Under 12 years old"],
-    answer: "Below 14 years of age and/or < 40kg",
-    reference: "Pediatric Protocols are applicable to patients below 14 years of age and/or weigh > 40 KG, whichever comes first."
-  },
-  {
-    service: "Pafford EMS – Arkansas",
-    category: "Universal Care Guidelines",
-    question: "Who qualifies for reduced medication doses?",
-    options: ["Only pediatric patients", "Anyone over 60", "Renal/hepatic disease, pediatric, or geriatric patients"],
-    answer: "Renal/hepatic disease, pediatric, or geriatric patients",
-    reference: "Reduced medication doses apply to patients with renal disease, hepatic disease (liver), pediatrics, and/or geriatrics."
   }
 ];
 
-let currentQuiz = [];
-let quizIndex = 0;
-let score = 0;
-
-function startQuiz() {
-  document.getElementById("quizModal").style.display = "block";
+function populateFilters() {
+  const serviceSet = new Set(protocols.map(p => p.service));
+  const categorySet = new Set(protocols.map(p => p.category));
+  
+  const serviceFilter = document.getElementById("serviceFilter");
+  const categoryFilter = document.getElementById("categoryFilter");
+  
+  serviceFilter.innerHTML = '<option value="">All Services</option>';
+  categoryFilter.innerHTML = '<option value="">All Categories</option>';
+  
+  serviceSet.forEach(service => {
+    const opt = document.createElement("option");
+    opt.value = service;
+    opt.textContent = service;
+    serviceFilter.appendChild(opt);
+  });
+  categorySet.forEach(category => {
+    const opt = document.createElement("option");
+    opt.value = category;
+    opt.textContent = category;
+    categoryFilter.appendChild(opt);
+  });
 }
 
-function closeQuiz() {
-  document.getElementById("quizModal").style.display = "none";
-  document.getElementById("quizBox").innerHTML = "";
-  quizIndex = 0;
-  score = 0;
+function searchProtocols() {
+  const query = document.getElementById("searchInput").value.toLowerCase();
+  const serviceVal = document.getElementById("serviceFilter").value;
+  const categoryVal = document.getElementById("categoryFilter").value;
+  const results = document.getElementById("results");
+  results.innerHTML = "";
+
+  protocols.filter(p => {
+    const matchService = !serviceVal || p.service === serviceVal;
+    const matchCategory = !categoryVal || p.category === categoryVal;
+    const matchQuery = (p.title + p.category + p.content.join(" ")).toLowerCase().includes(query);
+    return matchService && matchCategory && matchQuery;
+  }).forEach(p => {
+    const div = document.createElement("div");
+    div.className = "protocol";
+    div.innerHTML = `
+      <h3>${p.title}</h3>
+      <small><strong>Service:</strong> ${p.service} <br><strong>Category:</strong> ${p.category} <br><strong>Last Updated:</strong> ${p.last_updated}</small>
+      <ul>${p.content.map(c => `<li>${c}</li>`).join('')}</ul>
+    `;
+    results.appendChild(div);
+  });
 }
 
-function beginQuiz() {
-  const service = document.getElementById("quizService").value;
-  const category = document.getElementById("quizCategory").value;
-  currentQuiz = quizQuestions.filter(q => q.service === service && q.category === category);
-  quizIndex = 0;
-  score = 0;
-  document.getElementById("quizBox").innerHTML = "";
-  showNextQuestion();
-}
+document.getElementById("searchInput").addEventListener("input", searchProtocols);
+document.getElementById("serviceFilter").addEventListener("change", searchProtocols);
+document.getElementById("categoryFilter").addEventListener("change", searchProtocols);
 
-function showNextQuestion() {
-  const box = document.getElementById("quizBox");
-  if (quizIndex >= currentQuiz.length) {
-    box.innerHTML = `<h3>Quiz Complete</h3><p>You got ${score} out of ${currentQuiz.length} correct.</p>`;
-    return;
-  }
-  const q = currentQuiz[quizIndex];
-  box.innerHTML = `
-    <h4>${q.question}</h4>
-    ${q.options.map(opt => `<button onclick="checkAnswer('${opt.replace(/'/g, "\'")}')" style="margin:0.25em; display:block;">${opt}</button>`).join("")}
-  `;
-}
-
-function checkAnswer(selected) {
-  const q = currentQuiz[quizIndex];
-  const box = document.getElementById("quizBox");
-  const correct = selected === q.answer;
-  if (correct) score++;
-  box.innerHTML = `
-    <h4>${q.question}</h4>
-    <p><strong>Your Answer:</strong> ${selected}</p>
-    <p style="color:${correct ? 'green' : 'red'};"><strong>${correct ? 'Correct!' : 'Incorrect.'}</strong></p>
-    <p><strong>Protocol Reference:</strong><br>${q.reference}</p>
-    <button onclick="nextQuestion()">Next</button>
-  `;
-}
-
-function nextQuestion() {
-  quizIndex++;
-  showNextQuestion();
-}
+populateFilters();
+searchProtocols();
 </script>
 
-</body>
-</html>
-
-</html>
-
-
-
-<style id="theme-style"></style>
-<style>
-  .dark-mode {
-    background-color: #1e1e1e !important;
-    color: #e0e0e0 !important;
-    border-color: #555 !important;
-  }
-  .dark-mode button, .dark-mode select, .dark-mode input, .dark-mode textarea {
-    background-color: #333 !important;
-    color: #e0e0e0 !important;
-    border-color: #555 !important;
-  }
-</style>
 <script>
 function toggleDarkMode() {
-  const styleTag = document.getElementById("theme-style");
-  const isDark = styleTag.innerHTML.includes("background-color: #121212");
-  const entryModal = document.getElementById("entryModal");
-  const quizModal = document.getElementById("quizModal");
-
-  if (isDark) {
-    styleTag.innerHTML = "";
-    entryModal && entryModal.classList.remove("dark-mode");
-    quizModal && quizModal.classList.remove("dark-mode");
-  } else {
-    styleTag.innerHTML = `
-      body { background-color: #121212; color: #e0e0e0; }
-      .protocol { background-color: #1e1e1e; border-color: #444; }
-      select, input, textarea, button {
-        background-color: #333; color: #e0e0e0; border-color: #555;
-      }
-      button:hover {
-        background-color: #444;
-      }
-    `;
-    entryModal && entryModal.classList.add("dark-mode");
-    quizModal && quizModal.classList.add("dark-mode");
-  }
+  document.body.classList.toggle("dark-mode");
 }
 </script>
 
-
-<script>
-function populateServiceAndCategoryDropdowns() {
-  const services = [...new Set(protocols.map(p => p.service))];
-  const serviceSelect = document.getElementById("newService");
-  serviceSelect.innerHTML = '<option value="">Select Service</option>';
-  services.forEach(service => {
-    const opt = document.createElement("option");
-    opt.value = service;
-    opt.textContent = service;
-    serviceSelect.appendChild(opt);
-  });
-  populateCategoryDropdown();
+<style>
+.dark-mode {
+  background-color: #121212;
+  color: #e0e0e0;
 }
-
-function populateCategoryDropdown() {
-  const selectedService = document.getElementById("newService").value;
-  const categories = [
-    ...new Set(
-      protocols.filter(p => p.service === selectedService).map(p => p.category)
-    )
-  ];
-  const categorySelect = document.getElementById("newCategory");
-  categorySelect.innerHTML = '<option value="">Select Category</option>';
-  categories.forEach(cat => {
-    const opt = document.createElement("option");
-    opt.value = cat;
-    opt.textContent = cat;
-    categorySelect.appendChild(opt);
-  });
+.dark-mode .protocol {
+  background-color: #1e1e1e;
+  border-color: #555;
 }
-</script>
-
-
-<script>
-function generateQuizQuestions(service, category) {
-  const relevant = protocols.filter(p => p.service === service && p.category === category);
-  const lines = relevant.flatMap(p => p.content.map(line => ({
-    question: `What does the protocol say about '${p.title}'?`,
-    answer: line,
-    reference: line
-  })));
-
-  return lines.map(q => {
-    const distractors = lines.filter(l => l.reference !== q.reference).map(l => l.reference);
-    const sampled = distractors.sort(() => 0.5 - Math.random()).slice(0, 2);
-    const options = [q.answer, ...sampled].sort(() => 0.5 - Math.random());
-    return { ...q, service, category, options };
-  });
+.dark-mode select, .dark-mode input, .dark-mode button {
+  background-color: #333;
+  color: #e0e0e0;
+  border-color: #555;
 }
-
-let currentQuiz = [];
-let quizIndex = 0;
-let score = 0;
-
-function startQuiz() {
-  document.getElementById("quizModal").style.display = "block";
-}
-
-function closeQuiz() {
-  document.getElementById("quizModal").style.display = "none";
-  document.getElementById("quizBox").innerHTML = "";
-  quizIndex = 0;
-  score = 0;
-}
-
-function beginQuiz() {
-  const service = document.getElementById("quizService").value;
-  const category = document.getElementById("quizCategory").value;
-  currentQuiz = generateQuizQuestions(service, category);
-  quizIndex = 0;
-  score = 0;
-  document.getElementById("quizBox").innerHTML = "";
-  showNextQuestion();
-}
-
-function showNextQuestion() {
-  const box = document.getElementById("quizBox");
-  if (quizIndex >= currentQuiz.length) {
-    box.innerHTML = `<h3>Quiz Complete</h3><p>You got ${score} out of ${currentQuiz.length} correct.</p>`;
-    return;
-  }
-  const q = currentQuiz[quizIndex];
-  box.innerHTML = `
-    <h4>${q.question}</h4>
-    ${q.options.map(opt => `<button onclick="checkAnswer('${opt.replace(/'/g, "\'")}')" style="margin:0.25em; display:block;">${opt}</button>`).join("")}
-  `;
-}
-
-function checkAnswer(selected) {
-  const q = currentQuiz[quizIndex];
-  const box = document.getElementById("quizBox");
-  const correct = selected === q.answer;
-  if (correct) score++;
-  box.innerHTML = `
-    <h4>${q.question}</h4>
-    <p><strong>Your Answer:</strong> ${selected}</p>
-    <p style="color:${correct ? 'green' : 'red'};"><strong>${correct ? 'Correct!' : 'Incorrect.'}</strong></p>
-    <p><strong>Protocol Reference:</strong><br>${q.reference}</p>
-    <button onclick="nextQuestion()">Next</button>
-  `;
-}
-
-function nextQuestion() {
-  quizIndex++;
-  showNextQuestion();
-}
-</script>
-
-
-<script>
-const masterCategories = {
-  "Pafford EMS – Arkansas": ["Cardiovascular Protocols", "General Medical Protocols", "Resuscitation Protocols", "Pediatric Specific Protocols", "OB/GYN Protocols", "Respiratory Protocols", "Trauma Protocols", "Toxins/Environment Protocols", "Medications", "Procedures", "Resources/Guides (PEARLS)"]
-};
-
-function populateServiceAndCategoryDropdowns() {
-  const services = [...new Set(protocols.map(p => p.service))];
-  const serviceSelect = document.getElementById("newService");
-  serviceSelect.innerHTML = '<option value="">Select Service</option>';
-  services.forEach(service => {
-    const opt = document.createElement("option");
-    opt.value = service;
-    opt.textContent = service;
-    serviceSelect.appendChild(opt);
-  });
-  populateCategoryDropdown();
-}
-
-function populateCategoryDropdown() {
-  const selectedService = document.getElementById("newService").value;
-  const categorySelect = document.getElementById("newCategory");
-  const categories = masterCategories[selectedService] ||
-    [...new Set(protocols.filter(p => p.service === selectedService).map(p => p.category))];
-  categorySelect.innerHTML = '<option value="">Select Category</option>';
-  categories.forEach(cat => {
-    const opt = document.createElement("option");
-    opt.value = cat;
-    opt.textContent = cat;
-    categorySelect.appendChild(opt);
-  });
-}
-</script>
+</style>
 
 </body>
 </html>
