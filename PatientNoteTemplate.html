@@ -93,7 +93,6 @@
     "name","age","dob","complaint","history","meds","allergies",
   ];
 
-  // Auto-save logic
   function saveData() {
     const data = {};
     fields.forEach(id => data[id] = document.getElementById(id).value);
@@ -128,10 +127,18 @@
   }
 
   function gatherData() {
+    const labels = ["Time", "HR", "BP", "SpO₂", "BGL", "ECG", "Temp"];
     let result = `Name: ${document.getElementById("name").value}\nAge: ${document.getElementById("age").value}\nDOB: ${document.getElementById("dob").value}\nComplaint: ${document.getElementById("complaint").value}\nMedical History: ${document.getElementById("history").value}\nMedications: ${document.getElementById("meds").value}\nAllergies: ${document.getElementById("allergies").value}\n\nVitals Set 1:\n`;
-    document.querySelectorAll("#vitals1 tr:nth-child(2) input").forEach((i,idx)=> result += `${i.value}${idx<6?" | ":""}`);
+
+    document.querySelectorAll("#vitals1 tr:nth-child(2) input").forEach((input, idx) => {
+      result += `${labels[idx]}: ${input.value}${idx < 6 ? " | " : ""}`;
+    });
+
     result += `\n\nVitals Set 2:\n`;
-    document.querySelectorAll("#vitals2 tr:nth-child(2) input").forEach((i,idx)=> result += `${i.value}${idx<6?" | ":""}`);
+    document.querySelectorAll("#vitals2 tr:nth-child(2) input").forEach((input, idx) => {
+      result += `${labels[idx]}: ${input.value}${idx < 6 ? " | " : ""}`;
+    });
+
     result += `\n\nInterventions:\n`;
     document.querySelectorAll("#interventionList li").forEach(li => result += `${li.innerText}\n`);
     return result;
