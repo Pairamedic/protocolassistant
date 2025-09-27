@@ -1,6 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Paramedic Protocol Assistant</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #e3f2fd;
+      padding: 1em;
+      color: #0d47a1;
+    }
+    h1 {
+      text-align: center;
+      color: #0d47a1;
+    }
+    select, input {
+      padding: 0.5em;
+      margin: 0.5em 0;
+      width: 100%;
+      font-size: 1em;
+    }
+    .protocol {
+      background: white;
+      border: 1px solid #90caf9;
+      border-radius: 8px;
+      padding: 1em;
+      margin-bottom: 1em;
+    }
+    .protocol h3 {
+      margin-top: 0;
+    }
+    .protocol small {
+      color: #555;
+    }
+  </style>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Patient Note</title>
@@ -41,6 +75,9 @@
 </style>
 </head>
 <body>
+
+<div style="text-align:right; margin-bottom: 0.5em;">
+  <button onclick="toggleDarkMode()" style="padding:0.5em 1em; background:#555; color:white; border:none; border-radius:5px; font-size:1em;">🌓 Toggle Dark Mode</button>
 <h1>Patient Note</h1>
 
 <div class="section">
@@ -53,6 +90,9 @@
   <label>Allergies: <textarea id="allergies"></textarea></label>
 </div>
 
+<h1>Paramedic Protocol Assistant</h1>
+<div style="text-align: right;">
+  <button onclick="toggleFormModal()" style="padding:0.5em 1em; background:#0d47a1; color:white; border:none; border-radius:5px; font-size:1em;">+ Add New Protocol</button>
 <h2>Vitals Set 1</h2>
 <table id="vitals1">
   <tr>
@@ -83,17 +123,56 @@
   <ul id="interventionList"></ul>
 </div>
 
+<label for="serviceFilter">Filter by Service:</label>
+<select id="serviceFilter"></select>
+
+<label for="categoryFilter">Filter by Category:</label>
+<select id="categoryFilter"></select>
+
+<input type="text" id="searchInput" placeholder="Type a question or keyword..." />
+
+<div id="results"></div>
 <div class="section">
   <button onclick="copyAll()">Copy All</button>
   <button onclick="exportData()">Export</button>
-  <button onclick="resetAll()">Reset All</button>
 </div>
 
 <script>
+
+// FIXED PROTOCOL DECLARATION (no nested array)
+const protocols = [
+  {
+    "service": "Pafford EMS – Arkansas",
+    "category": "Universal Care Guidelines",
+    "title": "Pediatric Considerations",
+    "content": ["Pediatric Protocols are applicable to patients below 14 years of age and/or weigh > 40 KG, whichever comes first."],
+    "last_updated": "May 08, 2025"
+  },
+  {
+    "service": "Pafford EMS – Arkansas",
+    "category": "Universal Care Guidelines",
+    "title": "Reduced Medication Doses",
+    "content": ["Reduced medication doses apply to patients with renal disease, hepatic disease (liver), pediatrics, and/or geriatrics."],
+    "last_updated": "May 08, 2025"
+  },
+  {
+    "service": "Pafford EMS – Arkansas",
+    "category": "Cardiovascular Protocols",
+    "title": "Adult Bradycardia",
+    "content": ["HR < 50 BPM & stable administer Atropine @ 1 mg (3mg max) IV, repeat as needed to maintain HR."],
+    "last_updated": "May 10, 2025"
+  },
+  {
+    "service": "Pafford EMS – Arkansas",
+    "category": "General Medical Protocols",
+    "title": "Pain Management",
+    "content": ["Fentanyl, Morphine, Ketorolac options available."],
+    "last_updated": "May 18, 2025"
   const fields = [
     "name","age","dob","complaint","history","meds","allergies",
   ];
 
+  // Auto-save logic
   function saveData() {
     const data = {};
     fields.forEach(id => data[id] = document.getElementById(id).value);
@@ -102,7 +181,31 @@
     data.interventions = Array.from(document.querySelectorAll("#interventionList li")).map(li=>li.innerText);
     localStorage.setItem("patientNote", JSON.stringify(data));
   }
+];
 
+function populateFilters() {
+  const serviceSet = new Set(protocols.map(p => p.service));
+  const categorySet = new Set(protocols.map(p => p.category));
+  
+  const serviceFilter = document.getElementById("serviceFilter");
+  const categoryFilter = document.getElementById("categoryFilter");
+  
+  serviceFilter.innerHTML = '<option value="">All Services</option>';
+  categoryFilter.innerHTML = '<option value="">All Categories</option>';
+  
+  serviceSet.forEach(service => {
+    const opt = document.createElement("option");
+    opt.value = service;
+    opt.textContent = service;
+    serviceFilter.appendChild(opt);
+  });
+  categorySet.forEach(category => {
+    const opt = document.createElement("option");
+    opt.value = category;
+    opt.textContent = category;
+    categoryFilter.appendChild(opt);
+  });
+}
   function loadData() {
     const saved = JSON.parse(localStorage.getItem("patientNote") || "{}");
     fields.forEach(id => { if(saved[id]) document.getElementById(id).value = saved[id]; });
@@ -113,6 +216,12 @@
     });
   }
 
+function searchProtocols() {
+  const query = document.getElementById("searchInput").value.toLowerCase();
+  const serviceVal = document.getElementById("serviceFilter").value;
+  const categoryVal = document.getElementById("categoryFilter").value;
+  const results = document.getElementById("results");
+  results.innerHTML = "";
   document.querySelectorAll("input, textarea").forEach(el=>el.addEventListener("input", saveData));
 
   function addIntervention() {
@@ -127,29 +236,43 @@
     saveData();
   }
 
+  protocols.filter(p => {
+    const matchService = !serviceVal || p.service === serviceVal;
+    const matchCategory = !categoryVal || p.category === categoryVal;
+    const matchQuery = (p.title + p.category + p.content.join(" ")).toLowerCase().includes(query);
+    return matchService && matchCategory && matchQuery;
+  }).forEach(p => {
+    const div = document.createElement("div");
+    div.className = "protocol";
+    div.innerHTML = `
+      <h3>${p.title}</h3>
+      <small><strong>Service:</strong> ${p.service} <br><strong>Category:</strong> ${p.category} <br><strong>Last Updated:</strong> ${p.last_updated}</small>
+      <ul>${p.content.map(c => `<li>${c}</li>`).join('')}</ul>
+    `;
+    results.appendChild(div);
+  });
+}
   function gatherData() {
-    const labels = ["Time", "HR", "BP", "SpO₂", "BGL", "ECG", "Temp"];
     let result = `Name: ${document.getElementById("name").value}\nAge: ${document.getElementById("age").value}\nDOB: ${document.getElementById("dob").value}\nComplaint: ${document.getElementById("complaint").value}\nMedical History: ${document.getElementById("history").value}\nMedications: ${document.getElementById("meds").value}\nAllergies: ${document.getElementById("allergies").value}\n\nVitals Set 1:\n`;
-
-    document.querySelectorAll("#vitals1 tr:nth-child(2) input").forEach((input, idx) => {
-      result += `${labels[idx]}: ${input.value}${idx < 6 ? " | " : ""}`;
-    });
-
+    document.querySelectorAll("#vitals1 tr:nth-child(2) input").forEach((i,idx)=> result += `${i.value}${idx<6?" | ":""}`);
     result += `\n\nVitals Set 2:\n`;
-    document.querySelectorAll("#vitals2 tr:nth-child(2) input").forEach((input, idx) => {
-      result += `${labels[idx]}: ${input.value}${idx < 6 ? " | " : ""}`;
-    });
-
+    document.querySelectorAll("#vitals2 tr:nth-child(2) input").forEach((i,idx)=> result += `${i.value}${idx<6?" | ":""}`);
     result += `\n\nInterventions:\n`;
     document.querySelectorAll("#interventionList li").forEach(li => result += `${li.innerText}\n`);
     return result;
   }
 
+document.getElementById("searchInput").addEventListener("input", searchProtocols);
+document.getElementById("serviceFilter").addEventListener("change", searchProtocols);
+document.getElementById("categoryFilter").addEventListener("change", searchProtocols);
   function copyAll() {
     navigator.clipboard.writeText(gatherData());
     alert("Data copied to clipboard");
   }
 
+populateFilters();
+searchProtocols();
+</script>
   function exportData() {
     const blob = new Blob([gatherData()], {type: "text/plain"});
     const date = new Date();
@@ -160,23 +283,28 @@
     link.click();
   }
 
-  function resetAll() {
-    if (!confirm("Are you sure you want to reset everything? This cannot be undone.")) return;
-
-    // Clear input fields
-    fields.forEach(id => document.getElementById(id).value = "");
-    document.querySelectorAll("input[type='text'], input[type='date'], input[type='time'], textarea").forEach(input => input.value = "");
-    document.querySelectorAll("#vitals1 input, #vitals2 input").forEach(input => input.value = "");
-    
-    // Clear interventions
-    const list = document.getElementById("interventionList");
-    while (list.firstChild) list.removeChild(list.firstChild);
-
-    // Clear storage
-    localStorage.removeItem("patientNote");
-  }
-
+<script>
+function toggleDarkMode() {
+  document.body.classList.toggle("dark-mode");
+}
   loadData();
 </script>
+
+<style>
+.dark-mode {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+.dark-mode .protocol {
+  background-color: #1e1e1e;
+  border-color: #555;
+}
+.dark-mode select, .dark-mode input, .dark-mode button {
+  background-color: #333;
+  color: #e0e0e0;
+  border-color: #555;
+}
+</style>
+
 </body>
 </html>
