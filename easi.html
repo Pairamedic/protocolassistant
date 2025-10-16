@@ -10,10 +10,11 @@
     html,body{height:100%}
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:var(--bg);color:var(--text)}
     header{position:sticky;top:0;background:linear-gradient(180deg,rgba(20,24,32,.98),rgba(20,24,32,.9));backdrop-filter:saturate(120%) blur(6px);z-index:20;border-bottom:1px solid rgba(255,255,255,.06)}
-    .wrap{max-width:900px;margin:0 auto;padding:16px}
+    .wrap{max-width:1024px;margin:0 auto;padding:16px}
     .title{font-weight:700;letter-spacing:.2px;font-size:18px}
-    .searchbar{display:flex;gap:10px;margin-top:10px}
-    input[type="search"],input[type="text"],input[type="number"],select{width:100%;padding:14px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.1);background:#0f131a;color:var(--text);outline:none}
+    .bar{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+    @media(min-width:860px){.bar{grid-template-columns:1fr 1fr}}
+    input[type="search"],input[type="text"],input[type="number"],select,textarea{width:100%;padding:14px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.1);background:#0f131a;color:var(--text);outline:none}
     input::placeholder{color:#8a94a7}
     .tabs{display:flex;gap:8px;margin-top:12px}
     .tab{flex:1;text-align:center;padding:10px 12px;border-radius:12px;background:#0f131a;border:1px solid rgba(255,255,255,.08);cursor:pointer}
@@ -29,19 +30,28 @@
     .row>*{flex:1}
     .btn{padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:#0f131a;color:var(--text);cursor:pointer}
     .btn.primary{background:linear-gradient(180deg,#0f131a,#132036);border-color:rgba(94,234,212,.35)}
+    .btn.danger{border-color:rgba(239,68,68,.5)}
     .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid rgba(255,255,255,.12);border-radius:999px;font-size:12px}
     .k{display:inline-block;min-width:1.4em;text-align:center;background:rgba(94,234,212,.15);color:#88ffeb;border:1px solid rgba(94,234,212,.35);border-radius:6px;padding:1px 4px;margin-right:4px}
     mark{background:rgba(94,234,212,.2);padding:0 2px;border-radius:4px}
     .footer{color:#7f8aa3;font-size:12px;margin:18px 0}
     .hidden{display:none}
     .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px}
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap}
   </style>
 </head>
 <body>
   <header>
     <div class="wrap">
       <div class="title">🚑 EMS Protocols & Doses</div>
-      <div class="searchbar">
+      <div class="bar">
+        <div class="toolbar">
+          <select id="service-select" title="Ambulance Service"></select>
+          <button id="add-service" class="btn">New Service</button>
+          <button id="rename-service" class="btn">Rename</button>
+          <button id="duplicate-service" class="btn">Duplicate</button>
+          <button id="delete-service" class="btn danger">Delete</button>
+        </div>
         <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Search protocols, meds, keywords (e.g., 'adult airway', 'ketamine', 'brady')" />
       </div>
       <div class="tabs">
@@ -49,7 +59,7 @@
         <button class="tab" data-tab="meds">Meds</button>
         <button class="tab" data-tab="calc">Dose Calc</button>
       </div>
-      <div class="hint">Tip: Add this page to your home screen for 1‑tap access. Data never leaves your device.</div>
+      <div class="hint">Select an Ambulance Service. Data stays on-device; use Import/Export to share or back up.</div>
     </div>
   </header>
 
@@ -64,7 +74,7 @@
       <div id="meds" class="grid"></div>
     </section>
 
-    <!-- Calculator -->
+    <!-- Calculator Suite -->
     <section id="panel-calc" class="panel hidden">
       <div class="card">
         <h3>Weight‑Based Dose Calculator</h3>
@@ -110,7 +120,7 @@
 
       <div class="card">
         <h3>Standard Dose → Volume</h3>
-        <p class="hint">Formula: (Dose ordered / Dose on hand) × Volume on hand = mL to draw. Or use concentration directly.</p>
+        <p class="hint">(Dose ordered / Dose on hand) × Volume on hand = mL to draw. Or use mg/mL directly.</p>
         <div class="row">
           <div>
             <label class="hint">Dose ordered</label>
@@ -143,7 +153,7 @@
 
       <div class="card">
         <h3>IV Infusion (mcg/kg/min → gtts/min)</h3>
-        <p class="hint">Enter ordered dose, patient weight, drug in bag, bag volume, and drip set. We’ll compute mL/hr and gtts/min.</p>
+        <p class="hint">Enter ordered dose, weight, drug in bag (mg), bag volume (mL), and drip set (gtt/mL). Computes mL/hr and gtts/min.</p>
         <div class="row">
           <div>
             <label class="hint">Ordered (mcg/kg/min)</label>
@@ -332,27 +342,31 @@
       </div>
 
       <div class="card">
-        <h3>Import / Export Your Data</h3>
-        <p class="hint">Your protocols & meds are stored locally in your browser. You can edit the JSON below or export/import a file.</p>
-        <div class="row">
-          <button id="save-json" class="btn">Save to Browser</button>
-          <button id="export-json" class="btn">Export .json</button>
+        <h3>Import / Export</h3>
+        <p class="hint">Edit JSON for the <b>current service</b> below. Use "Save Service" to commit. You can also Export/Import the current service, or Export/Import <i>All Services</i>.</p>
+        <div class="row" style="margin-bottom:8px">
+          <button id="save-json" class="btn">Save Service</button>
+          <button id="export-json" class="btn">Export Service</button>
           <input id="import-file" type="file" accept="application/json" class="btn" />
         </div>
-        <textarea id="json" rows="10" style="width:100%;margin-top:10px;border-radius:12px;padding:12px;background:#0f131a;color:var(--text);border:1px solid rgba(255,255,255,.12)"></textarea>
+        <div class="row">
+          <button id="export-all" class="btn">Export All Services</button>
+          <input id="import-all-file" type="file" accept="application/json" class="btn" />
+        </div>
+        <textarea id="json" rows="12" style="width:100%;margin-top:10px;border-radius:12px;padding:12px;background:#0f131a;color:var(--text);border:1px solid rgba(255,255,255,.12)"></textarea>
       </div>
     </section>
 
-    <div class="footer">Made for quick, offline‑friendly reference. Always follow your service’s latest approved protocols.</div>
+    <div class="footer">Offline‑friendly reference. Always follow your service’s latest approved protocols.</div>
   </main>
 
   <script>
-  // --- Simple client-side store ---
-  const KEY = 'ems-protocols-v1';
+  // --- Multi‑service client-side store ---
+  const KEY = 'ems-protocols-multi-v1';
   const $ = sel => document.querySelector(sel);
   const $$ = sel => Array.from(document.querySelectorAll(sel));
 
-  const SAMPLE = {
+  const SAMPLE_SERVICE = {
     protocols: [
       {
         id: 'adult-airway',
@@ -364,84 +378,117 @@
           'Attempt orotracheal or nasotracheal intubation (1st pass).',
           'If unsuccessful: consider facilitated intubation (ketamine 2 mg/kg IV/IO).',
           'If still unsuccessful: place supraglottic airway; if failure → needle cricothyrotomy and/or BVM.',
-          'If intubated: confirm placement with EtCO₂ and an additional method (auscultation, CXR if available), secure tube.',
+          'If intubated: confirm placement with EtCO₂ and an additional method (auscultation), secure tube.',
           'Reassess ventilation/oxygenation and document time, size, depth, confirmation method.'
         ],
-        tags: ['airway','adult','intubation','ketamine','etco2','sgA','cric'],
-      },
-      {
-        id: 'bradycardia-adult',
-        title: 'Bradycardia – Adult (Symptomatic)',
-        summary: 'Atropine 1 mg IV q3-5min (max 3 mg); if ineffective → TCP / dopamine infusion 5–20 mcg/kg/min; consider reversible causes.',
-        steps: [
-          'ABC, oxygen, monitor, IV/IO access, 12-lead if feasible.',
-          'Atropine 1 mg IV q3–5min, max total 3 mg.',
-          'If ineffective: transcutaneous pacing; analgesia/sedation as needed.',
-          'Alternative/bridge: dopamine infusion 5–20 mcg/kg/min titrate to response.',
-          'Treat reversible causes (hypoxia, hypothermia, hyperkalemia, toxins).'
-        ],
-        tags: ['cardiac','adult','atropine','dopamine','pacing']
+        tags: ['airway','adult','intubation','ketamine','etco2','sga','cric']
       }
     ],
     meds: [
-      { name: 'Ketamine', alias:['ket'], default_mgkg: 2, route: 'IV/IO', max_mg: 200, notes: 'For facilitated intubation; consider lower dose if elderly or hypotensive.' },
-      { name: 'Atropine', alias:['atrop'], default_mgkg: 0.02, route: 'IV/IO', max_mg: 3, notes: 'Adult fixed dose often 1 mg; peds weight-based.' },
-      { name: 'Epinephrine 1:1,000', alias:['epi 1:1k'], default_mgkg: 0.01, route: 'IM', max_mg: 0.5, notes: 'Anaphylaxis IM; check local protocol.' }
+      { "name": "Aspirin", "route": "PO", "notes": "324 mg PO (4×81 mg) for ACS." },
+      { "name": "Adenosine", "route": "IV", "notes": "6–12 mg IV; may repeat 12 mg if no response." },
+      { "name": "Amiodarone (VF/VT arrest)", "route": "IV", "notes": "300 mg IV; may repeat 150 mg ×1 for VFib/Pulseless VT." },
+      { "name": "Amiodarone Infusion", "route": "IV infusion", "notes": "150 mg in 50–100 mL NS for VT with pulse; post-ROSC if amio given." },
+      { "name": "Atropine", "route": "IV", "notes": "0.5–1 mg IV for bradycardia; may repeat once." },
+      { "name": "Albuterol", "route": "Neb", "notes": "2.5 mg nebulized." },
+      { "name": "Ipratropium (Atrovent)", "route": "Neb", "notes": "0.5 mg nebulized." },
+      { "name": "Diphenhydramine (Benadryl)", "route": "IM/slow IVP", "notes": "25–50 mg for allergic reaction." },
+      { "name": "Calcium Chloride", "route": "IV", "notes": "1 g IV for suspected hyperkalemia arrest; 500 mg for CCB overdose." },
+      { "name": "Diltiazem (Cardizem)", "route": "SIVP", "notes": "10–20 mg slow IVP for AFib w/ RVR; may repeat 25 mg after 15 min if BP stable." },
+      { "name": "Dextrose 5%", "route": "IV", "notes": "250 mL bag to mix medication (carrier)." },
+      { "name": "Dextrose 10%", "route": "IV", "notes": "25 g (in 250 mL) IV for hypoglycemia." },
+      { "name": "Hydromorphone (Dilaudid)", "route": "IM/IV", "notes": "0.25–1 mg for pain control." },
+      { "name": "Dopamine", "route": "IV infusion", "notes": "2–20 mcg/kg/min for cardiogenic or septic shock with hypotension." },
+      { "name": "DuoNeb (Albuterol/Ipratropium)", "route": "Neb", "notes": "3 mg nebulized." },
+      { "name": "Epinephrine 1:1 (verify conc/route)", "route": "IV", "notes": "Listed: 1 mg IV q3–5 min for cardiac arrest (verify against local protocol)." },
+      { "name": "Epinephrine 1:10 (verify conc/route)", "route": "IM/Neb/IV infusion", "notes": "Listed: 0.3–0.5 mg IM for anaphylaxis; 3–5 mg neb refractory airway; 2–10 mcg/min for shock (verify)." },
+      { "name": "Furosemide", "route": "IV", "notes": "20–80 mg IV for CHF." },
+      { "name": "Glucagon", "route": "IM", "notes": "1 mg IM for hypoglycemia." },
+      { "name": "Haloperidol (Haldol)", "route": "IM", "notes": "5 mg IM for moderate agitation." },
+      { "name": "Hydralazine", "route": "Slow IVP", "notes": "10–20 mg slow IVP for hypertension." },
+      { "name": "Ketamine (intubation)", "route": "IV/IO", "default_mgkg": 2, "notes": "2 mg/kg for facilitated intubation." },
+      { "name": "Ketamine (analgesia per med control)", "route": "IV/IO", "default_mgkg": 0.25, "notes": "0.25 mg/kg for pain per medical control." },
+      { "name": "Labetalol", "route": "Slow IVP", "notes": "10–20 mg slow IVP for hypertension." },
+      { "name": "Lidocaine (IO pain)", "route": "IO", "notes": "20–40 mg IO to reduce pain during IO infusion." },
+      { "name": "Magnesium Sulfate", "route": "IV/IV infusion", "notes": "1–2 g IV for torsades; 2–4 g/hr infusion for eclampsia." },
+      { "name": "Morphine", "route": "IV", "notes": "2–10 mg for pain control or inferior STEMI; Pediatric 0.1 mg/kg." },
+      { "name": "Naloxone (Narcan)", "route": "IV/IM/IN", "notes": "0.4–2 mg; Pediatric 0.1 mg/kg." },
+
+      { "name": "Nitroglycerin", "route": "SL", "notes": "1 tablet (0.4 mg) SL for ACS; repeat as needed. May use in CHF; hypertension per MC." },
+      { "name": "Oral Glucose", "route": "PO", "notes": "15 g PO for hypoglycemia (if able to protect airway)." },
+      { "name": "Sodium Bicarbonate", "route": "IV", "notes": "50 mEq for cardiac arrest and crush injury (per protocol)." },
+      { "name": "Methylprednisolone (Solu‑Medrol)", "route": "IV/IM", "notes": "125 mg IV/IM." },
+      { "name": "Thiamine", "route": "Slow IVP", "notes": "25–100 mg SIVP for alcohol use/withdrawal." },
+      { "name": "Tranexamic Acid (TXA)", "route": "Slow IVP/Infusion", "notes": "2 g slow IVP or in 50–100 mL NS for suspected internal bleeding." },
+      { "name": "Midazolam (Versed)", "route": "IV/IM/IN", "notes": "1–5 mg; may repeat ×1 for seizures, facilitated intubation, psychosis." },
+      { "name": "Verapamil", "route": "SIVP", "notes": "2.5–10 mg SIVP for AFib with RVR." },
+      { "name": "Ondansetron (Zofran)", "route": "IV/IM/PO", "notes": "4–8 mg for nausea." },
+      { "name": "Acetaminophen (Tylenol)", "route": "IV", "notes": ">50 kg: 1,000 mg IV over 15 min; <50 kg: 15 mg/kg IV over 15 min." }
     ]
   };
 
-  function load(){
-    try{ return JSON.parse(localStorage.getItem(KEY)) || SAMPLE }catch(e){ return SAMPLE }
-  }
+  const SAMPLE = {
+    currentService: 'My Ambulance Service',
+    services: {
+      'My Ambulance Service': JSON.parse(JSON.stringify(SAMPLE_SERVICE))
+    }
+  };
+
+  function load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || SAMPLE }catch(e){ return SAMPLE } }
   function save(data){ localStorage.setItem(KEY, JSON.stringify(data)); }
 
   let state = load();
 
-  // --- Rendering ---
+  // --- Helpers ---
   const protocolsEl = $('#protocols');
   const medsEl = $('#meds');
   const jsonEl = $('#json');
+  const serviceSelect = $('#service-select');
+
+  function svc(){ return state.services[state.currentService] }
 
   function highlight(text, terms){
     if(!terms.length) return text;
-    let t = text;
+    let t = String(text||'');
     terms.forEach(w=>{ const re = new RegExp('('+escapeRegExp(w)+')','ig'); t = t.replace(re,'<mark>$1</mark>') });
     return t;
   }
-  function escapeRegExp(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') }
+  function escapeRegExp(s){ return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&') }
+
+  function renderServiceSelect(){
+    const names = Object.keys(state.services);
+    serviceSelect.innerHTML = names.map(n=>`<option ${n===state.currentService?'selected':''}>${n}</option>`).join('');
+  }
 
   function renderProtocols(filterTerms=[]){
-    const items = state.protocols.filter(p=> matchItem(p, filterTerms));
+    const items = (svc().protocols||[]).filter(p=> matchItem(p, filterTerms));
     protocolsEl.innerHTML = items.map(p=> `
       <div class="card">
         <h3>${highlight(p.title, filterTerms)}</h3>
-        <div class="hint">${highlight(p.summary, filterTerms)}</div>
+        <div class="hint">${highlight(p.summary||'', filterTerms)}</div>
         <div style="margin-top:8px">
-          ${p.steps.map((s,i)=>`<div><span class="k">${i+1}</span> ${highlight(s, filterTerms)}</div>`).join('')}
+          ${(p.steps||[]).map((s,i)=>`<div><span class="k">${i+1}</span> ${highlight(s, filterTerms)}</div>`).join('')}
         </div>
-        <div>${p.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+        <div>${(p.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
       </div>
     `).join('') || emptyState('No protocol matches');
   }
 
   function renderMeds(filterTerms=[]){
-    const items = state.meds.filter(m=> matchItem(m, filterTerms));
+    const items = (svc().meds||[]).filter(m=> matchItem(m, filterTerms));
     medsEl.innerHTML = items.map(m=> `
       <div class="card">
-        <h3>${highlight(m.name, filterTerms)} <span class="badge">${m.route}</span></h3>
-        <div class="hint">Default: ${m.default_mgkg} mg/kg • Max ${m.max_mg} mg</div>
+        <h3>${highlight(m.name, filterTerms)} ${m.route?`<span class=\"badge\">${m.route}</span>`:''}</h3>
         <div class="hint">${highlight(m.notes||'', filterTerms)}</div>
         <div style="margin-top:8px" class="row">
-          <button class="btn" onclick="loadIntoCalc('${m.name.replace(/'/g,"&#39;")}')">Send to Calculator</button>
-          <button class="btn" onclick="copyText('${m.name.replace(/'/g,"&#39;")}: ${m.default_mgkg} mg/kg (max ${m.max_mg} mg) ${m.route}')">Copy</button>
+          <button class="btn" onclick="loadIntoCalc('${(m.name||'').replace(/'/g, "&#39;")}')">Send to Calculator</button>
+          ${typeof m.default_mgkg!=='undefined' && m.default_mgkg!==null ? `<span class=\"pill\"><span class=\"k\">mg/kg</span>${m.default_mgkg}</span>`:''}
         </div>
       </div>
     `).join('') || emptyState('No medication matches');
   }
 
-  function emptyState(msg){
-    return `<div class="card">${msg}</div>`;
-  }
+  function emptyState(msg){ return `<div class=\"card\">${msg}</div>` }
 
   function matchItem(obj, terms){
     if(!terms.length) return true;
@@ -450,16 +497,17 @@
   }
 
   function renderAll(terms){
+    renderServiceSelect();
     renderProtocols(terms);
     renderMeds(terms);
     renderCalcOptions();
-    jsonEl.value = JSON.stringify(state, null, 2);
+    jsonEl.value = JSON.stringify(svc(), null, 2);
   }
 
   // --- Search ---
   const q = $('#q');
   let deb;
-  q.addEventListener('input', e=>{
+  q.addEventListener('input', ()=>{
     clearTimeout(deb);
     deb = setTimeout(()=>{
       const terms = q.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
@@ -476,18 +524,74 @@
     $('#panel-'+tab).classList.remove('hidden');
   }));
 
-  // --- Calc ---
+  // --- Services Management ---
+  serviceSelect.addEventListener('change', ()=>{
+    state.currentService = serviceSelect.value;
+    save(state);
+    renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
+  });
+
+  $('#add-service').addEventListener('click', ()=>{
+    const name = prompt('New service name?');
+    if(!name) return;
+    if(state.services[name]) return alert('Name already exists.');
+    state.services[name] = JSON.parse(JSON.stringify(SAMPLE_SERVICE));
+    state.currentService = name;
+    save(state);
+    renderAll([]);
+  });
+
+  $('#rename-service').addEventListener('click', ()=>{
+    const old = state.currentService;
+    const name = prompt('Rename service to:', old);
+    if(!name || name===old) return;
+    if(state.services[name]) return alert('Name already exists.');
+    state.services[name] = state.services[old];
+    delete state.services[old];
+    state.currentService = name;
+    save(state);
+    renderAll([]);
+  });
+
+  $('#duplicate-service').addEventListener('click', ()=>{
+    const from = state.currentService;
+    const name = prompt('Duplicate service as:', from+' Copy');
+    if(!name) return;
+    if(state.services[name]) return alert('Name already exists.');
+    state.services[name] = JSON.parse(JSON.stringify(state.services[from]));
+    state.currentService = name;
+    save(state);
+    renderAll([]);
+  });
+
+  $('#delete-service').addEventListener('click', ()=>{
+    const name = state.currentService;
+    if(Object.keys(state.services).length===1) return alert('Keep at least one service.');
+    if(confirm(`Delete "${name}"? This cannot be undone.`)){
+      delete state.services[name];
+      state.currentService = Object.keys(state.services)[0];
+      save(state);
+      renderAll([]);
+    }
+  });
+
+  // --- Calculators ---
   function kg(val, unit){ return unit==='lb' ? (val/2.20462) : val }
+  function toKg(val, unit){ return kg(val, unit) }
+  function fmt(n, d=1){ if(!isFinite(n)) return '—'; return Number(n).toFixed(d) }
+  function hhmm(min){ if(!isFinite(min)) return '—'; const h=Math.floor(min/60), m=Math.round(min%60); return `${h}h ${m}m` }
+
   function renderCalcOptions(){
     const sel = $('#calc-med');
-    sel.innerHTML = '<option value="">— choose —</option>' + state.meds.map(m=>`<option value="${m.name}">${m.name}</option>`).join('');
+    const meds = (svc().meds||[]);
+    sel.innerHTML = '<option value="">— choose —</option>' + meds.map(m=>`<option value="${m.name}">${m.name}</option>`).join('');
   }
   function loadIntoCalc(name){
-    const m = state.meds.find(x=>x.name===name);
+    const m = (svc().meds||[]).find(x=>x.name===name);
     if(!m) return;
     $('#calc-med').value = m.name;
-    $('#mgkg').value = m.default_mgkg;
-    $('#maxmg').value = m.max_mg;
+    $('#mgkg').value = (m.default_mgkg ?? '');
+    $('#maxmg').value = (m.max_mg ?? '');
     $('#route').value = m.route||'';
     document.querySelector('[data-tab="calc"]').click();
   }
@@ -495,7 +599,7 @@
 
   $('#calc').addEventListener('click', ()=>{
     const medName = $('#calc-med').value;
-    const m = state.meds.find(x=>x.name===medName);
+    const m = (svc().meds||[]).find(x=>x.name===medName);
     if(!m){ $('#result').innerHTML = 'Select a medication.'; return }
     const wt = parseFloat($('#wt').value||'0');
     const unit = $('#unit').value;
@@ -509,7 +613,7 @@
     const mL = conc ? (dose/conc) : null;
     $('#result').innerHTML = `
       <div>Medication: <b>${medName}</b> (${m?.route||$('#route').value||''})</div>
-      <div>Weight used: <b>${weightKg.toFixed(1)} kg</b> (${unit==='lb'? wt+' lb':''})</div>
+      <div>Weight used: <b>${weightKg.toFixed(1)} kg</b> ${unit==='lb'?`(${wt} lb)`:''}</div>
       <div>Total dose: <b>${dose.toFixed(1)} mg</b>${isFinite(maxmg)?` (max ${maxmg} mg)`:''}</div>
       ${mL!==null?`<div>Volume to draw: <b>${mL.toFixed(2)} mL</b> @ ${conc} mg/mL</div>`:''}
     `;
@@ -521,11 +625,6 @@
     $('#result').innerHTML='';
   });
 
-  // --- Extra calculators logic ---
-  function toKg(val, unit){ return unit==='lb' ? (val/2.20462) : val }
-  function fmt(n, d=1){ if(!isFinite(n)) return '—'; return Number(n).toFixed(d) }
-  function hhmm(min){ if(!isFinite(min)) return '—'; const h=Math.floor(min/60), m=Math.round(min%60); return `${h}h ${m}m` }
-
   // Standard Dose → Volume
   $('#std-calc').addEventListener('click', ()=>{
     const ordered = parseFloat($('#std-dose-ordered').value||'0');
@@ -535,7 +634,7 @@
     let mL = NaN;
     if(ordered && onhand && vol){ mL = (ordered/onhand)*vol }
     else if(ordered && conc){ mL = ordered/conc }
-    const txt = isFinite(mL) ? `Draw: **${fmt(mL,2)} mL**` : 'Enter ordered + on‑hand + volume, or ordered + concentration.';
+    const txt = isFinite(mL) ? `Draw: <b>${fmt(mL,2)} mL</b>` : 'Enter ordered + on‑hand + volume, or ordered + concentration.';
     $('#std-result').innerHTML = txt;
   });
   $('#std-reset').addEventListener('click', ()=>{ ['std-dose-ordered','std-dose-onhand','std-vol-onhand','std-conc'].forEach(id=> $('#'+id).value=''); $('#std-result').innerHTML=''; });
@@ -545,7 +644,7 @@
     const ordered = parseFloat($('#iv-ordered').value||'0'); // mcg/kg/min
     let wt = parseFloat($('#iv-wt').value||'0');
     wt = toKg(wt, $('#iv-unit').value);
-    const bagmg = parseFloat($('#iv-bagmg').value||'0'); // mg
+    const bagmg = parseFloat($('#iv-bagmg').value||'0'); // mg in bag
     const bagvol = parseFloat($('#iv-bagvol').value||'0'); // mL
     const drip = parseFloat($('#iv-dripset').value||'0'); // gtt/mL
     if(!(ordered&&wt&&bagmg&&bagvol&&drip)){ $('#iv-result').innerHTML='Enter all fields.'; return }
@@ -582,7 +681,7 @@
   $('#apgar-calc').addEventListener('click', ()=>{
     const a = parseInt($('#apgar-a').value); const p = parseInt($('#apgar-p').value); const g = parseInt($('#apgar-g').value); const ac = parseInt($('#apgar-ac').value); const r = parseInt($('#apgar-r').value);
     const total = a+p+g+ac+r;
-    let cat = total>=7? 'Normal (7–10)' : total>=4? 'Moderate (4–6)' : 'Low (0–3)';
+    const cat = total>=7? 'Normal (7–10)' : total>=4? 'Moderate (4–6)' : 'Low (0–3)';
     $('#apgar-result').innerHTML = `Score: <b>${total}</b> • ${cat}`;
   });
   $('#apgar-reset').addEventListener('click', ()=>{ ['apgar-a','apgar-p','apgar-g','apgar-ac','apgar-r'].forEach(id=> $('#'+id).selectedIndex=0); $('#apgar-result').innerHTML=''; });
@@ -593,7 +692,6 @@
     const total = e+v+m;
     $('#gcs-result').innerHTML = `E${e} V${v} M${m} • Total: <b>${total}</b>`;
   });
-  '#gcs-reset' in window || (window['#gcs-reset']=null);
   $('#gcs-reset').addEventListener('click', ()=>{ $('#gcs-e').selectedIndex=3; $('#gcs-v').selectedIndex=4; $('#gcs-m').selectedIndex=5; $('#gcs-result').innerHTML=''; });
 
   // Oxygen Duration
@@ -623,24 +721,65 @@
   });
   $('#vent-reset').addEventListener('click', ()=>{ $('#vent-height').value=''; $('#vent-sex').selectedIndex=0; $('#vent-hunit').selectedIndex=0; $('#vent-result').innerHTML=''; });
 
-  // --- Import/Export ---
-  $('#save-json').addEventListener('click', ()=>{ try{ state = JSON.parse(jsonEl.value); save(state); alert('Saved locally.'); renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean)); }catch(e){ alert('Invalid JSON') } });
+  // Import/Export (per‑service)
+  $('#save-json').addEventListener('click', ()=>{ 
+    try{ 
+      const obj = JSON.parse(jsonEl.value);
+      if(!obj || typeof obj!== 'object') throw new Error('Invalid JSON');
+      state.services[state.currentService] = obj;
+      save(state); 
+      alert('Saved current service.'); 
+      renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean)); 
+    }catch(e){ alert('Invalid JSON') } 
+  });
+
   $('#export-json').addEventListener('click', ()=>{
-    const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
+    const name = state.currentService.replace(/[^a-z0-9-_ ]/gi,'_');
+    const blob = new Blob([JSON.stringify(svc(),null,2)], {type:'application/json'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'ems-protocols.json';
+    a.download = `ems-${name}.json`;
     a.click();
   });
+
   $('#import-file').addEventListener('change', async (e)=>{
     const file = e.target.files[0]; if(!file) return;
     const txt = await file.text();
-    try{ state = JSON.parse(txt); save(state); jsonEl.value = JSON.stringify(state,null,2); renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean)); alert('Imported and saved.'); }
+    try{ 
+      const obj = JSON.parse(txt); 
+      state.services[state.currentService] = obj; 
+      save(state); 
+      jsonEl.value = JSON.stringify(svc(),null,2); 
+      renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean)); 
+      alert('Imported JSON into current service.'); 
+    }
     catch(err){ alert('Invalid JSON file.'); }
+    finally{ e.target.value=''; }
   });
 
-  function copyText(t){ navigator.clipboard?.writeText(t); }
-  window.copyText = copyText;
+  // Import/Export (all services)
+  $('#export-all').addEventListener('click', ()=>{
+    const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'ems-all-services.json';
+    a.click();
+  });
+
+  $('#import-all-file').addEventListener('change', async (e)=>{
+    const file = e.target.files[0]; if(!file) return;
+    const txt = await file.text();
+    try{ 
+      const obj = JSON.parse(txt); 
+      if(!obj.services || !obj.currentService) throw new Error('Not an all-services export');
+      state = obj; 
+      save(state); 
+      renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean)); 
+      alert('Imported all services.'); 
+    }
+    catch(err){ alert('Invalid ALL‑services JSON file.'); }
+    finally{ e.target.value=''; }
+  });
 
   // Init
   renderAll([]);
