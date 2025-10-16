@@ -1,1033 +1,649 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Paramedic Protocol Assistant</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>EMS Protocols & Med Doses</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #e3f2fd;
-      padding: 1em;
-      color: #0d47a1;
-    }
-    h1 {
-      text-align: center;
-      color: #0d47a1;
-    }
-    select, input {
-      padding: 0.5em;
-      margin: 0.5em 0;
-      width: 100%;
-      font-size: 1em;
-    }
-    .protocol {
-      background: white;
-      border: 1px solid #90caf9;
-      border-radius: 8px;
-      padding: 1em;
-      margin-bottom: 1em;
-    }
-    .protocol h3 {
-      margin-top: 0;
-    }
-    .protocol small {
-      color: #555;
-    }
+    :root { --bg:#0b0d10; --card:#141820; --muted:#a7b0be; --text:#e6eef8; --accent:#5eead4; --accent2:#93c5fd; }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    header{position:sticky;top:0;background:linear-gradient(180deg,rgba(20,24,32,.98),rgba(20,24,32,.9));backdrop-filter:saturate(120%) blur(6px);z-index:20;border-bottom:1px solid rgba(255,255,255,.06)}
+    .wrap{max-width:900px;margin:0 auto;padding:16px}
+    .title{font-weight:700;letter-spacing:.2px;font-size:18px}
+    .searchbar{display:flex;gap:10px;margin-top:10px}
+    input[type="search"],input[type="text"],input[type="number"],select{width:100%;padding:14px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.1);background:#0f131a;color:var(--text);outline:none}
+    input::placeholder{color:#8a94a7}
+    .tabs{display:flex;gap:8px;margin-top:12px}
+    .tab{flex:1;text-align:center;padding:10px 12px;border-radius:12px;background:#0f131a;border:1px solid rgba(255,255,255,.08);cursor:pointer}
+    .tab.active{background:linear-gradient(180deg,#0f131a,#101725);border-color:rgba(148,163,184,.25);box-shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 0 0 2px rgba(94,234,212,.15)}
+    .hint{color:var(--muted);font-size:12px;margin-top:6px}
+    .grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:14px}
+    @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
+    .card{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:14px}
+    .card h3{margin:0 0 6px;font-size:16px}
+    .badge{display:inline-block;padding:2px 8px;border-radius:999px;background:rgba(147,197,253,.12);color:var(--accent2);font-size:11px;margin-right:6px;border:1px solid rgba(147,197,253,.25)}
+    .tag{display:inline-block;margin:6px 6px 0 0;padding:4px 8px;border-radius:10px;background:#0f131a;border:1px dashed rgba(255,255,255,.12);color:#b6c2d6;font-size:11px}
+    .row{display:flex;gap:10px}
+    .row>*{flex:1}
+    .btn{padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:#0f131a;color:var(--text);cursor:pointer}
+    .btn.primary{background:linear-gradient(180deg,#0f131a,#132036);border-color:rgba(94,234,212,.35)}
+    .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid rgba(255,255,255,.12);border-radius:999px;font-size:12px}
+    .k{display:inline-block;min-width:1.4em;text-align:center;background:rgba(94,234,212,.15);color:#88ffeb;border:1px solid rgba(94,234,212,.35);border-radius:6px;padding:1px 4px;margin-right:4px}
+    mark{background:rgba(94,234,212,.2);padding:0 2px;border-radius:4px}
+    .footer{color:#7f8aa3;font-size:12px;margin:18px 0}
+    .hidden{display:none}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px}
   </style>
 </head>
 <body>
+  <header>
+    <div class="wrap">
+      <div class="title">🚑 EMS Protocols & Doses</div>
+      <div class="searchbar">
+        <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Search protocols, meds, keywords (e.g., 'adult airway', 'ketamine', 'brady')" />
+      </div>
+      <div class="tabs">
+        <button class="tab active" data-tab="protocols">Protocols</button>
+        <button class="tab" data-tab="meds">Meds</button>
+        <button class="tab" data-tab="calc">Dose Calc</button>
+      </div>
+      <div class="hint">Tip: Add this page to your home screen for 1‑tap access. Data never leaves your device.</div>
+    </div>
+  </header>
 
-<style id="theme-style">
-</style>
+  <main class="wrap">
+    <!-- Protocols -->
+    <section id="panel-protocols" class="panel">
+      <div id="protocols" class="grid"></div>
+    </section>
 
-<div style="text-align:right; margin-bottom: 0.5em;">
-  <button onclick="toggleDarkMode()" style="padding:0.5em 1em; background:#555; color:white; border:none; border-radius:5px; font-size:1em;">🌓 Toggle Dark Mode</button>
-</div>
+    <!-- Meds -->
+    <section id="panel-meds" class="panel hidden">
+      <div id="meds" class="grid"></div>
+    </section>
 
-  
-<h1>Paramedic Protocol Assistant</h1>
-<div style="text-align: right;">
-  <button onclick="toggleFormModal()" style="padding:0.5em 1em; background:#0d47a1; color:white; border:none; border-radius:5px; font-size:1em;">+ Add New Protocol</button>
-</div>
+    <!-- Calculator -->
+    <section id="panel-calc" class="panel hidden">
+      <div class="card">
+        <h3>Weight‑Based Dose Calculator</h3>
+        <div class="row">
+          <div>
+            <label class="hint">Medication</label>
+            <select id="calc-med"></select>
+          </div>
+          <div>
+            <label class="hint">Weight</label>
+            <div class="row">
+              <input id="wt" type="number" inputmode="decimal" placeholder="e.g. 70" />
+              <select id="unit"><option value="kg">kg</option><option value="lb">lb</option></select>
+            </div>
+          </div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div>
+            <label class="hint">mg/kg (override)</label>
+            <input id="mgkg" type="number" inputmode="decimal" placeholder="auto from med" />
+          </div>
+          <div>
+            <label class="hint">Max dose mg</label>
+            <input id="maxmg" type="number" inputmode="decimal" placeholder="auto from med" />
+          </div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div>
+            <label class="hint">Concentration (mg/mL)</label>
+            <input id="conc" type="number" inputmode="decimal" placeholder="e.g. 10" />
+          </div>
+          <div>
+            <label class="hint">Route</label>
+            <input id="route" type="text" placeholder="auto from med" />
+          </div>
+        </div>
+        <div style="margin-top:12px" class="row">
+          <button id="calc" class="btn primary">Calculate</button>
+          <button id="reset" class="btn">Reset</button>
+        </div>
+        <div id="result" class="mono" style="margin-top:12px"></div>
+      </div>
 
-  <label for="serviceFilter">Filter by Service:</label>
-  <select id="serviceFilter">
-    <option value="">All Services</option>
-  </select>
-  
-<label for="categoryFilter">Filter by Category:</label>
-<select id="categoryFilter">
-  <option value="">All Categories</option>
-</select>
-<input type="text" id="searchInput"
- placeholder="Type a question or keyword..." />
+      <div class="card">
+        <h3>Standard Dose → Volume</h3>
+        <p class="hint">Formula: (Dose ordered / Dose on hand) × Volume on hand = mL to draw. Or use concentration directly.</p>
+        <div class="row">
+          <div>
+            <label class="hint">Dose ordered</label>
+            <input id="std-dose-ordered" type="number" inputmode="decimal" placeholder="e.g. 5" />
+          </div>
+          <div>
+            <label class="hint">Dose on hand</label>
+            <input id="std-dose-onhand" type="number" inputmode="decimal" placeholder="e.g. 10" />
+          </div>
+          <div>
+            <label class="hint">Volume on hand (mL)</label>
+            <input id="std-vol-onhand" type="number" inputmode="decimal" placeholder="e.g. 1" />
+          </div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div>
+            <label class="hint">OR: Concentration (mg/mL)</label>
+            <input id="std-conc" type="number" inputmode="decimal" placeholder="e.g. 10" />
+          </div>
+          <div>
+            <label class="hint">Result</label>
+            <div id="std-result" class="mono" style="padding:12px;border:1px solid rgba(255,255,255,.12);border-radius:12px;min-height:44px"></div>
+          </div>
+        </div>
+        <div style="margin-top:12px" class="row">
+          <button id="std-calc" class="btn primary">Calculate</button>
+          <button id="std-reset" class="btn">Reset</button>
+        </div>
+      </div>
 
-  <div id="results"></div>
+      <div class="card">
+        <h3>IV Infusion (mcg/kg/min → gtts/min)</h3>
+        <p class="hint">Enter ordered dose, patient weight, drug in bag, bag volume, and drip set. We’ll compute mL/hr and gtts/min.</p>
+        <div class="row">
+          <div>
+            <label class="hint">Ordered (mcg/kg/min)</label>
+            <input id="iv-ordered" type="number" inputmode="decimal" placeholder="e.g. 5" />
+          </div>
+          <div>
+            <label class="hint">Weight</label>
+            <div class="row">
+              <input id="iv-wt" type="number" inputmode="decimal" placeholder="e.g. 70" />
+              <select id="iv-unit"><option value="kg">kg</option><option value="lb">lb</option></select>
+            </div>
+          </div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div>
+            <label class="hint">Drug in bag (mg)</label>
+            <input id="iv-bagmg" type="number" inputmode="decimal" placeholder="e.g. 400" />
+          </div>
+          <div>
+            <label class="hint">Bag volume (mL)</label>
+            <input id="iv-bagvol" type="number" inputmode="decimal" placeholder="e.g. 250" />
+          </div>
+          <div>
+            <label class="hint">Drip set (gtt/mL)</label>
+            <input id="iv-dripset" type="number" inputmode="decimal" placeholder="10 / 15 / 20 / 60" />
+          </div>
+        </div>
+        <div style="margin-top:12px" class="row">
+          <button id="iv-calc" class="btn primary">Calculate</button>
+          <button id="iv-reset" class="btn">Reset</button>
+        </div>
+        <div id="iv-result" class="mono" style="margin-top:12px"></div>
+      </div>
 
-  <script>
+      <div class="card">
+        <h3>Manual Drip Timing</h3>
+        <p class="hint">Target drops/min → drops per 10 seconds (÷6).</p>
+        <div class="row">
+          <div>
+            <label class="hint">Target (gtts/min)</label>
+            <input id="md-target" type="number" inputmode="decimal" placeholder="e.g. 30" />
+          </div>
+          <div>
+            <label class="hint">Result</label>
+            <div id="md-result" class="mono" style="padding:12px;border:1px solid rgba(255,255,255,.12);border-radius:12px;min-height:44px"></div>
+          </div>
+        </div>
+        <div style="margin-top:12px" class="row">
+          <button id="md-calc" class="btn primary">Calculate</button>
+          <button id="md-reset" class="btn">Reset</button>
+        </div>
+      </div>
 
+      <div class="card">
+        <h3>Fluid Over Time</h3>
+        <p class="hint">Given volume, drip set, and time, compute gtts/min and mL/hr.</p>
+        <div class="row">
+          <div>
+            <label class="hint">Volume (mL)</label>
+            <input id="fo-volume" type="number" inputmode="decimal" placeholder="e.g. 1000" />
+          </div>
+          <div>
+            <label class="hint">Drip set (gtt/mL)</label>
+            <input id="fo-dripset" type="number" inputmode="decimal" placeholder="10 / 15 / 20 / 60" />
+          </div>
+          <div>
+            <label class="hint">Time (min)</label>
+            <input id="fo-time" type="number" inputmode="decimal" placeholder="e.g. 60" />
+          </div>
+        </div>
+        <div style="margin-top:12px" class="row">
+          <button id="fo-calc" class="btn primary">Calculate</button>
+          <button id="fo-reset" class="btn">Reset</button>
+        </div>
+        <div id="fo-result" class="mono" style="margin-top:12px"></div>
+      </div>
 
-function toggleFormModal() {
-  populateServiceAndCategoryDropdowns();
+      <div class="card">
+        <h3>APGAR Calculator</h3>
+        <div class="row">
+          <div>
+            <label class="hint">Appearance</label>
+            <select id="apgar-a"><option value="0">0: Blue/Pale</option><option value="1">1: Body pink, limbs blue</option><option value="2">2: Completely pink</option></select>
+          </div>
+          <div>
+            <label class="hint">Pulse</label>
+            <select id="apgar-p"><option value="0">0: Absent</option><option value="1">1: &lt;100</option><option value="2">2: ≥100</option></select>
+          </div>
+          <div>
+            <label class="hint">Grimace</label>
+            <select id="apgar-g"><option value="0">0: No response</option><option value="1">1: Grimace</option><option value="2">2: Cough/Sneeze/Cry</option></select>
+          </div>
+          <div>
+            <label class="hint">Activity</label>
+            <select id="apgar-ac"><option value="0">0: Limp</option><option value="1">1: Some flexion</option><option value="2">2: Active</option></select>
+          </div>
+          <div>
+            <label class="hint">Respiration</label>
+            <select id="apgar-r"><option value="0">0: Absent</option><option value="1">1: Slow/Irregular</option><option value="2">2: Good cry</option></select>
+          </div>
+        </div>
+        <div style="margin-top:12px" class="row">
+          <button id="apgar-calc" class="btn primary">Calculate</button>
+          <button id="apgar-reset" class="btn">Reset</button>
+        </div>
+        <div id="apgar-result" class="mono" style="margin-top:12px"></div>
+      </div>
 
-  const modal = document.getElementById("entryModal");
-  if (modal) {
-    modal.style.display = modal.style.display === "none" ? "block" : "none";
-  }
-}
-    const protocols = [
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Admin – General",
-    "title": "Medical Director",
-    "content": [
-      "ℹ️ Pafford's Primary Medical Director is Michael Seymour.",
-      "ℹ️ Pafford's Associate Medical Director is Karl Wagenhauser."
-    ],
-    "last_updated": "May 08, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Universal Care Guidelines",
-    "title": "Pediatric Considerations",
-    "content": [
-      "ℹ️ Pediatric Protocols are applicable to patients below 14 years of age and/or weigh > 40 KG, whichever comes first."
-    ],
-    "last_updated": "May 08, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Universal Care Guidelines",
-    "title": "Geriatric Considerations",
-    "content": [
-      "ℹ️ Geriatric Protocols are applicable to patients who are 65 years of age or older."
-    ],
-    "last_updated": "May 08, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Universal Care Guidelines",
-    "title": "Reduced Medication Doses",
-    "content": [
-      "ℹ️ Reduced medication doses apply to patients with renal disease, hepatic disease (liver), pediatrics, and/or geriatrics."
-    ],
-    "last_updated": "May 08, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Cardiovascular Protocols",
-    "title": "Adult Bradycardia",
-    "content": [
-      "💉 HR < 50 BPM & stable administer Atropine @ 1 mg (3mg max) IV, repeat as needed to maintain HR.",
-      "💉 HR < 50 BPM & unstable e.g. Hypotension, STEMI, High Degree Heart Block, or Heart Transplant proceed with transcutaneous pacing.",
-      "ℹ️ If pacing fails consider Epinephrine @ 2-10 mcg/minute IV. May consider Push-Dose EPI of 10-20 mcg up to x2 to maintain MAP > 65 mmHG.",
-      "ℹ️ If pacing succeeds and patient presents with hypotension consider Norepinephrine push-dose 16-32 mcg up to two times."
-    ],
-    "last_updated": "May 10, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Cardiovascular Protocols",
-    "title": "Pediatric Bradycardia",
-    "content": [
-      "💉 For infants and newborns, initiate CPR for HR > 60 BPM and signs of poor perfusion (AMS, Hypoxia, Hypotension, Delayed Capillary Refill, Cyanosis).",
-      "💉 For the bradycardic pediatric that presents with hypotension consider Epinephrine @ 0.01 mg/kv IV (repeatable once).",
-      "💉 For the bradycardic pediatric that presents with hypotension consider Atropine @ 0.02 mg/kg, minimum dose of 0.1 mg, maximum dose 1mg IV (repeatable once).",
-      "ℹ️ Potential Causes - ",
-      "⚕️ Hypovolemia",
-      "⚕️ Hypoxia",
-      "⚕️ Hydrogen (acidosis)",
-      "⚕️ Myocardial Infarction",
-      "⚕️ Hypokalemia/Hyperkalemia",
-      "⚕️ Hypoglycemia",
-      "⚕️ Hypothermia",
-      "⚕️ Toxins/Overdose",
-      "⚕️ Tamponade",
-      "⚕️ Tension Pneumothorax",
-      "⚕️ Thrombus - Central or Peripheral",
-      "⚕️ Trauma",
-      "⚕️ Hyperthyroidism"
-    ],
-    "last_updated": "May 10, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Cardiovascular Protocols",
-    "title": "Adult Bradycardia",
-    "content": [
-      "🫀 HR < 50 BPM & stable administer Atropine @ 1 mg (3mg max) IV, repeat as needed to maintain HR.",
-      "🫀 HR < 50 BPM & unstable e.g. Hypotension, STEMI, High Degree Heart Block, or Heart Transplant proceed with transcutaneous pacing.",
-      "💉 If pacing fails consider Epinephrine @ 2-10 mcg/minute IV. May consider Push-Dose EPI of 10-20 mcg up to x2 to maintain MAP > 65 mmHG.",
-      "💉 If pacing succeeds and patient presents with hypotension consider Norepinephrine push-dose 16-32 mcg up to two times.",
-      "ℹ️ Potential Causes - ",
-      "⚕️ Hypovolemia",
-      "⚕️ Hypoxia",
-      "⚕️ Hydrogen (acidosis)",
-      "⚕️ Myocardial Infarction",
-      "⚕️ Hypokalemia/Hyperkalemia",
-      "⚕️ Hypoglycemia",
-      "⚕️ Hypothermia",
-      "⚕️ Toxins/Overdose",
-      "⚕️ Tamponade",
-      "⚕️ Tension Pneumothorax",
-      "⚕️ Thrombus - Central or Peripheral",
-      "⚕️ Trauma",
-      "⚕️ Hyperthyroidism"
-    ],
-    "last_updated": "May 10, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Cardiovascular Protocols",
-    "title": "Chest Pain / Acute Coronary Syndrome (ACS) / ST-Segment Elevation Myocardical Infarction (STEMI)",
-    "content": [
-      "🫁 Administer oxygen if 02 SAT < 94%",
-      "💊 Aspirin 324 mg PO",
-      "🫀 12-Lead EKG",
-      "💉 Assess Blood Glucose",
-      "💉 Vascular Access",
-      "💊 Nitroglycerin 0.4 mg SL every 5 minutes if Chest Pain persists & BP > 100 mmHG (max of 3 doses) - Withhold if pt has taken Viagra or Allergic",
-      "ℹ️ Potential Signs -",
-      "⚕️ Chest Pain or Discomfort in areas of the body (Jaw, Arm, Epigastrium) of suspected Cardiac Origin.",
-      "⚕️ Shortness of Breath",
-      "⚕️ Diaphoresis",
-      "⚕️ Nausea/Dizziness and/or Vomiting.",
-      "⚕️ Syncope/Shock",
-      "⚕️ CHF"
-    ],
-    "last_updated": "May 17, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Cardiovascular Protocols",
-    "title": "Left Ventricular Assist Device (LVAD) l Right Ventricular Assist Device (RVAD) l Biventricular Assist Device (BiVAD) with symptoms of Cardiovascular Compromise",
-    "content": [
-      "🫁 Administer Oxygen if O2 Sat < 94% ",
-      "🫀 Assess for pump malfunctions; Assess for alarms, Auscultate for pump sound (\"hum\"). Signs of perfusion including pallor, , AMS.",
-      "🩻 If VAD malfunctioned; Contact VAD Coordinator (# on Device), Verify connections to the system controller, have pt stop all activity, reassess.",
-      "🩻 If Cardiac Arrest withhold CPR if evidence exists pump is still functioning-contact Med Control/VAD Coordinator prior to CPR if possible.",
-      "🫀 Initiate CPR if pump is confirmed to have stopped and troubleshooting efforts to restart it fail, and the patient has no signs of life. ",
-      "🚑 If patient's complaint is related to the VAD transport to where the device was placed/VAD Ready facility if condition & time permits.",
-      "ℹ️ Special Considerations -",
-      "⚕️ The blood pressure, if measurable, may not be an accurate measure of perfusion.",
-      "⚕️ The \"normal\" underlying rhythm may be V-Fib, Ventricular Tach, or Asystole/PEA.",
-      "⚕️ Bring the patient's travel bag w/ back-up controller & spare batteries, power module, cable, and display module.",
-      "⚕️ Most common cause of VAD failure is low batteries/battery failures.",
-      "⚕️ NIBP monitors are usually ineffective at calculating blood pressures, although the MAP is usually accurate."
-    ],
-    "last_updated": "May 17, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Cardiovascular Protocols",
-    "title": "Suspected Stroke / Transient Ischemic Attack (TIA)",
-    "content": [
-      "🫁 Administer Oxygen if O2 Sat < 94% ",
-      "🫀 12-Lead EKG",
-      "💉 Assess Blood Glucose",
-      "🩻 Perform \"BE FAST\" stroke screen.",
-      "🚑 Early Hospital activation per local stroke plan.",
-      "💉 Vascular Access - Limit IV Sticks, especially if patient is eligible for thrombolytics.",
-      "🫀 Cardiac Monitoring - (Treat arrhythmias per appropriate guideline) - Do Not Treat Blood Pressures",
-      "ℹ️ Stroke Scale must be include - ",
-      "⚕️ Facial Smile/Grimace - Ask patient to smile.",
-      "⚕️ Arm Drift - Close yes and hold out arms for count of 10 seconds.",
-      "⚕️ Speech - Ask patient to say \"You can't teach an old dog new tricks.\"",
-      "⚕️ Assess for vision changes, sensory neglect, aphasia, or new onset of other neurological symptoms.",
-      "⚕️ Consider recent hx of trauma, seizure, surgery, a-fib, hemorrhage,, and actively taking anti-coagulants to be pertinent. ",
-      "⚕️ For positive stroke scale with time of onset < 4 1/2 hours transport to facility with thrombolytic agents.",
-      "⚕️ For positive stroke scale with time of onset < 24 hours transport to facility capable of mechanical thrombectomies.",
-      "⚕️ Last Known Well is the last time patient was known to be at baseline, not the time patient woke up with symptoms."
-    ],
-    "last_updated": "May 17, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Cardiovascular Protocols",
-    "title": "Syncope / Near Syncope",
-    "content": [
-      "Syncope is defined as both the loss of consciousness & the loss of postural tone and resolves spontaneously without medical intervention",
-      "Near Syncope is defined as symptoms of syncope w/o a loss of consciousness/loss of postural tone (Diaphoresis, Lightheaded, Visual Changes, Weak)",
-      "🫁 Supplemental Oxygen if O2 Sat < 94%",
-      "🫀 12-Lead EKG w/ Cardiac Monitoring (Treat dysrhythmias per appropriate protocol)",
-      "💉 Assess Blood Glucose",
-      "ℹ️ High-Risk Causes of Syncope include;",
-      "🫀 Myocardial Infarction",
-      "⚕️ Aortetic Stenosis",
-      "⚕️ Hypertrophic Cardiomyopathy (Consider in young patient with unexplained syncope during exertion).",
-      "⚕️ Pulmonary Embolus",
-      "⚕️ Aortic Dissection",
-      "⚕️ Dysrhytmia",
-      "⚕️ Mitral Valve Prolapse ",
-      "⚕️ Intracranial Hemorrhage",
-      "⚕️ Transient Ischemic Attack or Stroke",
-      "⚕️ Vertebral Basiclar Insufficiency",
-      "⚕️ Ruptured Ectopic Pregnancy",
-      "⚕️ GI Bleed",
-      "⚕️ Aortic Rupture"
-    ],
-    "last_updated": "May 18, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Cardiovascular Protocols",
-    "title": "Tachycardia with a Pulse",
-    "content": [
-      "ℹ️ Tachycardia is defined as a Heart Rate greater than 100 BPM in adults or relative tachycardia in pediatric patients.",
-      "🫁 Supplemental Oxygen if O2 Sat < 94%",
-      "🫀 12-LEAD EKG w/ continuous Cardiac Monitoring",
-      "💉 Assess Blood Glucose",
-      "💉 Vascular Access",
-      "💉 IV Fluids (as needed)",
-      "ℹ️ Symptomatic Criteria - ",
-      "⚕️Dyspnea ",
-      "⚕️Chest Pain",
-      "⚕️Palpitations",
-      "⚕️Weakness",
-      "⚕️Unstable / Hypotensive - ",
-      "⚕️Altered Mental Status",
-      "⚕️Hypoxemia",
-      "⚕️Pulmonary Edema",
-      "⚕️Hypotension, MAP < 65 mmHG or SBP < 70+ 2 x (age in years)",
-      "⚕️If HR > 150 in Adult or > 180 in a Pediatric patient consider Synchronized Cardioversion (A-Dose 1: 70J, A-Dose 2: 120 J, A-Dose 3: 150 J, Dose 4+: 200 J) (P-Dose 1: 0.5-1 j/kg, P-Dose 2+: 2 j/kg)"
-    ],
-    "last_updated": "May 18, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Cardiovascular Protocols",
-    "title": "Torsades",
-    "content": [
-      "Consider Magnesium Sulphate @ 2 mg IVP/1 minute.",
-      "For Pediatrics consult OLMC for permission & appropriate dose."
-    ],
-    "last_updated": "May 18, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Cardiovascular Protocols",
-    "title": "Supraventricular Tachycardia (SVT) l Proxisimal (PSVT)",
-    "content": [
-      "ℹ️ In the symptomatic patient consider (Check Tachycardia Protocol to determine symptomatic v unstable); ",
-      "💉 Valsalva Maneuver",
-      "💉 In the Adult patient consider Adenosine 12 mg IV Rapid Push, repeat one time if SVT/PSVT persists.",
-      "💉 In the Pediatric patient push 0.1 mg/kg IV Rapid Push (maximum push dose 6 mg), repeat 0.2 mg/kg IV Rapid Push (maximum push dose 12 mg) one time if SVT/PSVT persists.",
-      "💉 In the Unstable Adult Patient cardioversion doses are as followed; Dose 1: 70 Joules, Dose 2: 120 Joules, Dose 3: 150 Joules, and then subsequent shocks at Dose 4+: 200 Joules. ",
-      "💉 In the Unstable Pediatric Patient cardioversion doses are as followed; Dose 1: 0.5-1 j/kg, Dose 2: 2 j/kg."
-    ],
-    "last_updated": "May 18, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Cardiovascular Protocols",
-    "title": "Atrial Fibrillation  l Atrial Flutter",
-    "content": [
-      "ℹ️ In the adult patient w/ Atrial Fibrillation or Atrial Flutter HR goal should be < 125 BPM.",
-      "💉 IV Metoprolol @ 5 mg IV q 5 min, repeat one time in 5 minutes if needed. (Avoid in Asthma, COPD, and Acute Heart Failure).",
-      "💉 IV Diltiazem (if unable to give Metoprolol) @ 0.25 mg/kg/IVP O/V 5 mintues. IF HR does not decrease by 20% and patient remains symptomatic consider 0.35 mg/kg/IVP o/v 5 minutes (0.80 x HR)",
-      "ℹ️ CONSULT OLMC FOR PEDIATRIC TREATMENT"
-    ],
-    "last_updated": "May 18, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "Cardiovascular Protocols",
-    "title": "Ventricular Tachycardia (Pulse) l Wide Complex Tachycardia (Pulse) l Monomorphic Ventricular Tachycardia (Pulse)",
-    "content": [
-      "💉 In the Adult patient administer Amiodarone @ 150 mg/IVP/ O/V 10 minutes. If ineffective or recurrent contact OLMC ",
-      "💉 In the Pediatric patient administer 5 mg/kg IV over 20-60 minutes, repeat if ineffective or recurrent contact OLMC."
-    ],
-    "last_updated": "May 18, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "Pain Management",
-    "content": [
-      "ℹ️ For moderate to severe pain, analgesics include:",
-      "💉 Fentanyl, preferred in most cases - Adult (1 mcg/kg IV/IM/IN (max initial dose of 100 mcg, PRN 0.5 mcg/kg x2 (max single repeat dose of 50 mcg, total max of 250 mcg). ",
-      "💉 Morphine Sulfate - 0.1 mg/kg IV/IM (max initial single dose 5 mg), may repeat initial dose after 5 min for maximum total dose of 10 mg.",
-      "💉 Ketorolac - 15 M IV or 30 MG IM",
-      "💉 Consider administration  of antiemetics to prevent nausea.",
-      "ℹ️ Vascular Access preferred & patient's should be on a Cardiac Monitor w/ ETC02 Monitoring."
-    ],
-    "last_updated": "May 18, 2025"
-  },
-      
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "Abdominal Pain",
-    "content": [
-      "If 02 SAT < 94 % administer supplemental oxygen ",
-      "12-LEAD EKG",
-      "💉 Blood Glucose ",
-      "💉 Vascular Access.",
-      "💉 If nausea or vomiting, consider ondansetron.",
-      "Cardiac Monitor - Monitor for and threat arrhythmias (if present, refer to appropriate guideline)",
-      "ℹ️ Provide evaluation and management of pain per Pain Management Guideline",
-      "ℹ️ Pertinent Assessment Findings - ",
-      "Rebound Tenderness",
-      "Guarding",
-      "Abdominal Distension",
-      "Abdominal tympany to percussion.",
-      "Tenderness focial to a specific abdominal quadrant.",
-      "Presence of “Pulsatile” abdominal mass.",
-      "Absence of or significant inequality of femoral or distal arterial pulses in lower extremities. ",
-      "Hyper or hypothermia.",
-      "Rectal Bleeding, Hematemesis, Vaginal Bleeding.",
-      "Juandice."
-    ],
-    "last_updated": "May 20, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "Abuse & Maltreatment",
-    "content": [
-      "EMS role is to;",
-      "Document Concerns.",
-      "Assess potentially serious injuries.",
-      "Disclose concerns to appropriate authorities.",
-      "Initiate help to get the patient and any other vulnerable persons at the scene into a safe situation.",
-      "Not to investigate or intervene beyond the steps above.",
-      "Leave further investigation to law enforcement personnel.",
-      "Abuse/Maltreatment - Any act or series of acts of commission or omission by a caregiver or person in a position of power over the pt that results in harm, potential for harm, or threat of harm.",
-      "Child abuse/Maltreatment - Any act or series of acts of commission or omission by a parent or other caregiver that results in harm, potential for heart, or threat of harm to a child. ",
-      "Human Trafficking - When people are abducted or coerced into service (e.g. being forced into servitude without compensation and/or prostitution)."
-    ],
-    "last_updated": "May 20, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "Agitated or Violent Patients l Behavioral Emergency",
-    "content": [
-      "OLM REQUIRED PRIOR TO PHYSICAL/CHEMICAL RESTRAINTS",
-      "Consider Ketamine IM-LATERAL THIGH @ 3 mg/kg (max of 300 mg) IM in lateral thigh. May be given through clothing if there are crew safety concerns.",
-      "OR",
-      "Ketamine IV @ 1 mg/kg (max dose of 150 mg) IV.",
-      "Consider Versed 5 mg/IM/IN/slow IV. Repeat once if needed. Allow time for IM/IN medications to work prior to administering additional doses.",
-      "DO NOT GIVE KETAMINE IF PT HAS UNDERLYING CONDITIONS IN WHICH INCREASED BLOOD PRESSURE WOULD POSE A RISK OF COMPLICATIONS E.G. AORTIC DISSECTION, MI, HTN.",
-      "DO NOT GIVE VERSED IF PT HAS HX OF HYPERSENSITIVITY, SEVERE RESP DEPRESSION, OR SLEEP APNEA."
-    ],
-    "last_updated": "May 20, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "POST-INTUBATION l POST INTUBATION l",
-    "content": [
-      "Consider Ketamine @ 1mg/kg IVP slow, repeat every 20 minutes as needed. ",
-      "OR INFUSION @ 1mg/min-titrate to 0.5 mg/min up to 2 mg/min IV to maintain sedation.",
-      "Consider Versed 0.3 mg/kg IV (max push dose 5mg), repeat as needed every 10 minutes (max total dose 20 mg.)",
-      "DO NOT GIVE KETAMINE IF PT HAS UNDERLYING CONDITIONS IN WHICH INCREASED BLOOD PRESSURE WOULD POSE A RISK OF COMPLICATIONS E.G. AORTIC DISSECTION, MI, HTN.",
-      "DO NOT GIVE VERSED IF PT HAS HX OF HYPERSENSITIVITY, SEVERE RESP DEPRESSION, OR SLEEP APNEA."
-    ],
-    "last_updated": "May 20, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "Anaphylaxis and Allergic Reaction",
-    "content": [
-      "Anaphylaxis - is character by the acute onset of urticaria w/ either resp compromise or low BP or signs of end-organ dysfunction.",
-      "OR ",
-      "Hypotension in patient after exposure to a known allergen (In an adult SBP less than 90).",
-      "OR ",
-      "Two or more signs & symptoms of an allergic reaction occuring rapidly after exposure to a likely allergen.",
-      "Non-Anaphylactic Allergic Reaction - Signs involving only one organ system.",
-      "If SBP < 90 mmHG or airway compromise consider Epi 1:1 (1 mg/1ml) ",
-      "Vascular Access",
-      "Cardiac Monitor",
-      "Epinephrine IV Infusion in conjunction with at least 60 mL/kg isotonic fluid boluses.",
-      "For urticaria or pruitis, administer Diphenhydramine @ 12.5 - 25 mg IV/IM-ADULT l 0.5 mg/kg IV/IM (max of 12.5 mg)-PEDIATRIC l ",
-      "Consider Solumedrol @ 125 mg IVP-ADULT l 2 mg/kg IV (max 125 mg)-PED",
-      "If respiratory distress continues or worsens consider CPAP/BIPAP",
-      "Auto-PEEP should be matched to maximize recruitment.",
-      "If respiratory failure develops consider Advanced Airway Management",
-      "Pertinent Assessment Findings -",
-      "Presence or absence of angioedema",
-      "Presence or absence of respiratory compromise.",
-      "Presence or absence of circulatory compromise.",
-      "Localized or generalized uritcaria",
-      "Response to therapy."
-    ],
-    "last_updated": "May 20, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "Altered Mental Status",
-    "content": [
-      "12-Lead EKG",
-      "Blood Glucose",
-      "Vascular Access",
-      "IV Fluids (if needed)",
-      "Cardiac Monitor-Treat Dysrhythmias per appropriate guideline.",
-      "Special Considerations; Use the mneomic AEIOU-TIPS ",
-      "A - Alcohol, Abuse, Atypical Mgiraine",
-      "E - Epilepsy, Electrolytes",
-      "I - Insulin (Hypoglycemia)",
-      "O - Oxygen, Overdose",
-      "U - Uremia (Kidney Failure).",
-      "T- Trauma, Tumor",
-      "I - Infection",
-      "P- Psych, Poisoning",
-      "S- Seizure, Subarachnoid Hemorrhage, Sepsis)"
-    ],
-    "last_updated": "May 20, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "Altered Mental Status",
-    "content": [
-      "12-Lead EKG",
-      "Blood Glucose",
-      "Vascular Access",
-      "IV Fluids (if needed)",
-      "Cardiac Monitor-Treat Auto-PEEP should be matched to maximize recruitment  per appropriate guideline.",
-      "Special Considerations; Use the mnemonic AEIOU-TIPS ",
-      "A - Alcohol, Abuse, Atypical Migraine",
-      "E - Epilepsy, Electrolytes",
-      "I - Insulin (Hypoglycemia)",
-      "O - Oxygen, Overdose",
-      "U - Uremia (Kidney Failure).",
-      "T- Trauma, Tumor",
-      "I - Infection",
-      "P- Psych, Poisoning",
-      "S- Seizure, Subarachnoid Hemorrhage, Sepsis)"
-    ],
-    "last_updated": "May 20, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "Hyperglycemia",
-    "content": [
-      "12-lead EKG",
-      "Blood Glucose",
-      "Vascular Access",
-      "Glucose > 250 mg/Dl with S&S of dehydration, vomiting, abd pain, and/or altered LOC consider NS Bolus up to 2 L then LR.",
-      "Cardiac Monitor - Treat arrhythmia's as they present.",
-      "If findings of hyperkalemia present (hemodynamic compromise w/ QRS Duration > 120ms) administter;",
-      "Calcium Chloride or Calcium Gluconate",
-      "Sodium Bicarb-GIVEN THROUGH A SEPARATE LINE FROM CALCIUM CHLORIDE",
-      "Pertinent Findings ; ",
-      "Concomitant Trauma",
-      "“Fruity Breath”",
-      "Rapid-Deep Respirations “Kussmaul Respirations”",
-      "Consider causes for Hyperglycemia, 3I’s “Insulin, Ischemia, Infection”"
-    ],
-    "last_updated": "May 20, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "Hypoglycemia",
-    "content": [
-      "Supplemental Oxygen if 02 SAT < 94 %",
-      "12-Lead EKG",
-      "Assess Blood Glucose",
-      "If blood glucose is < 60 mg/dL or less administer one of the following: ",
-      "Conscious Patient w/ Patent Airway: Oral Glucose",
-      "Unconscious Patient/Unable to Protect Airway: Administer Dextrose 10% until mental status improves (max adult dose of 25 g).",
-      "FOR PEDIATRICS/INFANT PEDIATRIC HYPOGLYCEMIA administer until mental status improves or maximum dose of 0.5-1 g/kg IV.",
-      "OR ",
-      "IF UNABLE TO PREFORM ABOVE TREATMENTS REMOVE OR DISABLED INSULIN PUMP (IF PRESENT).",
-      "Glucagon 1 mg/IM/IN-ADULT. < 25 KG: 0.5 mg/IM/IN-PED."
-    ],
-    "last_updated": "May 20, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "Nausea/Vomiting",
-    "content": [
-      "12-Lead EKG",
-      "Blood Glucose",
-      "Vascular Access",
-      "Consider Zofran 4 MG SL/IV/PO, repeat one time after 5 minutes (max of 8 mg)-ADULT & PED",
-      "If dystonic/extrapyramidal effects occurs due to Zofran administer Diphenhydramine 12.5-25 mg IV/IM-ADULT 0.5mg/kg IV/IM-PED",
-      "Safety Conditions - ",
-      "Zofran should be avoided in patient’s with a prolonged QT Interval due to risk of torsades.",
-      "For very young patients, Zofran ca be sedating."
-    ],
-    "last_updated": "May 20, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "Seizure",
-    "content": [
-      "12-Lead EKG",
-      "Blood Glucose",
-      "Vascular Access",
-      "Midazolam @ 0.2 mg/kg (max of 10 mg) IM/IN or 5 mg IV-ADULT, 0.2 mg/kg (max 10mg) IM/IN or 5 mg IV-PED. Repeat dose x1 in 5m",
-      "OR",
-      "Lorazepam @ 2 mg IV or 4 mg IM-ADULT, 0.05 mg/kg IV/IM (Max dose of 2 mg)",
-      "Key Documentation Elements - ",
-      "Actively seizing during transport and time of seizure onset/cessation.",
-      "Onset, focality, direction of eye deviation.",
-      "Concurrent symptoms of apnea, cyanosis, vomiting, bowel/bladder incontinence, or fever",
-      "Medication amts/routes given by bystanders or pre-hospital clinicians.",
-      "Neuro status (GCS), nystagmus, pupil size, focal neuro deficit, or signs of stroke).",
-      "Blood Glucose Level"
-    ],
-    "last_updated": "May 20, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "Shock",
-    "content": [
-      "If 02 SAT < 94 % administer oxygen.",
-      "12-Lead EKG",
-      "Blood Glucose",
-      "Vascular Access",
-      "IV Fluid w/ goal of MAP = 65 (30 ml/kg-ADULT), (20 ml/kg-PED).",
-      "If shock unresponsive to IV Fluids consider;",
-      "Norepinephrine 2-20 mcg/minute or push-dose Epi of 16-32 mcg (can repeat x2)-ADULT",
-      "Epinephrine 2-10 mcg/minute via IVINF or push-dose @10-20 mcg e/v two minutes(max of 2 doses) - ADULT",
-      "Epinephrine 10 mcg IVP e/v 5 minutes titrated to age appropriate SBP(SBP+(2 x Age). Max of two doses-PED",
-      "Hx adrenal insufficiency/long-term steroid dependence/fluid-refractory shock give Solumedrol-125mg-IV-ADULT or 2mg/kg-IV",
-      "DO NOT ADMINISTER VASOPRESSOR IF HYPOTENSION DUE TO BLOOD VOLUME DEFICIT.",
-      "Pertinent Findings - ",
-      "Decreased perfusion manifested by AMS, Abnormal Cap Refill, Pulses, and/or Urine Output (1 ml/kg/hr)."
-    ],
-    "last_updated": "May 20, 2025"
-  },
-  {
-    "service": "Pafford EMS – Arkansas",
-    "category": "General Medical Protocols",
-    "title": "Sickle Cell Pain Crisis",
-    "content": [
-      "Oxygen if 02 sat < 94%.",
-      "12-Lead EKG",
-      "Blood Glucose",
-      "Vascular Access",
-      "Consider IV Fluids up to 30ml/kg",
-      "Treat pain according to Pain Management Guideline"
-    ],
-    "last_updated": "May 20, 2025"
-  }
-];
+      <div class="card">
+        <h3>GCS Calculator</h3>
+        <div class="row">
+          <div>
+            <label class="hint">Eye (E)</label>
+            <select id="gcs-e"><option value="1">1: None</option><option value="2">2: To pain</option><option value="3">3: To voice</option><option value="4" selected>4: Spontaneous</option></select>
+          </div>
+          <div>
+            <label class="hint">Verbal (V)</label>
+            <select id="gcs-v"><option value="1">1: None</option><option value="2">2: Incomprehensible</option><option value="3">3: Inappropriate</option><option value="4">4: Confused</option><option value="5" selected>5: Oriented</option></select>
+          </div>
+          <div>
+            <label class="hint">Motor (M)</label>
+            <select id="gcs-m"><option value="1">1: None</option><option value="2">2: Extensor</option><option value="3">3: Flexor</option><option value="4">4: Withdraws</option><option value="5">5: Localizes</option><option value="6" selected>6: Obeys</option></select>
+          </div>
+        </div>
+        <div style="margin-top:12px" class="row">
+          <button id="gcs-calc" class="btn primary">Calculate</button>
+          <button id="gcs-reset" class="btn">Reset</button>
+        </div>
+        <div id="gcs-result" class="mono" style="margin-top:12px"></div>
+      </div>
 
-    
-function populateServiceFilter() {
-      const categories = [...new Set(protocols.map(p => p.category))];
-      const categorySelect = document.getElementById("categoryFilter");
-      categorySelect.innerHTML = '<option value="">All Categories</option>';
-      categories.forEach(cat => {
-        const opt = document.createElement("option");
-        opt.value = cat;
-        opt.textContent = cat;
-        categorySelect.appendChild(opt);
-      });
+      <div class="card">
+        <h3>Oxygen Duration</h3>
+        <div class="row">
+          <div>
+            <label class="hint">Cylinder</label>
+            <select id="o2-cylinder">
+              <option value="0.16">D (0.16)</option>
+              <option value="0.28" selected>E (0.28)</option>
+              <option value="1.56">M (1.56)</option>
+              <option value="2.41">G (2.41)</option>
+              <option value="3.14">H (3.14)</option>
+            </select>
+          </div>
+          <div>
+            <label class="hint">Pressure (psi)</label>
+            <input id="o2-psi" type="number" inputmode="decimal" placeholder="e.g. 2000" />
+          </div>
+          <div>
+            <label class="hint">Residual (psi)</label>
+            <input id="o2-res" type="number" inputmode="decimal" value="200" />
+          </div>
+          <div>
+            <label class="hint">Flow (L/min)</label>
+            <input id="o2-flow" type="number" inputmode="decimal" placeholder="e.g. 15" />
+          </div>
+        </div>
+        <div style="margin-top:12px" class="row">
+          <button id="o2-calc" class="btn primary">Calculate</button>
+          <button id="o2-reset" class="btn">Reset</button>
+        </div>
+        <div id="o2-result" class="mono" style="margin-top:12px"></div>
+      </div>
 
+      <div class="card">
+        <h3>Vent Settings (IBW & TV)</h3>
+        <p class="hint">Quick tidal volume planner using IBW (Devine). Always follow clinical judgment & protocols.</p>
+        <div class="row">
+          <div>
+            <label class="hint">Sex</label>
+            <select id="vent-sex"><option value="male">Male</option><option value="female">Female</option></select>
+          </div>
+          <div>
+            <label class="hint">Height</label>
+            <div class="row">
+              <input id="vent-height" type="number" inputmode="decimal" placeholder="e.g. 70" />
+              <select id="vent-hunit"><option value="in">in</option><option value="cm">cm</option></select>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:12px" class="row">
+          <button id="vent-calc" class="btn primary">Calculate</button>
+          <button id="vent-reset" class="btn">Reset</button>
+        </div>
+        <div id="vent-result" class="mono" style="margin-top:12px"></div>
+      </div>
 
-      const services = [...new Set(protocols.map(p => p.service))];
-      const select = document.getElementById('serviceFilter');
-      services.forEach(service => {
-        const option = document.createElement('option');
-        option.value = service;
-        option.textContent = service;
-        select.appendChild(option);
-      });
-    }
+      <div class="card">
+        <h3>Import / Export Your Data</h3>
+        <p class="hint">Your protocols & meds are stored locally in your browser. You can edit the JSON below or export/import a file.</p>
+        <div class="row">
+          <button id="save-json" class="btn">Save to Browser</button>
+          <button id="export-json" class="btn">Export .json</button>
+          <input id="import-file" type="file" accept="application/json" class="btn" />
+        </div>
+        <textarea id="json" rows="10" style="width:100%;margin-top:10px;border-radius:12px;padding:12px;background:#0f131a;color:var(--text);border:1px solid rgba(255,255,255,.12)"></textarea>
+      </div>
+    </section>
 
-    function searchProtocols() {
-      const query = document.getElementById('searchInput').value.toLowerCase();
-      const serviceFilter = document.getElementById("serviceFilter").value;
-      const categoryFilter = document.getElementById("categoryFilter").value;
-      const results = document.getElementById('results');
-      results.innerHTML = '';
-
-      const matched = protocols.filter(p => {
-        const inService = !serviceFilter || p.service === serviceFilter;
-        const inContent = (p.title + p.category + p.content.join(' ')).toLowerCase().includes(query);
-        const inCategory = !categoryFilter || p.category === categoryFilter;
-        return inService && inCategory && inContent;
-      });
-
-      matched.forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'protocol';
-        div.innerHTML = `
-          <h3>${p.title}</h3>
-          <small><strong>Service:</strong> ${p.service}<br>
-          <strong>Category:</strong> ${p.category}<br>
-          <strong>Last Updated:</strong> ${p.last_updated}</small>
-          <ul>${p.content.map(c => `<li>${c}</li>`).join('')}</ul>
-        `;
-        results.appendChild(div);
-      });
-    }
-
-    document.getElementById('searchInput').addEventListener('input', searchProtocols);
-    document.getElementById('serviceFilter').addEventListener('change', searchProtocols);
-
-    populateServiceFilter();
-    searchProtocols();
-  </script>
-
-  <hr />
-  
-  
-<div id="entryModal" style="display:none; position:fixed; top:5%; left:5%; width:90%; max-height:90%; overflow:auto; background:white; border:2px solid #0d47a1; border-radius:10px; padding:1em; z-index:9999; box-shadow: 0 0 10px rgba(0,0,0,0.2);">
-  <div style="text-align:right;"><button onclick="toggleFormModal()" style="background:none; border:none; font-size:1.2em;">✖</button></div>
-  <h2>Add New Protocol</h2>
-
-    
-    <label>Service:</label>
-    <select id="newService" onchange="populateCategoryDropdown()" style="width:100%;"></select><br>
-    <label>Category:</label>
-    <select id="newCategory" style="width:100%;"></select><br>
-    
-    <label>Title:</label><input type="text" id="newTitle"><br>
-    <label>Content (one item per line):</label><textarea id="newContent" rows="5" style="width:100%;"></textarea><br>
-    <label>Last Updated:</label><input type="date" id="newDate"><br>
-    <button onclick="addProtocol()" style="margin-top:0.5em;">Save Protocol</button>
-    <button onclick="exportProtocols()" style="margin-top:0.5em;">Export Protocols (JSON)</button>
-    <pre id="exportedData" style="white-space:pre-wrap; background:white; padding:1em; border-radius:5px; display:none; margin-top:1em;"></pre>
-  </div>
+    <div class="footer">Made for quick, offline‑friendly reference. Always follow your service’s latest approved protocols.</div>
+  </main>
 
   <script>
-    function toggleForm() {
-      const form = document.getElementById("entryForm");
-      
-    if (form.style.display === "none") {
-      form.style.display = "block";
-      form.scrollIntoView({ behavior: "smooth" });
-    } else {
-      form.style.display = "none";
-    }
-    
-    }
+  // --- Simple client-side store ---
+  const KEY = 'ems-protocols-v1';
+  const $ = sel => document.querySelector(sel);
+  const $$ = sel => Array.from(document.querySelectorAll(sel));
 
-    function addProtocol() {
-      const service = document.getElementById("newService").value.trim();
-      const category = document.getElementById("newCategory").value.trim();
-      const title = document.getElementById("newTitle").value.trim();
-      const contentText = document.getElementById("newContent").value.trim();
-      const date = document.getElementById("newDate").value || new Date().toISOString().slice(0, 10);
-
-      if (!service || !category || !title || !contentText) {
-        alert("All fields must be filled out.");
-        return;
+  const SAMPLE = {
+    protocols: [
+      {
+        id: 'adult-airway',
+        title: 'Adult Airway (Intubation First Pass, Facilitated if needed)',
+        summary: 'Oro/Nasotracheal; if failed first attempt → consider ketamine‑assisted intubation; confirm with EtCO₂ + second method; fallback SGA → needle cric/BVM.',
+        steps: [
+          'Assess: unresponsive/apneic, gag, predicted difficulty; preoxygenate; suction as needed.',
+          'Prepare: equipment check (laryngoscope/video, ET sizes, SGA backup, suction, BVM, capnography).',
+          'Attempt orotracheal or nasotracheal intubation (1st pass).',
+          'If unsuccessful: consider facilitated intubation (ketamine 2 mg/kg IV/IO).',
+          'If still unsuccessful: place supraglottic airway; if failure → needle cricothyrotomy and/or BVM.',
+          'If intubated: confirm placement with EtCO₂ and an additional method (auscultation, CXR if available), secure tube.',
+          'Reassess ventilation/oxygenation and document time, size, depth, confirmation method.'
+        ],
+        tags: ['airway','adult','intubation','ketamine','etco2','sgA','cric'],
+      },
+      {
+        id: 'bradycardia-adult',
+        title: 'Bradycardia – Adult (Symptomatic)',
+        summary: 'Atropine 1 mg IV q3-5min (max 3 mg); if ineffective → TCP / dopamine infusion 5–20 mcg/kg/min; consider reversible causes.',
+        steps: [
+          'ABC, oxygen, monitor, IV/IO access, 12-lead if feasible.',
+          'Atropine 1 mg IV q3–5min, max total 3 mg.',
+          'If ineffective: transcutaneous pacing; analgesia/sedation as needed.',
+          'Alternative/bridge: dopamine infusion 5–20 mcg/kg/min titrate to response.',
+          'Treat reversible causes (hypoxia, hypothermia, hyperkalemia, toxins).'
+        ],
+        tags: ['cardiac','adult','atropine','dopamine','pacing']
       }
+    ],
+    meds: [
+      { name: 'Ketamine', alias:['ket'], default_mgkg: 2, route: 'IV/IO', max_mg: 200, notes: 'For facilitated intubation; consider lower dose if elderly or hypotensive.' },
+      { name: 'Atropine', alias:['atrop'], default_mgkg: 0.02, route: 'IV/IO', max_mg: 3, notes: 'Adult fixed dose often 1 mg; peds weight-based.' },
+      { name: 'Epinephrine 1:1,000', alias:['epi 1:1k'], default_mgkg: 0.01, route: 'IM', max_mg: 0.5, notes: 'Anaphylaxis IM; check local protocol.' }
+    ]
+  };
 
-      const newProtocol = {
-        service,
-        category,
-        title,
-        content: contentText.split("\n").filter(line => line.trim()),
-        last_updated: new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-      };
-
-      protocols.push(newProtocol);
-      populateServiceFilter();
-      searchProtocols();
-      alert("Protocol added!");
-    }
-
-    function exportProtocols() {
-      const exportBox = document.getElementById("exportedData");
-      exportBox.style.display = "block";
-      exportBox.textContent = JSON.stringify(protocols, null, 2);
-    }
-  </script>
-
-<div style="text-align:right; margin-top:1em;">
-  <button onclick="startQuiz()" style="padding:0.5em 1em; background:#388e3c; color:white; border:none; border-radius:5px; font-size:1em;">🧪 Start Quiz</button>
-</div>
-
-<div id="quizModal" style="display:none; position:fixed; top:5%; left:5%; width:90%; max-height:90%; overflow:auto; background:white; border:2px solid #0d47a1; border-radius:10px; padding:1em; z-index:9999;">
-  <div style="text-align:right;"><button onclick="closeQuiz()" style="background:none; border:none; font-size:1.2em;">✖</button></div>
-  <h2>Protocol Quiz</h2>
-  <label>Service:</label>
-  <select id="quizService">
-    <option value="Pafford EMS – Arkansas">Pafford EMS – Arkansas</option>
-  </select>
-  <label>Category:</label>
-  <select id="quizCategory">
-    <option value="Universal Care Guidelines">Universal Care Guidelines</option>
-  </select>
-  <button onclick="beginQuiz()" style="margin-top:1em;">Begin</button>
-  <div id="quizBox" style="margin-top:1em;"></div>
-</div>
-
-<script>
-const quizQuestions = [
-  {
-    service: "Pafford EMS – Arkansas",
-    category: "Universal Care Guidelines",
-    question: "What is the age cutoff for pediatric protocols?",
-    options: ["Under 18 years old", "Below 14 years of age and/or < 40kg", "Under 12 years old"],
-    answer: "Below 14 years of age and/or < 40kg",
-    reference: "Pediatric Protocols are applicable to patients below 14 years of age and/or weigh > 40 KG, whichever comes first."
-  },
-  {
-    service: "Pafford EMS – Arkansas",
-    category: "Universal Care Guidelines",
-    question: "Who qualifies for reduced medication doses?",
-    options: ["Only pediatric patients", "Anyone over 60", "Renal/hepatic disease, pediatric, or geriatric patients"],
-    answer: "Renal/hepatic disease, pediatric, or geriatric patients",
-    reference: "Reduced medication doses apply to patients with renal disease, hepatic disease (liver), pediatrics, and/or geriatrics."
+  function load(){
+    try{ return JSON.parse(localStorage.getItem(KEY)) || SAMPLE }catch(e){ return SAMPLE }
   }
-];
+  function save(data){ localStorage.setItem(KEY, JSON.stringify(data)); }
 
-let currentQuiz = [];
-let quizIndex = 0;
-let score = 0;
+  let state = load();
 
-function startQuiz() {
-  document.getElementById("quizModal").style.display = "block";
-}
+  // --- Rendering ---
+  const protocolsEl = $('#protocols');
+  const medsEl = $('#meds');
+  const jsonEl = $('#json');
 
-function closeQuiz() {
-  document.getElementById("quizModal").style.display = "none";
-  document.getElementById("quizBox").innerHTML = "";
-  quizIndex = 0;
-  score = 0;
-}
-
-function beginQuiz() {
-  const service = document.getElementById("quizService").value;
-  const category = document.getElementById("quizCategory").value;
-  currentQuiz = quizQuestions.filter(q => q.service === service && q.category === category);
-  quizIndex = 0;
-  score = 0;
-  document.getElementById("quizBox").innerHTML = "";
-  showNextQuestion();
-}
-
-function showNextQuestion() {
-  const box = document.getElementById("quizBox");
-  if (quizIndex >= currentQuiz.length) {
-    box.innerHTML = `<h3>Quiz Complete</h3><p>You got ${score} out of ${currentQuiz.length} correct.</p>`;
-    return;
+  function highlight(text, terms){
+    if(!terms.length) return text;
+    let t = text;
+    terms.forEach(w=>{ const re = new RegExp('('+escapeRegExp(w)+')','ig'); t = t.replace(re,'<mark>$1</mark>') });
+    return t;
   }
-  const q = currentQuiz[quizIndex];
-  box.innerHTML = `
-    <h4>${q.question}</h4>
-    ${q.options.map(opt => `<button onclick="checkAnswer('${opt.replace(/'/g, "\'")}')" style="margin:0.25em; display:block;">${opt}</button>`).join("")}
-  `;
-}
+  function escapeRegExp(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') }
 
-function checkAnswer(selected) {
-  const q = currentQuiz[quizIndex];
-  const box = document.getElementById("quizBox");
-  const correct = selected === q.answer;
-  if (correct) score++;
-  box.innerHTML = `
-    <h4>${q.question}</h4>
-    <p><strong>Your Answer:</strong> ${selected}</p>
-    <p style="color:${correct ? 'green' : 'red'};"><strong>${correct ? 'Correct!' : 'Incorrect.'}</strong></p>
-    <p><strong>Protocol Reference:</strong><br>${q.reference}</p>
-    <button onclick="nextQuestion()">Next</button>
-  `;
-}
-
-function nextQuestion() {
-  quizIndex++;
-  showNextQuestion();
-}
-</script>
-
-</body>
-</html>
-
-</html>
-
-
-
-<style id="theme-style"></style>
-<style>
-  .dark-mode {
-    background-color: #1e1e1e !important;
-    color: #e0e0e0 !important;
-    border-color: #555 !important;
+  function renderProtocols(filterTerms=[]){
+    const items = state.protocols.filter(p=> matchItem(p, filterTerms));
+    protocolsEl.innerHTML = items.map(p=> `
+      <div class="card">
+        <h3>${highlight(p.title, filterTerms)}</h3>
+        <div class="hint">${highlight(p.summary, filterTerms)}</div>
+        <div style="margin-top:8px">
+          ${p.steps.map((s,i)=>`<div><span class="k">${i+1}</span> ${highlight(s, filterTerms)}</div>`).join('')}
+        </div>
+        <div>${p.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      </div>
+    `).join('') || emptyState('No protocol matches');
   }
-  .dark-mode button, .dark-mode select, .dark-mode input, .dark-mode textarea {
-    background-color: #333 !important;
-    color: #e0e0e0 !important;
-    border-color: #555 !important;
-  }
-</style>
-<script>
-function toggleDarkMode() {
-  const styleTag = document.getElementById("theme-style");
-  const isDark = styleTag.innerHTML.includes("background-color: #121212");
-  const entryModal = document.getElementById("entryModal");
-  const quizModal = document.getElementById("quizModal");
 
-  if (isDark) {
-    styleTag.innerHTML = "";
-    entryModal && entryModal.classList.remove("dark-mode");
-    quizModal && quizModal.classList.remove("dark-mode");
-  } else {
-    styleTag.innerHTML = `
-      body { background-color: #121212; color: #e0e0e0; }
-      .protocol { background-color: #1e1e1e; border-color: #444; }
-      select, input, textarea, button {
-        background-color: #333; color: #e0e0e0; border-color: #555;
-      }
-      button:hover {
-        background-color: #444;
-      }
+  function renderMeds(filterTerms=[]){
+    const items = state.meds.filter(m=> matchItem(m, filterTerms));
+    medsEl.innerHTML = items.map(m=> `
+      <div class="card">
+        <h3>${highlight(m.name, filterTerms)} <span class="badge">${m.route}</span></h3>
+        <div class="hint">Default: ${m.default_mgkg} mg/kg • Max ${m.max_mg} mg</div>
+        <div class="hint">${highlight(m.notes||'', filterTerms)}</div>
+        <div style="margin-top:8px" class="row">
+          <button class="btn" onclick="loadIntoCalc('${m.name.replace(/'/g,"&#39;")}')">Send to Calculator</button>
+          <button class="btn" onclick="copyText('${m.name.replace(/'/g,"&#39;")}: ${m.default_mgkg} mg/kg (max ${m.max_mg} mg) ${m.route}')">Copy</button>
+        </div>
+      </div>
+    `).join('') || emptyState('No medication matches');
+  }
+
+  function emptyState(msg){
+    return `<div class="card">${msg}</div>`;
+  }
+
+  function matchItem(obj, terms){
+    if(!terms.length) return true;
+    const hay = (Object.values(obj).join(' ') + ' ' + (obj.tags||[]).join(' ')).toLowerCase();
+    return terms.every(t => hay.includes(t));
+  }
+
+  function renderAll(terms){
+    renderProtocols(terms);
+    renderMeds(terms);
+    renderCalcOptions();
+    jsonEl.value = JSON.stringify(state, null, 2);
+  }
+
+  // --- Search ---
+  const q = $('#q');
+  let deb;
+  q.addEventListener('input', e=>{
+    clearTimeout(deb);
+    deb = setTimeout(()=>{
+      const terms = q.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+      renderAll(terms);
+    }, 80);
+  });
+
+  // --- Tabs ---
+  $$('.tab').forEach(btn=> btn.addEventListener('click', ()=>{
+    $$('.tab').forEach(b=> b.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.dataset.tab;
+    $$('.panel').forEach(p=> p.classList.add('hidden'));
+    $('#panel-'+tab).classList.remove('hidden');
+  }));
+
+  // --- Calc ---
+  function kg(val, unit){ return unit==='lb' ? (val/2.20462) : val }
+  function renderCalcOptions(){
+    const sel = $('#calc-med');
+    sel.innerHTML = '<option value="">— choose —</option>' + state.meds.map(m=>`<option value="${m.name}">${m.name}</option>`).join('');
+  }
+  function loadIntoCalc(name){
+    const m = state.meds.find(x=>x.name===name);
+    if(!m) return;
+    $('#calc-med').value = m.name;
+    $('#mgkg').value = m.default_mgkg;
+    $('#maxmg').value = m.max_mg;
+    $('#route').value = m.route||'';
+    document.querySelector('[data-tab="calc"]').click();
+  }
+  window.loadIntoCalc = loadIntoCalc;
+
+  $('#calc').addEventListener('click', ()=>{
+    const medName = $('#calc-med').value;
+    const m = state.meds.find(x=>x.name===medName);
+    if(!m){ $('#result').innerHTML = 'Select a medication.'; return }
+    const wt = parseFloat($('#wt').value||'0');
+    const unit = $('#unit').value;
+    const mgkg = parseFloat($('#mgkg').value||m.default_mgkg||0);
+    const maxmg = parseFloat($('#maxmg').value||m.max_mg||Infinity);
+    const conc = parseFloat($('#conc').value||'0');
+    if(!wt || !mgkg){ $('#result').innerHTML = 'Enter weight and mg/kg.'; return }
+    const weightKg = kg(wt, unit);
+    let dose = weightKg * mgkg; // mg
+    if(isFinite(maxmg)) dose = Math.min(dose, maxmg);
+    const mL = conc ? (dose/conc) : null;
+    $('#result').innerHTML = `
+      <div>Medication: <b>${medName}</b> (${m?.route||$('#route').value||''})</div>
+      <div>Weight used: <b>${weightKg.toFixed(1)} kg</b> (${unit==='lb'? wt+' lb':''})</div>
+      <div>Total dose: <b>${dose.toFixed(1)} mg</b>${isFinite(maxmg)?` (max ${maxmg} mg)`:''}</div>
+      ${mL!==null?`<div>Volume to draw: <b>${mL.toFixed(2)} mL</b> @ ${conc} mg/mL</div>`:''}
     `;
-    entryModal && entryModal.classList.add("dark-mode");
-    quizModal && quizModal.classList.add("dark-mode");
-  }
-}
-</script>
-
-
-<script>
-function populateServiceAndCategoryDropdowns() {
-  const services = [...new Set(protocols.map(p => p.service))];
-  const serviceSelect = document.getElementById("newService");
-  serviceSelect.innerHTML = '<option value="">Select Service</option>';
-  services.forEach(service => {
-    const opt = document.createElement("option");
-    opt.value = service;
-    opt.textContent = service;
-    serviceSelect.appendChild(opt);
   });
-  populateCategoryDropdown();
-}
 
-function populateCategoryDropdown() {
-  const selectedService = document.getElementById("newService").value;
-  const categories = [
-    ...new Set(
-      protocols.filter(p => p.service === selectedService).map(p => p.category)
-    )
-  ];
-  const categorySelect = document.getElementById("newCategory");
-  categorySelect.innerHTML = '<option value="">Select Category</option>';
-  categories.forEach(cat => {
-    const opt = document.createElement("option");
-    opt.value = cat;
-    opt.textContent = cat;
-    categorySelect.appendChild(opt);
+  $('#reset').addEventListener('click', ()=>{
+    ['wt','mgkg','maxmg','conc','route'].forEach(id=> $('#'+id).value='');
+    $('#calc-med').value='';
+    $('#result').innerHTML='';
   });
-}
-</script>
 
+  // --- Extra calculators logic ---
+  function toKg(val, unit){ return unit==='lb' ? (val/2.20462) : val }
+  function fmt(n, d=1){ if(!isFinite(n)) return '—'; return Number(n).toFixed(d) }
+  function hhmm(min){ if(!isFinite(min)) return '—'; const h=Math.floor(min/60), m=Math.round(min%60); return `${h}h ${m}m` }
 
-<script>
-function generateQuizQuestions(service, category) {
-  const relevant = protocols.filter(p => p.service === service && p.category === category);
-  const lines = relevant.flatMap(p => p.content.map(line => ({
-    question: `What does the protocol say about '${p.title}'?`,
-    answer: line,
-    reference: line
-  })));
-
-  return lines.map(q => {
-    const distractors = lines.filter(l => l.reference !== q.reference).map(l => l.reference);
-    const sampled = distractors.sort(() => 0.5 - Math.random()).slice(0, 2);
-    const options = [q.answer, ...sampled].sort(() => 0.5 - Math.random());
-    return { ...q, service, category, options };
+  // Standard Dose → Volume
+  $('#std-calc').addEventListener('click', ()=>{
+    const ordered = parseFloat($('#std-dose-ordered').value||'0');
+    const onhand = parseFloat($('#std-dose-onhand').value||'0');
+    const vol = parseFloat($('#std-vol-onhand').value||'0');
+    const conc = parseFloat($('#std-conc').value||'0');
+    let mL = NaN;
+    if(ordered && onhand && vol){ mL = (ordered/onhand)*vol }
+    else if(ordered && conc){ mL = ordered/conc }
+    const txt = isFinite(mL) ? `Draw: **${fmt(mL,2)} mL**` : 'Enter ordered + on‑hand + volume, or ordered + concentration.';
+    $('#std-result').innerHTML = txt;
   });
-}
+  $('#std-reset').addEventListener('click', ()=>{ ['std-dose-ordered','std-dose-onhand','std-vol-onhand','std-conc'].forEach(id=> $('#'+id).value=''); $('#std-result').innerHTML=''; });
 
-let currentQuiz = [];
-let quizIndex = 0;
-let score = 0;
-
-function startQuiz() {
-  document.getElementById("quizModal").style.display = "block";
-}
-
-function closeQuiz() {
-  document.getElementById("quizModal").style.display = "none";
-  document.getElementById("quizBox").innerHTML = "";
-  quizIndex = 0;
-  score = 0;
-}
-
-function beginQuiz() {
-  const service = document.getElementById("quizService").value;
-  const category = document.getElementById("quizCategory").value;
-  currentQuiz = generateQuizQuestions(service, category);
-  quizIndex = 0;
-  score = 0;
-  document.getElementById("quizBox").innerHTML = "";
-  showNextQuestion();
-}
-
-function showNextQuestion() {
-  const box = document.getElementById("quizBox");
-  if (quizIndex >= currentQuiz.length) {
-    box.innerHTML = `<h3>Quiz Complete</h3><p>You got ${score} out of ${currentQuiz.length} correct.</p>`;
-    return;
-  }
-  const q = currentQuiz[quizIndex];
-  box.innerHTML = `
-    <h4>${q.question}</h4>
-    ${q.options.map(opt => `<button onclick="checkAnswer('${opt.replace(/'/g, "\'")}')" style="margin:0.25em; display:block;">${opt}</button>`).join("")}
-  `;
-}
-
-function checkAnswer(selected) {
-  const q = currentQuiz[quizIndex];
-  const box = document.getElementById("quizBox");
-  const correct = selected === q.answer;
-  if (correct) score++;
-  box.innerHTML = `
-    <h4>${q.question}</h4>
-    <p><strong>Your Answer:</strong> ${selected}</p>
-    <p style="color:${correct ? 'green' : 'red'};"><strong>${correct ? 'Correct!' : 'Incorrect.'}</strong></p>
-    <p><strong>Protocol Reference:</strong><br>${q.reference}</p>
-    <button onclick="nextQuestion()">Next</button>
-  `;
-}
-
-function nextQuestion() {
-  quizIndex++;
-  showNextQuestion();
-}
-</script>
-
-
-<script>
-const masterCategories = {
-  "Pafford EMS – Arkansas": ["Cardiovascular Protocols", "General Medical Protocols", "Resuscitation Protocols", "Pediatric Specific Protocols", "OB/GYN Protocols", "Respiratory Protocols", "Trauma Protocols", "Toxins/Environment Protocols", "Medications", "Procedures", "Resources/Guides (PEARLS)"]
-};
-
-function populateServiceAndCategoryDropdowns() {
-  const services = [...new Set(protocols.map(p => p.service))];
-  const serviceSelect = document.getElementById("newService");
-  serviceSelect.innerHTML = '<option value="">Select Service</option>';
-  services.forEach(service => {
-    const opt = document.createElement("option");
-    opt.value = service;
-    opt.textContent = service;
-    serviceSelect.appendChild(opt);
+  // IV Infusion gtts/min
+  $('#iv-calc').addEventListener('click', ()=>{
+    const ordered = parseFloat($('#iv-ordered').value||'0'); // mcg/kg/min
+    let wt = parseFloat($('#iv-wt').value||'0');
+    wt = toKg(wt, $('#iv-unit').value);
+    const bagmg = parseFloat($('#iv-bagmg').value||'0'); // mg
+    const bagvol = parseFloat($('#iv-bagvol').value||'0'); // mL
+    const drip = parseFloat($('#iv-dripset').value||'0'); // gtt/mL
+    if(!(ordered&&wt&&bagmg&&bagvol&&drip)){ $('#iv-result').innerHTML='Enter all fields.'; return }
+    const mgPerMl = bagmg / bagvol; // mg/mL
+    const mgPerHr = (ordered * wt * 60) / 1000; // mcg→mg
+    const mLhr = mgPerHr / mgPerMl;
+    const gttsMin = (mLhr * drip) / 60;
+    $('#iv-result').innerHTML = `mL/hr: <b>${fmt(mLhr,1)}</b> • gtts/min: <b>${Math.round(gttsMin)}</b>`;
   });
-  populateCategoryDropdown();
-}
+  $('#iv-reset').addEventListener('click', ()=>{ ['iv-ordered','iv-wt','iv-bagmg','iv-bagvol','iv-dripset'].forEach(id=> $('#'+id).value=''); $('#iv-result').innerHTML=''; });
 
-function populateCategoryDropdown() {
-  const selectedService = document.getElementById("newService").value;
-  const categorySelect = document.getElementById("newCategory");
-  const categories = masterCategories[selectedService] ||
-    [...new Set(protocols.filter(p => p.service === selectedService).map(p => p.category))];
-  categorySelect.innerHTML = '<option value="">Select Category</option>';
-  categories.forEach(cat => {
-    const opt = document.createElement("option");
-    opt.value = cat;
-    opt.textContent = cat;
-    categorySelect.appendChild(opt);
+  // Manual Drip Timing
+  $('#md-calc').addEventListener('click', ()=>{
+    const target = parseFloat($('#md-target').value||'0');
+    if(!target){ $('#md-result').innerHTML='Enter a target gtts/min.'; return }
+    const per10 = target/6;
+    $('#md-result').innerHTML = `Aim ~<b>${Math.round(per10)}</b> gtts every 10 s (exact: ${fmt(per10,1)}).`;
   });
-}
-</script>
+  $('#md-reset').addEventListener('click', ()=>{ $('#md-target').value=''; $('#md-result').innerHTML=''; });
 
+  // Fluid Over Time
+  $('#fo-calc').addEventListener('click', ()=>{
+    const vol = parseFloat($('#fo-volume').value||'0');
+    const drip = parseFloat($('#fo-dripset').value||'0');
+    const time = parseFloat($('#fo-time').value||'0');
+    if(!(vol&&drip&&time)){ $('#fo-result').innerHTML='Enter volume, drip set, and time.'; return }
+    const gttsMin = (vol * drip) / time;
+    const mLhr = (vol / time) * 60;
+    $('#fo-result').innerHTML = `gtts/min: <b>${Math.round(gttsMin)}</b> • mL/hr: <b>${fmt(mLhr,0)}</b>`;
+  });
+  $('#fo-reset').addEventListener('click', ()=>{ ['fo-volume','fo-dripset','fo-time'].forEach(id=> $('#'+id).value=''); $('#fo-result').innerHTML=''; });
+
+  // APGAR
+  $('#apgar-calc').addEventListener('click', ()=>{
+    const a = parseInt($('#apgar-a').value); const p = parseInt($('#apgar-p').value); const g = parseInt($('#apgar-g').value); const ac = parseInt($('#apgar-ac').value); const r = parseInt($('#apgar-r').value);
+    const total = a+p+g+ac+r;
+    let cat = total>=7? 'Normal (7–10)' : total>=4? 'Moderate (4–6)' : 'Low (0–3)';
+    $('#apgar-result').innerHTML = `Score: <b>${total}</b> • ${cat}`;
+  });
+  $('#apgar-reset').addEventListener('click', ()=>{ ['apgar-a','apgar-p','apgar-g','apgar-ac','apgar-r'].forEach(id=> $('#'+id).selectedIndex=0); $('#apgar-result').innerHTML=''; });
+
+  // GCS
+  $('#gcs-calc').addEventListener('click', ()=>{
+    const e = parseInt($('#gcs-e').value); const v = parseInt($('#gcs-v').value); const m = parseInt($('#gcs-m').value);
+    const total = e+v+m;
+    $('#gcs-result').innerHTML = `E${e} V${v} M${m} • Total: <b>${total}</b>`;
+  });
+  '#gcs-reset' in window || (window['#gcs-reset']=null);
+  $('#gcs-reset').addEventListener('click', ()=>{ $('#gcs-e').selectedIndex=3; $('#gcs-v').selectedIndex=4; $('#gcs-m').selectedIndex=5; $('#gcs-result').innerHTML=''; });
+
+  // Oxygen Duration
+  $('#o2-calc').addEventListener('click', ()=>{
+    const k = parseFloat($('#o2-cylinder').value||'0');
+    const psi = parseFloat($('#o2-psi').value||'0');
+    const res = parseFloat($('#o2-res').value||'0');
+    const flow = parseFloat($('#o2-flow').value||'0');
+    if(!(k&&psi&&flow)){ $('#o2-result').innerHTML='Enter cylinder, pressure, and flow.'; return }
+    const min = ((psi - res) * k) / flow;
+    $('#o2-result').innerHTML = `Duration: <b>${fmt(min,0)} min</b> (~${hhmm(min)})`;
+  });
+  $('#o2-reset').addEventListener('click', ()=>{ ['o2-psi','o2-flow'].forEach(id=> $('#'+id).value=''); $('#o2-res').value='200'; $('#o2-result').innerHTML=''; });
+
+  // Vent Settings (IBW & TV)
+  function inchesFrom(val, unit){ return unit==='cm' ? (val/2.54) : val }
+  function ibwKg(sex, inches){ const over5ft = Math.max(0, inches - 60); return (sex==='male' ? 50 : 45.5) + 2.3*over5ft }
+  $('#vent-calc').addEventListener('click', ()=>{
+    const sex = $('#vent-sex').value;
+    const h = parseFloat($('#vent-height').value||'0');
+    const unit = $('#vent-hunit').value;
+    if(!(sex&&h)){ $('#vent-result').innerHTML='Enter sex and height.'; return }
+    const inches = inchesFrom(h, unit);
+    const ibw = ibwKg(sex, inches);
+    const tv6 = ibw*6, tv7 = ibw*7, tv8 = ibw*8; // mL
+    $('#vent-result').innerHTML = `IBW: <b>${fmt(ibw,1)} kg</b> • TV @6: <b>${fmt(tv6,0)} mL</b> • @7: <b>${fmt(tv7,0)} mL</b> • @8: <b>${fmt(tv8,0)} mL</b>`;
+  });
+  $('#vent-reset').addEventListener('click', ()=>{ $('#vent-height').value=''; $('#vent-sex').selectedIndex=0; $('#vent-hunit').selectedIndex=0; $('#vent-result').innerHTML=''; });
+
+  // --- Import/Export ---
+  $('#save-json').addEventListener('click', ()=>{ try{ state = JSON.parse(jsonEl.value); save(state); alert('Saved locally.'); renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean)); }catch(e){ alert('Invalid JSON') } });
+  $('#export-json').addEventListener('click', ()=>{
+    const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'ems-protocols.json';
+    a.click();
+  });
+  $('#import-file').addEventListener('change', async (e)=>{
+    const file = e.target.files[0]; if(!file) return;
+    const txt = await file.text();
+    try{ state = JSON.parse(txt); save(state); jsonEl.value = JSON.stringify(state,null,2); renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean)); alert('Imported and saved.'); }
+    catch(err){ alert('Invalid JSON file.'); }
+  });
+
+  function copyText(t){ navigator.clipboard?.writeText(t); }
+  window.copyText = copyText;
+
+  // Init
+  renderAll([]);
+  </script>
 </body>
 </html>
