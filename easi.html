@@ -232,6 +232,26 @@
       </div>
 
       <div class="card">
+  <h3>Pump mL/hr → Manual gtts/min</h3>
+  <p class="hint">Formula: gtts/min = (mL/hr × gtt/mL) ÷ 60. With 60-drop (microdrip), gtts/min = mL/hr.</p>
+  <div class="row">
+    <div>
+      <label class="hint">Pump rate (mL/hr)</label>
+      <input id="pump-rate" type="number" inputmode="decimal" placeholder="e.g. 120" />
+    </div>
+    <div>
+      <label class="hint">Drip set (gtt/mL)</label>
+      <input id="pump-dripset" type="number" inputmode="decimal" placeholder="10 / 15 / 20 / 60" />
+    </div>
+  </div>
+  <div style="margin-top:12px" class="row">
+    <button id="pump-calc" class="btn primary">Calculate</button>
+    <button id="pump-reset" class="btn">Reset</button>
+  </div>
+  <div id="pump-result" class="mono" style="margin-top:12px"></div>
+</div>
+
+      <div class="card">
         <h3>APGAR Calculator</h3>
         <div class="row">
           <div>
@@ -696,6 +716,29 @@
     $('#calc-med').value='';
     $('#result').innerHTML='';
   });
+
+
+// Pump mL/hr → Manual gtts/min
+document.querySelector('#pump-calc').addEventListener('click', ()=>{
+  const rate = parseFloat(document.querySelector('#pump-rate').value || '0');      // mL/hr
+  const drip = parseFloat(document.querySelector('#pump-dripset').value || '0');   // gtt/mL
+  if(!(rate && drip)){
+    document.querySelector('#pump-result').innerHTML = 'Enter pump rate and drip set.';
+    return;
+  }
+  // gtts/min = (mL/hr × gtt/mL) ÷ 60
+  const gttsMin = (rate * drip) / 60;
+  // Nice note for microdrip 60 gtt/mL
+  const microNote = (Math.abs(drip - 60) < 1e-6) ? ' (60 gtt/mL → equals mL/hr)' : '';
+  document.querySelector('#pump-result').innerHTML =
+    `Target manual rate: <b>${Math.round(gttsMin)}</b> gtts/min${microNote} (exact: ${Number(gttsMin).toFixed(1)})`;
+});
+
+document.querySelector('#pump-reset').addEventListener('click', ()=>{
+  document.querySelector('#pump-rate').value = '';
+  document.querySelector('#pump-dripset').value = '';
+  document.querySelector('#pump-result').innerHTML = '';
+});
 
   // Standard Dose → Volume
   $('#std-calc').addEventListener('click', ()=>{
