@@ -368,22 +368,94 @@
 
   const SAMPLE_SERVICE = {
     protocols: [
-      {
-        id: 'adult-airway',
-        title: 'Adult Airway (Intubation First Pass, Facilitated if needed)',
-        summary: 'Oro/Nasotracheal; if failed first attempt → consider ketamine‑assisted intubation; confirm with EtCO₂ + second method; fallback SGA → needle cric/BVM.',
-        steps: [
-          'Assess: unresponsive/apneic, gag, predicted difficulty; preoxygenate; suction as needed.',
-          'Prepare: equipment check (laryngoscope/video, ET sizes, SGA backup, suction, BVM, capnography).',
-          'Attempt orotracheal or nasotracheal intubation (1st pass).',
-          'If unsuccessful: consider facilitated intubation (ketamine 2 mg/kg IV/IO).',
-          'If still unsuccessful: place supraglottic airway; if failure → needle cricothyrotomy and/or BVM.',
-          'If intubated: confirm placement with EtCO₂ and an additional method (auscultation), secure tube.',
-          'Reassess ventilation/oxygenation and document time, size, depth, confirmation method.'
-        ],
-        tags: ['airway','adult','intubation','ketamine','etco2','sga','cric']
-      }
-    ],
+  {
+      id: 'adult-airway',
+      title: 'Adult Airway (Intubation First Pass, Facilitated if needed)',
+      summary: 'Oro/Nasotracheal; if failed first attempt → consider ketamine-assisted intubation; confirm with EtCO₂ + second method; fallback SGA → needle cric/BVM.',
+      steps: [
+        'Assess: unresponsive/apneic, gag, predicted difficulty; preoxygenate; suction as needed.',
+        'Prepare: equipment check (laryngoscope/video, ET sizes, SGA backup, suction, BVM, capnography).',
+        'Attempt orotracheal or nasotracheal intubation (1st pass).',
+        'If unsuccessful: consider facilitated intubation (ketamine 2 mg/kg IV/IO).',
+        'If still unsuccessful: place supraglottic airway; if failure → needle cricothyrotomy and/or BVM.',
+        'If intubated: confirm placement with EtCO₂ and an additional method (auscultation), secure tube.',
+        'Reassess ventilation/oxygenation and document time, size, depth, confirmation method.'
+      ],
+      tags: ['airway','adult','intubation','ketamine','etco2','sga','cric']
+    },
+
+    {
+      id: 'asystole-pea',
+      title: 'Asystole / PEA',
+      summary: 'Immediate CPR and epinephrine every 3–5 min; confirm rhythm; consider advanced airway.',
+      steps: [
+        'Immediate CPR.',
+        'Cardiac Monitoring / Confirm Asystole or PEA.',
+        'Establish IV/IO access.',
+        'Administer Epinephrine 1:10,000 1 mg IV/IO every 3–5 minutes.',
+        'Monitor for rhythm change every 2 minutes.',
+        'Consider placement of an advanced airway.'
+      ],
+      tags: ['asystole','pea','cpr','epi','cardiac-arrest','adult']
+    },
+    {
+      id: 'bradycardia',
+      title: 'Bradycardia',
+      summary: 'Treat symptomatic bradycardia; atropine first, then pacing or infusions as indicated.',
+      steps: [
+        'Cardiac monitoring.',
+        'Establish IV/IO access.',
+        'Administer Atropine 0.5–1 mg IV/IO every 5 minutes as needed.',
+        'Apply defibrillator pads.',
+        'Consider sedation with Versed (Midazolam) 1–5 mg IVP if pacing required.',
+        'Begin transcutaneous pacing (TCP) at 70–80 BPM, 30 mA, increase output as needed.',
+        'Consider Dopamine infusion 5–10 mcg/kg/min.',
+        'Consider Epinephrine drip 2–10 mcg/min.'
+      ],
+      tags: ['bradycardia','atropine','pacing','dopamine','epi','versed']
+    },
+    {
+      id: 'vfib-pulseless-vtach',
+      title: 'Ventricular Fibrillation / Pulseless Ventricular Tachycardia',
+      summary: 'Defibrillate early; give epinephrine every 3–5 min; amiodarone for refractory VF/VT.',
+      steps: [
+        'Attach ECG / Cardiac monitor.',
+        'Begin CPR for 2 minutes.',
+        'Establish advanced airway as needed.',
+        'Defibrillate at 150 Joules, resume CPR immediately for 2 minutes.',
+        'Establish IV/IO access.',
+        'Administer Epinephrine 1:10,000 1 mg IV/IO every 3–5 minutes.',
+        'Shock again at 150 Joules followed by 2 minutes of CPR.',
+        'Administer Amiodarone 300 mg IVP, resume CPR for 2 minutes.',
+        'Shock again at 150 Joules followed by 2 minutes of CPR.',
+        'Administer second Amiodarone dose 150 mg IVP.',
+        'Consider consulting OLMC for further management.'
+      ],
+      tags: ['vfib','vtach','arrest','amiodarone','epi','defib','adult']
+    },
+    {
+      id: 'stable-narrow-tachycardia',
+      title: 'Stable Narrow Complex Tachycardia (>150 BPM)',
+      summary: 'Manage stable SVT with adenosine or diltiazem per protocol.',
+      steps: [
+        'Continuous ECG monitoring.',
+        'Administer Adenosine 6 mg rapid IVP.',
+        'If unresolved, administer Adenosine 12 mg rapid IVP.',
+        'Consider Diltiazem (Cardizem) 20 mg slow IVP over 2 minutes for irregular AFib with RVR.'
+      ],
+      tags: ['svt','narrow-complex','adenosine','cardizem','afib','adult']
+    },
+    {
+      id: 'unstable-narrow-tachycardia',
+      title: 'Unstable Narrow Complex Tachycardia (>150 BPM)',
+      summary: 'For unstable SVT or AFib, sedate if able and cardiovert.',
+      steps: [
+        'Consider sedation with Versed (Midazolam) 1–5 mg IVP.',
+        'Synchronized cardioversion at 100–250 Joules.'
+      ],
+      tags: ['unstable','narrow-complex','svt','cardioversion','versed','adult']
+    }
+  ],
     meds: [
       { "name": "Aspirin", "route": "PO", "notes": "324 mg PO (4×81 mg) for ACS." },
       { "name": "Adenosine", "route": "IV", "notes": "6–12 mg IV; may repeat 12 mg if no response." },
