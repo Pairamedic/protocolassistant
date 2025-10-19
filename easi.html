@@ -475,6 +475,112 @@
       ],
       tags: ['unstable','narrow-complex','svt','cardioversion','versed','adult']
     }
+
+{
+  id: 'stable-wide-tachycardia',
+  title: 'Stable Adult Wide Complex Tachycardia',
+  summary: 'Treat stable wide-complex tachycardia (VT) with antiarrhythmics and synchronized cardioversion if refractory.',
+  steps: [
+    'Administer Adenosine 12 mg rapid IVP.',
+    'Administer Amiodarone 150 mg over 10 minutes.',
+    'Consider sedation with Versed (Midazolam) 2–10 mg IVP.',
+    'Perform synchronized cardioversion at 100 Joules if needed.',
+    'If successfully converted, begin Amiodarone drip 150 mg over 10 minutes.'
+  ],
+  tags: ['wide-complex','tachycardia','amiodarone','adenosine','versed','cardioversion','adult']
+},
+{
+  id: 'unstable-wide-tachycardia',
+  title: 'Unstable Adult Wide Complex Tachycardia',
+  summary: 'For unstable VT with pulse, prioritize synchronized cardioversion; consider Amiodarone drip after conversion.',
+  steps: [
+    'If critical, perform synchronized cardioversion at 200 Joules immediately.',
+    'Otherwise, perform cardioversion at 100–200 Joules as indicated.',
+    'Administer Amiodarone drip 150 mg over 10 minutes.',
+    'If still unstable, repeat synchronized cardioversion at 200 Joules.'
+  ],
+  tags: ['unstable','wide-complex','vtach','cardioversion','amiodarone','adult']
+},
+{
+  id: 'post-resuscitation',
+  title: 'Post-Resuscitation Care',
+  summary: 'Support airway, breathing, and circulation after ROSC; consider antiarrhythmic infusion and monitoring.',
+  steps: [
+    'Continue ventilatory support with 100% oxygen.',
+    'Consider establishing a second IV line.',
+    'Initiate continuous cardiac monitoring.',
+    'Monitor and record vital signs frequently.',
+    'If converted with defibrillation or medication, start Amiodarone drip 150 mg over 10 minutes.'
+  ],
+  tags: ['rosc','post-resuscitation','amiodarone','monitoring','oxygen','adult']
+},
+{
+  id: 'acute-abdominal-pain-nausea',
+  title: 'Acute Abdominal Pain & Nausea/Vomiting',
+  summary: 'Assess and manage abdominal pain with monitoring and supportive care; treat nausea and pain per protocol.',
+  steps: [
+    'Initiate cardiac monitoring.',
+    'Obtain a 12-lead EKG.',
+    'Establish IV/IO access.',
+    'Administer Zofran (Ondansetron) 4 mg for nausea.',
+    'For pain, administer Morphine 2–10 mg IV or Dilaudid 0.25–1 mg IV.'
+  ],
+  tags: ['abdominal-pain','nausea','vomiting','zofran','morphine','dilaudid','adult']
+},
+{
+  id: 'acute-coronary-syndrome',
+  title: 'Acute Coronary Syndrome (ACS)',
+  summary: 'Rapid recognition and treatment of suspected ACS including ASA, nitro, and pain management.',
+  steps: [
+    'Initiate cardiac monitoring.',
+    'Obtain a 12-lead EKG.',
+    'Administer Aspirin 324 mg PO (4×81 mg).',
+    'Establish IV/IO access.',
+    'If pain and SBP >100 mmHg, give Nitroglycerin 0.4 mg SL every 5 min (max 3 doses).',
+    'Consider Morphine 2–10 mg IV for persistent pain.',
+    'If STEMI identified, consider aeromedical or transport to PCI-capable facility.'
+  ],
+  tags: ['acs','chest-pain','stemi','nitro','asa','morphine','cardiac','adult']
+},
+{
+  id: 'mild-allergic-reaction',
+  title: 'Allergic Reaction (Mild)',
+  summary: 'Treat allergic reactions with fluids and antihistamines; escalate to anaphylaxis protocol if needed.',
+  steps: [
+    'Establish IV access.',
+    'Administer Normal Saline 1 L bolus as needed.',
+    'Administer Diphenhydramine (Benadryl) 25–50 mg IV/IM.'
+  ],
+  tags: ['allergic-reaction','benadryl','fluids','adult']
+},
+{
+  id: 'severe-allergic-reaction',
+  title: 'Allergic Reaction (Severe)',
+  summary: 'Treat allergic reactions with fluids and antihistamines; escalate to anaphylaxis protocol if needed.',
+  steps: [
+    'Epinephrine 1:1 0.3-0.5 mg IM.',
+    'Cardiac Monitoring.',
+    'IV Procedure NS 1 L'
+    'Benadryl 25-50 mg'
+    'Inhaled Beta Agonist'
+    'Solu-Medrol 125 mg'
+  ],
+  tags: ['allergic-reaction','benadryl','fluids','adult','solu-medrol']
+},
+{
+  id: 'moderate-allergic-reaction',
+  title: 'Allergic Reaction (Moderate)',
+  summary: 'Treat allergic reactions with fluids and antihistamines; escalate to anaphylaxis protocol if needed.',
+  steps: [
+    'IV Procedure NS 1 L.',
+    'Benadryl 25-50 mg',
+    'Albuterol 2.5 mg nebulized'
+    'Atrovent 0.5 mg nebulized'
+    'Solu-Medrol 125 mg'
+  ],
+  tags: ['allergic-reaction','benadryl','fluids','adult','benadryl','albuterol','atrovent', 'solu-medrol']
+}
+  
   ],
  meds: [
   { name: "Aspirin", route: "PO", notes: "324 mg PO (4×81 mg) for ACS.", contra: "Allergy, active GI bleed", se: "GI upset, tinnitus" },
