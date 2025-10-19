@@ -716,6 +716,267 @@
     'Consider Zofran (Ondansetron) 0.1 mg/kg if under 12 years.'
   ],
   tags: ['pediatric','pain','analgesia','tylenol','morphine','zofran']
+},
+{
+  id: 'reactive-airway-disease',
+  title: 'Reactive Airway Disease',
+  summary: 'Bronchodilators, consider CPAP and IM epi; mag sulfate for severe cases.',
+  steps: [
+    'Cardiac Monitoring.',
+    'IV/IO Procedure.',
+    'Consider CPAP.',
+    'Albuterol 2.5 mg nebulized.',
+    'Atrovent 0.5 mg nebulized.',
+    'Consider Epinephrine 1:1,000 0.3–0.5 mg IM.',
+    'Magnesium Sulfate 2 g IV in 250 mL NS slowly over 10 minutes.'
+  ],
+  tags: ['asthma','copd','bronchospasm','albuterol','atrovent','epi','mag','adult']
+},
+{
+  id: 'shock-general',
+  title: 'Shock (General)',
+  summary: 'Monitor, dual access, cautious fluids, consider vasopressor.',
+  steps: [
+    'Cardiac Monitoring.',
+    'IV/IO Procedure ×2.',
+    'Normal Saline 250–500 mL; confirm clear lung sounds.',
+    'Repeat NS (max 3 L) if hypotension persists.',
+    'Dopamine 2–20 mcg/kg/min as indicated.'
+  ],
+  tags: ['shock','fluids','dopamine','hypotension','adult']
+},
+{
+  id: 'adult-seizure',
+  title: 'Adult Seizure',
+  summary: 'Monitor, access; benzodiazepine for status; magnesium for eclampsia.',
+  steps: [
+    'Cardiac Monitoring.',
+    'IV/IO Procedure.',
+    'If Status Epilepticus: Versed (Midazolam) 1–5 mg.',
+    'If Eclamptic: Magnesium Sulfate 4–6 g IV over 10 minutes.'
+  ],
+  tags: ['seizure','status','versed','magnesium','adult']
+},
+{
+  id: 'shock-hypovolemic',
+  title: 'Shock – Hypovolemic',
+  summary: 'Fluids first; consider TXA when indicated.',
+  steps: [
+    'ECG / Cardiac Monitoring.',
+    'IV/IO Procedure.',
+    'Fluid resuscitation.',
+    'Tranexamic Acid (TXA) 2 g infusion / IVP as indicated.'
+  ],
+  tags: ['shock','hypovolemic','fluids','txa','adult']
+},
+{
+  id: 'cva-stroke',
+  title: 'CVA / Stroke',
+  summary: 'Rapid recognition and transport after glucose and BEFAST screen.',
+  steps: [
+    'Cardiac Monitoring.',
+    'IV/IO Procedure.',
+    'Blood Glucose.',
+    'Assess using BEFAST Stroke Scale.',
+    'Rapid Transport.'
+  ],
+  tags: ['stroke','cva','befast','neuro','adult']
+},
+{
+  id: 'syncope',
+  title: 'Syncope',
+  summary: 'Monitor, IV/IO, fluids if appropriate, check glucose and ECG.',
+  steps: [
+    'Cardiac Monitoring.',
+    '12-Lead EKG.',
+    'IV/IO Procedure.',
+    'Systolic BP > 90: consider NS 1 L bolus.',
+    'Blood Glucose.'
+  ],
+  tags: ['syncope','fainting','fluids','glucose','adult']
+},
+{
+  id: 'pediatric-airway',
+  title: 'Pediatric Airway',
+  summary: 'Age-appropriate airway maneuvers; consider advanced airway or cric if required.',
+  steps: [
+    '< 1 year: back slaps.',
+    '> 1 year: chest thrusts.',
+    'Foreign body procedure.',
+    'Consider advanced airway or needle/surgical cricothyrotomy.'
+  ],
+  tags: ['pediatric','airway','foreign-body','cric']
+},
+{
+  id: 'pediatric-respiratory-distress',
+  title: 'Pediatric Respiratory Distress',
+  summary: 'Bronchodilator; monitor; consider fluid bolus for dehydration.',
+  steps: [
+    'Albuterol 2.5 mg.',
+    'Cardiac Monitoring.',
+    'IV/IO Procedure.',
+    'If dehydrated, consider bolus: 20 mL/kg for children or 10 mL/kg for neonates.'
+  ],
+  tags: ['pediatric','respiratory','albuterol','fluids']
+},
+{
+  id: 'pediatric-allergic-reaction',
+  title: 'Pediatric Allergic Reaction',
+  summary: 'Antihistamine, bronchodilator, consider IM epinephrine.',
+  steps: [
+    'Diphenhydramine (Benadryl) 1 mg/kg IV/IM/IN.',
+    'Albuterol as needed.',
+    'Consider Epinephrine 1:1,000 0.01 mg/kg IM.'
+  ],
+  tags: ['pediatric','allergic','anaphylaxis','benadryl','albuterol','epi']
+},
+{
+  id: 'pediatric-bradycardia',
+  title: 'Pediatric Bradycardia',
+  summary: 'If HR < 60 despite oxygenation, start CPR; meds per protocol.',
+  steps: [
+    'Cardiac Monitoring.',
+    'IV/IO Procedure.',
+    'If HR < 60 despite oxygenation: start CPR.',
+    'Epinephrine 1:10,000 0.01 mg/kg IV every 5 minutes.',
+    'Consider Atropine 0.02 mg/kg (max 0.5 mg).'
+  ],
+  tags: ['pediatric','bradycardia','cpr','epi','atropine']
+},
+{
+  id: 'pediatric-arrest-shockable',
+  title: 'Pediatric Pulseless Arrest (V-Tach / V-Fib)',
+  summary: 'Defibrillate and perform high-quality CPR; epi and antiarrhythmic per dosing.',
+  steps: [
+    'Defibrillation 2 J/kg.',
+    'CPR for 2 minutes.',
+    'IV/IO Procedure.',
+    'Defibrillate 4 J/kg.',
+    'CPR for 2 minutes.',
+    'Epinephrine 1:1 0.01 mg/kg IV/IO every 3–5 minutes.',
+    'Consider Advanced Airway.',
+    'Defibrillate 4–10 J/kg (max 200 J).',
+    'Lidocaine 1–1.5 mg/kg (max 3.0 mg/kg).'
+  ],
+  tags: ['pediatric','arrest','vfib','vtach','defibrillation','epi','lidocaine']
+},
+{
+  id: 'pediatric-arrest-nonshockable',
+  title: 'Pediatric Pulseless Arrest (Asystole / PEA)',
+  summary: 'IV/IO access, epi, airway as indicated.',
+  steps: [
+    'IV/IO Procedure.',
+    'Epinephrine 1:1,000 0.01 mg/kg IV/IO every 3–5 minutes.',
+    'Consider Advanced Airway.'
+  ],
+  tags: ['pediatric','arrest','pea','asystole','epi']
+},
+{
+  id: 'pediatric-tachycardia-narrow',
+  title: 'Pediatric Tachycardia – Narrow Complex',
+  summary: 'Vagal maneuvers and adenosine if stable; cardioversion if unstable.',
+  steps: [
+    'Cardiac Monitoring.',
+    '12-Lead EKG.',
+    'IV/IO Procedure.',
+    'If stable: consider Vagal Maneuvers and Adenosine 0.1 mg/kg (max 6 mg).',
+    'If unstable: consider Versed 1–5 mg for sedation and synchronized cardioversion 0.5 J/kg (max 200 J).'
+  ],
+  tags: ['pediatric','tachycardia','narrow-complex','adenosine','cardioversion']
+},
+{
+  id: 'pediatric-tachycardia-wide',
+  title: 'Pediatric Tachycardia – Wide Complex',
+  summary: 'Sedation and synchronized cardioversion; consider lidocaine.',
+  steps: [
+    'Cardiac Monitoring.',
+    '12-Lead EKG.',
+    'IV/IO Procedure.',
+    'Consider Versed 1–5 mg.',
+    'Synchronized cardioversion 0.5 J/kg (max 200 J).',
+    'Lidocaine 0.5 mg/kg (max 1.5 mg/kg).'
+  ],
+  tags: ['pediatric','tachycardia','wide-complex','cardioversion','lidocaine']
+},
+{
+  id: 'pediatric-ams',
+  title: 'Pediatric Altered Mental Status',
+  summary: 'Monitor, access, glucose; treat hypoglycemia and suspected opioid ingestion.',
+  steps: [
+    'Cardiac Monitoring.',
+    '12-Lead EKG.',
+    'IV/IO Procedure.',
+    'Blood Glucose.',
+    'BG < 60: Glucagon 0.5 mg.',
+    'Consider Narcan if opiate ingestion suspected.'
+  ],
+  tags: ['pediatric','ams','glucose','glucagon','naloxone']
+},
+{
+  id: 'newborn',
+  title: 'Newborn',
+  summary: 'Warm, dry, stimulate; assess; initiate CPR if indicated.',
+  steps: [
+    'Suction and stimulate infant.',
+    'Dry infant and keep warm.',
+    'Note APGAR score and vitals.',
+    'If HR < 60 BPM, start CPR.'
+  ],
+  tags: ['newborn','neonatal','apgar','cpr']
+},
+{
+  id: 'pediatric-nausea-vomiting',
+  title: 'Pediatric Nausea / Vomiting',
+  summary: 'Monitor, access, fluids for hypotension, antiemetic, glucose check.',
+  steps: [
+    'ECG / Cardiac Monitoring.',
+    'IV/IO Procedure.',
+    'Normal Saline 20 mL/kg for hypotension.',
+    'Blood Glucose.',
+    'Zofran (Ondansetron) 0.1 mg/kg.'
+  ],
+  tags: ['pediatric','nausea','vomiting','zofran','fluids']
+},
+{
+  id: 'pediatric-seizures',
+  title: 'Pediatric Seizures',
+  summary: 'Check temp and glucose; benzodiazepine; repeat if needed.',
+  steps: [
+    'Check Temperature.',
+    'IV/IO Procedure.',
+    'Blood Glucose.',
+    'Versed (Midazolam) 1–5 mg.',
+    'ECG / Cardiac Monitoring.',
+    'If seizure reoccurs: repeat Versed 1–5 mg.'
+  ],
+  tags: ['pediatric','seizure','fever','versed','glucose']
+},
+{
+  id: 'burns',
+  title: 'Burns',
+  summary: 'Cover appropriately by %BSA; fluids (LR) for thermal; decon/flush for chemical; analgesia.',
+  steps: [
+    'Check Temperature.',
+    '<10% BSA: cover with wet burn sheet.',
+    '>10% BSA: cover with dry burn sheet.',
+    'If thermal: IV/IO Procedure; Lactated Ringers; ECG/Cardiac Monitoring; Pain Control.',
+    'For chemical burns with eye involvement: continuous saline flush.',
+    'Remove clothing/expose area; flush area with water for 20 minutes.',
+    'Parkland Formula: 4 mL × weight (kg) × %BSA burned; 50% of volume infused in first 8 hours.'
+  ],
+  tags: ['burns','thermal','chemical','lr','parkland','pain']
+},
+{
+  id: 'electrical-injuries',
+  title: 'Electrical Injuries',
+  summary: 'Monitor for arrhythmia, IV/IO, wound care, analgesia.',
+  steps: [
+    'ECG / Cardiac Monitor.',
+    'IV/IO Procedure.',
+    'Wound Care Procedure.',
+    'Pain Control.'
+  ],
+  tags: ['electrical','injury','arrhythmia','wound-care','pain']
 }
   
   ],
