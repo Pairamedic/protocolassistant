@@ -38,6 +38,21 @@
     .hidden{display:none}
     .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px}
     .toolbar{display:flex;gap:8px;flex-wrap:wrap}
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:100;display:flex;align-items:flex-end;justify-content:center}
+    @media(min-width:600px){.modal-overlay{align-items:center;padding:16px}}
+    .modal-box{background:#141820;border:1px solid rgba(255,255,255,.12);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:600px;max-height:94vh;overflow-y:auto}
+    @media(min-width:600px){.modal-box{border-radius:20px;max-height:88vh}}
+    .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+    .step-row{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start}
+    .step-ta{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:#0f131a;color:var(--text);resize:vertical;min-height:54px;font-family:inherit;font-size:14px}
+    .fg{display:block;margin-bottom:10px}
+    .fg label{display:block;color:var(--muted);font-size:12px;margin-bottom:4px}
+    .fg input,.fg textarea,.fg select{width:100%}
+    .fg textarea{resize:vertical;font-family:inherit;font-size:14px}
+    .card-actions{display:flex;justify-content:flex-end;margin-top:10px}
+    .edit-btn{padding:5px 10px;font-size:11px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:#0f131a;color:var(--muted);cursor:pointer;flex:none}
+    .edit-btn:hover{color:var(--accent);border-color:rgba(94,234,212,.35)}
+    .panel-toolbar{display:flex;justify-content:flex-end;padding:10px 0 4px}
   </style>
 </head>
 <body>
@@ -66,11 +81,13 @@
   <main class="wrap">
     <!-- Protocols -->
     <section id="panel-protocols" class="panel">
+      <div class="panel-toolbar"><button id="add-protocol-btn" class="btn primary">+ Add Protocol</button></div>
       <div id="protocols" class="grid"></div>
     </section>
 
     <!-- Meds -->
     <section id="panel-meds" class="panel hidden">
+      <div class="panel-toolbar"><button id="add-med-btn" class="btn primary">+ Add Medication</button></div>
       <div id="meds" class="grid"></div>
     </section>
 
@@ -379,6 +396,44 @@
 
     <div class="footer">Offline‑friendly reference. Always follow your service’s latest approved protocols.</div>
   </main>
+
+  <!-- Edit / Add Modal -->
+  <div id="edit-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3 id="modal-title" style="margin:0;font-size:16px"></h3>
+        <button id="modal-close" class="btn" style="flex:none;padding:6px 12px">✕</button>
+      </div>
+
+      <!-- Protocol fields -->
+      <div id="proto-fields">
+        <div class="fg"><label>Title *</label><input id="pf-title" type="text" placeholder="Protocol title" /></div>
+        <div class="fg"><label>Summary (one-line overview)</label><textarea id="pf-summary" rows="2" placeholder="Brief description shown under title"></textarea></div>
+        <div class="fg" style="margin-bottom:4px"><label>Steps</label></div>
+        <div id="pf-steps-list"></div>
+        <button id="pf-add-step" class="btn" style="width:100%;margin-bottom:12px">+ Add Step</button>
+        <div class="fg"><label>Tags (comma-separated, lowercase)</label><input id="pf-tags" type="text" placeholder="e.g. airway, adult, ketamine, cardiac" /></div>
+      </div>
+
+      <!-- Medication fields -->
+      <div id="med-fields" class="hidden">
+        <div class="fg"><label>Name *</label><input id="mf-name" type="text" placeholder="Medication name" /></div>
+        <div class="fg"><label>Route</label><input id="mf-route" type="text" placeholder="e.g. IV / IM / Neb / SL" /></div>
+        <div class="fg"><label>Dosing / Notes</label><textarea id="mf-notes" rows="4" placeholder="Doses, indications, special instructions"></textarea></div>
+        <div class="fg"><label>Contraindications</label><textarea id="mf-contra" rows="2" placeholder="When NOT to use"></textarea></div>
+        <div class="fg"><label>Side Effects</label><input id="mf-se" type="text" placeholder="Common side effects" /></div>
+        <div class="row" style="gap:12px;margin-bottom:10px">
+          <div class="fg" style="margin-bottom:0"><label>mg/kg (for weight-based calc)</label><input id="mf-mgkg" type="number" inputmode="decimal" step="any" placeholder="optional" /></div>
+          <div class="fg" style="margin-bottom:0"><label>Max mg cap</label><input id="mf-maxmg" type="number" inputmode="decimal" step="any" placeholder="optional" /></div>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:16px;gap:10px">
+        <button id="modal-delete" class="btn danger">Delete</button>
+        <button id="modal-save" class="btn primary" style="flex:2">Save</button>
+      </div>
+    </div>
+  </div>
 
   <script>
   // --- Multi‑service client-side store ---
@@ -1902,13 +1957,17 @@
   }
 
   function renderProtocols(filterTerms=[]){
-    const items = (svc().protocols||[]).filter(p=> matchItem(p, filterTerms));
-    protocolsEl.innerHTML = items.map(p=> `
+    const all = svc().protocols||[];
+    const items = all.map((p,i)=>({p,i})).filter(({p})=> matchItem(p, filterTerms));
+    protocolsEl.innerHTML = items.map(({p,i})=> `
       <div class="card">
-        <h3>${highlight(p.title, filterTerms)}</h3>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+          <h3 style="margin:0 0 6px;flex:1">${highlight(p.title, filterTerms)}</h3>
+          <button class="edit-btn" onclick="openEditProtocol(${i})">✏ Edit</button>
+        </div>
         <div class="hint">${highlight(p.summary||'', filterTerms)}</div>
         <div style="margin-top:8px">
-          ${(p.steps||[]).map((s,i)=>`<div><span class="k">${i+1}</span> ${highlight(s, filterTerms)}</div>`).join('')}
+          ${(p.steps||[]).map((s,si)=>`<div><span class="k">${si+1}</span> ${highlight(s, filterTerms)}</div>`).join('')}
         </div>
         <div>${(p.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
       </div>
@@ -1916,14 +1975,19 @@
   }
 
   function renderMeds(filterTerms=[]){
-    const items = (svc().meds||[]).filter(m=> matchItem(m, filterTerms));
-    medsEl.innerHTML = items.map(m=> `
+    const all = svc().meds||[];
+    const items = all.map((m,i)=>({m,i})).filter(({m})=> matchItem(m, filterTerms));
+    medsEl.innerHTML = items.map(({m,i})=> `
       <div class="card">
-        <h3>${highlight(m.name, filterTerms)} ${m.route?`<span class=\"badge\">${m.route}</span>`:''}</h3>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+          <h3 style="margin:0 0 6px;flex:1">${highlight(m.name, filterTerms)} ${m.route?`<span class="badge">${m.route}</span>`:''}</h3>
+          <button class="edit-btn" onclick="openEditMed(${i})">✏ Edit</button>
+        </div>
         <div class="hint">${highlight(m.notes||'', filterTerms)}</div>
+        ${m.contra?`<div class="hint" style="margin-top:4px"><span style="color:#f87171">✕</span> ${highlight(m.contra, filterTerms)}</div>`:''}
         <div style="margin-top:8px" class="row">
           <button class="btn" onclick="loadIntoCalc('${(m.name||'').replace(/'/g, "&#39;")}')">Send to Calculator</button>
-          ${typeof m.default_mgkg!=='undefined' && m.default_mgkg!==null ? `<span class=\"pill\"><span class=\"k\">mg/kg</span>${m.default_mgkg}</span>`:''}
+          ${typeof m.default_mgkg!=='undefined' && m.default_mgkg!==null ? `<span class="pill"><span class="k">mg/kg</span>${m.default_mgkg}</span>`:''}
         </div>
       </div>
     `).join('') || emptyState('No medication matches');
@@ -2243,6 +2307,121 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     }
     catch(err){ alert('Invalid ALL‑services JSON file.'); }
     finally{ e.target.value=''; }
+  });
+
+  // --- Edit / Add Modal ---
+  let editState = { type: null, idx: -1 };
+  const editModal = $('#edit-modal');
+
+  function openModal(type, idx){
+    editState = { type, idx };
+    const isNew = idx === -1;
+    $('#modal-title').textContent = (isNew ? 'Add ' : 'Edit ') + (type === 'protocol' ? 'Protocol' : 'Medication');
+    $('#proto-fields').classList.toggle('hidden', type !== 'protocol');
+    $('#med-fields').classList.toggle('hidden', type !== 'med');
+    $('#modal-delete').classList.toggle('hidden', isNew);
+
+    if(type === 'protocol'){
+      const p = isNew ? {title:'',summary:'',steps:[],tags:[]} : {...(svc().protocols||[])[idx]};
+      $('#pf-title').value = p.title||'';
+      $('#pf-summary').value = p.summary||'';
+      $('#pf-tags').value = (p.tags||[]).join(', ');
+      renderStepsList(p.steps||[]);
+    } else {
+      const m = isNew ? {name:'',route:'',notes:'',contra:'',se:''} : {...(svc().meds||[])[idx]};
+      $('#mf-name').value = m.name||'';
+      $('#mf-route').value = m.route||'';
+      $('#mf-notes').value = m.notes||'';
+      $('#mf-contra').value = m.contra||'';
+      $('#mf-se').value = m.se||'';
+      $('#mf-mgkg').value = (m.default_mgkg != null && m.default_mgkg !== undefined) ? m.default_mgkg : '';
+      $('#mf-maxmg').value = (m.max_mg != null && m.max_mg !== undefined) ? m.max_mg : '';
+    }
+    editModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function renderStepsList(steps){
+    $('#pf-steps-list').innerHTML = steps.map((s,i)=>`
+      <div class="step-row">
+        <span class="k" style="margin-top:8px;flex:none">${i+1}</span>
+        <textarea class="step-ta" rows="2">${s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea>
+        <button class="btn danger" style="flex:none;padding:6px 10px;margin-top:2px" onclick="removeStep(${i})">✕</button>
+      </div>
+    `).join('');
+  }
+
+  function collectSteps(){
+    return Array.from($$('.step-ta')).map(t=>t.value.trim()).filter(Boolean);
+  }
+
+  window.openEditProtocol = (idx) => openModal('protocol', idx);
+  window.openEditMed      = (idx) => openModal('med', idx);
+  window.removeStep = (i) => { const s = collectSteps(); s.splice(i,1); renderStepsList(s); };
+
+  $('#add-protocol-btn').addEventListener('click', ()=> openModal('protocol', -1));
+  $('#add-med-btn').addEventListener('click',      ()=> openModal('med', -1));
+
+  $('#pf-add-step').addEventListener('click', ()=>{
+    const steps = collectSteps();
+    steps.push('');
+    renderStepsList(steps);
+    const tas = $$('.step-ta');
+    if(tas.length) tas[tas.length-1].focus();
+  });
+
+  function closeModal(){
+    editModal.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+  $('#modal-close').addEventListener('click', closeModal);
+  editModal.addEventListener('click', e=>{ if(e.target === editModal) closeModal(); });
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape' && !editModal.classList.contains('hidden')) closeModal(); });
+
+  $('#modal-save').addEventListener('click', ()=>{
+    const { type, idx } = editState;
+    const s = svc();
+    if(type === 'protocol'){
+      const steps = collectSteps();
+      const obj = {
+        id: idx===-1 ? 'custom-'+Date.now() : (s.protocols[idx].id||'custom-'+Date.now()),
+        title: $('#pf-title').value.trim(),
+        summary: $('#pf-summary').value.trim(),
+        steps,
+        tags: $('#pf-tags').value.split(',').map(t=>t.trim().toLowerCase()).filter(Boolean)
+      };
+      if(!obj.title){ alert('Title is required.'); return; }
+      if(idx===-1) s.protocols.push(obj); else s.protocols[idx] = obj;
+    } else {
+      const mgkg  = parseFloat($('#mf-mgkg').value);
+      const maxmg = parseFloat($('#mf-maxmg').value);
+      const obj = {
+        name:   $('#mf-name').value.trim(),
+        route:  $('#mf-route').value.trim(),
+        notes:  $('#mf-notes').value.trim(),
+        contra: $('#mf-contra').value.trim(),
+        se:     $('#mf-se').value.trim(),
+        ...(!isNaN(mgkg)  ? {default_mgkg: mgkg}  : {}),
+        ...(!isNaN(maxmg) ? {max_mg: maxmg}        : {}),
+      };
+      if(!obj.name){ alert('Name is required.'); return; }
+      if(idx===-1) s.meds.push(obj); else s.meds[idx] = obj;
+    }
+    save(state);
+    closeModal();
+    renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
+  });
+
+  $('#modal-delete').addEventListener('click', ()=>{
+    const { type, idx } = editState;
+    if(idx===-1) return;
+    const s = svc();
+    const label = type==='protocol' ? s.protocols[idx].title : s.meds[idx].name;
+    if(!confirm(`Delete "${label}"? This cannot be undone.`)) return;
+    if(type==='protocol') s.protocols.splice(idx,1); else s.meds.splice(idx,1);
+    save(state);
+    closeModal();
+    renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
   });
 
   // Init
