@@ -1038,14 +1038,832 @@
 ]
   };
 
+  const EASI_2026_SERVICE = {
+    protocols: [
+      // ── GENERAL ──────────────────────────────────────────────────────────
+      {
+        id: 'easi26-general-patient',
+        title: 'General Patient Protocol',
+        summary: 'Documentation and assessment requirements for transport and no-transport calls.',
+        steps: [
+          'No Transport / No Haul: 1) Demographics. 2) 1 complete set of vital signs. 3) Detailed narrative (include encouragement of transport). 4) Proper signatures.',
+          'Transport: 1) Demographics. 2) Minimum 2 sets of vital signs (Critical every 5 min / Stable every 20 min). 3) Detailed narrative. 4) Assessment. 5) Proper signatures. 6) Pt identifiers (MRN/SS#).'
+        ],
+        tags: ['general','documentation','transport','vitals','narrative']
+      },
+      {
+        id: 'easi26-triage',
+        title: 'Triage Protocol',
+        summary: 'Criteria for diverting vitally stable patients to hospital triage area when ER is overcrowded.',
+        steps: [
+          'Patient must meet ALL criteria: GCS 15; non-acute chief complaint; ambulatory or able to sit in wheelchair; 100 < SBP < 200 with 60 < MAP < 100; 60 < HR < 100 and consistent; 70 < BG < 250; denies SOB, chest pain, hematemesis/GI bleed.',
+          'Lead Paramedic/EMT advises charge nurse that EASI Triage Protocol is being utilized.',
+          'Assist patient to waiting area and give triage nurse a verbal patient report.',
+          'Obtain proper signatures from receiving nurse.'
+        ],
+        tags: ['triage','er','overcrowded','stable','diversion']
+      },
+      {
+        id: 'easi26-airway',
+        title: 'Airway Management',
+        summary: 'Level-based airway management from BLS through Paramedic; CO2 monitoring required within 30 seconds of advanced airway placement.',
+        steps: [
+          'Basic EMT: BVM ventilation, OPA, NPA, CPAP placement.',
+          'Advanced EMT: Place Alternative Airway Device at discretion when airway is beyond distress or at risk of failure. CO2 monitoring required within 30 seconds of advanced airway placement.',
+          'Paramedic: May utilize KSI protocol for failed/distressed airway. Failed intubation after 2 attempts → insert Alternative Airway Device immediately.',
+          'If alternative airway device unavailable or ineffective → Surgical Cricothyrotomy.',
+          'CO2 monitoring required within 30 seconds of ALL advanced airway placements.'
+        ],
+        tags: ['airway','bvm','cpap','opa','npa','co2','etco2','sga','cric','paramedic','aemt']
+      },
+      {
+        id: 'easi26-ksi',
+        title: 'Ketamine Sequence Intubation (KSI)',
+        summary: 'For agitated patients requiring emergency intubation who are intolerant of standard preoxygenation.',
+        steps: [
+          'Indications: Patient agitated or intolerant of preoxygenation via NC, NRB, BVM, and/or CPAP.',
+          'Position patient "head up" at 30° or more (auditory meatus above jugular notch).',
+          'Administer High Dose "Anesthetic" Ketamine 1–3 mg/kg IV. If combative or no peripheral IV: Ketamine 5 mg/kg IM (max 500 mg single dose).',
+          'Place CO2 NC at 15 LPM attached to waveform capnography prior to preoxygenation device.',
+          'If SpO2 > 95%: Place patient on CPAP with PEEP at 5 (titrate to 10). Patient\'s condition may avert need for intubation — always be prepared.',
+          'If SpO2 < 95% or CPAP unavailable/contraindicated: BVM with PEEP at 10 for 3 minutes.',
+          'Preoxygenate for 3 minutes, then perform intubation.',
+          'Failed intubation after 2 attempts → insert Alternative Airway Device immediately.',
+          'Confirm airway: Waveform capnography, chest rise/fall, mist in tube, auscultate breath sounds.',
+          'Post-intubation sedation: Ketamine Infusion 0.1–1.5 mg/min IV. If Ketamine unavailable: Fentanyl 1–2 mcg/kg/dose IV, may repeat once.',
+          'For Emergent Delirium: Midazolam 2–5 mg OR Ketamine 0.5–1.0 mg/kg IV/IM/IN.',
+          'For hyperlactation (increased secretions): Benadryl 50 mg IV.'
+        ],
+        tags: ['ksi','ketamine','intubation','airway','agitated','preoxygenation','cpap','paramedic']
+      },
+      {
+        id: 'easi26-pain-management',
+        title: 'General Pain Management',
+        summary: 'Tiered pain management by provider level; Fentanyl preferred for ACS, abdominal, and multi-system trauma.',
+        steps: [
+          'Advanced EMT Adult: Acetaminophen 1000 mg IV over 10 min.',
+          'Paramedic Adult: ENSURE patient is NOT using a pain control patch.',
+          'Fentanyl 1 mcg/kg SIVP, may repeat every 10 min, total max 200 mcg. Preferred for acute abdominal pain, ACS, and multi-system trauma.',
+          'Morphine Sulfate 5–10 mg IV; may repeat as needed, max total 20 mg. Preferred in burns (promotes fluid movement).',
+          'Low Dose "Analgesic" Ketamine 0.1–1 mg/kg IV, or 0.5–1 mg/kg IN, or 50 mg IM. May repeat every 20 min without emergence or every 10 min if emergence present, max 3 doses.',
+          'For Emergence Delirium: Midazolam 2–5 mg IV or Ketamine 0.5–1.0 mg/kg, max total 100 mg.',
+          'Consider Benadryl 50 mg IV or IM for secretion reduction with Ketamine.',
+          'NOTE: Geriatrics metabolize Ketamine slowly.',
+          'Pediatric Paramedic: Fentanyl 1 mcg/kg IV; repeat every 10 min, max 200 mcg.',
+          'Pediatric Morphine: 0.1 mg/kg SIVP or IM; may repeat, total max 20 mg.',
+          'Pediatric Ketamine (Analgesic): 1 mg/kg IV or 0.5–1 mg/kg IN or 50 mg IM; repeat every 20 min, max 3 doses. NOTE: Pediatrics metabolize Ketamine quickly.'
+        ],
+        tags: ['pain','fentanyl','morphine','ketamine','acetaminophen','analgesic','adult','pediatric']
+      },
+      {
+        id: 'easi26-antiemetic',
+        title: 'Anti-Emetic Therapy',
+        summary: 'Ondansetron, Benadryl, and Haldol for nausea/vomiting; Haldol preferred for cannabis hyperemesis.',
+        steps: [
+          'Adult Advanced EMT: Ondansetron (Zofran) 4 mg SIVP or IM.',
+          'Adult Advanced EMT: Diphenhydramine (Benadryl) 25 mg IVP or 50 mg IM.',
+          'Adult Advanced EMT: Haldol 5 mg IV. Preferred for hyperemesis related to Cannabis use.',
+          'Pediatric Advanced EMT: Ondansetron (Zofran) 0.1 mg/kg SIVP over 2 min; max 4 mg.',
+          'Pediatric Advanced EMT: Diphenhydramine (Benadryl) 1–2 mg/kg IV; max total administered 25 mg.',
+          'Contact medical control for repeat pediatric dosing.',
+          'NOTE: Any of these agents or appropriate combinations may be used at provider discretion.'
+        ],
+        tags: ['antiemetic','nausea','vomiting','zofran','ondansetron','benadryl','haldol','cannabis','adult','pediatric']
+      },
+      {
+        id: 'easi26-infusion-dosing',
+        title: 'Infusion Dosing of Medications',
+        summary: 'Setup and drip rate reference for Amiodarone, Magnesium, Epinephrine, and Ketamine infusions using 60gtts Micro Drip Set with Dial-A-Flo.',
+        steps: [
+          'Setup: Use Micro Drip Set (60 gtts/set; 60 gtts/min = 1 mL/hr). Attach Dial-A-Flo; prime while priming drip set. Control is via Dial-A-Flo, not the drip tubing clamp.',
+          'Amiodarone: Mix 150 mg in 100 cc NS 0.9%. 1 mg/min = 40 gtts/min.',
+          'Magnesium: Mix 2 G in 100 mL NS 0.9%. 1 G/hr = 100 mL/hr.',
+          'Epinephrine: Mix 1 mg (1:1,000) in 250 cc NS or D5W. 1 mcg/min = 15 gtts/min; 2 = 30; 3 = 45; 4 = 60; 5 = 75; 6 = 90; 7 = 105; 8 = 120; 9 = 135; 10 mcg/min = 150 gtts/min.',
+          'Ketamine: Mix 100 mg in 250 cc NS or D5W. 0.1 mg/min = 15 gtts/min; 0.5 = 75; 1.0 = 150; 1.5 mg/min = 225 gtts/min.',
+          'Consider Super Infusion Calculator app on mobile device.'
+        ],
+        tags: ['infusion','drip','amiodarone','magnesium','epinephrine','ketamine','dial-a-flo','microdrip','rate']
+      },
+      // ── ADULT CARDIAC ─────────────────────────────────────────────────────
+      {
+        id: 'easi26-pulseless-arrest',
+        title: 'Pulseless Arrest – Adult (2025 AHA Guidelines)',
+        summary: 'All pulseless arrest worked on scene ≥20 min; continuous high-quality CPR; Epi every 3–5 min; Amiodarone for refractory VF/VT.',
+        steps: [
+          'ALL: Work arrest on scene for 20 minutes. If initial rhythm V-Fib or Asystole with no change → consider discontinuing after 20 min (contact medical control, patient must not be in public view).',
+          'DOA criteria: Decapitation, Rigor Mortis, Dependent Lividity, injuries incompatible with life, visible brain injury, valid DNR.',
+          'EtCO2 monitoring required for all patients.',
+          'Basic EMT: Begin compressions >100/min for 2 min before defibrillation. Minimize interruptions. AED if no ALS. BVM with PEEP valve 5–10. Insert Alternative Airway Device during compressions; ventilate 8–10 breaths/min. Lucas device ASAP if available.',
+          'Advanced EMT: Minimize interruptions. Advanced airway control. IV NS 0.9% or IO (Tibia Tuberosity or Humeral Head). Epinephrine 1:10,000 1 mg IV/IO every 3–5 min during compressions. In-line CO2 (target >10 during arrest). Defibrillate if AED advises.',
+          'Paramedic – Asystole / PEA: Epinephrine 1:10,000 1 mg IV/IO every 3–5 min. Compressions >100/min; rotate rhythm checks every 2 min.',
+          'Paramedic – V-Fib / Pulseless Wide Complex VT: Epinephrine 1 mg (1:1,000) IV/IO every 3–5 min. Defibrillate every 2–3 min (escalating biphasic per manufacturer). For refractory/persistent VF: Amiodarone 300 mg IVP; may repeat 150 mg IVP every 5 min up to 3 times. Torsades: Magnesium Sulfate per protocol. Post-ROSC: Amiodarone 1 mg/min IV infusion.',
+          'Reversible Causes (H\'s and T\'s): Hypovolemia: 500–1000 cc NS. Hypoxia: correct airway. Acidosis: Sodium Bicarb 1 mEq IV/IO, may repeat once. Hypo/Hyperkalemia: Calcium Chloride 1 G IV/IO. Hypoglycemia: D10% 250 cc (12.5 g) IV/IO over 10 min, repeat as needed. Hypothermia: limit defib and meds until temp >84°F. Toxins: see Overdose protocol. Tamponade: rapid transport. Tension PTX: pleural decompression. Thrombosis: transport.',
+          'EtCO2 during arrest: target >8 mmHg (>10 indicates adequate oxygenation). Post-ROSC: target >30 mmHg.'
+        ],
+        tags: ['arrest','cpr','pulseless','vfib','vtach','asystole','pea','amiodarone','epinephrine','defib','rosc','adult','cardiac']
+      },
+      {
+        id: 'easi26-narrow-tach-adult',
+        title: 'Narrow Complex Tachycardia – Adult',
+        summary: 'Treat based on stability and rhythm regularity; vagal first for stable regular; cardiovert if unstable.',
+        steps: [
+          'Assessment: 12-lead ECG or multi-lead confirmation. Identify reversible causes. Contact receiving physician if uncertain.',
+          'Basic EMT: O2 appropriate to condition. Attempt vagal maneuvers (cough, bearing down). Transport to closest appropriate hospital.',
+          'Advanced EMT: Advanced airway as needed. IV NS 0.9%; consider fluid bolus (assess CHF/pulmonary edema hx).',
+          'Paramedic – Regular/Unstable: Synchronized cardioversion 50–200 joules; repeat at 200 J until conversion. Consider Midazolam 5–10 mg IVP or Ketamine 1 mg/kg for sedation.',
+          'Paramedic – Regular/Stable: Attempt vagal maneuvers. Adenosine 6 mg IV FIVP; if no conversion in 2 min → Adenosine 12 mg IV FIVP. If refractory → synchronized cardioversion 50–200 J. Consider Midazolam 2–5 mg IVP or Ketamine 1 mg/kg for sedation.',
+          'Paramedic – Irregular/Unstable (AFib/AFlutter): Synchronized cardioversion 50–200 J; repeat at 200 J. Consider Midazolam 2–5 mg IVP or Ketamine 1 mg/kg.',
+          'Paramedic – Irregular/Stable (AFib/AFlutter), symptom onset <24 h, NO significant HF: Diltiazem 0.25 mg/kg Slow IVP; may repeat after 10 min at 0.35 mg/kg. Consider Verapamil 5 mg IV; if no change after 5 min → 10 mg. Cardioversion 50–200 J if needed. Consider Midazolam 2–5 mg IVP.',
+          'Reversible causes: Hypovolemia (NS bolus), Hypoxia, Acidosis (NaHCO3 50 mEq), Hypo/Hyperkalemia (Calcium Chloride 1 g), Hypoglycemia (D10%), Hypothermia (limit interventions), Toxins, Tamponade (transport), Tension PTX, Thrombosis.'
+        ],
+        tags: ['svt','afib','aflutter','narrow','tachycardia','adenosine','diltiazem','cardioversion','adult','cardiac']
+      },
+      {
+        id: 'easi26-wide-tach-adult',
+        title: 'Wide Complex Tachycardia – Adult',
+        summary: 'Unstable → cardiovert; stable → antiarrhythmics; Torsades → Magnesium + defibrillation.',
+        steps: [
+          'Assessment: 12-lead or multi-lead ECG. Identify reversible causes. Contact receiving physician if uncertain.',
+          'Basic EMT: O2 appropriate to condition. Transport to closest appropriate hospital.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% pressure infused; titrate if CHF/pulmonary edema history.',
+          'Paramedic – Regular/Unstable: Cardioversion at 100 J; repeat until conversion. Consider Midazolam 2–5 mg or Ketamine 1 mg/kg for sedation if conversion achieved and hemodynamically stable.',
+          'Paramedic – Regular/Stable: If conversion occurs → Amiodarone Infusion 1 mg/min (DO NOT administer if patient is bradycardic).',
+          'Paramedic – Irregular/Unstable (Torsades de Pointes): Defibrillate at 120 J, 150 J, 200 J or per biphasic reading. Magnesium Sulfate 2 G SIVP, follow with Magnesium Infusion 1 G/hr IV (1 G in 100 mL NS, 60 gtts set, Dial-A-Flo at 100 gtts/hr). Consider Midazolam 2–5 mg IV or Ketamine 1 mg/kg. Consider Amiodarone 150 mg Slow IV, may repeat ×1 in 10 min. If conversion: Amiodarone Infusion 1 mg/min (not if bradycardic).',
+          'Paramedic – Irregular/Stable (Torsades): Magnesium Sulfate 2 G SIVP, then Infusion 1 G/hr IV. Consider Amiodarone 150 mg Slow IVP, repeat ×1 in 10 min. If conversion: Amiodarone Infusion 1 mg/min (not if bradycardic).'
+        ],
+        tags: ['vtach','torsades','wide','tachycardia','amiodarone','magnesium','cardioversion','defibrillation','adult','cardiac']
+      },
+      {
+        id: 'easi26-bradycardia-adult',
+        title: 'Bradycardia – Adult',
+        summary: 'Treat symptomatic bradycardia; TCP for high-degree blocks; Atropine for others; Epi infusion if refractory.',
+        steps: [
+          'Assessment: Consider 12-lead (ACS → go to Chest Pain protocol). Glucose assessment.',
+          'Basic EMT: O2 appropriate; alternative airway if needed. Transport to closest appropriate hospital.',
+          'Advanced EMT: IV NS 0.9% (10 gtts set, 200 cc, then TKO). Assess for CHF/pulmonary edema.',
+          'Paramedic – High-degree blocks (2nd Degree Type II or 3rd Degree) or hx of heart transplant: Apply Transcutaneous Pacer. Begin pacing at 80 bpm / 60 mAh; increase by 10 mAh until capture on 4-lead, then reduce by 5 mAh. May administer Midazolam 2–5 mg or Ketamine 1 mg/kg for sedation; repeat ×1 in 5 min. NOTE: Capture cannot be verified without 4-lead AND pads simultaneously.',
+          'Paramedic – Other symptomatic bradycardia: Atropine 0.5 mg IVP; may repeat as needed to raise rate >60. DO NOT administer Atropine to patients with AMS and/or SBP >180 mmHg and/or abnormal respirations (Cheyne-Stokes) → possible Cushing\'s Triad.',
+          'Paramedic – If Atropine ineffective AND TCP fails or unavailable: Epinephrine Infusion 2–10 mcg/min, titrate to effect. DO NOT administer Epi to patients with AMS and/or SBP >180 mmHg and/or abnormal respirations.',
+          'Reversible causes: Hypovolemia (500–1000 cc NS), Hypoxia, Acidosis (NaHCO3 50 mEq), Hypo/Hyperkalemia (CaCl 1 g), Hypoglycemia (D10%), Hypothermia, Toxins, Tamponade, Tension PTX, Thrombosis.'
+        ],
+        tags: ['bradycardia','atropine','tcp','pacing','epinephrine','adult','cardiac','atrioventricular','block']
+      },
+      {
+        id: 'easi26-acs',
+        title: 'Chest Pain / Acute Coronary Syndrome (ACS) – Adult',
+        summary: 'Quick ASA and nitrate; 12-lead ECG; right-sided involvement requires fluid resuscitation not nitrates.',
+        steps: [
+          'Assessment: OPQRST. 12-lead ECG (inferior infarct → add V4R). Glucose assessment.',
+          'Basic EMT: O2 appropriate; alternative airway if needed. Aspirin 324 mg PO. Assist patient with their prescribed Nitroglycerin ONLY if BP >105 mmHg. Confirm no PDE-5 inhibitor use in past 24 hours. Transport to closest appropriate facility.',
+          'Advanced EMT: IV NS 0.9% (10 gtts, 200 cc); second IV if time permits. Nitroglycerin 0.4 mg SL; may repeat ×2. Do not administer if trauma/internal bleeding suspected or SBP <105 mmHg. Withhold nitro with ST elevation in inferior leads.',
+          'Paramedic – WITHOUT right-side ST elevation: Fentanyl 0.5–1 mcg/kg IV (max 200 mcg) — preferred over Morphine. Consider Zofran 4 mg IV (repeat once for nausea). Morphine Sulfate 5–10 mg IV every 5 min until pain relieved; max 20 mg. If BP drops <90 mmHg: DISCONTINUE Nitro.',
+          'Paramedic – WITH right-side ST elevation: Fentanyl 0.5–1 mcg/kg IV (max 200 mcg). Morphine Sulfate 5–10 mg IV every 5 min; max 20 mg. Consider Zofran 4 mg IV. NS bolus 10–20 mL/kg if SBP <90 mmHg; withhold nitrate; stop bolus if pulmonary edema develops.',
+          'ALL: Transmit 12-lead ECG to receiving facility if equipment available. Follow additional orders from ED physician.',
+          'NOTES: ACS patients may require Rescue Catheterization — transport to appropriate facility. If patient took sildenafil (Viagra, Revatio) or Cialis in past 24 h: DO NOT administer nitroglycerin. Minimize patient movement.'
+        ],
+        tags: ['acs','chest-pain','stemi','nitroglycerin','aspirin','fentanyl','morphine','12-lead','adult','cardiac']
+      },
+      {
+        id: 'easi26-chf',
+        title: 'CHF / Pulmonary Edema – Adult',
+        summary: 'CPAP is cornerstone; do not remove mask for SL nitro once CPAP established; Lasix for fluid reduction.',
+        steps: [
+          'Assessment: Pulse oximetry baseline. 12-lead ECG (if ACS → go to ACS protocol).',
+          'Basic EMT: O2 appropriate. CPAP for severe distress or SpO2 <90%. Consider ASA 324 mg PO. Transport to closest appropriate hospital.',
+          'Advanced EMT: Advanced airway control. IV NS 0.9% (10 gtts, TKO); second IV if time permits. Consider Nitroglycerin 0.4 mg SL; repeat ×2 if SBP >100 mmHg and no CPAP available. Once CPAP is in place, do not remove mask for further SL Nitro.',
+          'Paramedic: Consider Lasix (Furosemide) 40–80 mg IVP. Monitor end-tidal CO2.',
+          'NOTE: Do not withhold intubation from patients who need it. Once PEEP is established on CPAP, do not discontinue except to intubate. Once PEEP is lost, it is difficult to reestablish.'
+        ],
+        tags: ['chf','pulmonary-edema','cpap','lasix','furosemide','nitroglycerin','peep','adult','cardiac']
+      },
+      {
+        id: 'easi26-hyperkalemia',
+        title: 'Hyperkalemia – Adult',
+        summary: 'Consider in dialysis patients, wide QRS, bradycardia; Calcium Chloride for cardioprotection; Albuterol nebulizer.',
+        steps: [
+          'Consider in: dialysis patients, bradycardia, wide QRS, NSAIDs/ACE-I/potassium-sparing diuretic use, crush injury.',
+          'Basic EMT: O2 appropriate. Position of comfort. Transport to closest hospital.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO if CHF/edema). Second IV if in shock.',
+          'Paramedic: Acquire 12-lead ECG (Peaked T-waves, widened QRS, bradycardia, absent/flat P-waves, sine waves, VT in renal disease hx). Calcium Chloride 20 mg/kg SIVP over 5 min for cardioprotective measures. Albuterol 5 mg + 2 mL NS nebulized over 5 min; may repeat ×1.'
+        ],
+        tags: ['hyperkalemia','calcium-chloride','albuterol','dialysis','wide-qrs','adult','cardiac']
+      },
+      {
+        id: 'easi26-ventricular-ectopy',
+        title: 'Ventricular Ectopy – Adult',
+        summary: 'Amiodarone for serious ectopy (R-on-T, multifocal, salvos, hemodynamic compromise); Amiodarone infusion post-conversion.',
+        steps: [
+          'Assessment: ECG monitoring; consider 12-lead. Assess for hypoxia and trauma.',
+          'Basic EMT: O2 appropriate. Transport to closest hospital.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO if CHF/edema).',
+          'Paramedic: If serious signs/symptoms — R-on-T, multifocal, salvos (≥3 consecutive), or hemodynamic compromise: Amiodarone 150 mg SIVP. If conversion occurs → Amiodarone Infusion 1 mg/min (DO NOT administer if patient is bradycardic).'
+        ],
+        tags: ['ectopy','pvcs','amiodarone','vtach','ron-t','multifocal','salvos','adult','cardiac']
+      },
+      // ── ADULT MEDICAL ─────────────────────────────────────────────────────
+      {
+        id: 'easi26-abdominal-pain',
+        title: 'Abdominal Pain – Adult',
+        summary: 'Complete assessment critical; Fentanyl for pain; Zofran for nausea; consider OB complications in females of childbearing age.',
+        steps: [
+          'Assessment: Consider OB complications in females of childbearing age. Inquire about vaginal, penile, and rectal bleeding. Assess glucose.',
+          'Basic EMT: O2 appropriate; alternative airway if needed. Trendelenburg if hypotensive. Keep patient warm, calm, position of comfort. If gravid → left recumbent position, refer to OB protocol. Transport to most appropriate hospital.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO if CHF/edema). Zofran 4 mg SIVP or IM for nausea/vomiting; may repeat once. Consider Acetaminophen 1000 mg IV over 10 min.',
+          'Paramedic: Fentanyl 1 mcg/kg IV; may repeat once after 10 min, max total 200 mcg.'
+        ],
+        tags: ['abdominal-pain','fentanyl','zofran','nausea','ob','pregnancy','adult','medical']
+      },
+      {
+        id: 'easi26-allergic-anaphylaxis',
+        title: 'Allergic Reaction / Anaphylaxis – Adult',
+        summary: 'Hives = allergic; dyspnea/hypotension/airway swelling = anaphylaxis; Epi 1:1000 0.3 mg IM for anaphylaxis; early intubation for airway edema.',
+        steps: [
+          'Assessment: Hives/urticaria/itching = allergic. SOB, airway swelling, wheezing, hypotension = anaphylaxis. Monitor ECG.',
+          'Basic EMT: O2 appropriate; alternative airway if needed. If anaphylaxis: Epinephrine 1:1,000 0.3 mg IM. Albuterol 2.5 mg nebulized for wheezing. Transport to most appropriate hospital.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO). Second IV if shock. Repeat Albuterol 2.5 mg Neb as needed. If hypotensive: NS fluid bolus to maintain SBP >100 (max 20 mL/kg). Benadryl 50 mg IV (or IM if no IV).',
+          'Paramedic: Consider Solu-Medrol 125 mg IV or IM. If still in anaphylaxis or no Epi given: Epinephrine 1:1,000 0.3 mg IM; repeat in 15 min if no improvement. May give Epinephrine 1:10,000 0.1 mg SIVP for life-threatening anaphylaxis.',
+          'NOTES: Monitor closely — condition may deteriorate quickly. Reserve Epi for anaphylaxis or deteriorating patients. Early elective intubation recommended for hoarseness, lingual edema, stridor, or oropharyngeal swelling.'
+        ],
+        tags: ['allergic','anaphylaxis','epinephrine','benadryl','albuterol','solumedrol','adult','medical']
+      },
+      {
+        id: 'easi26-altered-mental-status',
+        title: 'Altered Mental Status – Adult',
+        summary: 'Category protocol to identify cause; glucose assessment and stroke screen essential; move to specific protocol once diagnosis established.',
+        steps: [
+          'Assessment: Blood glucose (glucometer). 12-lead ECG. Obtain temperature.',
+          'Basic EMT: O2 appropriate; alternative airway if needed. Trendelenburg if hypotensive. Perform stroke assessment (BEFAST) — if positive, go to CVA protocol. Transport to most appropriate hospital.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO).',
+          'Paramedic: EKG cardiac monitoring.'
+        ],
+        tags: ['ams','altered-mental-status','glucose','stroke','befast','adult','medical']
+      },
+      {
+        id: 'easi26-asthma-copd',
+        title: 'Asthma / COPD Exacerbation – Adult',
+        summary: 'Albuterol first line; CPAP for severe; Lidocaine nebulized for cough variant asthma; Mag Sulfate for severe asthma.',
+        steps: [
+          'Assessment: Continuously monitor SpO2. Consider asthma vs. CHF history. Wheezes are not always asthma. Contact receiving physician if diagnosis uncertain.',
+          'Basic EMT: O2 appropriate; alternative airway if needed. CPAP may help open/splint airways (use with caution — can increase exhalation difficulty). Administer Albuterol 2.5 mg nebulized (can nebulize with CPAP). Transport to closest appropriate hospital.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO). If tidal volume too poor for nebulizer: Epinephrine 1:1,000 0.3 mg IM.',
+          'Paramedic: "Cough Variant Asthma" (dry non-productive cough inhibiting respiration): mix 2% Lidocaine 40–60 mg (2–3 mL) in 2.5 mg Albuterol and nebulize. EKG cardiac monitoring. Consider Magnesium Sulfate 2 G over 10 min in severe asthma.',
+          'NOTE: IV fluid bolus reduces alveolar dehydration. Contact receiving physician if diagnosis uncertain.'
+        ],
+        tags: ['asthma','copd','albuterol','cpap','magnesium','lidocaine','adult','medical']
+      },
+      {
+        id: 'easi26-back-pain',
+        title: 'Back Pain (Non-Traumatic) – Adult',
+        summary: 'Pain control for muscular/skeletal pain; rule out aortic dissection before Ketamine (↑BP risk).',
+        steps: [
+          'Description: Non-traumatic back pain ranges from minor muscle aches to fatal aortic rupture. Pain control reserved for muscular/skeletal pain, not potential internal problems.',
+          'Basic EMT: O2 appropriate. Position of comfort. Transport to closest appropriate hospital.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO). Acetaminophen 1000 mg IV.',
+          'Paramedic: Fentanyl 1 mcg/kg IVP; may repeat once after 10 min, max total 200 mcg. Morphine 2 mg IVP; may repeat after 10 min, max total 10 mg. Low Dose Ketamine 0.1–1 mg/kg IVP as needed. NOTE: Rule out Aortic Dissection before Ketamine — Ketamine increases BP and can worsen the condition.'
+        ],
+        tags: ['back-pain','fentanyl','morphine','ketamine','aortic','adult','medical']
+      },
+      {
+        id: 'easi26-blood-transfusion',
+        title: 'Blood Administration / Transfusion Reaction',
+        summary: 'Stop transfusion for most reactions; Epi + Solu-Medrol for anaphylactic; Acetaminophen for febrile; Benadryl for urticarial.',
+        steps: [
+          'Signs: BP drop, fever, tachycardia, pallor.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO). Stop transfusion. Epinephrine 1:1,000 0.3 mg IV. Benadryl 50 mg IV.',
+          'Paramedic – HEMOLYTIC (ABO incompatibility; 45–90 min onset): Stop infusion. Keep urine output >100 mL/hr. Monitor patient.',
+          'Paramedic – FEBRILE (bacterial lipopolysaccharides; fever, flushing): Acetaminophen 1000 mg IV. Slow blood transfusion; can continue if no other symptoms.',
+          'Paramedic – URTICARIAL/ALLERGIC (erythema, hives, itching): Benadryl 50 mg IV. Slow infusion; can continue unless other reactions occur.',
+          'Paramedic – ANAPHYLACTIC (Anti-IgA; rapid onset <30 min): Stop transfusion. Epinephrine 1:1,000 0.3 mg IV. Solu-Medrol 125 mg IVP. Benadryl 50 mg IV.',
+          'Paramedic – TACO (HTN, JVD; renal/cardiac disease): Stop transfusion. Avoid additional IV fluids.',
+          'Paramedic – TRALI (dyspnea, tachycardia, fever, cyanosis; 1–6 hr onset; leading cause of transfusion death): Stop transfusion. O2 via NRB. Consider CPAP.',
+          'Reassess temperature every 15 min.'
+        ],
+        tags: ['transfusion','blood','reaction','hemolytic','febrile','anaphylactic','taco','trali','adult','medical']
+      },
+      {
+        id: 'easi26-choking-adult',
+        title: 'Choking – Adult',
+        summary: 'Back slaps and abdominal thrusts for partial obstruction; laryngoscopy with Magill forceps; cricothyrotomy last resort.',
+        steps: [
+          'Only act for severe obstruction: silent cough, increasing respiratory difficulty with stridor, or unresponsive.',
+          'Basic EMT: 5 back slaps + 5 abdominal thrusts (patients >1 year); chest thrusts if <1 year old or ineffective. Continue until relieved. O2 once relieved. Transport.',
+          'Advanced EMT: Continue efforts. Advanced airway. IV NS 0.9%.',
+          'Paramedic: Continue efforts. Direct laryngoscopy — remove obstruction with Magill forceps (caution: do not lodge deeper). If all efforts fail → Cricothyrotomy (consider local Lidocaine/Epi if time permits).',
+          'Post-Cricothyrotomy with stable vitals: Sedation with High Dose Ketamine 1–3 mg/kg IVP + Ketamine Infusion 0.1–1.5 mg/min IV. Pain management: Fentanyl 1 mcg/kg IVP or Ketamine 0.5–1.0 mg/kg; repeat every 10 min as needed.'
+        ],
+        tags: ['choking','fbo','obstruction','laryngoscopy','magill','cric','adult','medical']
+      },
+      {
+        id: 'easi26-seizures-adult',
+        title: 'Convulsions / Seizures – Adult',
+        summary: 'Reserve benzos for active seizure or status; Midazolam IV first; Ketamine for refractory status epilepticus.',
+        steps: [
+          'Assessment: Glucose assessment. Assess for trauma-related seizures (bystander history). Look for medical alert ID/medications. Consider EKG.',
+          'Basic EMT: O2. Protect patient from injury. OPA or NPA for initial airway. Alternative airway + BVM if airway inadequate. Spinal restriction if trauma suspected or for restraint during movement. Transport to closest hospital.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO).',
+          'Paramedic: If IV present → Midazolam 2–5 mg IVP; may repeat once. If refractory (Status Epilepticus) or known Super Refractory Status Epilepticus (SRSE): Ketamine 1 mg/kg IVP or IM (if no IV).'
+        ],
+        tags: ['seizure','status-epilepticus','midazolam','ketamine','adult','medical']
+      },
+      {
+        id: 'easi26-diabetic-adult',
+        title: 'Diabetic Complications – Adult',
+        summary: 'Hypoglycemia: glucose PO if alert, D10% IV. Hyperglycemia: NS bolus. 4-lead ECG monitoring.',
+        steps: [
+          'Assessment: Glucose assessment. Hypoglycemia <70 mg/dL; Hyperglycemia >200 mg/dL. Patient assessment is paramount. 4-Lead ECG.',
+          'HYPOGLYCEMIA Basic EMT: O2. If symptomatic but awake/alert: Oral Glucose 15–80 g PO or SB; may repeat. Transport.',
+          'HYPOGLYCEMIA Advanced EMT: Advanced airway. Dextrose 10% 250 mL IV or IO over 10 min; may repeat as needed.',
+          'HYPOGLYCEMIA Paramedic: EKG cardiac monitoring.',
+          'HYPERGLYCEMIA Basic EMT: O2. Transport.',
+          'HYPERGLYCEMIA Advanced EMT: Advanced airway. NS 0.9% Bolus 20 mL/kg IV.',
+          'HYPERGLYCEMIA Paramedic: EKG cardiac monitoring.',
+          'NOTES: Caution with oral glucose — protect airway. Watch for pulmonary edema with NS bolus. Withhold aggressive airway until glucose given in hypoglycemia; use BLS/BVM.'
+        ],
+        tags: ['diabetes','hypoglycemia','hyperglycemia','dextrose','glucose','adult','medical']
+      },
+      {
+        id: 'easi26-gi-bleed',
+        title: 'Gastro Intestinal Hemorrhage (GI Bleed) – Adult',
+        summary: 'TXA for upper GI bleed in decompensated shock; consider KSI for severe esophageal varices.',
+        steps: [
+          'Assessment: Orthostatic/postural vitals (won\'t detect <1000 mL depletion). Peritonitis signs: hot rigid abdomen, severe pain, fever, nausea/vomiting.',
+          'Basic EMT: O2. Transport. Call for ALS if decompensates.',
+          'Advanced EMT: Advanced airway if needed. Large-bore IV NS 0.9% or LR (10 gtts, 200 cc; TKO). Upper GI Bleed with decompensated shock: Consider Tranexamic Acid (TXA) 2 G IV over 10 min. If peritonitis: Acetaminophen 1000 mg IV.',
+          'Paramedic: Consider KSI if severe Esophageal Varices with aspiration concern.',
+          'NOTE: Lower GI bleeds (bright red blood in anus) rarely need treatment unless patient is symptomatic from hypovolemic shock.'
+        ],
+        tags: ['gi-bleed','txa','tranexamic-acid','esophageal-varices','ksi','adult','medical']
+      },
+      {
+        id: 'easi26-general-medical',
+        title: 'General Medical Illness – Adult',
+        summary: 'Catch-all protocol; identify cause and move to specific protocol; Thiamine for alcohol use; antiemetics and Acetaminophen PRN.',
+        steps: [
+          'Consider 12-Lead ECG. Glucose Assessment.',
+          'Basic EMT: O2. Transport.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO). Consider Thiamine 100 mg IV. For nausea/vomiting: refer to Anti-Emetic Therapy protocol. For fever/aches/cold-flu symptoms: Consider Acetaminophen 1000 mg IV.',
+          'Paramedic: EKG cardiac monitoring.'
+        ],
+        tags: ['general','medical','thiamine','acetaminophen','adult','medical']
+      },
+      {
+        id: 'easi26-hypertension',
+        title: 'Hypertensive Emergency – Adult',
+        summary: 'Only treat SBP >180 or DBP >100 with symptoms; do not reduce BP >30% of initial; Labetalol or Hydralazine.',
+        steps: [
+          'Assessment: Treat patients with SBP >180 and/or DBP >100 with symptoms (headache, visual disturbance, nosebleed). Treat without symptoms if SBP >220 and/or DBP >140. Do not treat SBP <180 routinely. DO NOT reduce BP >30% of initial reading. If stroke symptoms → go to CVA protocol. If pregnant → OB protocol. Do not use NIBP alone if giving BP meds.',
+          'Basic EMT: O2. Transport to closest appropriate hospital.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts; TKO; assess for CHF/edema). Nitroglycerin 0.4 mg SL; may repeat ×2. Do not give if trauma/internal bleeding or SBP <90 mmHg.',
+          'Paramedic: Cardiac monitor. Labetalol 20 mg IVP over 2 min; may repeat ONCE at 20 mg IVP over 2 min if BP still above threshold (avoid if bradycardic). Hydralazine 10 mg IVP; may repeat once. Do not use Hydralazine if patient has angina and/or Levine\'s sign.',
+          'NOTE: Do not use Hydralazine for hypertension related to stroke/CVA (decreases cerebral perfusion, increases ICP).'
+        ],
+        tags: ['hypertension','labetalol','hydralazine','nitroglycerin','adult','medical']
+      },
+      {
+        id: 'easi26-hypotension',
+        title: 'Hypotension (Non-Traumatic) – Adult',
+        summary: 'Rapid assessment; do not increase BP >20% of initial; Push Dose Epi and Epi infusion if fluids insufficient.',
+        steps: [
+          'Assessment: Consider 12-lead EKG. Do not increase BP >20% of initial reading (may increase bleeding).',
+          'Basic EMT: O2. Transport.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO). Consider Push Dose Epi (Epi 1:100,000).',
+          'Paramedic: Cardiac monitor. Consider additional fluid bolus. If 20 mL/kg NS is contraindicated or ineffective: Push Dose Epi 5–20 mcg IVP; may repeat every 2–5 min. Consider Epinephrine Infusion 2–10 mcg/min IV.'
+        ],
+        tags: ['hypotension','shock','epinephrine','push-dose','adult','medical']
+      },
+      {
+        id: 'easi26-hypothermia',
+        title: 'Hypothermia – Adult',
+        summary: 'Remove wet clothing; active warming; handle gently at temp <88°F (risk of VFib); limit drug pushes.',
+        steps: [
+          'Assessment: Mild 89.6–95°F, Moderate 82.4–89.5°F, Severe <82.4°F. Handle gently if temp ≤88°F (V-Fib risk).',
+          'Basic EMT: O2 appropriate; alternative airway if needed. Remove wet clothing. Apply blankets and hot packs (armpits, groin, neck). Increase ambulance ambient temperature. Transport.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO).',
+          'Paramedic: EKG monitoring; treat underlying signs/symptoms.',
+          'NOTES: Shivering may diminish/stop even with hypothermia. Temp <88°F can cause VFib — handle gently. Limit drug pushes (decreased metabolic rate).'
+        ],
+        tags: ['hypothermia','cold','warming','adult','medical']
+      },
+      {
+        id: 'easi26-hyperthermia',
+        title: 'Hyperthermia / Heat Exhaustion / Heat Stroke – Adult',
+        summary: 'Remove from heat; active cooling; Midazolam for cooling-related tremors; Acetaminophen not effective for environmental hyperthermia.',
+        steps: [
+          'Assessment: Heat Exhaustion — Diaphoresis, Normal Mental Status, Nausea, Lethargy; Internal Temp <99.5°F. Heat Stroke — Dry skin, AMS/LOC, Weakness; Internal Temp >106°F.',
+          'Basic EMT: Remove from heated environment. Passive cooling: remove clothes, allow sipping water. Active cooling: pack groin and axilla with ice packs.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO).',
+          'Paramedic: Consider Midazolam 2–4 mg IV for tremors secondary to cooling measures.',
+          'NOTE: If temp >105°F, cool patient by any available means. Acetaminophen IV does NOT relieve environmentally caused hyperthermic symptoms.'
+        ],
+        tags: ['heat-stroke','heat-exhaustion','hyperthermia','cooling','midazolam','adult','medical']
+      },
+      {
+        id: 'easi26-ob',
+        title: 'Obstetrical Emergency / Childbirth',
+        summary: 'Assess prenatal history; manage field delivery; Magnesium Sulfate for eclampsia.',
+        steps: [
+          'Assessment: Prenatal care/complications. Gravity/parity/abortions history. Glucose assessment.',
+          'Basic EMT: O2. If delivery imminent: supine with knees bent, clean field, sterile gloves from OB kit. Apply gentle pressure to head to prevent explosive delivery. As head delivers: bulb syringe (mouth then nose). Check for nuchal cord. Support shoulders. Suction, dry, maintain warmth. Clamp cord when pulse stops (6–10 in from navel; second clamp 1–2 in distal). Placenta in plastic bag. Massage uterus post-delivery.',
+          'Complications: Breech — support body; two fingers in V-shape for airway if head delayed >2–3 min; transport ASAP. Nuchal cord — slip over head or clamp and cut. Limb presentation — Trendelenburg, lateral or knee-chest, O2, transport immediately. Prolapsed cord — manually lift infant off cord, knee-chest position, O2, transport rapidly. Precipitous — check ABC, suction, dry, warmth ASAP. Preemie — O2 blow-by. Multiple births — clamp cord, prepare for next delivery.',
+          'Toxemia (Pre-eclampsia/Eclampsia): Pregnancy >20 wk, HTN (SBP >140/DBP >90) PLUS edema, nausea/vomiting, severe headache, AMS, or seizures. Keep sensory stimulation minimal.',
+          'Vaginal Bleeding: Pad at vaginal opening, transport ASAP, collect passed tissue.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO).',
+          'Paramedic – Eclampsia: Magnesium Sulfate 2 G IV, followed by Magnesium Infusion 2–4 G/hr IV.',
+          'NOTE: Contact receiving facility physician for further orders.'
+        ],
+        tags: ['ob','obstetrical','childbirth','delivery','eclampsia','magnesium','adult','medical']
+      },
+      {
+        id: 'easi26-overdose-adult',
+        title: 'Overdose / Poisoning – Adult',
+        summary: 'Contact Poison Control (1-800-222-1222); Narcan for narcotic OD with respiratory depression; Bicarb for TCA; CaCl for CCB; high-flow O2/CPAP for CO.',
+        steps: [
+          'Assessment: Assess substance and route. Contact Poison Control: 1-800-222-1222 from scene (do not allow dispatch to call).',
+          'Basic EMT: O2. NARCOTIC OD with respiratory depression: Narcan 0.04–2 mg IN (total 2 mg); repeat as needed. Follow Poison Control. Transport.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO). NARCOTIC OD with respiratory depression: Narcan 0.4–8 mg SIVP, titrated to response (may administer IM, MAD, or IO).',
+          'Paramedic – TCA OD (tachycardia, widened QRS, dysrhythmias): Sodium Bicarbonate 1 mEq/kg IVP (minimum 50 mEq for adults).',
+          'Paramedic – CCB OD (symptomatic bradycardia): Calcium Chloride 20 mg/kg slow IV over 5–10 min.',
+          'Paramedic – CO POISONING: High-flow O2 via NRB. CPAP ASAP.',
+          'NOTE: Follow Poison Control suggestions as orders up to individual skill level. Prepare for suctioning to reduce aspiration.'
+        ],
+        tags: ['overdose','poisoning','narcan','naloxone','bicarbonate','calcium','co','tca','ccb','adult','medical']
+      },
+      {
+        id: 'easi26-psychiatric',
+        title: 'Psychiatric / Behavioral Emergency – Adult',
+        summary: 'Safety first; Haldol + Midazolam or Ketamine for chemical restraint; monitor airway closely post-benzo.',
+        steps: [
+          'Assessment: Ensure personal safety; contact law enforcement before approach. Talk calmly. Restrain only if danger to self/others (enlist police). Assess ABCs. History: alcohol, drug, medical, psychiatric. Glucose assessment.',
+          'Basic EMT: O2. If physical restraint needed: supine position only. Commercial restraints or triangle bandages (avoid limb constriction). Transport.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (saline lock).',
+          'Paramedic – Chemical restraint Option A: Haldol 5–10 mg IV/IM/IN; follow with Midazolam 2–5 mg IVP; Benadryl 0.5–1 mcg/kg for EPS control.',
+          'Paramedic – Chemical restraint Option B: Ketamine 1–2 mg/kg IV or IM. Follow with Fentanyl 1 mcg/kg IV for suspected schizoaffective or PTSD patients. Follow with Midazolam 2–5 mg IV for emergence delirium. Be prepared to monitor respiratory drive and perform advanced airway measures.',
+          'NOTES: Airway control is priority once benzodiazepine administered. Have intubation equipment ready when giving Ketamine (possible refractory respiratory tone loss).'
+        ],
+        tags: ['psych','behavioral','haldol','haloperidol','ketamine','midazolam','restraint','adult','medical']
+      },
+      {
+        id: 'easi26-sepsis',
+        title: 'Sepsis – Adult',
+        summary: 'Meet ≥2 criteria; LR IV fluid; Ancef 2 G IVP; Epi infusion for refractory hypotension.',
+        steps: [
+          'Inclusion Criteria (≥2 required): MAP <65, SBP <100, EtCO2 <25 mmHg, RR >22 AND HR >100, Temp <96.8°F or >101°F.',
+          'Basic EMT: O2 appropriate; alternative airway if needed. Transport.',
+          'Advanced EMT: Advanced airway. IV Lactated Ringers (10 gtts, 200 cc; TKO; assess for CHF/edema).',
+          'Paramedic: EKG cardiac monitoring. Ancef (Cefazolin) 2 G IVP over 10 min. If hypotension is refractory: Epinephrine Infusion 1–10 mcg/min IV.',
+          'NOTE: IV fluid resuscitation initiated quickly after recognition decreases mortality.'
+        ],
+        tags: ['sepsis','ancef','cefazolin','epinephrine','lactated-ringers','adult','medical']
+      },
+      {
+        id: 'easi26-stroke',
+        title: 'Stroke / CVA – Adult',
+        summary: 'BEFAST assessment; establish last known normal; transport to nearest Stroke Center; do NOT give Atropine or Hydralazine.',
+        steps: [
+          'Required Assessment: BEFAST — Balance (sudden loss), Eyes (vision loss/pupil change), Face (uneven smile), Arms (weakness), Speech (slurred), Time (last known normal). Check glucose. ECG monitoring; consider 12-lead.',
+          'Basic EMT: O2 only to maintain SpO2 >94% (2–4 LPM NC if sat >94%). Contact hospital early and advise — activate Stroke Team if appropriate. Transport to closest Stroke Center.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, TKO).',
+          'Paramedic: EKG cardiac monitoring.',
+          'CRITICAL NOTES: DO NOT administer Atropine for patients with AMS and/or SBP >180 mmHg (Cushing\'s Triad risk — worsens brain bleed). Do NOT use Hydralazine for stroke-related hypertension (decreases cerebral perfusion, increases ICP).'
+        ],
+        tags: ['stroke','cva','befast','adult','medical']
+      },
+      {
+        id: 'easi26-unconscious',
+        title: 'Unconscious / Unknown – Adult',
+        summary: 'Find treatable cause; Narcan 2 mg IN if overdose suspected; EKG monitoring.',
+        steps: [
+          'Assessment: Look for treatable cause — trauma, overdose, CVA, glucose. Assess glucose.',
+          'Basic EMT: O2 appropriate; alternative airway if needed. If no treatable cause → maintain airway and transport. Consider Narcan 2 mg Intranasal via MAD device.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO). Consider Narcan 0.4–8.0 mg IVP, titrated to effect.',
+          'Paramedic: EKG cardiac monitoring.'
+        ],
+        tags: ['unconscious','unknown','narcan','naloxone','adult','medical']
+      },
+      // ── ADULT TRAUMA ──────────────────────────────────────────────────────
+      {
+        id: 'easi26-trauma-adult',
+        title: 'Adult Trauma Protocol',
+        summary: 'BTLS/ITLS/PHTLS guidelines; contact TraumaComm via Pulsara for ALL trauma patients; TXA for significant bleeding; Ancef for open injuries.',
+        steps: [
+          'Contact TraumaComm for ALL TRAUMA PATIENTS (include Trauma Band Number) via Pulsara App or Radio.',
+          'Basic EMT: O2. Bandage bleeding wounds appropriately. Tourniquet profuse extremity bleeds (label time). Spinal Motion Restriction per guidelines. Transport. Maintain patient warmth (blankets, increase ambulance temp).',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO). Consider TXA 2 G IV over 10 min when appropriate. Consider pain management for hemodynamically stable patients. Follow Poison Control for insect bites/stings.',
+          'Paramedic: Moderate to severe injury exposed to elements (avulsion, compound Fx): Ancef 2 G IV. Consider KSI for patients in danger of respiratory failure. Cardiac monitoring; treat as indicated.',
+          'Traumatic Cardiac Arrest: Rapid transport to closest facility. On-scene skills only: Airway control, Bleeding control, Needle decompression, Spinal Motion Restriction. All other treatments en route. Bilateral needle chest decompression should be actively considered.',
+          'NOTE: Traumatic cardiac arrest is not generally a cardiac problem.'
+        ],
+        tags: ['trauma','traumacomm','pulsara','txa','ancef','tourniquet','adult','trauma']
+      },
+      {
+        id: 'easi26-amputation-adult',
+        title: 'Amputated Extremity – Adult',
+        summary: 'Tourniquet extremity; preserve amputated part in ice-water (not dry ice); Acetaminophen pain management.',
+        steps: [
+          'Basic EMT: O2 (high-flow if shock). Tourniquet extremity with CAT Device. Place amputated part in plastic bag inside another bag in ice-water container (DO NOT use ice alone or dry ice). Damp dressing over stump. Transport.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO). Consider Acetaminophen 1000 mg IV over 10 min.',
+          'Paramedic: Consider pain control.'
+        ],
+        tags: ['amputation','tourniquet','adult','trauma']
+      },
+      {
+        id: 'easi26-burns-adult',
+        title: 'Burns – Adult',
+        summary: 'Rule of Nines; LR at 500 mL/hr until Parkland formula; Morphine or Ketamine for pain; Bicarb for electrical burns.',
+        steps: [
+          'Assessment: Rule of Nines for burn area. Determine burn type: Thermal, Electrical, Chemical, Radiation. Protect from hazards.',
+          'Basic EMT: O2. Airway compromise → Alternative Airway Device immediately (DO NOT DELAY). Keep warm. Burns <10% BSA: cool damp sterile dressings. Burns >10% BSA: dry sterile dressings. Remove loose clothing/jewelry (cut around burned clothing, do not pry). Transport within 10 min of arrival to closest burn unit for >10% BSA or burns involving airway, hands, feet, genitals.',
+          'Advanced EMT: Advanced airway. IV Lactated Ringers 500 mL/hr until proper Parkland Formula obtained. 2 large-bore IVs if condition appropriate.',
+          'Paramedic: Pain management — Morphine Sulfate 2 mg IV every 5 min (preferred in burn patients) or Ketamine 0.5–1.0 mg/kg. High-voltage electrical injury or direct lightning strike with significant tissue destruction: Sodium Bicarbonate 1 mEq/kg (max 100 mEq) in 1000 mL NS or LR wide open.'
+        ],
+        tags: ['burns','rule-of-nines','lactated-ringers','parkland','morphine','ketamine','electrical','adult','trauma']
+      },
+      {
+        id: 'easi26-crush-adult',
+        title: 'Crush Injury – Adult',
+        summary: 'Large-bore IV 1000 cc pressure; Bicarb and CaCl for electrolyte imbalances; anticipate hyperkalemia/arrest on extrication.',
+        steps: [
+          'Assessment: Time entrapped; estimate time to extrication. Compartment syndrome risk.',
+          'Basic EMT: O2. Extricate with available resources. If tachycardic: consider Albuterol Nebulizer. Transport.',
+          'Advanced EMT: Advanced airway. Large-bore IV NS 0.9% or LR; administer 1000 cc pressure infused.',
+          'Paramedic: Establish IV access. Consider pain management. Sodium Bicarbonate 1 mEq IV into affected appendage (max 50 mEq total). Calcium Chloride 1 G mixed in 100 mL D10%.',
+          'NOTE: Upon extrication of long-trapped appendage, electrolytes and toxins will flow into the main body and can cause severe imbalances, arrhythmias, and cardiac arrest.'
+        ],
+        tags: ['crush','compartment-syndrome','bicarbonate','calcium-chloride','adult','trauma']
+      },
+      {
+        id: 'easi26-eye-injury-adult',
+        title: 'Eye Injury – Adult',
+        summary: 'Bandage both eyes; LR preferred for irrigation of non-traumatic injuries; consider pain management.',
+        steps: [
+          'Assessment: Assess visual range.',
+          'Basic EMT: O2. Bandage both eyes. For non-traumatic injury (foreign object, irritation): irrigate with Lactated Ringers (preferred). Transport.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO).',
+          'Paramedic: Consider pain management.'
+        ],
+        tags: ['eye','irrigation','adult','trauma']
+      },
+      {
+        id: 'easi26-taser',
+        title: 'Taser Barb Removal – Adult',
+        summary: 'Barbs may be gently removed unless in the face; ECG required for chest pain, SOB, or abdominal pain; refusal if no symptoms post-removal.',
+        steps: [
+          'If patient has physical/medical complaints → move to appropriate protocol. ECG required for chest pain, SOB, or abdominal pain.',
+          'Basic EMT: O2. If barbs intact: remove gently unless inserted in face — if in face, cut wire, secure in position, and transport. If barbs removed successfully and patient refuses transport → obtain refusal signature. Transport if patient requests.',
+          'Advanced EMT / Paramedic: Consider pain management.'
+        ],
+        tags: ['taser','barb','removal','adult','trauma']
+      },
+      // ── PEDIATRIC CARDIAC ─────────────────────────────────────────────────
+      {
+        id: 'easi26-peds-pulseless',
+        title: 'Pulseless Arrest – Pediatric',
+        summary: 'Transport ASAP; Epi 0.01 mg/kg every 3–5 min; defibrillate 2 J/kg then 4 J/kg; Amiodarone 5 mg/kg for refractory VFib.',
+        steps: [
+          'Assess for terminal conditions: Decapitation, Rigor Mortis, Dependent Lividity, incompatible-with-life injuries, visible brain injury, valid DNR. Discontinue CPR if any present.',
+          'EtCO2 monitoring required for all intubated patients. Transport ASAP.',
+          'Basic EMT: Compressions >100/min for 2 min. BVM with oxygen. AED if no ALS (continue compressions until applied). Lucas device if patient large enough (13–18 yo). Alternative Airway Device during compressions; ventilate 8–10 breaths/min. Rotate until ALS arrives or transport immediately.',
+          'Advanced EMT: Minimize interruptions. IV or IO NS at rate appropriate to condition. Epinephrine 1:10,000 0.01 mg/kg IV/IO every 3–5 min during compressions. AED assess/defibrillate if advised. Continue until Paramedic or transport.',
+          'Paramedic – V-Fib / Pulseless VT: Epinephrine 1:10,000 0.01 mg/kg IV/IO every 3–5 min. Defibrillate at 2 J/kg; resume CPR. Repeat at 4 J/kg every 3–5 min. Amiodarone 5 mg/kg IV or IO for persistent/recurrent VFib.',
+          'Paramedic – Asystole / PEA: Epinephrine 1:10,000 0.01 mg/kg IV/IO every 3–5 min. Compressions >100/min; rhythm check every 2 min. Reversible causes: Hypovolemia (20 mL/kg NS), Hypoxia, Acidosis (NaHCO3 1 mEq), Hypo/Hyperkalemia (CaCl 20 mg/kg), Hypoglycemia (D10% 3–5 mL/kg over 10 min), Hypothermia, Toxins, Tamponade, Tension PTX, Thrombosis.',
+          'EtCO2 targets: 35 mmHg ±5 mmHg. Ventilate 20–30 breaths/min (avoid hyperventilation). Use Broselow tape.'
+        ],
+        tags: ['pediatric','peds','arrest','cpr','epinephrine','amiodarone','defib','vfib','asystole','pea','cardiac']
+      },
+      {
+        id: 'easi26-peds-narrow-tach',
+        title: 'Narrow Complex Tachycardia – Pediatric',
+        summary: 'Vagal first for stable; cardioversion for unstable; Adenosine 0.1 mg/kg then 0.2 mg/kg for stable SVT.',
+        steps: [
+          'Assessment: LOC, airway, breathing, circulation. Complete vitals. Head-to-toe. Identify reversible causes. Contact receiving physician if uncertain. Root cause is often hypoxia in pediatrics.',
+          'Basic EMT: O2. Attempt vagal maneuvers. Transport.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (max 20 mL/kg). Regular/Unstable: Synchronized cardioversion 0.5 J/kg; repeat at 1 J/kg until converted. Regular/Stable: vagal maneuvers.',
+          'Paramedic – Regular/Unstable: Cardioversion 0.5 J/kg; repeat at 1 J/kg. Midazolam 0.1 mg/kg IVP or 0.2 mg/kg IN for sedation.',
+          'Paramedic – Regular/Stable: Vagal maneuvers. Adenosine 0.1 mg/kg Fast IVP; if no conversion → repeat at 0.2 mg/kg after 5 min. May repeat once.',
+          'Reversible causes: Hypovolemia (20 mL/kg NS), Hypoxia, Acidosis (NaHCO3 1 mEq), Hypo/Hyperkalemia (CaCl 20 mg/kg), Hypoglycemia (D10% 3–5 mL/kg), Hypothermia, Toxins, Tamponade, Tension PTX, Thrombosis.'
+        ],
+        tags: ['pediatric','peds','svt','narrow-complex','tachycardia','adenosine','midazolam','cardioversion','cardiac']
+      },
+      {
+        id: 'easi26-peds-bradycardia',
+        title: 'Bradycardia – Pediatric',
+        summary: 'Pediatric bradycardia is rarely a cardiac problem — aggressively manage airway/ventilation; Epi 0.01 mg/kg if HR <60 with poor perfusion.',
+        steps: [
+          'Assessment: LOC, airway, breathing, circulation. Complete vitals. AIRWAY IS THE PRIORITY — pediatric bradycardia is seldom a cardiac problem. Check for adequate oxygenation/ventilation. Assess for medication overdose.',
+          'Basic EMT: O2 appropriate; alternative airway if needed. If poor perfusion and HR <60: begin CPR. Transport.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (max 20 mL/kg). Epinephrine 1:10,000 0.01 mg/kg IV; repeat every 3–5 min until bradycardia resolved.',
+          'Paramedic: EKG cardiac monitor.'
+        ],
+        tags: ['pediatric','peds','bradycardia','epinephrine','airway','cardiac']
+      },
+      // ── PEDIATRIC MEDICAL ─────────────────────────────────────────────────
+      {
+        id: 'easi26-peds-allergic',
+        title: 'Allergic Reaction / Anaphylaxis – Pediatric',
+        summary: 'Epi 1:1,000 0.01 mg/kg IM for anaphylaxis; Benadryl 1 mg/kg (max 25 mg); Albuterol per Broselow.',
+        steps: [
+          'Assessment: LOC, airway, breathing, circulation. Hives/urticaria/itching = allergic. SOB/airway swelling/wheezing/hypotension = anaphylaxis. ECG monitor.',
+          'Basic EMT: O2. Albuterol 2.5 mg or Broselow dose nebulized for wheezing. Transport.',
+          'Advanced EMT: Advanced airway. IV NS (max 20 mL/kg). Epinephrine 1:1,000 0.01 mg/kg IM or Broselow dose for dyspnea; if anaphylaxis → 1:10,000 0.01 mg/kg IVP or Broselow dose. Repeat Albuterol as needed. Fluid bolus if hypotensive to SBP >100 (max 20 mL/kg). Diphenhydramine 1 mg/kg IVP or Broselow dose (IM if no IV).',
+          'Paramedic: Benadryl 1 mg/kg IV or Broselow dose; max total 25 mg. If still in anaphylaxis: Epinephrine 1:1,000 0.01 mg/kg IM or Broselow; repeat in 5 min. Life-threatening: 1:10,000 0.01 mg SIVP or Broselow.',
+          'NOTES: Monitor closely. Reserve Epi for anaphylaxis. Early elective intubation for hoarseness, lingual edema, stridor, or oropharyngeal swelling.'
+        ],
+        tags: ['pediatric','peds','allergic','anaphylaxis','epinephrine','benadryl','albuterol','medical']
+      },
+      {
+        id: 'easi26-peds-asthma',
+        title: 'Asthma / ARDS – Pediatric',
+        summary: 'Albuterol first; IV NS for alveolar dehydration; Epi 0.01 mg/kg IM for extremis; avoid intubation if possible.',
+        steps: [
+          'Assessment: Continuously monitor SpO2. Contact receiving physician if diagnosis uncertain.',
+          'Basic EMT: O2 appropriate. Albuterol 2.5 mg or Broselow dose nebulized. Transport.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (max 20 mL/kg for alveolar dehydration; stop if pulmonary edema develops).',
+          'Paramedic: Epinephrine 0.01 mg/kg IM or Broselow dose for patient in extremis.',
+          'NOTES: IV bolus reduces alveolar dehydration. Intubation reserved for patients who deteriorate despite advanced therapy — airway manipulation can worsen bronchoconstriction. Intubation does not relieve small-airway constriction.'
+        ],
+        tags: ['pediatric','peds','asthma','ards','albuterol','epinephrine','medical']
+      },
+      {
+        id: 'easi26-peds-choking',
+        title: 'Choking – Pediatric',
+        summary: '5 back blows + 5 abdominal thrusts (>1 yr); chest thrusts if <1 yr; laryngoscopy + Magill; cricothyrotomy last resort.',
+        steps: [
+          'Assessment: Immediate airway intervention required.',
+          'Basic EMT: >1 year: 5 back blows + 5 abdominal thrusts. <1 year or ineffective: chest thrusts. Continue until relieved. O2 once relieved. Transport.',
+          'Advanced EMT: Continue efforts. Advanced airway. IV NS 0.9% (max 20 mL/kg).',
+          'Paramedic: Direct laryngoscopy — remove with Magill forceps (caution: do not lodge deeper). If all efforts fail → Cricothyrotomy.',
+          'Post-Cricothyrotomy stable vitals: Fentanyl 0.5–1 mcg/kg/dose IVP; repeat every 5 min as needed.'
+        ],
+        tags: ['pediatric','peds','choking','obstruction','magill','cric','medical']
+      },
+      {
+        id: 'easi26-peds-seizures',
+        title: 'Convulsions / Seizures – Pediatric',
+        summary: 'Midazolam 0.35 mg/kg IVP or 0.3 mg/kg IN/IM if no IV; cooling for febrile seizures.',
+        steps: [
+          'Basic EMT: O2 (high-flow >10 LPM helpful in postictal patients). Protect from injury. OPA or NPA. Spinal restriction if trauma suspected. Transport ASAP. If febrile seizure suspected: cooling methods.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (max 20 mL/kg).',
+          'Paramedic: No IV → Midazolam 0.3 mg/kg IN or 1–3 mg IM. IV present → Midazolam 0.35 mg/kg IVP over 20 seconds.',
+          'NOTE: Status seizures are life-threatening — transport ASAP to closest appropriate facility.'
+        ],
+        tags: ['pediatric','peds','seizure','midazolam','febrile','medical']
+      },
+      {
+        id: 'easi26-peds-croup',
+        title: 'Croup / Epiglottitis – Pediatric',
+        summary: 'O2 blow-by; nebulized Albuterol without agitating; nebulized Epi for refractory stridor.',
+        steps: [
+          'Basic EMT: O2 (blow-by if necessary). Transport. Albuterol 2.5 mg nebulized if possible without agitating patient (blow-by if needed).',
+          'Advanced EMT: Advanced airway (with caution to avoid agitation).',
+          'Paramedic: If stridor noted and treatments are refractory → Epinephrine Nebulized: 0.5 mL Epi (1:1,000) in 3 mL NS nebulized.'
+        ],
+        tags: ['pediatric','peds','croup','epiglottitis','stridor','albuterol','epinephrine','medical']
+      },
+      {
+        id: 'easi26-peds-diabetic',
+        title: 'Diabetic Complications – Pediatric',
+        summary: 'Hypoglycemia <80 mg/dL: oral glucose or D10% 3–5 mL/kg; Hyperglycemia: NS 20 mL/kg.',
+        steps: [
+          'HYPOGLYCEMIA (<80 mg/dL) Basic EMT: O2. Symptomatic and awake/alert: Oral Glucose 15–80 g PO or SB; repeat if needed. Transport.',
+          'HYPOGLYCEMIA Advanced EMT: Advanced airway. IV NS 0.9% rate appropriate to condition. Dextrose 10% 3–5 mL/kg (0.3–0.5 G/kg) IV over 10 min; repeat as needed.',
+          'HYPOGLYCEMIA Paramedic: EKG monitor.',
+          'HYPERGLYCEMIA (>200 mg/dL) Basic EMT: None.',
+          'HYPERGLYCEMIA Advanced EMT: Advanced airway. NS 0.9% Bolus 20 mL/kg IV.',
+          'HYPERGLYCEMIA Paramedic: EKG monitor.'
+        ],
+        tags: ['pediatric','peds','diabetes','hypoglycemia','hyperglycemia','dextrose','medical']
+      },
+      {
+        id: 'easi26-peds-nausea',
+        title: 'Nausea, Vomiting, and Diarrhea – Pediatric',
+        summary: 'Zofran 0.1 mg/kg SIVP (max 2 mg); IV NS rate appropriate to condition (max 20 mL/kg); EKG for electrolyte arrhythmias.',
+        steps: [
+          'Basic EMT: O2. Transport.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (rate appropriate; max 20 mL/kg). Zofran 0.1 mg/kg SIVP over 2 min for nausea/vomiting (max 2 mg).',
+          'Paramedic: EKG monitoring for electrolyte-imbalance-related arrhythmias.'
+        ],
+        tags: ['pediatric','peds','nausea','vomiting','diarrhea','zofran','ondansetron','medical']
+      },
+      {
+        id: 'easi26-peds-overdose',
+        title: 'Overdose / Poisoning – Pediatric',
+        summary: 'Narcan 0.1 mg/kg IN or SIVP for narcotic OD; Bicarb for TCA; CPAP + O2 for CO; contact Poison Control.',
+        steps: [
+          'Assessment: Assess substance and route. Contact Poison Control: 1-800-222-1222 from scene.',
+          'Basic EMT: O2. Narcotic OD with respiratory depression: Narcan 0.1 mg/kg IN. Follow Poison Control. Transport.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (max 20 mL/kg). Narcotic OD with respiratory depression: Narcan 0.1 mg/kg SIVP (may administer IM or IO).',
+          'Paramedic – TCA OD (tachycardia, widened QRS, dysrhythmias): Sodium Bicarbonate 1 mEq/kg IVP.',
+          'Paramedic – CO POISONING: CPAP ASAP. High-flow O2 via pediatric NRB mask. Transport to facility with hyperbaric treatment. Follow Poison Control.'
+        ],
+        tags: ['pediatric','peds','overdose','narcan','naloxone','bicarbonate','co','tca','medical']
+      },
+      // ── PEDIATRIC TRAUMA ──────────────────────────────────────────────────
+      {
+        id: 'easi26-peds-amputation',
+        title: 'Amputated Extremity – Pediatric',
+        summary: 'Tourniquet extremity; preserve amputated part in ice-water; consider pain control.',
+        steps: [
+          'Assessment: Locate amputated part.',
+          'Basic EMT: O2 (high-flow if shock). Tourniquet extremity if needed. Amputated part: plastic bag inside another bag, in ice-water container (DO NOT use ice alone or dry ice). Damp dressing over stump. Transport.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (max 20 mL/kg).',
+          'Paramedic: Consider pain control.'
+        ],
+        tags: ['pediatric','peds','amputation','tourniquet','trauma']
+      },
+      {
+        id: 'easi26-peds-burns',
+        title: 'Burns – Pediatric',
+        summary: 'LR IV by age: <5yo 125 mL/hr, 6–13yo 250 mL/hr, >17yo 500 mL/hr until Parkland formula; Morphine preferred; Bicarb for electrical burns.',
+        steps: [
+          'Assessment: Rule of Nines. Burn type: Thermal, Electrical, Chemical, Radiation. Protect from hazards.',
+          'Basic EMT: O2. Airway compromise → Alternative Airway Device immediately. Keep warm. Burns <10% BSA: cool damp sterile dressings. Burns >10% BSA: dry sterile dressings. Remove loose clothing/jewelry. Transport within 10 min to closest burn unit for >10% BSA or burns involving airway, hands, feet, or genitals.',
+          'Advanced EMT: Advanced airway. IV Lactated Ringers: age <5yo → 125 mL/hr; age 6–13yo → 250 mL/hr; age >17yo → 500 mL/hr until proper Parkland formula rate obtained.',
+          'Paramedic: Pain management — Morphine Sulfate 2 mg IV every 5 min as needed (preferred in burns). High-voltage electrical or lightning with significant tissue destruction: Sodium Bicarbonate 1 mEq/kg (max 100 mEq) in 1000 mL NS or LR wide open.'
+        ],
+        tags: ['pediatric','peds','burns','lactated-ringers','parkland','morphine','electrical','trauma']
+      },
+      {
+        id: 'easi26-peds-crush',
+        title: 'Crush Injury – Pediatric',
+        summary: 'Large-bore IV 20 mL/kg NS or LR; Bicarb and CaCl for electrolytes; anticipate arrhythmias on extrication.',
+        steps: [
+          'Basic EMT: O2. Extricate with available resources. If tachycardic: Albuterol nebulized. Transport.',
+          'Advanced EMT: Advanced airway. Large-bore IV 20 mL/kg NS or LR; 1000 cc pressure infused. Two IVs if appropriate: infuse both NS and LR to total volume 20 mL/kg via 10 gtts wide open.',
+          'Paramedic: Consider pain management. Sodium Bicarbonate 1 mEq IV into affected appendage (max 50 mEq total). Calcium Chloride 1 G mixed in 100 mL D5%.',
+          'NOTE: Upon extrication of long-trapped appendage, electrolytes and toxins flow into main body → severe imbalances, arrhythmias, and possible cardiac arrest.'
+        ],
+        tags: ['pediatric','peds','crush','compartment-syndrome','bicarbonate','calcium-chloride','trauma']
+      },
+      {
+        id: 'easi26-peds-eye',
+        title: 'Eye Injury – Pediatric',
+        summary: 'Bandage both eyes; LR preferred for irrigation; consider pain management.',
+        steps: [
+          'Basic EMT: O2. Bandage both eyes. For non-traumatic injury: irrigate with Lactated Ringers (preferred). Transport.',
+          'Advanced EMT: Advanced airway. IV NS 0.9% (max 20 mL/kg).',
+          'Paramedic: Consider pain management.'
+        ],
+        tags: ['pediatric','peds','eye','irrigation','trauma']
+      }
+    ],
+    meds: [
+      { name: 'Acetaminophen (Tylenol) IV', route: 'IV', notes: '1000 mg IV over 10 min for adults. For pain, fever, and febrile transfusion reaction. NOTE: does NOT relieve environmentally caused hyperthermia.', contra: 'Severe liver disease, hypersensitivity', se: 'Nausea, rash, rare hepatotoxicity' },
+      { name: 'Adenosine', route: 'IV FIVP', notes: 'Adult: 6 mg IV FIVP; escalate to 12 mg IV FIVP after 2 min if no conversion. Peds: 0.1 mg/kg Fast IVP; repeat at 0.2 mg/kg after 5 min if no conversion.', contra: '2°/3° AV block (without pacemaker), sick sinus syndrome, asthma caution', se: 'Transient asystole, flushing, chest pressure, dyspnea' },
+      { name: 'Albuterol', route: 'Neb / IM', notes: 'Adult: 2.5 mg nebulized (may repeat). Hyperkalemia: 5 mg + 2 mL NS neb over 5 min (may repeat ×1). Peds: 2.5 mg or Broselow dose. If poor tidal volume: Epi 1:1,000 0.3 mg IM instead.', contra: 'Hypersensitivity', se: 'Tremor, tachycardia, hypokalemia' },
+      { name: 'Amiodarone', route: 'IVP / IV infusion', notes: 'Arrest (adult): 300 mg IVP; may repeat 150 mg IVP every 5 min ×3. Arrest (peds): 5 mg/kg IV or IO. V-Ectopy/Stable wide complex: 150 mg SIVP; repeat ×1 in 10 min. Torsades: 150 mg Slow IVP; repeat ×1 in 10 min. Post-ROSC Infusion: 1 mg/min IV (mix 150 mg in 100 mL NS). DO NOT use if bradycardic.', contra: 'Bradycardia, 2°/3° AV block', se: 'Hypotension, bradycardia, pulmonary toxicity (long-term)' },
+      { name: 'Ancef (Cefazolin)', route: 'IVP', notes: 'Sepsis: 2 G IVP over 10 min. Moderate-severe open trauma injury (avulsion, compound Fx): 2 G IV.', contra: 'Cephalosporin/penicillin allergy', se: 'Allergic reaction, GI upset' },
+      { name: 'Aspirin', route: 'PO', notes: '324 mg PO (4×81 mg chewable) for ACS. Consider for CHF.', contra: 'Active GI bleed, allergy, bleeding disorder', se: 'GI upset, tinnitus' },
+      { name: 'Atropine', route: 'IVP', notes: '0.5 mg IVP for symptomatic bradycardia; may repeat to achieve HR >60. DO NOT give for AMS, SBP >180 mmHg, or Cheyne-Stokes respirations (Cushing\'s Triad/brain bleed risk).', contra: 'AMS + bradycardia with SBP >180 or abnormal respirations; brain bleed', se: 'Tachycardia, dry mouth, urinary retention, blurred vision' },
+      { name: 'Benadryl (Diphenhydramine)', route: 'IV / IM', notes: 'Adult allergic reaction: 50 mg IV (or IM if no IV). Antiemetic: 25 mg IVP or 50 mg IM. KSI hyperlactation: 50 mg IV. Psych EPS control: 0.5–1 mcg/kg IV. Peds allergic: 1 mg/kg IVP or Broselow (max 25 mg).', contra: 'Newborns; angle-closure glaucoma; urinary retention', se: 'Sedation, hypotension, anticholinergic effects' },
+      { name: 'Calcium Chloride', route: 'IV', notes: 'Hyperkalemia: 20 mg/kg SIVP over 5 min (cardioprotective). CCB OD: 20 mg/kg slow IV over 5–10 min. Arrest reversible cause: 1 G IV/IO. Crush injury adult: 1 G in 100 mL D10%. Peds crush: 1 G in 100 mL D5%.', contra: 'VF, digoxin toxicity; avoid infiltration (causes tissue necrosis)', se: 'Bradycardia, hypotension; severe extravasation necrosis' },
+      { name: 'Dextrose 10% (D10%)', route: 'IV / IO', notes: 'Adult hypoglycemia: 250 mL IV or IO over 10 min; repeat as needed. Peds hypoglycemia: 3–5 mL/kg (0.3–0.5 G/kg) IV over 10 min; repeat as needed. Arrest (hypoglycemia cause): 250 mL (12.5 g) IV or IO.', contra: 'Hyperglycemia', se: 'Phlebitis, tissue injury if extravasated, hyperglycemia' },
+      { name: 'Diltiazem (Cardizem)', route: 'Slow IVP', notes: 'Stable AFib/AFlutter without significant HF: 0.25 mg/kg Slow IVP; may repeat after 10 min at 0.35 mg/kg.', contra: 'Hypotension, wide-complex VT, WPW with AF, significant CHF', se: 'Hypotension, bradycardia, AV block' },
+      { name: 'Epinephrine 1:10,000 (0.1 mg/mL)', route: 'IV / IO', notes: 'Adult arrest: 1 mg IV/IO every 3–5 min. Peds arrest: 0.01 mg/kg IV/IO every 3–5 min. Life-threatening adult anaphylaxis: 0.1 mg SIVP. Peds life-threatening anaphylaxis: 0.01 mg SIVP or Broselow.', contra: 'None absolute in arrest/anaphylaxis', se: 'Tachycardia, hypertension, arrhythmias, anxiety' },
+      { name: 'Epinephrine 1:1,000 (1 mg/mL)', route: 'IM / IV infusion', notes: 'Anaphylaxis adult: 0.3 mg IM; repeat in 15 min if no improvement. Anaphylaxis peds: 0.01 mg/kg IM or Broselow; repeat in 5 min. Asthma (poor tidal volume): 0.3 mg IM. Infusion: mix 1 mg in 250 mL NS → 2–10 mcg/min for bradycardia or sepsis refractory hypotension.', contra: 'Tachydysrhythmias (relative), severe HTN (relative)', se: 'Palpitations, tremor, anxiety, hypertension' },
+      { name: 'Epinephrine Push Dose (1:100,000)', route: 'IVP', notes: '5–20 mcg IVP for non-traumatic hypotension; may repeat every 2–5 min. Mix: 1 mg (1:1,000) in 100 mL NS = 10 mcg/mL.', contra: 'Tachyarrhythmias', se: 'Tachycardia, hypertension' },
+      { name: 'Fentanyl', route: 'IV / IN', notes: 'Adult pain: 1 mcg/kg SIVP; may repeat every 10 min, max 200 mcg. ACS: 0.5–1 mcg/kg IV, max 200 mcg (preferred over morphine — no vasodilation, no antiplatelet interaction). Post-cric pain: 1 mcg/kg IVP; repeat every 10 min. Peds pain: 1 mcg/kg IV; max 200 mcg. Post-cric peds: 0.5–1 mcg/kg/dose IVP; repeat every 5 min. Psych: 1 mcg/kg IV (for PTSD/schizoaffective).', contra: 'Hypotension, respiratory depression', se: 'Respiratory depression, chest wall rigidity (rapid large dose), nausea' },
+      { name: 'Furosemide (Lasix)', route: 'IVP', notes: 'CHF/Pulmonary Edema: 40–80 mg IVP.', contra: 'Hypovolemia, sulfa allergy (caution)', se: 'Hypotension, hypokalemia, ototoxicity' },
+      { name: 'Glucose (Oral)', route: 'PO / SB', notes: 'Adult hypoglycemia (awake, alert): 15–80 g PO or sublingually; repeat if still hypoglycemic. Peds: same dosing.', contra: 'Decreased LOC/inability to protect airway', se: 'Nausea; aspiration risk if not alert' },
+      { name: 'Haloperidol (Haldol)', route: 'IV / IM / IN', notes: 'Psych chemical restraint: 5–10 mg IV/IM/IN; follow with Midazolam 2–5 mg IVP. Antiemetic (especially cannabis hyperemesis): 5 mg IV.', contra: 'Parkinson\'s disease, seizure disorder, prolonged QT', se: 'EPS, QT prolongation, hypotension, NMS' },
+      { name: 'Hydralazine', route: 'IVP', notes: 'Hypertensive emergency: 10 mg IVP; may repeat once. DO NOT use for stroke/CVA-related HTN (decreases cerebral perfusion, increases ICP). DO NOT use if patient has angina or Levine\'s sign.', contra: 'Angina, Levine\'s sign, stroke-related HTN, hypotension', se: 'Reflex tachycardia, headache, hypotension' },
+      { name: 'Ketamine (Anesthetic / KSI)', route: 'IV / IM', notes: 'KSI/pre-intubation sedation: 1–3 mg/kg IV. Combative with no IV: 5 mg/kg IM (max 500 mg). Post-cric sedation: 1–3 mg/kg IVP + Ketamine Infusion 0.1–1.5 mg/min. Peds narrow-complex sedation: 1 mg/kg.', contra: 'Severe uncontrolled HTN (relative); use caution in aortic dissection', se: 'Increased BP/HR, emergence delirium, hyperlacrimation, laryngospasm (rare)' },
+      { name: 'Ketamine (Analgesic)', route: 'IV / IN / IM', notes: 'Adult Low Dose: 0.1–1 mg/kg IV, or 0.5–1 mg/kg IN, or 50 mg IM. Repeat every 20 min (no emergence) or every 10 min (if emergence noted); max 3 doses. Peds: 1 mg/kg IV or 0.5–1 mg/kg IN or 50 mg IM; every 20 min max 3 doses. Back pain: 0.1–1 mg/kg IVP — rule out aortic dissection first. NOTE: Geriatrics metabolize slowly; Peds metabolize quickly.', contra: 'Aortic dissection (due to BP increase), severe uncontrolled HTN', se: 'Emergence delirium, increased secretions, nausea' },
+      { name: 'Ketamine Infusion', route: 'IV infusion', notes: 'Post-intubation sedation: 0.1–1.5 mg/min IV (mix 100 mg in 250 mL NS or D5W). Per Dial-A-Flo: 0.1 mg/min = 15 gtts/min; 1.0 mg/min = 150 gtts/min; 1.5 mg/min = 225 gtts/min.', contra: 'Aortic dissection, severe uncontrolled HTN', se: 'Emergence delirium, increased secretions, increased BP/HR' },
+      { name: 'Labetalol', route: 'IVP', notes: 'Hypertensive emergency: 20 mg IVP over 2 min; may repeat ONCE at 20 mg IVP. Avoid if bradycardic.', contra: 'Bradycardia, asthma/COPD, decompensated CHF, hypotension', se: 'Hypotension, bradycardia, bronchospasm' },
+      { name: 'Lactated Ringers (LR)', route: 'IV', notes: 'Burns (adult): 500 mL/hr until Parkland formula. Burns (peds <5yo): 125 mL/hr; 6–13yo: 250 mL/hr; >17yo: 500 mL/hr. Sepsis: initial bolus. GI Bleed: large-bore. Eye irrigation (preferred fluid). Crush injury: alternative to NS.', contra: 'Severe hyperkalemia (contains potassium)', se: 'Fluid overload, electrolyte shifts' },
+      { name: 'Lidocaine 2%', route: 'Neb', notes: 'Cough Variant Asthma: 40–60 mg (2–3 mL of 2%) mixed with 2.5 mg Albuterol via nebulizer.', contra: 'Hypersensitivity to amide anesthetics', se: 'Bronchospasm (rare), CNS effects with systemic absorption' },
+      { name: 'Magnesium Sulfate', route: 'IV / IV infusion', notes: 'Torsades (unstable): 2 G SIVP + Infusion 1 G/hr (1 G in 100 mL NS, 60gtts, Dial-A-Flo 100 gtts/hr). Torsades (stable): 2 G SIVP + Infusion 1 G/hr. Severe Asthma: 2 G over 10 min. Eclampsia: 2 G IV + Infusion 2–4 G/hr IV.', contra: 'Heart block, severe renal failure', se: 'Flushing, hypotension, respiratory depression (high doses), loss of deep tendon reflexes' },
+      { name: 'Midazolam (Versed)', route: 'IV / IM / IN', notes: 'Sedation for cardioversion: 2–5 mg IVP (stable) or 5–10 mg IVP (unstable narrow/wide). Seizure adult: 2–5 mg IVP, repeat ×1. TCP sedation: 2–5 mg. Emergent delirium: 2–5 mg. Peds seizure: 0.35 mg/kg IVP or 0.3 mg/kg IN or 1–3 mg IM. Peds cardioversion sedation: 0.1 mg/kg IVP or 0.2 mg/kg IN.', contra: 'Hypotension, respiratory depression, acute narrow-angle glaucoma', se: 'Apnea, hypotension, amnesia' },
+      { name: 'Morphine Sulfate', route: 'IV / IM', notes: 'Adult pain: 5–10 mg IV every 5 min; max 20 mg. Preferred in burns (promotes fluid movement). Back pain: 2 mg IVP, max 10 mg. ACS (without right-side ST elevation): 5–10 mg IV, max 20 mg. Peds: 0.1 mg/kg SIVP or IM; max 20 mg. Burns peds: 2 mg IV every 5 min.', contra: 'Hypotension, respiratory depression, abdominal pain (relative)', se: 'Hypotension, respiratory depression, nausea, histamine release' },
+      { name: 'Naloxone (Narcan)', route: 'IV / IM / IN / IO', notes: 'Adult narcotic OD with respiratory depression Basic: 0.04–2 mg IN (total 2 mg); repeat. Advanced: 0.4–8 mg SIVP titrated to response (or IM, MAD, IO). Unconscious/unknown: 2 mg IN via MAD or 0.4–8 mg IVP. Peds Basic: 0.1 mg/kg IN. Peds Advanced: 0.1 mg/kg SIVP (or IM or IO).', contra: 'Hypersensitivity (rare); use with caution to avoid acute withdrawal in opioid-dependent patients', se: 'Acute withdrawal, agitation, pulmonary edema (rare)' },
+      { name: 'Nitroglycerin', route: 'SL', notes: 'ACS (adults, SBP >105 mmHg): 0.4 mg SL; may repeat ×2. CHF (SBP >100 mmHg): 0.4 mg SL. HTN (SBP >90 mmHg): 0.4 mg SL; may repeat ×2. Withhold for inferior ST elevation. Once CPAP is placed, do NOT remove mask for further SL doses.', contra: 'Hypotension (SBP <90–105 mmHg), RV infarct, PDE-5 inhibitor use in past 24 h, trauma with suspected internal bleeding', se: 'Headache, hypotension, reflex tachycardia' },
+      { name: 'Normal Saline 0.9% (NS)', route: 'IV / IO', notes: 'Standard fluid for IV access and boluses. Adult bolus: 200 cc (10 gtts), TKO thereafter unless shock. Fluid resuscitation: 500–1000 cc. Burns (with Bicarb): 1000 mL wide open. Peds max: 20 mL/kg per protocol. IO site: NS at rate appropriate for condition.', contra: 'Hyperchloremic acidosis risk with massive infusion; use LR for sepsis and burns', se: 'Fluid overload, hyperchloremia' },
+      { name: 'Ondansetron (Zofran)', route: 'IV / IM', notes: 'Adult: 4 mg SIVP or IM; may repeat once (ACS nausea, abdominal pain, general antiemetic). Peds: 0.1 mg/kg SIVP over 2 min; max 4 mg (adult) or 2 mg (per EASI peds protocol). Contact medical control for repeat peds dosing.', contra: 'Hypersensitivity; prolonged QT caution', se: 'Headache, constipation, QT prolongation (rare)' },
+      { name: 'Sodium Bicarbonate', route: 'IVP / IV', notes: 'Adult arrest (acidosis): 1 mEq IV/IO; may repeat once. TCA OD adult: 1 mEq/kg IVP (min 50 mEq). Crush injury adult: 1 mEq into affected appendage (max 50 mEq). Burns (electrical): 1 mEq/kg (max 100 mEq) in 1000 mL NS or LR wide open. Peds arrest (acidosis): 1 mEq IV/IO. Peds TCA OD: 1 mEq/kg IVP. Peds crush: 1 mEq (max 50 mEq). Peds burns (electrical): 1 mEq/kg (max 100 mEq).', contra: 'Metabolic alkalosis, hypokalemia', se: 'Alkalosis, hypernatremia, paradoxical intracellular acidosis' },
+      { name: 'Solu-Medrol (Methylprednisolone)', route: 'IV / IM', notes: 'Anaphylaxis: 125 mg IV or IM. Anaphylactic transfusion reaction: 125 mg IVP.', contra: 'Systemic fungal infection (relative); no absolute contraindication in emergency', se: 'Hyperglycemia, immunosuppression' },
+      { name: 'Thiamine', route: 'IV', notes: 'General medical illness (alcohol use): 100 mg IV.', contra: 'None in emergency', se: 'Rare hypotension with rapid push; local irritation' },
+      { name: 'Tranexamic Acid (TXA)', route: 'IV infusion', notes: 'Upper GI bleed with decompensated shock: 2 G IV over 10 min. Trauma significant bleeding: 2 G IV over 10 min.', contra: 'Active intravascular clotting, subarachnoid hemorrhage, allergy', se: 'Nausea, vomiting, hypotension if pushed too fast' },
+      { name: 'Verapamil', route: 'SIVP', notes: 'Stable AFib/AFlutter without significant HF: 5 mg IV; if no change after 5 min → 10 mg IV.', contra: 'Hypotension, WPW with AF, wide-complex VT/VF, significant CHF', se: 'Hypotension, bradycardia, AV block' }
+    ]
+  };
+
   const SAMPLE = {
     currentService: 'EASI AMBULANCE',
     services: {
-      'EASI AMBULANCE': JSON.parse(JSON.stringify(SAMPLE_SERVICE))
+      'EASI AMBULANCE': JSON.parse(JSON.stringify(SAMPLE_SERVICE)),
+      'EASI Protocols - 2026': JSON.parse(JSON.stringify(EASI_2026_SERVICE))
     }
   };
 
-  function load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || SAMPLE }catch(e){ return SAMPLE } }
+  function load(){
+    let data;
+    try{ data = JSON.parse(localStorage.getItem(KEY)) || SAMPLE; }catch(e){ data = SAMPLE; }
+    if(!data.services['EASI Protocols - 2026']){
+      data.services['EASI Protocols - 2026'] = JSON.parse(JSON.stringify(EASI_2026_SERVICE));
+      save(data);
+    }
+    return data;
+  }
   function save(data){ localStorage.setItem(KEY, JSON.stringify(data)); }
 
   let state = load();
