@@ -2040,7 +2040,7 @@
     const name = prompt('New service name?');
     if(!name) return;
     if(state.services[name]) return alert('Name already exists.');
-    state.services[name] = JSON.parse(JSON.stringify(SAMPLE_SERVICE));
+    state.services[name] = { protocols: [], meds: [] };
     state.currentService = name;
     save(state);
     renderAll([]);
