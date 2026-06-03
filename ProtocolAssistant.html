@@ -1848,9 +1848,9 @@
   };
 
   const SAMPLE = {
-    currentService: 'EASI AMBULANCE',
+    currentService: 'EASI Protocols - 2026',
     services: {
-      'EASI AMBULANCE': JSON.parse(JSON.stringify(SAMPLE_SERVICE)),
+      'EASI Protocols - 2025': JSON.parse(JSON.stringify(SAMPLE_SERVICE)),
       'EASI Protocols - 2026': JSON.parse(JSON.stringify(EASI_2026_SERVICE))
     }
   };
@@ -1858,10 +1858,17 @@
   function load(){
     let data;
     try{ data = JSON.parse(localStorage.getItem(KEY)) || SAMPLE; }catch(e){ data = SAMPLE; }
+    // Migrate legacy service name
+    if(data.services['EASI AMBULANCE'] && !data.services['EASI Protocols - 2025']){
+      data.services['EASI Protocols - 2025'] = data.services['EASI AMBULANCE'];
+      delete data.services['EASI AMBULANCE'];
+      if(data.currentService === 'EASI AMBULANCE') data.currentService = 'EASI Protocols - 2025';
+    }
     if(!data.services['EASI Protocols - 2026']){
       data.services['EASI Protocols - 2026'] = JSON.parse(JSON.stringify(EASI_2026_SERVICE));
       save(data);
     }
+    save(data);
     return data;
   }
   function save(data){ localStorage.setItem(KEY, JSON.stringify(data)); }
@@ -1886,7 +1893,12 @@
 
   function renderServiceSelect(){
     const names = Object.keys(state.services);
-    serviceSelect.innerHTML = names.map(n=>`<option ${n===state.currentService?'selected':''}>${n}</option>`).join('');
+    serviceSelect.innerHTML = names.map(n=>{
+      const outdated = n.includes('2025');
+      const style = outdated ? ' style="text-decoration:line-through;opacity:0.55"' : '';
+      const label = outdated ? n + ' [outdated]' : n;
+      return `<option ${n===state.currentService?'selected':''}${style} value="${n}">${label}</option>`;
+    }).join('');
   }
 
   function renderProtocols(filterTerms=[]){
