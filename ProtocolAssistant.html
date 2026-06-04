@@ -117,6 +117,15 @@
     /* med hyperlinks in protocol steps */
     .med-link{color:var(--accent);text-decoration:underline dotted;cursor:pointer;font-weight:600}
     .med-link:hover{text-decoration:underline solid}
+    /* route administration badges: IV, IM, IO, SL, etc. */
+    .rbadge{display:inline-block;background:rgba(56,189,248,.12);color:#7dd3fc;border:1px solid rgba(56,189,248,.3);border-radius:4px;padding:0 5px;font-size:.8em;font-weight:700;letter-spacing:.3px;vertical-align:middle;margin:0 2px;white-space:nowrap}
+    :root.light .rbadge{background:rgba(14,165,233,.1);color:#0369a1;border-color:rgba(14,165,233,.25)}
+    /* DO NOT / CONTRAINDICATED warnings */
+    .warn{color:#f87171;font-weight:700}
+    :root.light .warn{color:#dc2626}
+    /* max / ceiling dose — amber, distinct from regular purple dose */
+    .dose-max{background:rgba(251,191,36,.15);color:#fbbf24;border-radius:4px;padding:0 3px;font-weight:700}
+    :root.light .dose-max{background:rgba(234,179,8,.12);color:#b45309}
     /* infusion rate pills */
     .rate-pill{display:inline-block;background:rgba(94,234,212,.1);border:1px solid rgba(94,234,212,.2);border-radius:6px;padding:1px 6px;font-size:.9em;white-space:nowrap;margin:1px 2px}
     :root.light .rate-pill{background:rgba(13,148,136,.08);border-color:rgba(13,148,136,.2)}
@@ -2245,11 +2254,40 @@
     return { clean: ns, descriptor: '' };
   }
 
+  // Sanitize raw text before injecting as HTML — prevents < > from breaking markup
+  function sanitizeText(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  const _UNITS = 'mg\\/kg|mcg\\/kg|mL\\/kg|mcg\\/kg\\/min|mg\\/kg\\/hr|mg|mcg|g|mEq|mL|units?|IU';
+  const _NUM   = '\\d+(?:\\.\\d+)?(?:\\s*[–\\-]\\s*\\d+(?:\\.\\d+)?)?';
+
   function doseHL(text){
-    return text.replace(
-      /(\d+(?:\.\d+)?(?:\s*[–\-]\s*\d+(?:\.\d+)?)?)\s*(mg\/kg|mcg\/kg|mL\/kg|mcg\/kg\/min|mg\/kg\/hr|mg|mcg|g|mEq|mL|units?|IU)(?=[\s,;.\)\/]|$)/gi,
-      '<span class="dose">$1 $2</span>'
+    // Max/ceiling dose first → amber badge
+    let result = text.replace(
+      new RegExp('\\b(max(?:imum)?\\s+(?:total\\s+)?(?:dose\\s+)?)(' + _NUM + ')\\s*(' + _UNITS + ')(?=[\\s,;.\\)\\/]|$)', 'gi'),
+      (_, pre, num, unit) => `<span class="dose-max">${pre}${num} ${unit}</span>`
     );
+    // Remaining dose amounts → purple badge (replaceTextOnly avoids re-matching inside dose-max spans)
+    return replaceTextOnly(result, t => t.replace(
+      new RegExp('(' + _NUM + ')\\s*(' + _UNITS + ')(?=[\\s,;.\\)\\/]|$)', 'gi'),
+      '<span class="dose">$1 $2</span>'
+    ));
+  }
+
+  // Final enhancement pass: route badges + DO NOT warnings (runs on text nodes only)
+  function enhance(html){
+    return replaceTextOnly(html, text => {
+      // Route administration badges (case-sensitive — protocols write routes in CAPS)
+      text = text.replace(
+        /\b(SIVP|FIVP|IVP|IV\/IO|IO\/IV|IM\/IV|IV\/IM|IV|IM|IO|IN|SL|PO|NEB|SubQ|SQ)\b/g,
+        r => `<span class="rbadge">${r}</span>`
+      );
+      // Safety warnings
+      text = text.replace(
+        /\b(DO NOT|NEVER|CONTRAINDICATED|WITHHOLD|DISCONTINUE|DO NOT ADMINISTER)\b/g,
+        m => `<span class="warn">${m}</span>`
+      );
+      return text;
+    });
   }
 
   // Apply fn only to text nodes (not inside HTML tags) — prevents regex corruption of existing markup
@@ -2329,7 +2367,7 @@
           : /^Adult$/i.test(descriptor)
           ? `<span class="pt-badge pt-adult">Adult</span> `
           : '';
-        const stepHtml = ptBadge + fmtRateTable(linkMeds(doseHL(highlight(clean, filterTerms))));
+        const stepHtml = ptBadge + enhance(fmtRateTable(linkMeds(doseHL(highlight(sanitizeText(clean), filterTerms)))));
         return `<div class="step-row-wrap" style="margin-bottom:6px">
           ${roleLabel}<div class="step-content"><span class="k">${si+1}</span> ${stepHtml}</div>
         </div>`;
@@ -2396,8 +2434,8 @@
           </div>
           <button class="fav-btn${on?' on':''}" onclick="toggleFav('m','${(m.name||'').replace(/'/g,"&#39;")}')" title="${on?'Remove from favorites':'Add to favorites'}">${on?'★':'☆'}</button>
         </div>
-        <div class="hint">${doseHL(highlight(m.notes||'', filterTerms))}</div>
-        ${m.contra?`<div class="hint" style="margin-top:4px"><span style="color:#f87171">✕</span> ${highlight(m.contra, filterTerms)}</div>`:''}
+        <div class="hint">${enhance(doseHL(highlight(sanitizeText(m.notes||''), filterTerms)))}</div>
+        ${m.contra?`<div class="hint" style="margin-top:4px"><span style="color:#f87171">✕</span> ${highlight(sanitizeText(m.contra||''), filterTerms)}</div>`:''}
         <div style="margin-top:8px" class="row">
           <button class="btn" onclick="loadIntoCalc('${(m.name||'').replace(/'/g, "&#39;")}')">Send to Calculator</button>
           ${typeof m.default_mgkg!=='undefined' && m.default_mgkg!==null ? `<span class="pill"><span class="k">mg/kg</span>${m.default_mgkg}</span>`:''}
