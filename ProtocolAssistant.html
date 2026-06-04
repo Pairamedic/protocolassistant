@@ -80,14 +80,12 @@
     .role-toggle-btn.off{background:rgba(255,255,255,.05)!important;color:rgba(167,176,190,.5)!important;border-color:rgba(255,255,255,.1)!important;text-decoration:line-through}
     :root.light .role-toggle-btn.off{background:rgba(0,0,0,.04)!important;color:rgba(100,116,139,.4)!important;border-color:rgba(0,0,0,.08)!important}
     .panel-toolbar{display:flex;justify-content:flex-end;padding:10px 0 4px}
-    /* collapsible cards */
+    /* collapsible cards — open by default, tap to collapse */
     .card-header{cursor:pointer;user-select:none;-webkit-user-select:none}
-    .card-header::after{content:'▾';font-size:12px;color:var(--muted);float:right;margin-top:3px;transition:transform .2s}
-    .card.expanded .card-header::after{transform:rotate(180deg)}
-    .card-body{display:none;margin-top:8px}
-    .card.expanded .card-body{display:block}
-    .grid.search-active .card-body{display:block}
-    .grid.search-active .card-header::after{transform:rotate(180deg)}
+    .card-header::after{content:'▴';font-size:12px;color:var(--muted);float:right;margin-top:3px;transition:transform .2s}
+    .card.collapsed .card-header::after{content:'▾'}
+    .card-body{display:block;margin-top:8px}
+    .card.collapsed .card-body{display:none}
     /* ui controls */
     .ui-ctrl-btn{background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer;font-size:13px;font-weight:600;padding:4px 9px;font-family:inherit;line-height:1.4}
     .ui-ctrl-btn:hover{color:var(--text)}
@@ -2148,8 +2146,6 @@
       if(!steps.length) return true;
       return steps.some(s=>{ const r=stepRole(normalizeRoles(s)); return !r||!_hiddenRoles.has(r); });
     });
-    const searching = filterTerms.length > 0 || _favsOnly;
-    protocolsEl.classList.toggle('search-active', searching);
     protocolsEl.innerHTML = items.map(({p,i})=>{
       const eid = (p.id||p.title).replace(/[^a-z0-9]/gi,'_');
       const fid = (p.id||p.title).replace(/'/g,"&#39;");
@@ -2185,7 +2181,7 @@
 
   function toggleCard(eid){
     const el = document.getElementById('pcard-'+eid);
-    if(el) el.classList.toggle('expanded');
+    if(el) el.classList.toggle('collapsed');
   }
 
   function renderMeds(filterTerms=[]){
