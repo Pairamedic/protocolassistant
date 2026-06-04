@@ -39,6 +39,7 @@
     .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px}
     .toolbar{display:flex;gap:8px;flex-wrap:wrap}
     .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:100;display:flex;align-items:flex-end;justify-content:center}
+    .modal-overlay.hidden{display:none}
     @media(min-width:600px){.modal-overlay{align-items:center;padding:16px}}
     .modal-box{background:#141820;border:1px solid rgba(255,255,255,.12);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:600px;max-height:94vh;overflow-y:auto}
     @media(min-width:600px){.modal-box{border-radius:20px;max-height:88vh}}
@@ -79,6 +80,7 @@
           <button id="rename-service" class="btn">Rename</button>
           <button id="duplicate-service" class="btn">Duplicate</button>
           <button id="delete-service" class="btn danger">Delete</button>
+          <button id="report-issue" class="btn" style="color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08)">🚩 Report Issue</button>
         </div>
         <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Search protocols, meds, keywords (e.g., 'adult airway', 'ketamine', 'brady')" />
       </div>
@@ -428,6 +430,48 @@
       <div style="text-align:center;margin-top:14px">
         <button id="auth-reset" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline">Forgot password?</button>
       </div>
+    </div>
+  </div>
+
+  <!-- PIN Modal -->
+  <div id="pin-overlay" class="modal-overlay hidden">
+    <div class="modal-box" style="max-width:360px;text-align:center">
+      <div style="font-size:30px;margin-bottom:10px">🔒</div>
+      <h3 id="pin-svc-title" style="margin:0 0 8px;font-size:16px"></h3>
+      <p class="hint" style="margin:0 0 18px;font-size:13px">Enter the access PIN to view this service</p>
+      <input id="pin-input" type="password" autocomplete="off" placeholder="Enter PIN" style="text-align:center;font-size:16px;letter-spacing:2px" />
+      <div class="row" style="gap:10px;margin-top:14px">
+        <button id="pin-cancel" class="btn" style="flex:1">Cancel</button>
+        <button id="pin-submit" class="btn primary" style="flex:2">Unlock</button>
+      </div>
+      <div id="pin-error" style="color:#f87171;font-size:13px;margin-top:10px;min-height:18px"></div>
+    </div>
+  </div>
+
+  <!-- Report Issue Modal -->
+  <div id="report-overlay" class="modal-overlay hidden">
+    <div class="modal-box" style="max-width:480px">
+      <div class="modal-head">
+        <h3 style="margin:0">🚩 Report a Protocol Issue</h3>
+        <button id="report-close" class="btn" style="padding:4px 10px">✕</button>
+      </div>
+      <div class="fg">
+        <label>Select a protocol (optional)</label>
+        <select id="report-protocol"></select>
+      </div>
+      <div class="fg" style="margin-top:8px">
+        <label>Or describe the protocol / topic</label>
+        <input id="report-topic-other" type="text" placeholder="e.g. 'Sepsis step 3' or 'Search feature'" />
+      </div>
+      <div class="fg" style="margin-top:8px">
+        <label>Describe the issue <span style="color:#f87171">*</span></label>
+        <textarea id="report-desc" rows="5" placeholder="What seems incorrect, unclear, or missing? Be as specific as possible." style="resize:vertical;min-height:100px;width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:#0f131a;color:var(--text);font-family:inherit;font-size:14px"></textarea>
+      </div>
+      <div class="row" style="gap:10px;margin-top:14px">
+        <button id="report-cancel" class="btn" style="flex:1">Cancel</button>
+        <button id="report-send" class="btn primary" style="flex:2">📧 Compose Email</button>
+      </div>
+      <p class="hint" style="margin:10px 0 0;font-size:12px;text-align:center">Opens your mail app — pre-filled to EliasACaldwellNRP@gmail.com</p>
     </div>
   </div>
 
@@ -2087,11 +2131,42 @@
     $('#panel-'+tab).classList.remove('hidden');
   }));
 
+  // --- PIN Protection ---
+  const EASI_PIN = 'easimedics2026';
+  const _unlocked = new Set();
+  let _pendingSvc = null;
+  let _pinFromLoad = false;
+
+  function checkServicePin(){
+    const svc = state.currentService;
+    if(svc.startsWith('EASI Protocols') && !_unlocked.has(svc)){
+      _pendingSvc = svc;
+      _pinFromLoad = true;
+      $('#pin-svc-title').textContent = svc;
+      $('#pin-input').value = '';
+      $('#pin-error').textContent = '';
+      $('#pin-overlay').classList.remove('hidden');
+      setTimeout(()=>$('#pin-input').focus(), 100);
+    }
+  }
+
   // --- Services Management ---
   serviceSelect.addEventListener('change', ()=>{
-    state.currentService = serviceSelect.value;
-    save(state);
-    renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
+    const target = serviceSelect.value;
+    if(target.startsWith('EASI Protocols') && !_unlocked.has(target)){
+      _pendingSvc = target;
+      _pinFromLoad = false;
+      serviceSelect.value = state.currentService; // revert dropdown
+      $('#pin-svc-title').textContent = target;
+      $('#pin-input').value = '';
+      $('#pin-error').textContent = '';
+      $('#pin-overlay').classList.remove('hidden');
+      setTimeout(()=>$('#pin-input').focus(), 50);
+    } else {
+      state.currentService = target;
+      save(state);
+      renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
+    }
   });
 
   $('#add-service').addEventListener('click', ()=>{
@@ -2482,6 +2557,67 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
   });
 
+  // --- PIN Modal Handlers ---
+  $('#pin-submit').addEventListener('click', ()=>{
+    if($('#pin-input').value === EASI_PIN){
+      _unlocked.add(_pendingSvc);
+      $('#pin-overlay').classList.add('hidden');
+      state.currentService = _pendingSvc;
+      serviceSelect.value = _pendingSvc;
+      save(state);
+      renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
+      _pendingSvc = null;
+      _pinFromLoad = false;
+    } else {
+      $('#pin-error').textContent = 'Incorrect PIN – try again.';
+      $('#pin-input').value = '';
+      $('#pin-input').focus();
+    }
+  });
+
+  $('#pin-cancel').addEventListener('click', ()=>{
+    $('#pin-overlay').classList.add('hidden');
+    if(_pinFromLoad){
+      const fallback = Object.keys(state.services).find(s => !s.startsWith('EASI Protocols'));
+      if(fallback){ state.currentService = fallback; serviceSelect.value = fallback; renderAll([]); }
+    }
+    _pendingSvc = null;
+    _pinFromLoad = false;
+  });
+
+  $('#pin-input').addEventListener('keydown', e=>{ if(e.key==='Enter') $('#pin-submit').click(); });
+
+  // --- Report Issue Handlers ---
+  $('#report-issue').addEventListener('click', ()=>{
+    const protos = (state.services[state.currentService]?.protocols || []).map(p => p.name);
+    const sel = $('#report-protocol');
+    sel.innerHTML = '<option value="">— Select a specific protocol —</option>' +
+      protos.map(n => `<option value="${n.replace(/"/g,'&quot;')}">${n}</option>`).join('') +
+      '<option value="__other">Other / App Feedback</option>';
+    $('#report-topic-other').value = '';
+    $('#report-desc').value = '';
+    $('#report-desc').style.borderColor = '';
+    $('#report-overlay').classList.remove('hidden');
+    setTimeout(()=>$('#report-desc').focus(), 80);
+  });
+
+  function closeReport(){ $('#report-overlay').classList.add('hidden'); }
+  $('#report-close').addEventListener('click', closeReport);
+  $('#report-cancel').addEventListener('click', closeReport);
+  $('#report-overlay').addEventListener('click', e=>{ if(e.target===$('#report-overlay')) closeReport(); });
+
+  $('#report-send').addEventListener('click', ()=>{
+    const selVal = $('#report-protocol').value;
+    const other  = $('#report-topic-other').value.trim();
+    const desc   = $('#report-desc').value.trim();
+    if(!desc){ $('#report-desc').style.borderColor='#f87171'; $('#report-desc').focus(); return; }
+    $('#report-desc').style.borderColor = '';
+    const topic  = (selVal && selVal !== '__other') ? selVal : (other || 'General Issue');
+    const subject = encodeURIComponent(`Protocol Report: ${topic}`);
+    const body    = encodeURIComponent(`Service: ${state.currentService}\nProtocol / Topic: ${topic}\n\nIssue Description:\n${desc}`);
+    window.location.href = `mailto:EliasACaldwellNRP@gmail.com?subject=${subject}&body=${body}`;
+  });
+
   // Init (renders from localStorage immediately so app is responsive)
   renderAll([]);
 
@@ -2513,6 +2649,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
         }
       }catch(e){ /* offline – keep local state */ }
       renderAll([]);
+      checkServicePin();
     } else {
       $('#auth-overlay').style.display = 'flex';
       $('#user-bar').style.display = 'none';
