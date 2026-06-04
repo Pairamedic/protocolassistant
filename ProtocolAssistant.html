@@ -56,7 +56,6 @@
     .panel-toolbar{display:flex;justify-content:flex-end;padding:10px 0 4px}
     /* auth */
     #user-bar{ display:none;align-items:center;gap:8px;font-size:12px;color:var(--muted) }
-    .auth-card{ background:#141820;border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:28px;width:100%;max-width:400px }
   </style>
 </head>
 <body>
@@ -413,27 +412,6 @@
     <div class="footer">Offline‑friendly reference. Always follow your service’s latest approved protocols.</div>
   </main>
   </div><!-- /app-shell -->
-
-  <!-- Auth Overlay -->
-  <div id="auth-overlay" class="modal-overlay" style="z-index:200;align-items:center;padding:16px">
-    <div class="auth-card">
-      <div style="text-align:center;margin-bottom:22px">
-        <div style="font-size:32px">🚑</div>
-        <h2 style="margin:8px 0 4px;font-size:20px">EMS Protocols</h2>
-        <p class="hint" style="margin:0">Sign in to sync your data across all devices</p>
-      </div>
-      <div class="fg"><label>Email</label><input id="auth-email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" /></div>
-      <div class="fg"><label>Password</label><input id="auth-pass" type="password" autocomplete="current-password" placeholder="6+ characters" /></div>
-      <div class="row" style="gap:10px;margin-top:6px">
-        <button id="auth-login" class="btn primary" style="flex:2">Sign In</button>
-        <button id="auth-register" class="btn">Create Account</button>
-      </div>
-      <div id="auth-error" style="color:#f87171;font-size:13px;margin-top:10px;min-height:18px;text-align:center"></div>
-      <div style="text-align:center;margin-top:14px">
-        <button id="auth-reset" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline">Forgot password?</button>
-      </div>
-    </div>
-  </div>
 
   <!-- PIN Modal -->
   <div id="pin-overlay" class="modal-overlay hidden">
@@ -2664,7 +2642,6 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
 
   fbAuth.onAuthStateChanged(async user => {
     if(user){
-      $('#auth-overlay').style.display = 'none';
       $('#app-shell').style.display = '';
       $('#user-email').textContent = user.email;
       $('#user-bar').style.display = 'flex';
@@ -2675,61 +2652,17 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
           state = applyMigrations(doc.data());
           localStorage.setItem(KEY, JSON.stringify(state));
         } else {
-          cloudSave(state); // first sign-in: push local data up
+          cloudSave(state);
         }
       }catch(e){ /* offline – keep local state */ }
       renderAll([]);
       checkServicePin();
     } else {
-      $('#auth-overlay').style.display = 'flex';
-      $('#user-bar').style.display = 'none';
+      window.location.replace('index.html');
     }
   });
 
-  function authError(code){
-    return ({
-      'auth/user-not-found':'Incorrect email or password.',
-      'auth/wrong-password':'Incorrect email or password.',
-      'auth/invalid-credential':'Incorrect email or password.',
-      'auth/email-already-in-use':'An account with that email already exists.',
-      'auth/invalid-email':'Please enter a valid email address.',
-      'auth/weak-password':'Password must be at least 6 characters.',
-      'auth/too-many-requests':'Too many attempts – try again later.',
-      'auth/network-request-failed':'Network error – check your connection.',
-    })[code] || 'Something went wrong. Try again.';
-  }
-
-  $('#auth-login').addEventListener('click', async () => {
-    const email = $('#auth-email').value.trim();
-    const pass  = $('#auth-pass').value;
-    $('#auth-error').textContent = '';
-    if(!email||!pass){ $('#auth-error').textContent='Enter email and password.'; return; }
-    try{ await fbAuth.signInWithEmailAndPassword(email, pass); }
-    catch(e){ $('#auth-error').textContent = authError(e.code); }
-  });
-
-  $('#auth-register').addEventListener('click', async () => {
-    const email = $('#auth-email').value.trim();
-    const pass  = $('#auth-pass').value;
-    $('#auth-error').textContent = '';
-    if(!email||!pass){ $('#auth-error').textContent='Enter email and password.'; return; }
-    try{ await fbAuth.createUserWithEmailAndPassword(email, pass); }
-    catch(e){ $('#auth-error').textContent = authError(e.code); }
-  });
-
-  $('#auth-reset').addEventListener('click', async () => {
-    const email = $('#auth-email').value.trim();
-    if(!email){ $('#auth-error').textContent='Enter your email above first.'; return; }
-    try{
-      await fbAuth.sendPasswordResetEmail(email);
-      $('#auth-error').style.color='#4ade80';
-      $('#auth-error').textContent='Password reset email sent — check your inbox.';
-    }catch(e){ $('#auth-error').textContent = authError(e.code); }
-  });
-
   $('#auth-logout').addEventListener('click', () => fbAuth.signOut());
-
-  $('#auth-pass').addEventListener('keydown', e => { if(e.key==='Enter') $('#auth-login').click(); });
 
   // --- Source protection (deterrents) ---
   document.addEventListener('contextmenu', e => e.preventDefault());
