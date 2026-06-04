@@ -234,7 +234,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <div id="app-shell" style="display:none">
-  <div id="svc-loading" class="hidden" style="position:fixed;inset:0;background:rgba(11,13,16,.88);z-index:90;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px">
+  <div id="svc-loading" style="display:none;position:fixed;inset:0;background:rgba(11,13,16,.88);z-index:90;align-items:center;justify-content:center;flex-direction:column;gap:14px">
     <div style="width:34px;height:34px;border:3px solid rgba(94,234,212,.18);border-top-color:var(--accent);border-radius:50%;animation:spin .75s linear infinite"></div>
     <div style="color:var(--muted);font-size:13px;letter-spacing:.2px">Loading protocols…</div>
   </div>
@@ -2463,7 +2463,7 @@
 
   function showSvcLoading(on){
     const el = document.getElementById('svc-loading');
-    if(el) el.classList.toggle('hidden', !on);
+    if(el) el.style.display = on ? 'flex' : 'none';
   }
 
   async function fetchSvcFromFirestore(){
