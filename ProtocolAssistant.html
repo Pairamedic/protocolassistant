@@ -148,6 +148,16 @@
     .pt-adult{background:rgba(99,102,241,.12);color:#a5b4fc;border-color:rgba(99,102,241,.35)}
     :root.light .pt-peds{background:rgba(249,115,22,.1);color:#c2410c;border-color:rgba(249,115,22,.3)}
     :root.light .pt-adult{background:rgba(99,102,241,.1);color:#4338ca;border-color:rgba(99,102,241,.3)}
+    /* age filter toggle — protocols panel */
+    .age-filter-row{display:flex;gap:6px;padding:10px 0 4px;flex-wrap:wrap}
+    .age-btn{background:var(--input-bg);border:1px solid var(--border);border-radius:999px;color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;padding:5px 14px;font-family:inherit;transition:all .15s;white-space:nowrap}
+    .age-btn.active{background:rgba(94,234,212,.12);color:var(--accent);border-color:rgba(94,234,212,.4)}
+    :root.light .age-btn.active{background:rgba(13,148,136,.1);color:var(--accent);border-color:rgba(13,148,136,.35)}
+    /* drug class filter chips — meds panel */
+    .cls-filter-row{display:flex;gap:6px;padding:10px 0 4px;flex-wrap:wrap}
+    .cls-chip{background:var(--input-bg);border:1px solid var(--border);border-radius:999px;color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;padding:5px 12px;font-family:inherit;transition:all .15s;white-space:nowrap}
+    .cls-chip.active{background:rgba(192,132,252,.12);color:#c084fc;border-color:rgba(192,132,252,.4)}
+    :root.light .cls-chip.active{background:rgba(147,51,234,.1);color:#7c3aed;border-color:rgba(147,51,234,.3)}
   </style>
 </head>
 <body>
@@ -202,11 +212,17 @@
   <main class="wrap">
     <!-- Protocols -->
     <section id="panel-protocols" class="panel">
+      <div class="age-filter-row" id="age-filter-row">
+        <button class="age-btn active" data-age="all">All Ages</button>
+        <button class="age-btn" data-age="adult">Adult</button>
+        <button class="age-btn" data-age="peds">Pediatric</button>
+      </div>
       <div id="protocols"></div>
     </section>
 
     <!-- Meds -->
     <section id="panel-meds" class="panel hidden">
+      <div id="med-class-filter" class="cls-filter-row"></div>
       <div id="meds" class="grid"></div>
     </section>
 
@@ -2153,6 +2169,8 @@
   let _favsOnly    = false;
   const _hiddenRoles = new Set();
   let _lastTerms = [];
+  let _ageFilter = 'all';
+  let _medClassFilter = null;
 
   function _favKey(svc){ return svc || state.currentService; }
   function _favArr(type, svc){
@@ -2403,6 +2421,12 @@
       if(!steps.length) return true;
       return steps.some(s=>{ const r=stepRole(normalizeRoles(s)); return !r||!_hiddenRoles.has(r); });
     });
+    if(_ageFilter !== 'all') items = items.filter(({p})=>{
+      const cat = protocolCategory(p);
+      if(_ageFilter === 'adult') return !cat.startsWith('Pediatric');
+      if(_ageFilter === 'peds')  return !cat.startsWith('Adult');
+      return true;
+    });
 
     const TAG_HIDE = new Set(['emt','aemt','paramedic','adult','pediatric','peds','basic']);
     const totalProtocols = all.length;
@@ -2511,10 +2535,54 @@
     return ['paramedic'];
   }
 
+  const MED_CLASS_MAP = [
+    { cls:'Analgesics',       match:/acetaminophen|tylenol|aspirin|morphine|fentanyl|ketamine/i },
+    { cls:'Antiarrhythmics',  match:/amiodarone|adenosine|\batropine\b|diltiazem|lidocaine|magnesium sulfate|verapamil/i },
+    { cls:'Antiemetics',      match:/ondansetron|zofran/i },
+    { cls:'Antihistamines',   match:/benadryl|diphenhydramine/i },
+    { cls:'Antihypertensives',match:/labetalol|hydralazine|nitroglycerin/i },
+    { cls:'Antipsychotics',   match:/haloperidol|haldol/i },
+    { cls:'Benzodiazepines',  match:/midazolam|versed|diazepam|lorazepam/i },
+    { cls:'Bronchodilators',  match:/albuterol|ipratropium|atrovent/i },
+    { cls:'Corticosteroids',  match:/solu-medrol|methylprednisolone/i },
+    { cls:'Dissociative',     match:/ketamine/i },
+    { cls:'Diuretics',        match:/furosemide|lasix/i },
+    { cls:'Electrolytes',     match:/calcium chloride|magnesium sulfate|sodium bicarb|dextrose/i },
+    { cls:'Hemostatics',      match:/\btxa\b/i },
+    { cls:'IV Fluids',        match:/normal saline|lactated ringer/i },
+    { cls:'Opioids',          match:/fentanyl|morphine/i },
+    { cls:'Reversal Agents',  match:/naloxone|narcan/i },
+    { cls:'Sedatives',        match:/ketamine|midazolam/i },
+    { cls:'Sympathomimetics', match:/epinephrine/i },
+    { cls:'Vitamins',         match:/thiamine/i },
+  ];
+  function medClasses(name){
+    if(!name) return [];
+    return MED_CLASS_MAP.filter(e=>e.match.test(name)).map(e=>e.cls);
+  }
+  function renderMedClassFilter(){
+    const container = document.getElementById('med-class-filter');
+    if(!container) return;
+    const allMeds = svc().meds||[];
+    if(!allMeds.length){ container.innerHTML=''; return; }
+    const usedClasses = new Set();
+    allMeds.forEach(m => medClasses(m.name||'').forEach(c => usedClasses.add(c)));
+    const ordered = MED_CLASS_MAP.map(e=>e.cls).filter(c=>usedClasses.has(c));
+    container.innerHTML = ordered.map(c =>
+      `<button class="cls-chip${_medClassFilter===c?' active':''}" onclick="setMedClass(${JSON.stringify(c)})">${c}</button>`
+    ).join('');
+  }
+  window.setMedClass = function(cls){
+    _medClassFilter = (_medClassFilter === cls) ? null : cls;
+    renderMedClassFilter();
+    renderMeds(_lastTerms);
+  };
+
   function renderMeds(filterTerms=[]){
     const all = svc().meds||[];
     let items = all.map((m,i)=>({m,i})).filter(({m})=> matchItem(m, filterTerms));
     if(_favsOnly) items = items.filter(({m})=> isFav('m', m.name));
+    if(_medClassFilter) items = items.filter(({m})=> medClasses(m.name||'').includes(_medClassFilter));
     const tcM = $('#tc-m'); if(tcM) tcM.textContent = items.length < all.length ? `(${items.length}/${all.length})` : `(${items.length})`;
     medsEl.innerHTML = items.map(({m,i})=>{
       const on = isFav('m', m.name);
@@ -2551,6 +2619,7 @@
     renderServiceSelect();
     renderProtocols(terms);
     renderMeds(terms);
+    renderMedClassFilter();
     renderCalcOptions();
     jsonEl.value = JSON.stringify(svc(), null, 2);
   }
@@ -2573,6 +2642,14 @@
       if(_hiddenRoles.has(role)) _hiddenRoles.delete(role);
       else _hiddenRoles.add(role);
       $(`#role-toggle-${role}`).classList.toggle('off', _hiddenRoles.has(role));
+      renderProtocols(_lastTerms);
+    });
+  });
+
+  document.querySelectorAll('.age-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      _ageFilter = btn.dataset.age;
+      document.querySelectorAll('.age-btn').forEach(b => b.classList.toggle('active', b === btn));
       renderProtocols(_lastTerms);
     });
   });
