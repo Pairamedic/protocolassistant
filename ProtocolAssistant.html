@@ -120,6 +120,12 @@
     /* infusion rate pills */
     .rate-pill{display:inline-block;background:rgba(94,234,212,.1);border:1px solid rgba(94,234,212,.2);border-radius:6px;padding:1px 6px;font-size:.9em;white-space:nowrap;margin:1px 2px}
     :root.light .rate-pill{background:rgba(13,148,136,.08);border-color:rgba(13,148,136,.2)}
+    /* peds / adult step badges */
+    .pt-badge{display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;border:1px solid;text-transform:uppercase;letter-spacing:.4px;vertical-align:middle;margin-right:3px;line-height:1.6}
+    .pt-peds{background:rgba(249,115,22,.12);color:#fb923c;border-color:rgba(249,115,22,.35)}
+    .pt-adult{background:rgba(99,102,241,.12);color:#a5b4fc;border-color:rgba(99,102,241,.35)}
+    :root.light .pt-peds{background:rgba(249,115,22,.1);color:#c2410c;border-color:rgba(249,115,22,.3)}
+    :root.light .pt-adult{background:rgba(99,102,241,.1);color:#4338ca;border-color:rgba(99,102,241,.3)}
   </style>
 </head>
 <body>
@@ -1286,10 +1292,10 @@
         title: 'Triage Protocol',
         summary: 'Criteria for diverting vitally stable patients to hospital triage area when ER is overcrowded.',
         steps: [
-          'Patient must meet ALL criteria: GCS 15; non-acute chief complaint; ambulatory or able to sit in wheelchair; 100 < SBP < 200 with 60 < MAP < 100; 60 < HR < 100 and consistent; 70 < BG < 250; denies SOB, chest pain, hematemesis/GI bleed.',
-          'Lead Paramedic/EMT advises charge nurse that EASI Triage Protocol is being utilized.',
-          'Assist patient to waiting area and give triage nurse a verbal patient report.',
-          'Obtain proper signatures from receiving nurse.'
+          'EMT: Patient must meet ALL criteria: GCS 15; non-acute chief complaint; ambulatory or able to sit in wheelchair; SBP 100–200; MAP 60–100; HR 60–100 (consistent); BG 70–250; denies SOB, chest pain, hematemesis/GI bleed.',
+          'EMT: Lead provider advises charge nurse that EASI Triage Protocol is being utilized.',
+          'EMT: Assist patient to waiting area and give triage nurse a verbal patient report.',
+          'EMT: Obtain proper signatures from receiving nurse.'
         ],
         tags: ['paramedic','aemt','emt','triage','er','overcrowded','stable','diversion']
       },
@@ -2205,6 +2211,24 @@
     return '';
   }
 
+  // Strip the role word(s) from the front of a step, keeping non-role descriptors (Pediatric, Adult).
+  // Returns { clean: text without role prefix, descriptor: 'Pediatric'|'Adult'|'' }
+  function stripRolePrefix(ns){
+    const ROLE  = '(?:Paramedic|AEMT|Advanced\\s+EMT|EMT-I\\b|EMT-Intermediate\\b|EMT\\b)';
+    const DESC  = '(Pediatric|Peds|Adult|Geriatric)';
+    const SEP   = '[\\s:–\\-]+';
+    // Descriptor before role: "Pediatric AEMT:" or "Adult Paramedic:"
+    let m = ns.match(new RegExp('^\\s*' + DESC + '\\s+' + ROLE + '(?:\\s*\\/\\s*' + ROLE + ')*' + SEP, 'i'));
+    if(m) return { clean: ns.slice(m[0].length), descriptor: m[1] };
+    // Role before descriptor: "Paramedic Adult:"
+    m = ns.match(new RegExp('^\\s*' + ROLE + '(?:\\s*\\/\\s*' + ROLE + ')*\\s+' + DESC + SEP, 'i'));
+    if(m) return { clean: ns.slice(m[0].length), descriptor: m[1] };
+    // Plain role prefix: "Paramedic:" or "EMT/AEMT:"
+    m = ns.match(new RegExp('^\\s*' + ROLE + '(?:\\s*[\\/-]\\s*' + ROLE + ')*' + SEP, 'i'));
+    if(m) return { clean: ns.slice(m[0].length), descriptor: '' };
+    return { clean: ns, descriptor: '' };
+  }
+
   function doseHL(text){
     return text.replace(
       /(\d+(?:\.\d+)?(?:\s*[–\-]\s*\d+(?:\.\d+)?)?)\s*(mg\/kg|mcg\/kg|mL\/kg|mcg\/kg\/min|mg\/kg\/hr|mg|mcg|g|mEq|mL|units?|IU)(?=[\s,;.\)\/]|$)/gi,
@@ -2282,10 +2306,14 @@
         const ns   = normalizeRoles(s);
         const role = stepRole(ns);
         if(role && _hiddenRoles.has(role)) return '';
-        // Strip leading role label from step text (e.g. "Paramedic: ...", "EMT/AEMT: ...")
-        const clean = ns.replace(/^\s*(Paramedic|AEMT|Advanced\s+EMT|EMT)[\s\/\-]*(Paramedic|AEMT|Advanced\s+EMT|EMT)?[\s:–\-]+/i,'');
+        const { clean, descriptor } = stripRolePrefix(ns);
         const roleLabel = role ? `<span class="step-role-tag" style="color:${ROLE_COLORS[role]};border-color:${ROLE_COLORS[role]}">${ROLE_LABELS[role]}</span>` : '';
-        const stepHtml = fmtRateTable(linkMeds(doseHL(highlight(clean, filterTerms))));
+        const ptBadge = /^(Pediatric|Peds)$/i.test(descriptor)
+          ? `<span class="pt-badge pt-peds">Peds</span> `
+          : /^Adult$/i.test(descriptor)
+          ? `<span class="pt-badge pt-adult">Adult</span> `
+          : '';
+        const stepHtml = ptBadge + fmtRateTable(linkMeds(doseHL(highlight(clean, filterTerms))));
         return `<div class="step-row-wrap" style="margin-bottom:6px">
           ${roleLabel}<div class="step-content"><span class="k">${si+1}</span> ${stepHtml}</div>
         </div>`;
