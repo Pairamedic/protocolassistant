@@ -86,6 +86,10 @@
     .card.collapsed .card-header::after{content:'▾'}
     .card-body{display:block;margin-top:8px}
     .card.collapsed .card-body{display:none}
+    .card-step-count{display:none;font-size:11px;color:var(--muted);margin-top:3px;letter-spacing:.2px}
+    .card.collapsed .card-step-count{display:block}
+    /* tab result counts */
+    .tab-cnt{font-size:11px;opacity:.65;font-weight:400;margin-left:2px}
     /* vertical role label on steps */
     .step-row-wrap{display:flex;align-items:flex-start;gap:6px}
     .step-role-tag{writing-mode:vertical-rl;text-orientation:mixed;font-size:9px;font-weight:700;letter-spacing:.5px;border-left:2px solid;padding:2px 2px;border-radius:2px;opacity:.85;line-height:1;flex:none;align-self:stretch;display:flex;align-items:center;text-transform:uppercase}
@@ -174,8 +178,8 @@
           </div>
         </div>
         <div class="tabs">
-          <button class="tab active" data-tab="protocols">Protocols</button>
-          <button class="tab" data-tab="meds">Meds</button>
+          <button class="tab active" data-tab="protocols">Protocols <span class="tab-cnt" id="tc-p"></span></button>
+          <button class="tab" data-tab="meds">Meds <span class="tab-cnt" id="tc-m"></span></button>
           <button class="tab" data-tab="calc">Dose Calc</button>
         </div>
         <div class="hint">Select an Ambulance Service. Data is saved automatically.</div>
@@ -2348,6 +2352,10 @@
       if(!steps.length) return true;
       return steps.some(s=>{ const r=stepRole(normalizeRoles(s)); return !r||!_hiddenRoles.has(r); });
     });
+    // Tags to suppress from chip display — role/population info already shown as colour badges
+    const TAG_HIDE = new Set(['emt','aemt','paramedic','adult','pediatric','peds','basic']);
+    const totalProtocols = (svc().protocols||[]).length;
+    const tcP = $('#tc-p'); if(tcP) tcP.textContent = items.length < totalProtocols ? `(${items.length}/${totalProtocols})` : `(${items.length})`;
     protocolsEl.innerHTML = items.map(({p,i})=>{
       const eid = (p.id||p.title).replace(/[^a-z0-9]/gi,'_');
       const fid = (p.id||p.title).replace(/'/g,"&#39;");
@@ -2356,6 +2364,10 @@
       const cardRoles = detectRoles(allText);
       const badges = cardRoles.map(r=>`<span class="role-badge rb-${r}">${r==='paramedic'?'Paramedic':r==='aemt'?'AEMT':'EMT'}</span>`).join('');
       const ROLE_LABELS = {paramedic:'Paramedic', aemt:'AEMT', emt:'EMT'};
+      const visibleStepCount = (p.steps||[]).filter(s=>{
+        const r = stepRole(normalizeRoles(s));
+        return !r || !_hiddenRoles.has(r);
+      }).length;
       const stepsHtml = (p.steps||[]).map((s,si)=>{
         const ns   = normalizeRoles(s);
         const role = stepRole(ns);
@@ -2382,11 +2394,12 @@
             </div>
             <button class="fav-btn${on?' on':''}" onclick="event.stopPropagation();toggleFav('p','${fid}')" title="${on?'Remove from favorites':'Add to favorites'}">${on?'★':'☆'}</button>
           </div>
+          <div class="card-step-count">${visibleStepCount} step${visibleStepCount!==1?'s':''}</div>
         </div>
         <div class="card-body">
           <div class="hint" style="margin-bottom:6px">${highlight(normalizeRoles(p.summary||''), filterTerms)}</div>
           <div>${stepsHtml}</div>
-          <div>${(p.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+          <div>${(p.tags||[]).filter(t=>!TAG_HIDE.has(t)).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
         </div>
       </div>`}).join('') || emptyState(_favsOnly ? 'No favorited protocols yet — tap ☆ on any protocol to save it here.' : 'No protocol matches');
   }
@@ -2421,6 +2434,7 @@
     const all = svc().meds||[];
     let items = all.map((m,i)=>({m,i})).filter(({m})=> matchItem(m, filterTerms));
     if(_favsOnly) items = items.filter(({m})=> isFav('m', m.name));
+    const tcM = $('#tc-m'); if(tcM) tcM.textContent = items.length < all.length ? `(${items.length}/${all.length})` : `(${items.length})`;
     medsEl.innerHTML = items.map(({m,i})=>{
       const on = isFav('m', m.name);
       const roles = medRoles(m.name||'');
