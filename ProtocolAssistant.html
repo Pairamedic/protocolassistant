@@ -80,6 +80,7 @@
           <button id="rename-service" class="btn">Rename</button>
           <button id="duplicate-service" class="btn">Duplicate</button>
           <button id="delete-service" class="btn danger">Delete</button>
+          <button id="download-protocols" class="btn" style="color:#86efac;border-color:rgba(134,239,172,.35);background:rgba(134,239,172,.08)">⬇ Download</button>
           <button id="report-issue" class="btn" style="color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08)">🚩 Report Issue</button>
         </div>
         <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Search protocols, meds, keywords (e.g., 'adult airway', 'ketamine', 'brady')" />
@@ -2160,57 +2161,72 @@
     }
   });
 
-  $('#add-service').addEventListener('click', ()=>{
+  function requireAdminPin(title, callback){
     _pinMode    = 'as';
     _pendingSvc = null;
-    $('#pin-svc-title').textContent = 'Add New Service';
+    $('#pin-svc-title').textContent = title;
     $('#pin-input').value = '';
     $('#pin-error').textContent = '';
-    _addSvcNext = ()=>{
+    _addSvcNext = callback;
+    $('#pin-overlay').classList.remove('hidden');
+    setTimeout(()=>$('#pin-input').focus(), 50);
+  }
+
+  $('#add-service').addEventListener('click', ()=>{
+    requireAdminPin('Add New Service', ()=>{
       const name = prompt('New service name?');
       if(!name) return;
       if(state.services[name]) return alert('Name already exists.');
       state.services[name] = { protocols: [], meds: [] };
       state.currentService = name;
-      save(state);
-      renderAll([]);
-    };
-    $('#pin-overlay').classList.remove('hidden');
-    setTimeout(()=>$('#pin-input').focus(), 50);
+      save(state); renderAll([]);
+    });
   });
 
   $('#rename-service').addEventListener('click', ()=>{
-    const old = state.currentService;
-    const name = prompt('Rename service to:', old);
-    if(!name || name===old) return;
-    if(state.services[name]) return alert('Name already exists.');
-    state.services[name] = state.services[old];
-    delete state.services[old];
-    state.currentService = name;
-    save(state);
-    renderAll([]);
+    requireAdminPin('Rename Service', ()=>{
+      const old = state.currentService;
+      const name = prompt('Rename service to:', old);
+      if(!name || name===old) return;
+      if(state.services[name]) return alert('Name already exists.');
+      state.services[name] = state.services[old];
+      delete state.services[old];
+      state.currentService = name;
+      save(state); renderAll([]);
+    });
   });
 
   $('#duplicate-service').addEventListener('click', ()=>{
-    const from = state.currentService;
-    const name = prompt('Duplicate service as:', from+' Copy');
-    if(!name) return;
-    if(state.services[name]) return alert('Name already exists.');
-    state.services[name] = JSON.parse(JSON.stringify(state.services[from]));
-    state.currentService = name;
-    save(state);
-    renderAll([]);
+    requireAdminPin('Duplicate Service', ()=>{
+      const from = state.currentService;
+      const name = prompt('Duplicate service as:', from+' Copy');
+      if(!name) return;
+      if(state.services[name]) return alert('Name already exists.');
+      state.services[name] = JSON.parse(JSON.stringify(state.services[from]));
+      state.currentService = name;
+      save(state); renderAll([]);
+    });
   });
 
   $('#delete-service').addEventListener('click', ()=>{
-    const name = state.currentService;
-    if(Object.keys(state.services).length===1) return alert('Keep at least one service.');
-    if(confirm(`Delete "${name}"? This cannot be undone.`)){
-      delete state.services[name];
-      state.currentService = Object.keys(state.services)[0];
-      save(state);
-      renderAll([]);
-    }
+    requireAdminPin('Delete Service', ()=>{
+      const name = state.currentService;
+      if(Object.keys(state.services).length===1) return alert('Keep at least one service.');
+      if(confirm(`Delete "${name}"? This cannot be undone.`)){
+        delete state.services[name];
+        state.currentService = Object.keys(state.services)[0];
+        save(state); renderAll([]);
+      }
+    });
+  });
+
+  $('#download-protocols').addEventListener('click', ()=>{
+    requireAdminPin('Download Protocol Reference', ()=>{
+      window.open(
+        'https://docs.google.com/document/d/1f0loxMV_Td43iarl9-V5F6hJRKYbhhzr/export?format=pdf',
+        '_blank'
+      );
+    });
   });
 
   // --- Calculators ---
