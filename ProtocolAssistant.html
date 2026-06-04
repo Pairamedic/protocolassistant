@@ -5,35 +5,47 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>EMS Protocol Assistant V.1</title>
   <style>
-    :root { --bg:#0b0d10; --card:#141820; --muted:#a7b0be; --text:#e6eef8; --accent:#5eead4; --accent2:#93c5fd; }
-    *{box-sizing:border-box}
+    :root { --bg:#0b0d10; --card:#141820; --muted:#a7b0be; --text:#e6eef8; --accent:#5eead4; --accent2:#93c5fd; --border:rgba(255,255,255,.1); --input-bg:#0f131a; }
+    :root.light { --bg:#f1f5f9; --card:#ffffff; --muted:#64748b; --text:#0f172a; --accent:#0d9488; --accent2:#2563eb; --border:rgba(0,0,0,.1); --input-bg:#f8fafc; }
+    *{box-sizing:border-box;transition:background-color .18s,border-color .18s,color .18s}
     html,body{height:100%}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:var(--bg);color:var(--text);font-size:16px}
+    html[data-sz="md"] body{font-size:18px}
+    html[data-sz="lg"] body{font-size:21px}
     header{position:sticky;top:0;background:linear-gradient(180deg,rgba(20,24,32,.98),rgba(20,24,32,.9));backdrop-filter:saturate(120%) blur(6px);z-index:20;border-bottom:1px solid rgba(255,255,255,.06)}
+    :root.light header{background:linear-gradient(180deg,rgba(241,245,249,.98),rgba(241,245,249,.92));border-bottom-color:rgba(0,0,0,.08)}
     .wrap{max-width:1024px;margin:0 auto;padding:16px}
     .title{font-weight:700;letter-spacing:.2px;font-size:18px}
     .bar{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
     @media(min-width:860px){.bar{grid-template-columns:1fr 1fr}}
-    input[type="search"],input[type="text"],input[type="number"],select,textarea{width:100%;padding:14px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.1);background:#0f131a;color:var(--text);outline:none}
+    input[type="search"],input[type="text"],input[type="number"],select,textarea{width:100%;padding:14px 14px;border-radius:14px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);outline:none}
     input::placeholder{color:#8a94a7}
+    :root.light input::placeholder{color:#94a3b8}
     .tabs{display:flex;gap:8px;margin-top:12px}
-    .tab{flex:1;text-align:center;padding:10px 12px;border-radius:12px;background:#0f131a;border:1px solid rgba(255,255,255,.08);cursor:pointer}
-    .tab.active{background:linear-gradient(180deg,#0f131a,#101725);border-color:rgba(148,163,184,.25);box-shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 0 0 2px rgba(94,234,212,.15)}
-    .hint{color:var(--muted);font-size:12px;margin-top:6px}
-    .grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:14px}
+    .tab{flex:1;text-align:center;padding:12px 12px;border-radius:12px;background:var(--input-bg);border:1px solid var(--border);cursor:pointer;font-size:15px}
+    .tab.active{background:linear-gradient(180deg,var(--input-bg),var(--card));border-color:rgba(148,163,184,.25);box-shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 0 0 2px rgba(94,234,212,.15)}
+    :root.light .tab.active{box-shadow:0 0 0 2px rgba(13,148,136,.2)}
+    .hint{color:var(--muted);font-size:13px;margin-top:6px}
+    .grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px}
     @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
-    .card{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:14px}
-    .card h3{margin:0 0 6px;font-size:16px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px}
+    .card h3{margin:0 0 6px;font-size:17px;line-height:1.3}
     .badge{display:inline-block;padding:2px 8px;border-radius:999px;background:rgba(147,197,253,.12);color:var(--accent2);font-size:11px;margin-right:6px;border:1px solid rgba(147,197,253,.25)}
-    .tag{display:inline-block;margin:6px 6px 0 0;padding:4px 8px;border-radius:10px;background:#0f131a;border:1px dashed rgba(255,255,255,.12);color:#b6c2d6;font-size:11px}
+    .tag{display:inline-block;margin:6px 6px 0 0;padding:4px 8px;border-radius:10px;background:var(--input-bg);border:1px dashed var(--border);color:#b6c2d6;font-size:11px}
+    :root.light .tag{color:#64748b}
     .row{display:flex;gap:10px}
     .row>*{flex:1}
-    .btn{padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:#0f131a;color:var(--text);cursor:pointer}
-    .btn.primary{background:linear-gradient(180deg,#0f131a,#132036);border-color:rgba(94,234,212,.35)}
+    .btn{padding:13px 16px;border-radius:12px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);cursor:pointer;font-size:15px}
+    .btn.primary{background:linear-gradient(180deg,var(--input-bg),var(--card));border-color:rgba(94,234,212,.35)}
+    :root.light .btn.primary{border-color:rgba(13,148,136,.35)}
     .btn.danger{border-color:rgba(239,68,68,.5)}
-    .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid rgba(255,255,255,.12);border-radius:999px;font-size:12px}
-    .k{display:inline-block;min-width:1.4em;text-align:center;background:rgba(94,234,212,.15);color:#88ffeb;border:1px solid rgba(94,234,212,.35);border-radius:6px;padding:1px 4px;margin-right:4px}
+    .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--border);border-radius:999px;font-size:12px}
+    .k{display:inline-block;min-width:1.5em;text-align:center;background:rgba(94,234,212,.15);color:#88ffeb;border:1px solid rgba(94,234,212,.35);border-radius:6px;padding:2px 5px;margin-right:5px;font-weight:600}
+    :root.light .k{background:rgba(13,148,136,.12);color:#0d9488;border-color:rgba(13,148,136,.3)}
     mark{background:rgba(94,234,212,.2);padding:0 2px;border-radius:4px}
+    :root.light mark{background:rgba(13,148,136,.2)}
+    .dose{background:rgba(168,85,247,.18);color:#c084fc;border-radius:4px;padding:0 3px;font-weight:700}
+    :root.light .dose{background:rgba(147,51,234,.12);color:#7c3aed}
     .footer{color:#7f8aa3;font-size:12px;margin:18px 0}
     .hidden{display:none}
     .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px}
@@ -41,31 +53,177 @@
     .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:100;display:flex;align-items:flex-end;justify-content:center}
     .modal-overlay.hidden{display:none}
     @media(min-width:600px){.modal-overlay{align-items:center;padding:16px}}
-    .modal-box{background:#141820;border:1px solid rgba(255,255,255,.12);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:600px;max-height:94vh;overflow-y:auto}
+    .modal-box{background:var(--card);border:1px solid var(--border);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:600px;max-height:94vh;overflow-y:auto}
     @media(min-width:600px){.modal-box{border-radius:20px;max-height:88vh}}
     .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
     .step-row{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start}
-    .step-ta{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:#0f131a;color:var(--text);resize:vertical;min-height:54px;font-family:inherit;font-size:14px}
+    .step-ta{flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);resize:vertical;min-height:54px;font-family:inherit;font-size:14px}
     .fg{display:block;margin-bottom:10px}
     .fg label{display:block;color:var(--muted);font-size:12px;margin-bottom:4px}
     .fg input,.fg textarea,.fg select{width:100%}
     .fg textarea{resize:vertical;font-family:inherit;font-size:14px}
     .card-actions{display:flex;justify-content:flex-end;margin-top:10px}
-    .fav-btn{background:none;border:none;font-size:18px;cursor:pointer;padding:2px 5px;color:#4b5568;line-height:1;flex:none;transition:color .15s}
+    .fav-btn{background:none;border:none;font-size:22px;cursor:pointer;padding:4px 8px;color:#4b5568;line-height:1;flex:none;transition:color .15s;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
     .fav-btn:hover,.fav-btn.on{color:#fbbf24}
     .card.fav-on{border-color:rgba(251,191,36,.28)}
-    .role-badge{display:inline-block;padding:2px 7px;border-radius:6px;font-size:10px;font-weight:600;border:1px solid;margin-right:4px;margin-bottom:2px}
+    .role-badge{display:inline-block;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid;margin-right:4px;margin-bottom:2px}
     .rb-emt{background:rgba(59,130,246,.15);color:#60a5fa;border-color:rgba(59,130,246,.35)}
     .rb-aemt{background:rgba(249,115,22,.15);color:#fb923c;border-color:rgba(249,115,22,.35)}
-    .rb-paramedic{background:rgba(239,68,68,.15);color:#f87171;border-color:rgba(239,68,68,.35)}
-    .role-toggle-btn{border-radius:12px;font-size:11px;font-weight:600;padding:3px 10px;cursor:pointer;border:1px solid;transition:all .15s;font-family:inherit}
-    .role-toggle-btn.rb-paramedic{background:rgba(239,68,68,.15);color:#f87171;border-color:rgba(239,68,68,.35)}
+    .rb-paramedic{background:rgba(34,197,94,.15);color:#4ade80;border-color:rgba(34,197,94,.35)}
+    :root.light .rb-emt{background:rgba(59,130,246,.1);color:#1d4ed8}
+    :root.light .rb-aemt{background:rgba(249,115,22,.1);color:#c2410c}
+    :root.light .rb-paramedic{background:rgba(34,197,94,.12);color:#15803d}
+    .role-toggle-btn{border-radius:12px;font-size:12px;font-weight:600;padding:5px 12px;cursor:pointer;border:1px solid;transition:all .15s;font-family:inherit;min-height:36px}
+    .role-toggle-btn.rb-paramedic{background:rgba(34,197,94,.15);color:#4ade80;border-color:rgba(34,197,94,.35)}
     .role-toggle-btn.rb-aemt{background:rgba(249,115,22,.15);color:#fb923c;border-color:rgba(249,115,22,.35)}
     .role-toggle-btn.rb-emt{background:rgba(59,130,246,.15);color:#60a5fa;border-color:rgba(59,130,246,.35);opacity:.6;cursor:default}
     .role-toggle-btn.off{background:rgba(255,255,255,.05)!important;color:rgba(167,176,190,.5)!important;border-color:rgba(255,255,255,.1)!important;text-decoration:line-through}
+    :root.light .role-toggle-btn.off{background:rgba(0,0,0,.04)!important;color:rgba(100,116,139,.4)!important;border-color:rgba(0,0,0,.08)!important}
     .panel-toolbar{display:flex;justify-content:flex-end;padding:10px 0 4px}
+    /* collapsible cards — open by default, tap to collapse */
+    .card-header{cursor:pointer;user-select:none;-webkit-user-select:none}
+    .card-chev{font-size:15px;color:var(--muted);line-height:1;flex:none;transition:transform .2s;display:inline-block}
+    .card.collapsed .card-chev{transform:rotate(-90deg)}
+    .card-body{display:block;margin-top:8px}
+    .card.collapsed .card-body{display:none}
+    .card-step-count{display:none;font-size:11px;color:var(--muted);margin-top:3px;letter-spacing:.2px}
+    .card.collapsed .card-step-count{display:block}
+    /* protocol step sub-items and arrow styling */
+    .sub-step{display:flex;gap:7px;padding:3px 0 3px 10px;margin:3px 0;border-left:2px solid rgba(94,234,212,.18);align-items:baseline}
+    .sub-k{font-size:10px;font-weight:700;color:var(--accent);opacity:.75;flex:none;min-width:14px}
+    .step-arrow{color:var(--accent);opacity:.85;margin:0 1px}
+    /* tab result counts */
+    .tab-cnt{font-size:11px;opacity:.65;font-weight:400;margin-left:2px}
+    /* protocol category sections */
+    .cat-section{margin-bottom:18px}
+    .cat-header{display:flex;align-items:center;gap:8px;padding:8px 0 7px;cursor:pointer;user-select:none;-webkit-user-select:none;border-bottom:2px solid var(--border);margin-bottom:12px}
+    .cat-dot{width:9px;height:9px;border-radius:50%;flex:none}
+    .cat-name{font-weight:700;font-size:12px;flex:1;letter-spacing:.6px;text-transform:uppercase}
+    .cat-count{font-size:11px;color:var(--muted);background:var(--input-bg);border:1px solid var(--border);border-radius:999px;padding:1px 8px}
+    .cat-chev{font-size:10px;color:var(--muted);transition:transform .25s cubic-bezier(.4,0,.2,1)}
+    .cat-section.collapsed .cat-chev{transform:rotate(180deg)}
+    .cat-section.collapsed .cat-body{display:none}
+    /* vertical role label on steps */
+    .step-row-wrap{display:flex;align-items:flex-start;gap:6px}
+    .step-role-tag{writing-mode:vertical-rl;text-orientation:mixed;font-size:9px;font-weight:700;letter-spacing:.5px;border-left:2px solid;padding:2px 2px;border-radius:2px;opacity:.85;line-height:1;flex:none;align-self:stretch;display:flex;align-items:center;text-transform:uppercase}
+    .step-content{flex:1;min-width:0}
+    /* smooth collapsible header */
+    .hdr-collapsible{overflow:hidden;max-height:400px;opacity:1;transition:max-height .32s cubic-bezier(.4,0,.2,1),opacity .25s ease,margin .25s ease}
+    header.hdr-collapsed .hdr-collapsible{max-height:0!important;opacity:0;margin-top:0!important;margin-bottom:0!important}
+    .hdr-pull-tab{display:flex;align-items:center;justify-content:center;width:100%;background:none;border:none;padding:4px 0 2px;cursor:pointer;color:var(--muted);gap:6px;font-size:11px;font-family:inherit;letter-spacing:.4px;text-transform:uppercase}
+    .hdr-pull-tab:hover{color:var(--text)}
+    .hdr-pull-tab .chev{font-size:10px;transition:transform .3s cubic-bezier(.4,0,.2,1)}
+    header.hdr-collapsed .hdr-pull-tab .chev{transform:rotate(180deg)}
+    /* compact header when keyboard is open on mobile */
+    @media(max-width:767px){
+      header.search-mode #header-toolbar,
+      header.search-mode #role-row,
+      header.search-mode .hint{ display:none!important }
+      header.search-mode .tabs{ margin-top:6px }
+    }
+    /* calc card toggles */
+    .calc-toggle{display:flex;justify-content:space-between;align-items:center;margin:0 0 10px}
+    .calc-chev{font-size:12px;color:var(--muted);transition:transform .2s}
+    .calc-collapsed .calc-chev{transform:rotate(180deg)}
+    .calc-collapsed + div[id^="calc-body"]{display:none}
+    /* ui controls */
+    .ui-ctrl-btn{background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer;font-size:13px;font-weight:600;padding:4px 9px;font-family:inherit;line-height:1.4}
+    .ui-ctrl-btn:hover{color:var(--text)}
     /* auth */
-    #user-bar{ display:none;align-items:center;gap:8px;font-size:12px;color:var(--muted) }
+    #user-bar{display:none;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+    /* med hyperlinks in protocol steps */
+    .med-link{color:var(--accent);text-decoration:underline dotted;cursor:pointer;font-weight:600}
+    .med-link:hover{text-decoration:underline solid}
+    /* route administration badges: IV, IM, IO, SL, etc. */
+    .rbadge{display:inline-block;background:rgba(56,189,248,.12);color:#7dd3fc;border:1px solid rgba(56,189,248,.3);border-radius:4px;padding:0 5px;font-size:.8em;font-weight:700;letter-spacing:.3px;vertical-align:middle;margin:0 2px;white-space:nowrap}
+    :root.light .rbadge{background:rgba(14,165,233,.1);color:#0369a1;border-color:rgba(14,165,233,.25)}
+    /* DO NOT / CONTRAINDICATED warnings */
+    .warn{color:#f87171;font-weight:700}
+    :root.light .warn{color:#dc2626}
+    /* max / ceiling dose — amber, distinct from regular purple dose */
+    .dose-max{background:rgba(251,191,36,.15);color:#fbbf24;border-radius:4px;padding:0 3px;font-weight:700}
+    :root.light .dose-max{background:rgba(234,179,8,.12);color:#b45309}
+    /* infusion rate pills */
+    .rate-pill{display:inline-block;background:rgba(94,234,212,.1);border:1px solid rgba(94,234,212,.2);border-radius:6px;padding:1px 6px;font-size:.9em;white-space:nowrap;margin:1px 2px}
+    :root.light .rate-pill{background:rgba(13,148,136,.08);border-color:rgba(13,148,136,.2)}
+    /* peds / adult step badges */
+    .pt-badge{display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;border:1px solid;text-transform:uppercase;letter-spacing:.4px;vertical-align:middle;margin-right:3px;line-height:1.6}
+    .pt-peds{background:rgba(249,115,22,.12);color:#fb923c;border-color:rgba(249,115,22,.35)}
+    .pt-adult{background:rgba(99,102,241,.12);color:#a5b4fc;border-color:rgba(99,102,241,.35)}
+    :root.light .pt-peds{background:rgba(249,115,22,.1);color:#c2410c;border-color:rgba(249,115,22,.3)}
+    :root.light .pt-adult{background:rgba(99,102,241,.1);color:#4338ca;border-color:rgba(99,102,241,.3)}
+    /* age filter toggle — protocols panel */
+    .age-filter-row{display:flex;gap:6px;padding:10px 0 4px;flex-wrap:wrap}
+    .age-btn{background:var(--input-bg);border:1px solid var(--border);border-radius:999px;color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;padding:5px 14px;font-family:inherit;transition:all .15s;white-space:nowrap}
+    .age-btn.active{background:rgba(94,234,212,.12);color:var(--accent);border-color:rgba(94,234,212,.4)}
+    :root.light .age-btn.active{background:rgba(13,148,136,.1);color:var(--accent);border-color:rgba(13,148,136,.35)}
+    /* drug class filter chips — meds panel */
+    .cls-filter-row{display:flex;gap:6px;padding:10px 0 4px;flex-wrap:wrap}
+    .cls-chip{background:var(--input-bg);border:1px solid var(--border);border-radius:999px;color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;padding:5px 12px;font-family:inherit;transition:all .15s;white-space:nowrap}
+    .cls-chip.active{background:rgba(192,132,252,.12);color:#c084fc;border-color:rgba(192,132,252,.4)}
+    :root.light .cls-chip.active{background:rgba(147,51,234,.1);color:#7c3aed;border-color:rgba(147,51,234,.3)}
+    /* resources panel */
+    .res-section{margin-bottom:22px}
+    .res-section-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:10px}
+    .res-section-title{font-weight:700;font-size:16px}
+    .res-attribution{font-size:11px;color:var(--muted);font-style:italic}
+    /* peds search */
+    .peds-search-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:14px}
+    .peds-input-grp{display:flex;flex-direction:column;gap:4px}
+    .peds-input-grp label{font-size:12px;color:var(--muted)}
+    .peds-or{font-size:13px;color:var(--muted);padding-bottom:8px;align-self:flex-end}
+    /* broselow color strip */
+    .brose-strip{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px}
+    .brose-swatch{border:2px solid transparent;border-radius:8px;padding:5px 10px;cursor:pointer;font-size:11px;font-weight:700;transition:all .15s;white-space:nowrap}
+    .brose-swatch:hover,.brose-swatch.active{border-color:var(--text)!important;transform:translateY(-1px)}
+    /* broselow result card */
+    .brose-card{border-radius:16px;border:2px solid;padding:16px 18px;margin-top:4px}
+    .brose-card-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+    .brose-color-dot{width:14px;height:14px;border-radius:50%;flex:none}
+    .brose-color-label{font-weight:800;font-size:17px;letter-spacing:.3px}
+    .brose-meta{font-size:13px;color:var(--muted)}
+    .brose-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media(min-width:600px){.brose-grid{grid-template-columns:1fr 1fr 1fr}}
+    .brose-box{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+    :root.light .brose-box{background:rgba(0,0,0,.03)}
+    .brose-box-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:6px}
+    .brose-box-val{font-size:14px;font-weight:600;line-height:1.5}
+    .brose-box-val .lbl{font-size:11px;color:var(--muted);font-weight:400}
+    .brose-meds{margin-top:10px}
+    .brose-meds-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:8px}
+    .brose-med-row{display:flex;align-items:baseline;gap:6px;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px}
+    .brose-med-row:last-child{border-bottom:none}
+    .brose-med-name{flex:1;min-width:0}
+    .brose-med-dose{font-weight:700;white-space:nowrap}
+    .brose-med-route{color:#7dd3fc;font-size:11px;font-weight:700;white-space:nowrap}
+    .brose-med-note{font-size:11px;color:var(--muted);white-space:nowrap}
+    :root.light .brose-med-route{color:#0369a1}
+    .brose-empty{color:var(--muted);padding:20px 0;text-align:center;font-size:14px}
+    /* key contacts */
+    .contacts-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:4px}
+    @media(min-width:640px){.contacts-grid{grid-template-columns:1fr 1fr}}
+    @media(min-width:1000px){.contacts-grid{grid-template-columns:1fr 1fr 1fr}}
+    .contact-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:5px}
+    .contact-name{font-weight:700;font-size:15px;line-height:1.2}
+    /* CEO card — spans full width, distinct style */
+    .contact-card-ceo{background:linear-gradient(135deg,rgba(99,102,241,.08),rgba(94,234,212,.06));border:1px solid rgba(99,102,241,.25);border-radius:16px;padding:16px 20px;display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+    :root.light .contact-card-ceo{background:linear-gradient(135deg,rgba(99,102,241,.06),rgba(13,148,136,.05));border-color:rgba(99,102,241,.2)}
+    .contact-title{font-size:12px;font-weight:600;letter-spacing:.3px;color:var(--accent)}
+    :root.light .contact-title{color:var(--accent)}
+    .contact-desc{font-size:12px;color:var(--muted);line-height:1.5;flex:1}
+    .contact-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+    .contact-btn{display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:10px;border:1px solid;font-size:13px;font-weight:600;text-decoration:none;font-family:inherit;cursor:pointer;transition:opacity .15s;white-space:nowrap}
+    .contact-btn:hover{opacity:.8}
+    .contact-btn-call{background:rgba(34,197,94,.12);color:#4ade80;border-color:rgba(34,197,94,.35)}
+    .contact-btn-mail{background:rgba(147,197,253,.1);color:var(--accent2);border-color:rgba(147,197,253,.25)}
+    :root.light .contact-btn-call{background:rgba(34,197,94,.1);color:#15803d;border-color:rgba(34,197,94,.3)}
+    :root.light .contact-btn-mail{background:rgba(37,99,235,.08);color:#2563eb;border-color:rgba(37,99,235,.25)}
+    .contact-hours{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:rgba(251,191,36,.12);color:#fbbf24;border:1px solid rgba(251,191,36,.3);letter-spacing:.3px;text-transform:uppercase;align-self:flex-start}
+    /* resources quick-nav bar */
+    .res-nav{display:flex;gap:6px;overflow-x:auto;padding:10px 0 12px;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-wrap:nowrap;margin-bottom:4px}
+    .res-nav::-webkit-scrollbar{display:none}
+    .res-nav-chip{background:var(--input-bg);border:1px solid var(--border);border-radius:999px;color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;padding:6px 14px;font-family:inherit;transition:all .15s;white-space:nowrap;flex:none}
+    .res-nav-chip:hover{color:var(--accent);border-color:rgba(94,234,212,.4)}
   </style>
 </head>
 <body>
@@ -78,56 +236,115 @@
     <div class="wrap">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div class="title">🚑 EMS Protocol Assistant V.1</div>
-        <div id="user-bar">
-          <span id="user-email" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
-          <button id="auth-logout" class="btn" style="padding:5px 10px;font-size:12px;flex:none">Sign out</button>
+        <div style="display:flex;align-items:center;gap:6px">
+          <button id="btn-theme" class="ui-ctrl-btn" title="Toggle light/dark mode">☀</button>
+          <button id="btn-size" class="ui-ctrl-btn" title="Cycle text size">A</button>
+          <div id="user-bar">
+            <span id="user-email" style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+            <button id="auth-logout" class="btn" style="padding:5px 10px;font-size:12px;flex:none">Sign out</button>
+          </div>
         </div>
       </div>
-      <div class="bar">
-        <div class="toolbar">
-          <select id="service-select" title="Ambulance Service"></select>
-          <button id="add-service" class="btn">New Service</button>
-          <button id="rename-service" class="btn">Rename</button>
-          <button id="duplicate-service" class="btn">Duplicate</button>
-          <button id="delete-service" class="btn danger">Delete</button>
-          <button id="download-protocols" class="btn" style="color:#86efac;border-color:rgba(134,239,172,.35);background:rgba(134,239,172,.08)">⬇ Download</button>
-          <button id="report-issue" class="btn" style="color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08)">🚩 Report Issue</button>
+      <div class="hdr-collapsible">
+        <div class="bar">
+          <div id="header-toolbar" class="toolbar">
+            <select id="service-select" title="Ambulance Service"></select>
+            <button id="report-issue" class="btn" style="color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08)">🚩 Report Issue</button>
+            <a id="btn-pdf" href="EASI-Protocols-2026.pdf" download class="btn" style="color:#34d399;border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.08);text-decoration:none;display:inline-flex;align-items:center;gap:5px">📄 Protocols PDF</a>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Search protocols, meds, keywords…" style="flex:1;width:auto" />
+            <button id="fav-filter" class="btn" title="Show favorites only" style="flex:none;padding:10px 14px;font-size:16px;white-space:nowrap">☆</button>
+          </div>
+          <div id="role-row" style="display:flex;gap:6px;align-items:center;margin-top:6px">
+            <span style="font-size:11px;color:var(--muted);flex:none">Show roles:</span>
+            <button id="role-toggle-paramedic" class="role-toggle-btn rb-paramedic" title="Toggle Paramedic steps">Paramedic</button>
+            <button id="role-toggle-aemt" class="role-toggle-btn rb-aemt" title="Toggle AEMT steps">AEMT</button>
+            <button id="role-toggle-emt" class="role-toggle-btn rb-emt" title="EMT always shown" disabled>EMT</button>
+          </div>
         </div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Search protocols, meds, keywords…" style="flex:1;width:auto" />
-          <button id="fav-filter" class="btn" title="Show favorites only" style="flex:none;padding:10px 14px;font-size:16px;white-space:nowrap">☆</button>
+        <div class="tabs">
+          <button class="tab active" data-tab="protocols">Protocols <span class="tab-cnt" id="tc-p"></span></button>
+          <button class="tab" data-tab="meds">Meds <span class="tab-cnt" id="tc-m"></span></button>
+          <button class="tab" data-tab="resources">Resources</button>
+          <button class="tab" data-tab="contacts">Contacts</button>
         </div>
-        <div style="display:flex;gap:6px;align-items:center;margin-top:6px">
-          <span style="font-size:11px;color:var(--muted);flex:none">Show roles:</span>
-          <button id="role-toggle-paramedic" class="role-toggle-btn rb-paramedic" title="Toggle Paramedic steps">Paramedic</button>
-          <button id="role-toggle-aemt" class="role-toggle-btn rb-aemt" title="Toggle AEMT steps">AEMT</button>
-          <button id="role-toggle-emt" class="role-toggle-btn rb-emt" title="EMT always shown" disabled>EMT</button>
-        </div>
+        <div class="hint">Select an Ambulance Service. Data is saved automatically.</div>
       </div>
-      <div class="tabs">
-        <button class="tab active" data-tab="protocols">Protocols</button>
-        <button class="tab" data-tab="meds">Meds</button>
-        <button class="tab" data-tab="calc">Dose Calc</button>
-      </div>
-      <div class="hint">Select an Ambulance Service. Data is saved automatically.</div>
+      <button class="hdr-pull-tab" id="btn-hdr-toggle">
+        <span class="chev">▴</span><span class="hdr-tab-label">Hide toolbar</span>
+      </button>
     </div>
   </header>
 
   <main class="wrap">
     <!-- Protocols -->
     <section id="panel-protocols" class="panel">
-      <div id="protocols" class="grid"></div>
+      <div class="age-filter-row" id="age-filter-row">
+        <button class="age-btn active" data-age="all">All Ages</button>
+        <button class="age-btn" data-age="adult">Adult</button>
+        <button class="age-btn" data-age="peds">Pediatric</button>
+      </div>
+      <div id="protocols"></div>
     </section>
 
     <!-- Meds -->
     <section id="panel-meds" class="panel hidden">
+      <div id="med-class-filter" class="cls-filter-row"></div>
       <div id="meds" class="grid"></div>
     </section>
 
-    <!-- Calculator Suite -->
-    <section id="panel-calc" class="panel hidden">
+    <!-- Resources (Calculators + Peds Ref) -->
+    <section id="panel-resources" class="panel hidden">
+
+      <!-- Quick-jump nav -->
+      <div class="res-nav">
+        <button class="res-nav-chip" onclick="jumpToSection('peds-ref-section')">🧒 Peds Ref</button>
+        <button class="res-nav-chip" onclick="jumpToSection('calc-body-weight')">⚖️ Weight Dose</button>
+        <button class="res-nav-chip" onclick="jumpToSection('calc-body-std')">💊 Std Dose</button>
+        <button class="res-nav-chip" onclick="jumpToSection('calc-body-iv')">💉 IV Infusion</button>
+        <button class="res-nav-chip" onclick="jumpToSection('calc-body-md')">⏱ Drip Timing</button>
+        <button class="res-nav-chip" onclick="jumpToSection('calc-body-fo')">💧 Fluid Over Time</button>
+        <button class="res-nav-chip" onclick="jumpToSection('calc-body-pump')">🔄 Pump Rate</button>
+        <button class="res-nav-chip" onclick="jumpToSection('calc-body-apgar')">👶 APGAR</button>
+        <button class="res-nav-chip" onclick="jumpToSection('calc-body-gcs')">🧠 GCS</button>
+        <button class="res-nav-chip" onclick="jumpToSection('calc-body-o2')">🫁 O₂ Duration</button>
+        <button class="res-nav-chip" onclick="jumpToSection('vent-section')">📏 Vent Settings</button>
+      </div>
+
+      <!-- Pediatric Quick Reference (moved from Contacts) -->
+      <div id="peds-ref-section" class="card" style="margin-bottom:14px">
+        <div class="res-section-head" style="margin-bottom:10px">
+          <span class="res-section-title">🧒 Pediatric Quick Reference</span>
+          <span class="res-attribution">Based on the Pediatric Quick Reference Chart · Arkansas Department of Health (Broselow-Luten system)</span>
+        </div>
+        <div class="peds-search-row">
+          <div class="peds-input-grp">
+            <label for="peds-kg">Weight (kg)</label>
+            <input type="number" id="peds-kg" placeholder="e.g. 14" min="3" max="36" step="0.5"
+              style="width:110px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:15px" />
+          </div>
+          <div class="peds-or">— or —</div>
+          <div class="peds-input-grp">
+            <label>Age</label>
+            <div style="display:flex;gap:6px">
+              <input type="number" id="peds-age-num" placeholder="e.g. 2" min="0" max="9"
+                style="width:72px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:15px" />
+              <select id="peds-age-unit"
+                style="padding:10px 10px;border-radius:12px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:15px">
+                <option value="months">months</option>
+                <option value="years">years</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div id="peds-strip" class="brose-strip"></div>
+        <div id="peds-result" class="brose-empty" style="display:none"></div>
+      </div>
+
       <div class="card">
-        <h3>Weight‑Based Dose Calculator</h3>
+        <h3 class="calc-toggle" data-target="calc-body-weight" style="cursor:pointer;user-select:none">Weight‑Based Dose Calculator <span class="calc-chev">▴</span></h3>
+        <div id="calc-body-weight">
         <div class="row">
           <div>
             <label class="hint">Medication</label>
@@ -166,10 +383,12 @@
           <button id="reset" class="btn">Reset</button>
         </div>
         <div id="result" class="mono" style="margin-top:12px"></div>
+        </div>
       </div>
 
       <div class="card">
-        <h3>Standard Dose → Volume</h3>
+        <h3 class="calc-toggle" data-target="calc-body-std" style="cursor:pointer;user-select:none">Standard Dose → Volume <span class="calc-chev">▴</span></h3>
+        <div id="calc-body-std">
         <p class="hint">(Dose ordered / Dose on hand) × Volume on hand = mL to draw. Or use mg/mL directly.</p>
         <div class="row">
           <div>
@@ -199,10 +418,12 @@
           <button id="std-calc" class="btn primary">Calculate</button>
           <button id="std-reset" class="btn">Reset</button>
         </div>
+        </div>
       </div>
 
       <div class="card">
-        <h3>IV Infusion (mcg/kg/min → gtts/min)</h3>
+        <h3 class="calc-toggle" data-target="calc-body-iv" style="cursor:pointer;user-select:none">IV Infusion (mcg/kg/min → gtts/min) <span class="calc-chev">▴</span></h3>
+        <div id="calc-body-iv">
         <p class="hint">Enter ordered dose, weight, drug in bag (mg), bag volume (mL), and drip set (gtt/mL). Computes mL/hr and gtts/min.</p>
         <div class="row">
           <div>
@@ -236,10 +457,12 @@
           <button id="iv-reset" class="btn">Reset</button>
         </div>
         <div id="iv-result" class="mono" style="margin-top:12px"></div>
+        </div>
       </div>
 
       <div class="card">
-        <h3>Manual Drip Timing</h3>
+        <h3 class="calc-toggle" data-target="calc-body-md" style="cursor:pointer;user-select:none">Manual Drip Timing <span class="calc-chev">▴</span></h3>
+        <div id="calc-body-md">
         <p class="hint">Target drops/min → drops per 10 seconds (÷6).</p>
         <div class="row">
           <div>
@@ -255,10 +478,12 @@
           <button id="md-calc" class="btn primary">Calculate</button>
           <button id="md-reset" class="btn">Reset</button>
         </div>
+        </div>
       </div>
 
       <div class="card">
-        <h3>Fluid Over Time</h3>
+        <h3 class="calc-toggle" data-target="calc-body-fo" style="cursor:pointer;user-select:none">Fluid Over Time <span class="calc-chev">▴</span></h3>
+        <div id="calc-body-fo">
         <p class="hint">Given volume, drip set, and time, compute gtts/min and mL/hr.</p>
         <div class="row">
           <div>
@@ -279,10 +504,12 @@
           <button id="fo-reset" class="btn">Reset</button>
         </div>
         <div id="fo-result" class="mono" style="margin-top:12px"></div>
+        </div>
       </div>
 
       <div class="card">
-  <h3>Pump mL/hr → Manual gtts/min</h3>
+  <h3 class="calc-toggle" data-target="calc-body-pump" style="cursor:pointer;user-select:none">Pump mL/hr → Manual gtts/min <span class="calc-chev">▴</span></h3>
+  <div id="calc-body-pump">
   <p class="hint">Formula: gtts/min = (mL/hr × gtt/mL) ÷ 60. With 60-drop (microdrip), gtts/min = mL/hr.</p>
   <div class="row">
     <div>
@@ -299,10 +526,12 @@
     <button id="pump-reset" class="btn">Reset</button>
   </div>
   <div id="pump-result" class="mono" style="margin-top:12px"></div>
+  </div>
 </div>
 
       <div class="card">
-        <h3>APGAR Calculator</h3>
+        <h3 class="calc-toggle" data-target="calc-body-apgar" style="cursor:pointer;user-select:none">APGAR Calculator <span class="calc-chev">▴</span></h3>
+        <div id="calc-body-apgar">
         <div class="row">
           <div>
             <label class="hint">Appearance</label>
@@ -330,10 +559,12 @@
           <button id="apgar-reset" class="btn">Reset</button>
         </div>
         <div id="apgar-result" class="mono" style="margin-top:12px"></div>
+        </div>
       </div>
 
       <div class="card">
-        <h3>GCS Calculator</h3>
+        <h3 class="calc-toggle" data-target="calc-body-gcs" style="cursor:pointer;user-select:none">GCS Calculator <span class="calc-chev">▴</span></h3>
+        <div id="calc-body-gcs">
         <div class="row">
           <div>
             <label class="hint">Eye (E)</label>
@@ -353,10 +584,12 @@
           <button id="gcs-reset" class="btn">Reset</button>
         </div>
         <div id="gcs-result" class="mono" style="margin-top:12px"></div>
+        </div>
       </div>
 
       <div class="card">
-        <h3>Oxygen Duration</h3>
+        <h3 class="calc-toggle" data-target="calc-body-o2" style="cursor:pointer;user-select:none">Oxygen Duration <span class="calc-chev">▴</span></h3>
+        <div id="calc-body-o2">
         <div class="row">
           <div>
             <label class="hint">Cylinder</label>
@@ -386,9 +619,10 @@
           <button id="o2-reset" class="btn">Reset</button>
         </div>
         <div id="o2-result" class="mono" style="margin-top:12px"></div>
+        </div>
       </div>
 
-      <div class="card">
+      <div class="card" id="vent-section">
         <h3>Vent Settings (IBW & TV)</h3>
         <p class="hint">Quick tidal volume planner using IBW (Devine). Always follow clinical judgment & protocols.</p>
         <div class="row">
@@ -433,26 +667,207 @@
       </div>
     </section>
 
+    <!-- Contacts -->
+    <section id="panel-contacts" class="panel hidden">
+
+      <!-- Quick-jump nav -->
+      <div class="res-nav">
+        <button class="res-nav-chip" onclick="jumpToSection('contacts-internal')">👥 Internal</button>
+        <button class="res-nav-chip" onclick="jumpToSection('contacts-clinical')">🏥 Clinical</button>
+      </div>
+
+      <div id="contacts-internal" class="res-section">
+        <div class="res-section-head">
+          <span class="res-section-title">👥 Internal — EASI Medics</span>
+        </div>
+
+        <!-- Josh Bishop — CEO -->
+        <div class="contact-card-ceo">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <div style="font-weight:800;font-size:18px">Josh Bishop</div>
+            <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:rgba(99,102,241,.15);color:#a5b4fc;border:1px solid rgba(99,102,241,.3);letter-spacing:.4px;text-transform:uppercase">CEO</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted);font-style:italic;line-height:1.4">Executive leadership — not a day-to-day contact.</div>
+          <div style="margin-top:4px">
+            <a class="contact-btn contact-btn-mail" href="mailto:jbishop@easimedics.com">✉ jbishop@easimedics.com</a>
+          </div>
+        </div>
+
+        <!-- Escalation chain callout -->
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;background:rgba(94,234,212,.07);border:1px solid rgba(94,234,212,.18);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:12px;font-weight:600;color:var(--muted)">
+          <span style="color:var(--accent);font-size:11px;letter-spacing:.5px;text-transform:uppercase;font-weight:700;flex:none">Escalation order for operational concerns</span>
+          <span style="flex:none;color:var(--border)">|</span>
+          <span style="color:var(--text)">① Pine Bluff On-Duty Supervisor</span>
+          <span style="flex:none">→</span>
+          <span style="color:var(--text)">② Clyde McDaniel</span>
+          <span style="flex:none">→</span>
+          <span style="color:var(--text)">③ Dwayne Aalseth</span>
+        </div>
+
+        <div class="contacts-grid">
+
+          <!-- Pine Bluff On-Duty Supervisor — shared line -->
+          <div class="contact-card" style="border-color:rgba(94,234,212,.25);grid-column:1/-1">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <div class="contact-name">Pine Bluff On-Duty Supervisor</div>
+              <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:rgba(94,234,212,.15);color:var(--accent);border:1px solid rgba(94,234,212,.35);letter-spacing:.3px;text-transform:uppercase;white-space:nowrap">① First Contact</span>
+            </div>
+            <div class="contact-title">Shared Duty Line</div>
+            <div class="contact-desc" style="line-height:1.5">
+              Call-ins, shift coverage requests, and on-shift operational issues — reach out here first before escalating.<br>
+              <span style="font-size:11px;color:var(--muted)">Rotating supervisors on this line: <strong style="color:var(--text)">Shannaa McDonel · David Collins · Allison Anderson</strong></span>
+            </div>
+            <div class="contact-actions">
+              <a class="contact-btn contact-btn-call" href="tel:+18706431143">📞 (870) 643-1143</a>
+            </div>
+          </div>
+
+          <!-- Clyde McDaniel -->
+          <div class="contact-card">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <div class="contact-name">Clyde McDaniel</div>
+              <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:rgba(94,234,212,.12);color:var(--accent);border:1px solid rgba(94,234,212,.3);letter-spacing:.3px;text-transform:uppercase;white-space:nowrap">② 2nd Contact</span>
+            </div>
+            <div class="contact-title">Operations Supervisor</div>
+            <div class="contact-desc">Contact after your local on-duty supervisor. Day-to-day operational supervision and field concerns.</div>
+            <div class="contact-actions">
+              <a class="contact-btn contact-btn-call" href="tel:+18703291448">📞 (870) 329-1448</a>
+              <a class="contact-btn contact-btn-mail" href="mailto:cmcdaniel@easimedics.com">✉ cmcdaniel@easimedics.com</a>
+            </div>
+          </div>
+
+          <!-- Dwayne Aalseth -->
+          <div class="contact-card">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <div class="contact-name">Dwayne Aalseth</div>
+              <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:rgba(248,113,113,.1);color:#f87171;border:1px solid rgba(248,113,113,.3);letter-spacing:.3px;text-transform:uppercase;white-space:nowrap">③ Last Resort</span>
+            </div>
+            <div class="contact-title">Operations Director</div>
+            <div class="contact-desc">Final escalation only — exhaust your local supervisor and Clyde first.</div>
+            <div class="contact-actions">
+              <a class="contact-btn contact-btn-call" href="tel:+18705753004">📞 (870) 575-3004</a>
+              <a class="contact-btn contact-btn-mail" href="mailto:daalseth@easimedics.com">✉ daalseth@easimedics.com</a>
+            </div>
+          </div>
+
+          <!-- Cheryl Smith -->
+          <div class="contact-card">
+            <div class="contact-name">Cheryl Smith</div>
+            <div class="contact-title">Operations Administrator</div>
+            <div class="contact-desc">Scheduling — contact for anything related to your schedule.</div>
+            <div class="contact-actions" style="flex-direction:column;align-items:flex-start">
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                <a class="contact-btn contact-btn-call" href="tel:+18707182909">📞 (870) 718-2909</a>
+                <span class="contact-hours">Phone: Business Hours Only</span>
+              </div>
+              <a class="contact-btn contact-btn-mail" href="mailto:csmith@easimedics.com">✉ csmith@easimedics.com</a>
+            </div>
+          </div>
+
+          <!-- Greg Moody -->
+          <div class="contact-card">
+            <div class="contact-name">Greg Moody</div>
+            <div class="contact-title">Office Manager</div>
+            <span class="contact-hours">Business Hours Only</span>
+            <div class="contact-desc">Payroll, HCMTOGO, insurance, and HR/benefits questions.</div>
+            <div class="contact-actions">
+              <a class="contact-btn contact-btn-call" href="tel:+18706439456">📞 (870) 643-9456</a>
+              <a class="contact-btn contact-btn-mail" href="mailto:gmoody@easimedics.com">✉ gmoody@easimedics.com</a>
+            </div>
+          </div>
+
+          <!-- Nyeisha Aldridge -->
+          <div class="contact-card">
+            <div class="contact-name">Nyeisha Aldridge</div>
+            <div class="contact-title">Director of Public Outreach</div>
+            <span class="contact-hours">Business Hours Only</span>
+            <div class="contact-desc">Uniforms, PR-related questions, and social media.</div>
+            <div class="contact-actions">
+              <a class="contact-btn contact-btn-call" href="tel:+19039600139">📞 (903) 960-0139</a>
+              <a class="contact-btn contact-btn-mail" href="mailto:naldridge@easimedics.com">✉ naldridge@easimedics.com</a>
+            </div>
+          </div>
+
+          <!-- Tammy Woods -->
+          <div class="contact-card">
+            <div class="contact-name">Tammy Woods</div>
+            <div class="contact-title">FTO Coordinator</div>
+            <span class="contact-hours">Business Hours Only</span>
+            <div class="contact-desc">New hire orientation and training.</div>
+            <div class="contact-actions">
+              <a class="contact-btn contact-btn-call" href="tel:+18705561301">📞 (870) 556-1301</a>
+              <a class="contact-btn contact-btn-mail" href="mailto:twoods@easimedics.com">✉ twoods@easimedics.com</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Clinical Contacts -->
+      <div id="contacts-clinical" class="res-section" style="margin-top:8px">
+        <div class="res-section-head">
+          <span class="res-section-title">🏥 Clinical</span>
+        </div>
+        <div class="contacts-grid">
+
+          <!-- Arkansas Trauma Com -->
+          <div class="contact-card">
+            <div class="contact-name">Arkansas Trauma Com</div>
+            <div class="contact-title">Trauma Communications</div>
+            <div class="contact-actions">
+              <a class="contact-btn contact-btn-call" href="tel:+15013011409">📞 (501) 301-1409</a>
+            </div>
+          </div>
+
+          <!-- Poison Control -->
+          <div class="contact-card">
+            <div class="contact-name">Poison Control</div>
+            <div class="contact-title">National Poison Hotline</div>
+            <div class="contact-actions">
+              <a class="contact-btn contact-btn-call" href="tel:+18002221222">📞 1 (800) 222-1222</a>
+            </div>
+          </div>
+
+          <!-- JRMC ER -->
+          <div class="contact-card">
+            <div class="contact-name">JRMC Emergency Room</div>
+            <div class="contact-title">First-Line Medical Control</div>
+            <div class="contact-desc">Primary medical control contact. When transporting to an alternate facility, contact the receiving ER physician directly when possible — if unreachable, follow standing protocol.</div>
+            <div class="contact-actions">
+              <a class="contact-btn contact-btn-call" href="tel:+18705417111">📞 (870) 541-7111</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
     <div class="footer">Offline‑friendly reference. Always follow your service’s latest approved protocols.</div>
   </main>
   </div><!-- /app-shell -->
 
-  <!-- PIN Modal -->
-  <div id="pin-overlay" class="modal-overlay hidden">
-    <div class="modal-box" style="max-width:360px;text-align:center">
-      <div style="font-size:30px;margin-bottom:10px">🔒</div>
-      <h3 id="pin-svc-title" style="margin:0 0 8px;font-size:16px"></h3>
-      <p class="hint" style="margin:0 0 18px;font-size:13px">Enter the access PIN to view this service</p>
-      <input id="pin-input" type="password" autocomplete="off" placeholder="Enter PIN" style="text-align:center;font-size:16px;letter-spacing:2px" />
-      <div class="row" style="gap:10px;margin-top:14px">
-        <button id="pin-cancel" class="btn" style="flex:1">Cancel</button>
-        <button id="pin-submit" class="btn primary" style="flex:2">Unlock</button>
-      </div>
-      <div id="pin-error" style="color:#f87171;font-size:13px;margin-top:10px;min-height:18px"></div>
+  <!-- Report Issue Modal -->
+  <!-- TOS / Disclaimer Modal (shown once per session after login) -->
+  <div id="tos-overlay" class="modal-overlay hidden">
+    <div class="modal-box" style="max-width:480px;text-align:center">
+      <div style="font-size:36px;margin-bottom:12px">⚠️</div>
+      <h3 style="margin:0 0 12px;font-size:17px">Reference Guide Only</h3>
+      <p style="color:var(--muted);font-size:14px;line-height:1.6;text-align:left;margin:0 0 12px">
+        This app is a <strong style="color:var(--text)">clinical reference tool only.</strong>
+        Nothing displayed here authorizes, replaces, or overrides your agency's
+        medical director–approved protocols or your state's defined scope of practice.
+        All providers must verify medications, doses, and procedures against their
+        service's official protocols before administration.
+      </p>
+      <p style="color:var(--muted);font-size:14px;line-height:1.6;text-align:left;margin:0 0 20px">
+        <strong style="color:var(--text)">Calculators</strong> use standard EMS formulas
+        and must be independently verified for accuracy before use in patient care.
+      </p>
+      <button id="tos-accept" class="btn primary" style="width:100%;font-size:15px;padding:14px">I Understand — Continue</button>
     </div>
   </div>
 
-  <!-- Report Issue Modal -->
   <div id="report-overlay" class="modal-overlay hidden">
     <div class="modal-box" style="max-width:480px">
       <div class="modal-head">
@@ -475,7 +890,7 @@
         <button id="report-cancel" class="btn" style="flex:1">Cancel</button>
         <button id="report-send" class="btn primary" style="flex:2">📧 Compose Email</button>
       </div>
-      <p class="hint" style="margin:10px 0 0;font-size:12px;text-align:center">Opens your mail app — pre-filled to EliasACaldwellNRP@gmail.com</p>
+      <p class="hint" style="margin:10px 0 0;font-size:12px;text-align:center">Opens your mail app — pre-filled to acaldwell@easimedics.com</p>
     </div>
   </div>
 
@@ -1195,22 +1610,22 @@
         title: 'General Patient Protocol',
         summary: 'Documentation and assessment requirements for transport and no-transport calls.',
         steps: [
-          'No Transport / No Haul: 1) Demographics. 2) 1 complete set of vital signs. 3) Detailed narrative (include encouragement of transport). 4) Proper signatures.',
-          'Transport: 1) Demographics. 2) Minimum 2 sets of vital signs (Critical every 5 min / Stable every 20 min). 3) Detailed narrative. 4) Assessment. 5) Proper signatures. 6) Pt identifiers (MRN/SS#).'
+          'EMT: No Transport / No Haul: 1) Demographics. 2) 1 complete set of vital signs. 3) Detailed narrative (include encouragement of transport). 4) Proper signatures.',
+          'EMT: Transport: 1) Demographics. 2) Minimum 2 sets of vital signs (Critical every 5 min / Stable every 20 min). 3) Detailed narrative. 4) Assessment. 5) Proper signatures. 6) Pt identifiers (MRN/SS#).'
         ],
-        tags: ['general','documentation','transport','vitals','narrative']
+        tags: ['emt','aemt','paramedic','general','documentation','transport','vitals','narrative']
       },
       {
         id: 'easi26-triage',
         title: 'Triage Protocol',
         summary: 'Criteria for diverting vitally stable patients to hospital triage area when ER is overcrowded.',
         steps: [
-          'Patient must meet ALL criteria: GCS 15; non-acute chief complaint; ambulatory or able to sit in wheelchair; 100 < SBP < 200 with 60 < MAP < 100; 60 < HR < 100 and consistent; 70 < BG < 250; denies SOB, chest pain, hematemesis/GI bleed.',
-          'Lead Paramedic/EMT advises charge nurse that EASI Triage Protocol is being utilized.',
-          'Assist patient to waiting area and give triage nurse a verbal patient report.',
-          'Obtain proper signatures from receiving nurse.'
+          'EMT: Patient must meet ALL criteria: GCS 15; non-acute chief complaint; ambulatory or able to sit in wheelchair; SBP 100–200; MAP 60–100; HR 60–100 (consistent); BG 70–250; denies SOB, chest pain, hematemesis/GI bleed.',
+          'EMT: Lead provider advises charge nurse that EASI Triage Protocol is being utilized.',
+          'EMT: Assist patient to waiting area and give triage nurse a verbal patient report.',
+          'EMT: Obtain proper signatures from receiving nurse.'
         ],
-        tags: ['triage','er','overcrowded','stable','diversion']
+        tags: ['paramedic','aemt','emt','triage','er','overcrowded','stable','diversion']
       },
       {
         id: 'easi26-airway',
@@ -1230,18 +1645,18 @@
         title: 'Ketamine Sequence Intubation (KSI)',
         summary: 'For agitated patients requiring emergency intubation who are intolerant of standard preoxygenation.',
         steps: [
-          'Indications: Patient agitated or intolerant of preoxygenation via NC, NRB, BVM, and/or CPAP.',
-          'Position patient "head up" at 30° or more (auditory meatus above jugular notch).',
-          'Administer High Dose "Anesthetic" Ketamine 1–3 mg/kg IV. If combative or no peripheral IV: Ketamine 5 mg/kg IM (max 500 mg single dose).',
-          'Place CO2 NC at 15 LPM attached to waveform capnography prior to preoxygenation device.',
-          'If SpO2 > 95%: Place patient on CPAP with PEEP at 5 (titrate to 10). Patient\'s condition may avert need for intubation — always be prepared.',
-          'If SpO2 < 95% or CPAP unavailable/contraindicated: BVM with PEEP at 10 for 3 minutes.',
-          'Preoxygenate for 3 minutes, then perform intubation.',
-          'Failed intubation after 2 attempts → insert Alternative Airway Device immediately.',
-          'Confirm airway: Waveform capnography, chest rise/fall, mist in tube, auscultate breath sounds.',
-          'Post-intubation sedation: Ketamine Infusion 0.1–1.5 mg/min IV. If Ketamine unavailable: Fentanyl 1–2 mcg/kg/dose IV, may repeat once.',
-          'For Emergent Delirium: Midazolam 2–5 mg OR Ketamine 0.5–1.0 mg/kg IV/IM/IN.',
-          'For hyperlactation (increased secretions): Benadryl 50 mg IV.'
+          'Paramedic: Indications: Patient agitated or intolerant of preoxygenation via NC, NRB, BVM, and/or CPAP.',
+          'Paramedic: Position patient "head up" at 30° or more (auditory meatus above jugular notch).',
+          'Paramedic: Administer High Dose "Anesthetic" Ketamine 1–3 mg/kg IV. If combative or no peripheral IV: Ketamine 5 mg/kg IM (max 500 mg single dose).',
+          'Paramedic: Place CO2 NC at 15 LPM attached to waveform capnography prior to preoxygenation device.',
+          'Paramedic: If SpO2 > 95%: Place patient on CPAP with PEEP at 5 (titrate to 10). Patient\'s condition may avert need for intubation — always be prepared.',
+          'Paramedic: If SpO2 < 95% or CPAP unavailable/contraindicated: BVM with PEEP at 10 for 3 minutes.',
+          'Paramedic: Preoxygenate for 3 minutes, then perform intubation.',
+          'Paramedic: Failed intubation after 2 attempts → insert Alternative Airway Device immediately.',
+          'Paramedic: Confirm airway: Waveform capnography, chest rise/fall, mist in tube, auscultate breath sounds.',
+          'Paramedic: Post-intubation sedation: Ketamine Infusion 0.1–1.5 mg/min IV. If Ketamine unavailable: Fentanyl 1–2 mcg/kg/dose IV, may repeat once.',
+          'Paramedic: For Emergent Delirium: Midazolam 2–5 mg OR Ketamine 0.5–1.0 mg/kg IV/IM/IN.',
+          'Paramedic: For hyperlactation (increased secretions): Benadryl 50 mg IV.'
         ],
         tags: ['ksi','ketamine','intubation','airway','agitated','preoxygenation','cpap','paramedic']
       },
@@ -1252,17 +1667,17 @@
         steps: [
           'Advanced EMT Adult: Acetaminophen 1000 mg IV over 10 min.',
           'Paramedic Adult: ENSURE patient is NOT using a pain control patch.',
-          'Fentanyl 1 mcg/kg SIVP, may repeat every 10 min, total max 200 mcg. Preferred for acute abdominal pain, ACS, and multi-system trauma.',
-          'Morphine Sulfate 5–10 mg IV; may repeat as needed, max total 20 mg. Preferred in burns (promotes fluid movement).',
-          'Low Dose "Analgesic" Ketamine 0.1–1 mg/kg IV, or 0.5–1 mg/kg IN, or 50 mg IM. May repeat every 20 min without emergence or every 10 min if emergence present, max 3 doses.',
-          'For Emergence Delirium: Midazolam 2–5 mg IV or Ketamine 0.5–1.0 mg/kg, max total 100 mg.',
-          'Consider Benadryl 50 mg IV or IM for secretion reduction with Ketamine.',
-          'NOTE: Geriatrics metabolize Ketamine slowly.',
+          'Paramedic Adult: Fentanyl 1 mcg/kg SIVP, may repeat every 10 min, total max 200 mcg. Preferred for acute abdominal pain, ACS, and multi-system trauma.',
+          'Paramedic Adult: Morphine Sulfate 5–10 mg IV; may repeat as needed, max total 20 mg. Preferred in burns (promotes fluid movement).',
+          'Paramedic Adult: Low Dose "Analgesic" Ketamine 0.1–1 mg/kg IV, or 0.5–1 mg/kg IN, or 50 mg IM. May repeat every 20 min without emergence or every 10 min if emergence present, max 3 doses.',
+          'Paramedic Adult: For Emergence Delirium: Midazolam 2–5 mg IV or Ketamine 0.5–1.0 mg/kg, max total 100 mg.',
+          'Paramedic Adult: Consider Benadryl 50 mg IV or IM for secretion reduction with Ketamine.',
+          'Paramedic Adult: NOTE: Geriatrics metabolize Ketamine slowly.',
           'Pediatric Paramedic: Fentanyl 1 mcg/kg IV; repeat every 10 min, max 200 mcg.',
-          'Pediatric Morphine: 0.1 mg/kg SIVP or IM; may repeat, total max 20 mg.',
-          'Pediatric Ketamine (Analgesic): 1 mg/kg IV or 0.5–1 mg/kg IN or 50 mg IM; repeat every 20 min, max 3 doses. NOTE: Pediatrics metabolize Ketamine quickly.'
+          'Pediatric Paramedic: Morphine 0.1 mg/kg SIVP or IM; may repeat, total max 20 mg.',
+          'Pediatric Paramedic: Ketamine (Analgesic) 1 mg/kg IV or 0.5–1 mg/kg IN or 50 mg IM; repeat every 20 min, max 3 doses. NOTE: Pediatrics metabolize Ketamine quickly.'
         ],
-        tags: ['pain','fentanyl','morphine','ketamine','acetaminophen','analgesic','adult','pediatric']
+        tags: ['paramedic','aemt','pain','fentanyl','morphine','ketamine','acetaminophen','analgesic','adult','pediatric']
       },
       {
         id: 'easi26-antiemetic',
@@ -1274,24 +1689,24 @@
           'Adult Advanced EMT: Haldol 5 mg IV. Preferred for hyperemesis related to Cannabis use.',
           'Pediatric Advanced EMT: Ondansetron (Zofran) 0.1 mg/kg SIVP over 2 min; max 4 mg.',
           'Pediatric Advanced EMT: Diphenhydramine (Benadryl) 1–2 mg/kg IV; max total administered 25 mg.',
-          'Contact medical control for repeat pediatric dosing.',
-          'NOTE: Any of these agents or appropriate combinations may be used at provider discretion.'
+          'Pediatric AEMT: Contact medical control for repeat dosing.',
+          'AEMT: NOTE: Any of these agents or appropriate combinations may be used at provider discretion.'
         ],
-        tags: ['antiemetic','nausea','vomiting','zofran','ondansetron','benadryl','haldol','cannabis','adult','pediatric']
+        tags: ['aemt','antiemetic','nausea','vomiting','zofran','ondansetron','benadryl','haldol','cannabis','adult','pediatric']
       },
       {
         id: 'easi26-infusion-dosing',
         title: 'Infusion Dosing of Medications',
         summary: 'Setup and drip rate reference for Amiodarone, Magnesium, Epinephrine, and Ketamine infusions using 60gtts Micro Drip Set with Dial-A-Flo.',
         steps: [
-          'Setup: Use Micro Drip Set (60 gtts/set; 60 gtts/min = 1 mL/hr). Attach Dial-A-Flo; prime while priming drip set. Control is via Dial-A-Flo, not the drip tubing clamp.',
-          'Amiodarone: Mix 150 mg in 100 cc NS 0.9%. 1 mg/min = 40 gtts/min.',
-          'Magnesium: Mix 2 G in 100 mL NS 0.9%. 1 G/hr = 100 mL/hr.',
-          'Epinephrine: Mix 1 mg (1:1,000) in 250 cc NS or D5W. 1 mcg/min = 15 gtts/min; 2 = 30; 3 = 45; 4 = 60; 5 = 75; 6 = 90; 7 = 105; 8 = 120; 9 = 135; 10 mcg/min = 150 gtts/min.',
-          'Ketamine: Mix 100 mg in 250 cc NS or D5W. 0.1 mg/min = 15 gtts/min; 0.5 = 75; 1.0 = 150; 1.5 mg/min = 225 gtts/min.',
-          'Consider Super Infusion Calculator app on mobile device.'
+          'Paramedic: Setup: Use Micro Drip Set (60 gtts/set; 60 gtts/min = 1 mL/hr). Attach Dial-A-Flo; prime while priming drip set. Control is via Dial-A-Flo, not the drip tubing clamp.',
+          'Paramedic: Amiodarone — Mix 150 mg in 100 cc NS 0.9%. 1 mg/min = 40 gtts/min.',
+          'Paramedic: Magnesium — Mix 2 G in 100 mL NS 0.9%. 1 G/hr = 100 mL/hr.',
+          'Paramedic: Epinephrine — Mix 1 mg (1:1,000) in 250 cc NS or D5W. 1 mcg/min = 15 gtts/min; 2 = 30; 3 = 45; 4 = 60; 5 = 75; 6 = 90; 7 = 105; 8 = 120; 9 = 135; 10 mcg/min = 150 gtts/min.',
+          'Paramedic: Ketamine — Mix 100 mg in 250 cc NS or D5W. 0.1 mg/min = 15 gtts/min; 0.5 = 75; 1.0 = 150; 1.5 mg/min = 225 gtts/min.',
+          'Paramedic: Consider Super Infusion Calculator app on mobile device.'
         ],
-        tags: ['infusion','drip','amiodarone','magnesium','epinephrine','ketamine','dial-a-flo','microdrip','rate']
+        tags: ['infusion','drip','amiodarone','magnesium','epinephrine','ketamine','dial-a-flo','microdrip','rate','paramedic']
       },
       // ── ADULT CARDIAC ─────────────────────────────────────────────────────
       {
@@ -1309,7 +1724,7 @@
           'Reversible Causes (H\'s and T\'s): Hypovolemia: 500–1000 cc NS. Hypoxia: correct airway. Acidosis: Sodium Bicarb 1 mEq IV/IO, may repeat once. Hypo/Hyperkalemia: Calcium Chloride 1 G IV/IO. Hypoglycemia: D10% 250 cc (12.5 g) IV/IO over 10 min, repeat as needed. Hypothermia: limit defib and meds until temp >84°F. Toxins: see Overdose protocol. Tamponade: rapid transport. Tension PTX: pleural decompression. Thrombosis: transport.',
           'EtCO2 during arrest: target >8 mmHg (>10 indicates adequate oxygenation). Post-ROSC: target >30 mmHg.'
         ],
-        tags: ['arrest','cpr','pulseless','vfib','vtach','asystole','pea','amiodarone','epinephrine','defib','rosc','adult','cardiac']
+        tags: ['paramedic','aemt','emt','arrest','cpr','pulseless','vfib','vtach','asystole','pea','amiodarone','epinephrine','defib','rosc','adult','cardiac']
       },
       {
         id: 'easi26-narrow-tach-adult',
@@ -1325,7 +1740,7 @@
           'Paramedic – Irregular/Stable (AFib/AFlutter), symptom onset <24 h, NO significant HF: Diltiazem 0.25 mg/kg Slow IVP; may repeat after 10 min at 0.35 mg/kg. Consider Verapamil 5 mg IV; if no change after 5 min → 10 mg. Cardioversion 50–200 J if needed. Consider Midazolam 2–5 mg IVP.',
           'Reversible causes: Hypovolemia (NS bolus), Hypoxia, Acidosis (NaHCO3 50 mEq), Hypo/Hyperkalemia (Calcium Chloride 1 g), Hypoglycemia (D10%), Hypothermia (limit interventions), Toxins, Tamponade (transport), Tension PTX, Thrombosis.'
         ],
-        tags: ['svt','afib','aflutter','narrow','tachycardia','adenosine','diltiazem','cardioversion','adult','cardiac']
+        tags: ['paramedic','aemt','emt','svt','afib','aflutter','narrow','tachycardia','adenosine','diltiazem','cardioversion','adult','cardiac']
       },
       {
         id: 'easi26-wide-tach-adult',
@@ -1340,7 +1755,7 @@
           'Paramedic – Irregular/Unstable (Torsades de Pointes): Defibrillate at 120 J, 150 J, 200 J or per biphasic reading. Magnesium Sulfate 2 G SIVP, follow with Magnesium Infusion 1 G/hr IV (1 G in 100 mL NS, 60 gtts set, Dial-A-Flo at 100 gtts/hr). Consider Midazolam 2–5 mg IV or Ketamine 1 mg/kg. Consider Amiodarone 150 mg Slow IV, may repeat ×1 in 10 min. If conversion: Amiodarone Infusion 1 mg/min (not if bradycardic).',
           'Paramedic – Irregular/Stable (Torsades): Magnesium Sulfate 2 G SIVP, then Infusion 1 G/hr IV. Consider Amiodarone 150 mg Slow IVP, repeat ×1 in 10 min. If conversion: Amiodarone Infusion 1 mg/min (not if bradycardic).'
         ],
-        tags: ['vtach','torsades','wide','tachycardia','amiodarone','magnesium','cardioversion','defibrillation','adult','cardiac']
+        tags: ['paramedic','aemt','emt','vtach','torsades','wide','tachycardia','amiodarone','magnesium','cardioversion','defibrillation','adult','cardiac']
       },
       {
         id: 'easi26-bradycardia-adult',
@@ -1355,7 +1770,7 @@
           'Paramedic – If Atropine ineffective AND TCP fails or unavailable: Epinephrine Infusion 2–10 mcg/min, titrate to effect. DO NOT administer Epi to patients with AMS and/or SBP >180 mmHg and/or abnormal respirations.',
           'Reversible causes: Hypovolemia (500–1000 cc NS), Hypoxia, Acidosis (NaHCO3 50 mEq), Hypo/Hyperkalemia (CaCl 1 g), Hypoglycemia (D10%), Hypothermia, Toxins, Tamponade, Tension PTX, Thrombosis.'
         ],
-        tags: ['bradycardia','atropine','tcp','pacing','epinephrine','adult','cardiac','atrioventricular','block']
+        tags: ['paramedic','aemt','emt','bradycardia','atropine','tcp','pacing','epinephrine','adult','cardiac','atrioventricular','block']
       },
       {
         id: 'easi26-acs',
@@ -1370,7 +1785,7 @@
           'ALL: Transmit 12-lead ECG to receiving facility if equipment available. Follow additional orders from ED physician.',
           'NOTES: ACS patients may require Rescue Catheterization — transport to appropriate facility. If patient took sildenafil (Viagra, Revatio) or Cialis in past 24 h: DO NOT administer nitroglycerin. Minimize patient movement.'
         ],
-        tags: ['acs','chest-pain','stemi','nitroglycerin','aspirin','fentanyl','morphine','12-lead','adult','cardiac']
+        tags: ['paramedic','aemt','emt','acs','chest-pain','stemi','nitroglycerin','aspirin','fentanyl','morphine','12-lead','adult','cardiac']
       },
       {
         id: 'easi26-chf',
@@ -1383,7 +1798,7 @@
           'Paramedic: Consider Lasix (Furosemide) 40–80 mg IVP. Monitor end-tidal CO2.',
           'NOTE: Do not withhold intubation from patients who need it. Once PEEP is established on CPAP, do not discontinue except to intubate. Once PEEP is lost, it is difficult to reestablish.'
         ],
-        tags: ['chf','pulmonary-edema','cpap','lasix','furosemide','nitroglycerin','peep','adult','cardiac']
+        tags: ['paramedic','aemt','emt','chf','pulmonary-edema','cpap','lasix','furosemide','nitroglycerin','peep','adult','cardiac']
       },
       {
         id: 'easi26-hyperkalemia',
@@ -1395,7 +1810,7 @@
           'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO if CHF/edema). Second IV if in shock.',
           'Paramedic: Acquire 12-lead ECG (Peaked T-waves, widened QRS, bradycardia, absent/flat P-waves, sine waves, VT in renal disease hx). Calcium Chloride 20 mg/kg SIVP over 5 min for cardioprotective measures. Albuterol 5 mg + 2 mL NS nebulized over 5 min; may repeat ×1.'
         ],
-        tags: ['hyperkalemia','calcium-chloride','albuterol','dialysis','wide-qrs','adult','cardiac']
+        tags: ['paramedic','aemt','emt','hyperkalemia','calcium-chloride','albuterol','dialysis','wide-qrs','adult','cardiac']
       },
       {
         id: 'easi26-ventricular-ectopy',
@@ -1407,7 +1822,7 @@
           'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO if CHF/edema).',
           'Paramedic: If serious signs/symptoms — R-on-T, multifocal, salvos (≥3 consecutive), or hemodynamic compromise: Amiodarone 150 mg SIVP. If conversion occurs → Amiodarone Infusion 1 mg/min (DO NOT administer if patient is bradycardic).'
         ],
-        tags: ['ectopy','pvcs','amiodarone','vtach','ron-t','multifocal','salvos','adult','cardiac']
+        tags: ['paramedic','aemt','emt','ectopy','pvcs','amiodarone','vtach','ron-t','multifocal','salvos','adult','cardiac']
       },
       // ── ADULT MEDICAL ─────────────────────────────────────────────────────
       {
@@ -1420,7 +1835,7 @@
           'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO if CHF/edema). Zofran 4 mg SIVP or IM for nausea/vomiting; may repeat once. Consider Acetaminophen 1000 mg IV over 10 min.',
           'Paramedic: Fentanyl 1 mcg/kg IV; may repeat once after 10 min, max total 200 mcg.'
         ],
-        tags: ['abdominal-pain','fentanyl','zofran','nausea','ob','pregnancy','adult','medical']
+        tags: ['paramedic','aemt','emt','abdominal-pain','fentanyl','zofran','nausea','ob','pregnancy','adult','medical']
       },
       {
         id: 'easi26-allergic-anaphylaxis',
@@ -1433,7 +1848,7 @@
           'Paramedic: Consider Solu-Medrol 125 mg IV or IM. If still in anaphylaxis or no Epi given: Epinephrine 1:1,000 0.3 mg IM; repeat in 15 min if no improvement. May give Epinephrine 1:10,000 0.1 mg SIVP for life-threatening anaphylaxis.',
           'NOTES: Monitor closely — condition may deteriorate quickly. Reserve Epi for anaphylaxis or deteriorating patients. Early elective intubation recommended for hoarseness, lingual edema, stridor, or oropharyngeal swelling.'
         ],
-        tags: ['allergic','anaphylaxis','epinephrine','benadryl','albuterol','solumedrol','adult','medical']
+        tags: ['paramedic','aemt','emt','allergic','anaphylaxis','epinephrine','benadryl','albuterol','solumedrol','adult','medical']
       },
       {
         id: 'easi26-altered-mental-status',
@@ -1445,7 +1860,7 @@
           'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO).',
           'Paramedic: EKG cardiac monitoring.'
         ],
-        tags: ['ams','altered-mental-status','glucose','stroke','befast','adult','medical']
+        tags: ['paramedic','aemt','emt','ams','altered-mental-status','glucose','stroke','befast','adult','medical']
       },
       {
         id: 'easi26-asthma-copd',
@@ -1458,7 +1873,7 @@
           'Paramedic: "Cough Variant Asthma" (dry non-productive cough inhibiting respiration): mix 2% Lidocaine 40–60 mg (2–3 mL) in 2.5 mg Albuterol and nebulize. EKG cardiac monitoring. Consider Magnesium Sulfate 2 G over 10 min in severe asthma.',
           'NOTE: IV fluid bolus reduces alveolar dehydration. Contact receiving physician if diagnosis uncertain.'
         ],
-        tags: ['asthma','copd','albuterol','cpap','magnesium','lidocaine','adult','medical']
+        tags: ['paramedic','aemt','emt','asthma','copd','albuterol','cpap','magnesium','lidocaine','adult','medical']
       },
       {
         id: 'easi26-back-pain',
@@ -1470,7 +1885,7 @@
           'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO). Acetaminophen 1000 mg IV.',
           'Paramedic: Fentanyl 1 mcg/kg IVP; may repeat once after 10 min, max total 200 mcg. Morphine 2 mg IVP; may repeat after 10 min, max total 10 mg. Low Dose Ketamine 0.1–1 mg/kg IVP as needed. NOTE: Rule out Aortic Dissection before Ketamine — Ketamine increases BP and can worsen the condition.'
         ],
-        tags: ['back-pain','fentanyl','morphine','ketamine','aortic','adult','medical']
+        tags: ['paramedic','aemt','emt','back-pain','fentanyl','morphine','ketamine','aortic','adult','medical']
       },
       {
         id: 'easi26-blood-transfusion',
@@ -1487,7 +1902,7 @@
           'Paramedic – TRALI (dyspnea, tachycardia, fever, cyanosis; 1–6 hr onset; leading cause of transfusion death): Stop transfusion. O2 via NRB. Consider CPAP.',
           'Reassess temperature every 15 min.'
         ],
-        tags: ['transfusion','blood','reaction','hemolytic','febrile','anaphylactic','taco','trali','adult','medical']
+        tags: ['paramedic','aemt','transfusion','blood','reaction','hemolytic','febrile','anaphylactic','taco','trali','adult','medical']
       },
       {
         id: 'easi26-choking-adult',
@@ -1500,7 +1915,7 @@
           'Paramedic: Continue efforts. Direct laryngoscopy — remove obstruction with Magill forceps (caution: do not lodge deeper). If all efforts fail → Cricothyrotomy (consider local Lidocaine/Epi if time permits).',
           'Post-Cricothyrotomy with stable vitals: Sedation with High Dose Ketamine 1–3 mg/kg IVP + Ketamine Infusion 0.1–1.5 mg/min IV. Pain management: Fentanyl 1 mcg/kg IVP or Ketamine 0.5–1.0 mg/kg; repeat every 10 min as needed.'
         ],
-        tags: ['choking','fbo','obstruction','laryngoscopy','magill','cric','adult','medical']
+        tags: ['paramedic','aemt','emt','choking','fbo','obstruction','laryngoscopy','magill','cric','adult','medical']
       },
       {
         id: 'easi26-seizures-adult',
@@ -1512,7 +1927,7 @@
           'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO).',
           'Paramedic: If IV present → Midazolam 2–5 mg IVP; may repeat once. If refractory (Status Epilepticus) or known Super Refractory Status Epilepticus (SRSE): Ketamine 1 mg/kg IVP or IM (if no IV).'
         ],
-        tags: ['seizure','status-epilepticus','midazolam','ketamine','adult','medical']
+        tags: ['paramedic','aemt','emt','seizure','status-epilepticus','midazolam','ketamine','adult','medical']
       },
       {
         id: 'easi26-diabetic-adult',
@@ -1528,7 +1943,7 @@
           'HYPERGLYCEMIA Paramedic: EKG cardiac monitoring.',
           'NOTES: Caution with oral glucose — protect airway. Watch for pulmonary edema with NS bolus. Withhold aggressive airway until glucose given in hypoglycemia; use BLS/BVM.'
         ],
-        tags: ['diabetes','hypoglycemia','hyperglycemia','dextrose','glucose','adult','medical']
+        tags: ['paramedic','aemt','emt','diabetes','hypoglycemia','hyperglycemia','dextrose','glucose','adult','medical']
       },
       {
         id: 'easi26-gi-bleed',
@@ -1541,7 +1956,7 @@
           'Paramedic: Consider KSI if severe Esophageal Varices with aspiration concern.',
           'NOTE: Lower GI bleeds (bright red blood in anus) rarely need treatment unless patient is symptomatic from hypovolemic shock.'
         ],
-        tags: ['gi-bleed','txa','tranexamic-acid','esophageal-varices','ksi','adult','medical']
+        tags: ['paramedic','aemt','emt','gi-bleed','txa','tranexamic-acid','esophageal-varices','ksi','adult','medical']
       },
       {
         id: 'easi26-general-medical',
@@ -1553,7 +1968,7 @@
           'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO). Consider Thiamine 100 mg IV. For nausea/vomiting: refer to Anti-Emetic Therapy protocol. For fever/aches/cold-flu symptoms: Consider Acetaminophen 1000 mg IV.',
           'Paramedic: EKG cardiac monitoring.'
         ],
-        tags: ['general','medical','thiamine','acetaminophen','adult','medical']
+        tags: ['paramedic','aemt','emt','general','medical','thiamine','acetaminophen','adult','medical']
       },
       {
         id: 'easi26-hypertension',
@@ -1566,7 +1981,7 @@
           'Paramedic: Cardiac monitor. Labetalol 20 mg IVP over 2 min; may repeat ONCE at 20 mg IVP over 2 min if BP still above threshold (avoid if bradycardic). Hydralazine 10 mg IVP; may repeat once. Do not use Hydralazine if patient has angina and/or Levine\'s sign.',
           'NOTE: Do not use Hydralazine for hypertension related to stroke/CVA (decreases cerebral perfusion, increases ICP).'
         ],
-        tags: ['hypertension','labetalol','hydralazine','nitroglycerin','adult','medical']
+        tags: ['paramedic','aemt','emt','hypertension','labetalol','hydralazine','nitroglycerin','adult','medical']
       },
       {
         id: 'easi26-hypotension',
@@ -1578,7 +1993,7 @@
           'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO). Consider Push Dose Epi (Epi 1:100,000).',
           'Paramedic: Cardiac monitor. Consider additional fluid bolus. If 20 mL/kg NS is contraindicated or ineffective: Push Dose Epi 5–20 mcg IVP; may repeat every 2–5 min. Consider Epinephrine Infusion 2–10 mcg/min IV.'
         ],
-        tags: ['hypotension','shock','epinephrine','push-dose','adult','medical']
+        tags: ['paramedic','aemt','emt','hypotension','shock','epinephrine','push-dose','adult','medical']
       },
       {
         id: 'easi26-hypothermia',
@@ -1591,7 +2006,7 @@
           'Paramedic: EKG monitoring; treat underlying signs/symptoms.',
           'NOTES: Shivering may diminish/stop even with hypothermia. Temp <88°F can cause VFib — handle gently. Limit drug pushes (decreased metabolic rate).'
         ],
-        tags: ['hypothermia','cold','warming','adult','medical']
+        tags: ['paramedic','aemt','emt','hypothermia','cold','warming','adult','medical']
       },
       {
         id: 'easi26-hyperthermia',
@@ -1604,7 +2019,7 @@
           'Paramedic: Consider Midazolam 2–4 mg IV for tremors secondary to cooling measures.',
           'NOTE: If temp >105°F, cool patient by any available means. Acetaminophen IV does NOT relieve environmentally caused hyperthermic symptoms.'
         ],
-        tags: ['heat-stroke','heat-exhaustion','hyperthermia','cooling','midazolam','adult','medical']
+        tags: ['paramedic','aemt','emt','heat-stroke','heat-exhaustion','hyperthermia','cooling','midazolam','adult','medical']
       },
       {
         id: 'easi26-ob',
@@ -1620,7 +2035,7 @@
           'Paramedic – Eclampsia: Magnesium Sulfate 2 G IV, followed by Magnesium Infusion 2–4 G/hr IV.',
           'NOTE: Contact receiving facility physician for further orders.'
         ],
-        tags: ['ob','obstetrical','childbirth','delivery','eclampsia','magnesium','adult','medical']
+        tags: ['paramedic','aemt','emt','ob','obstetrical','childbirth','delivery','eclampsia','magnesium','adult','medical']
       },
       {
         id: 'easi26-overdose-adult',
@@ -1635,7 +2050,7 @@
           'Paramedic – CO POISONING: High-flow O2 via NRB. CPAP ASAP.',
           'NOTE: Follow Poison Control suggestions as orders up to individual skill level. Prepare for suctioning to reduce aspiration.'
         ],
-        tags: ['overdose','poisoning','narcan','naloxone','bicarbonate','calcium','co','tca','ccb','adult','medical']
+        tags: ['paramedic','aemt','emt','overdose','poisoning','narcan','naloxone','bicarbonate','calcium','co','tca','ccb','adult','medical']
       },
       {
         id: 'easi26-psychiatric',
@@ -1649,7 +2064,7 @@
           'Paramedic – Chemical restraint Option B: Ketamine 1–2 mg/kg IV or IM. Follow with Fentanyl 1 mcg/kg IV for suspected schizoaffective or PTSD patients. Follow with Midazolam 2–5 mg IV for emergence delirium. Be prepared to monitor respiratory drive and perform advanced airway measures.',
           'NOTES: Airway control is priority once benzodiazepine administered. Have intubation equipment ready when giving Ketamine (possible refractory respiratory tone loss).'
         ],
-        tags: ['psych','behavioral','haldol','haloperidol','ketamine','midazolam','restraint','adult','medical']
+        tags: ['paramedic','aemt','emt','psych','behavioral','haldol','haloperidol','ketamine','midazolam','restraint','adult','medical']
       },
       {
         id: 'easi26-sepsis',
@@ -1662,7 +2077,7 @@
           'Paramedic: EKG cardiac monitoring. Ancef (Cefazolin) 2 G IVP over 10 min. If hypotension is refractory: Epinephrine Infusion 1–10 mcg/min IV.',
           'NOTE: IV fluid resuscitation initiated quickly after recognition decreases mortality.'
         ],
-        tags: ['sepsis','ancef','cefazolin','epinephrine','lactated-ringers','adult','medical']
+        tags: ['paramedic','aemt','emt','sepsis','ancef','cefazolin','epinephrine','lactated-ringers','adult','medical']
       },
       {
         id: 'easi26-stroke',
@@ -1675,7 +2090,7 @@
           'Paramedic: EKG cardiac monitoring.',
           'CRITICAL NOTES: DO NOT administer Atropine for patients with AMS and/or SBP >180 mmHg (Cushing\'s Triad risk — worsens brain bleed). Do NOT use Hydralazine for stroke-related hypertension (decreases cerebral perfusion, increases ICP).'
         ],
-        tags: ['stroke','cva','befast','adult','medical']
+        tags: ['paramedic','aemt','emt','stroke','cva','befast','adult','medical']
       },
       {
         id: 'easi26-unconscious',
@@ -1687,7 +2102,7 @@
           'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO). Consider Narcan 0.4–8.0 mg IVP, titrated to effect.',
           'Paramedic: EKG cardiac monitoring.'
         ],
-        tags: ['unconscious','unknown','narcan','naloxone','adult','medical']
+        tags: ['paramedic','aemt','emt','unconscious','unknown','narcan','naloxone','adult','medical']
       },
       // ── ADULT TRAUMA ──────────────────────────────────────────────────────
       {
@@ -1702,7 +2117,7 @@
           'Traumatic Cardiac Arrest: Rapid transport to closest facility. On-scene skills only: Airway control, Bleeding control, Needle decompression, Spinal Motion Restriction. All other treatments en route. Bilateral needle chest decompression should be actively considered.',
           'NOTE: Traumatic cardiac arrest is not generally a cardiac problem.'
         ],
-        tags: ['trauma','traumacomm','pulsara','txa','ancef','tourniquet','adult','trauma']
+        tags: ['paramedic','aemt','emt','trauma','traumacomm','pulsara','txa','ancef','tourniquet','adult','trauma']
       },
       {
         id: 'easi26-amputation-adult',
@@ -1713,7 +2128,7 @@
           'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO). Consider Acetaminophen 1000 mg IV over 10 min.',
           'Paramedic: Consider pain control.'
         ],
-        tags: ['amputation','tourniquet','adult','trauma']
+        tags: ['paramedic','aemt','emt','amputation','tourniquet','adult','trauma']
       },
       {
         id: 'easi26-burns-adult',
@@ -1725,7 +2140,7 @@
           'Advanced EMT: Advanced airway. IV Lactated Ringers 500 mL/hr until proper Parkland Formula obtained. 2 large-bore IVs if condition appropriate.',
           'Paramedic: Pain management — Morphine Sulfate 2 mg IV every 5 min (preferred in burn patients) or Ketamine 0.5–1.0 mg/kg. High-voltage electrical injury or direct lightning strike with significant tissue destruction: Sodium Bicarbonate 1 mEq/kg (max 100 mEq) in 1000 mL NS or LR wide open.'
         ],
-        tags: ['burns','rule-of-nines','lactated-ringers','parkland','morphine','ketamine','electrical','adult','trauma']
+        tags: ['paramedic','aemt','emt','burns','rule-of-nines','lactated-ringers','parkland','morphine','ketamine','electrical','adult','trauma']
       },
       {
         id: 'easi26-crush-adult',
@@ -1738,7 +2153,7 @@
           'Paramedic: Establish IV access. Consider pain management. Sodium Bicarbonate 1 mEq IV into affected appendage (max 50 mEq total). Calcium Chloride 1 G mixed in 100 mL D10%.',
           'NOTE: Upon extrication of long-trapped appendage, electrolytes and toxins will flow into the main body and can cause severe imbalances, arrhythmias, and cardiac arrest.'
         ],
-        tags: ['crush','compartment-syndrome','bicarbonate','calcium-chloride','adult','trauma']
+        tags: ['paramedic','aemt','emt','crush','compartment-syndrome','bicarbonate','calcium-chloride','adult','trauma']
       },
       {
         id: 'easi26-eye-injury-adult',
@@ -1750,7 +2165,7 @@
           'Advanced EMT: Advanced airway. IV NS 0.9% (10 gtts, 200 cc; TKO).',
           'Paramedic: Consider pain management.'
         ],
-        tags: ['eye','irrigation','adult','trauma']
+        tags: ['paramedic','aemt','emt','eye','irrigation','adult','trauma']
       },
       {
         id: 'easi26-taser',
@@ -1761,7 +2176,7 @@
           'Basic EMT: O2. If barbs intact: remove gently unless inserted in face — if in face, cut wire, secure in position, and transport. If barbs removed successfully and patient refuses transport → obtain refusal signature. Transport if patient requests.',
           'Advanced EMT / Paramedic: Consider pain management.'
         ],
-        tags: ['taser','barb','removal','adult','trauma']
+        tags: ['paramedic','aemt','emt','taser','barb','removal','adult','trauma']
       },
       // ── PEDIATRIC CARDIAC ─────────────────────────────────────────────────
       {
@@ -1777,7 +2192,7 @@
           'Paramedic – Asystole / PEA: Epinephrine 1:10,000 0.01 mg/kg IV/IO every 3–5 min. Compressions >100/min; rhythm check every 2 min. Reversible causes: Hypovolemia (20 mL/kg NS), Hypoxia, Acidosis (NaHCO3 1 mEq), Hypo/Hyperkalemia (CaCl 20 mg/kg), Hypoglycemia (D10% 3–5 mL/kg over 10 min), Hypothermia, Toxins, Tamponade, Tension PTX, Thrombosis.',
           'EtCO2 targets: 35 mmHg ±5 mmHg. Ventilate 20–30 breaths/min (avoid hyperventilation). Use Broselow tape.'
         ],
-        tags: ['pediatric','peds','arrest','cpr','epinephrine','amiodarone','defib','vfib','asystole','pea','cardiac']
+        tags: ['paramedic','aemt','emt','pediatric','peds','arrest','cpr','epinephrine','amiodarone','defib','vfib','asystole','pea','cardiac']
       },
       {
         id: 'easi26-peds-narrow-tach',
@@ -1791,7 +2206,7 @@
           'Paramedic – Regular/Stable: Vagal maneuvers. Adenosine 0.1 mg/kg Fast IVP; if no conversion → repeat at 0.2 mg/kg after 5 min. May repeat once.',
           'Reversible causes: Hypovolemia (20 mL/kg NS), Hypoxia, Acidosis (NaHCO3 1 mEq), Hypo/Hyperkalemia (CaCl 20 mg/kg), Hypoglycemia (D10% 3–5 mL/kg), Hypothermia, Toxins, Tamponade, Tension PTX, Thrombosis.'
         ],
-        tags: ['pediatric','peds','svt','narrow-complex','tachycardia','adenosine','midazolam','cardioversion','cardiac']
+        tags: ['paramedic','aemt','emt','pediatric','peds','svt','narrow-complex','tachycardia','adenosine','midazolam','cardioversion','cardiac']
       },
       {
         id: 'easi26-peds-bradycardia',
@@ -1803,7 +2218,7 @@
           'Advanced EMT: Advanced airway. IV NS 0.9% (max 20 mL/kg). Epinephrine 1:10,000 0.01 mg/kg IV; repeat every 3–5 min until bradycardia resolved.',
           'Paramedic: EKG cardiac monitor.'
         ],
-        tags: ['pediatric','peds','bradycardia','epinephrine','airway','cardiac']
+        tags: ['paramedic','aemt','emt','pediatric','peds','bradycardia','epinephrine','airway','cardiac']
       },
       // ── PEDIATRIC MEDICAL ─────────────────────────────────────────────────
       {
@@ -1817,7 +2232,7 @@
           'Paramedic: Benadryl 1 mg/kg IV or Broselow dose; max total 25 mg. If still in anaphylaxis: Epinephrine 1:1,000 0.01 mg/kg IM or Broselow; repeat in 5 min. Life-threatening: 1:10,000 0.01 mg SIVP or Broselow.',
           'NOTES: Monitor closely. Reserve Epi for anaphylaxis. Early elective intubation for hoarseness, lingual edema, stridor, or oropharyngeal swelling.'
         ],
-        tags: ['pediatric','peds','allergic','anaphylaxis','epinephrine','benadryl','albuterol','medical']
+        tags: ['paramedic','aemt','emt','pediatric','peds','allergic','anaphylaxis','epinephrine','benadryl','albuterol','medical']
       },
       {
         id: 'easi26-peds-asthma',
@@ -1830,7 +2245,7 @@
           'Paramedic: Epinephrine 0.01 mg/kg IM or Broselow dose for patient in extremis.',
           'NOTES: IV bolus reduces alveolar dehydration. Intubation reserved for patients who deteriorate despite advanced therapy — airway manipulation can worsen bronchoconstriction. Intubation does not relieve small-airway constriction.'
         ],
-        tags: ['pediatric','peds','asthma','ards','albuterol','epinephrine','medical']
+        tags: ['paramedic','aemt','emt','pediatric','peds','asthma','ards','albuterol','epinephrine','medical']
       },
       {
         id: 'easi26-peds-choking',
@@ -1843,7 +2258,7 @@
           'Paramedic: Direct laryngoscopy — remove with Magill forceps (caution: do not lodge deeper). If all efforts fail → Cricothyrotomy.',
           'Post-Cricothyrotomy stable vitals: Fentanyl 0.5–1 mcg/kg/dose IVP; repeat every 5 min as needed.'
         ],
-        tags: ['pediatric','peds','choking','obstruction','magill','cric','medical']
+        tags: ['paramedic','aemt','emt','pediatric','peds','choking','obstruction','magill','cric','medical']
       },
       {
         id: 'easi26-peds-seizures',
@@ -1855,7 +2270,7 @@
           'Paramedic: No IV → Midazolam 0.3 mg/kg IN or 1–3 mg IM. IV present → Midazolam 0.35 mg/kg IVP over 20 seconds.',
           'NOTE: Status seizures are life-threatening — transport ASAP to closest appropriate facility.'
         ],
-        tags: ['pediatric','peds','seizure','midazolam','febrile','medical']
+        tags: ['paramedic','aemt','emt','pediatric','peds','seizure','midazolam','febrile','medical']
       },
       {
         id: 'easi26-peds-croup',
@@ -1866,7 +2281,7 @@
           'Advanced EMT: Advanced airway (with caution to avoid agitation).',
           'Paramedic: If stridor noted and treatments are refractory → Epinephrine Nebulized: 0.5 mL Epi (1:1,000) in 3 mL NS nebulized.'
         ],
-        tags: ['pediatric','peds','croup','epiglottitis','stridor','albuterol','epinephrine','medical']
+        tags: ['paramedic','aemt','emt','pediatric','peds','croup','epiglottitis','stridor','albuterol','epinephrine','medical']
       },
       {
         id: 'easi26-peds-diabetic',
@@ -1880,7 +2295,7 @@
           'HYPERGLYCEMIA Advanced EMT: Advanced airway. NS 0.9% Bolus 20 mL/kg IV.',
           'HYPERGLYCEMIA Paramedic: EKG monitor.'
         ],
-        tags: ['pediatric','peds','diabetes','hypoglycemia','hyperglycemia','dextrose','medical']
+        tags: ['paramedic','aemt','emt','pediatric','peds','diabetes','hypoglycemia','hyperglycemia','dextrose','medical']
       },
       {
         id: 'easi26-peds-nausea',
@@ -1891,7 +2306,7 @@
           'Advanced EMT: Advanced airway. IV NS 0.9% (rate appropriate; max 20 mL/kg). Zofran 0.1 mg/kg SIVP over 2 min for nausea/vomiting (max 2 mg).',
           'Paramedic: EKG monitoring for electrolyte-imbalance-related arrhythmias.'
         ],
-        tags: ['pediatric','peds','nausea','vomiting','diarrhea','zofran','ondansetron','medical']
+        tags: ['paramedic','aemt','emt','pediatric','peds','nausea','vomiting','diarrhea','zofran','ondansetron','medical']
       },
       {
         id: 'easi26-peds-overdose',
@@ -1904,7 +2319,7 @@
           'Paramedic – TCA OD (tachycardia, widened QRS, dysrhythmias): Sodium Bicarbonate 1 mEq/kg IVP.',
           'Paramedic – CO POISONING: CPAP ASAP. High-flow O2 via pediatric NRB mask. Transport to facility with hyperbaric treatment. Follow Poison Control.'
         ],
-        tags: ['pediatric','peds','overdose','narcan','naloxone','bicarbonate','co','tca','medical']
+        tags: ['paramedic','aemt','emt','pediatric','peds','overdose','narcan','naloxone','bicarbonate','co','tca','medical']
       },
       // ── PEDIATRIC TRAUMA ──────────────────────────────────────────────────
       {
@@ -1917,7 +2332,7 @@
           'Advanced EMT: Advanced airway. IV NS 0.9% (max 20 mL/kg).',
           'Paramedic: Consider pain control.'
         ],
-        tags: ['pediatric','peds','amputation','tourniquet','trauma']
+        tags: ['paramedic','aemt','emt','pediatric','peds','amputation','tourniquet','trauma']
       },
       {
         id: 'easi26-peds-burns',
@@ -1929,7 +2344,7 @@
           'Advanced EMT: Advanced airway. IV Lactated Ringers: age <5yo → 125 mL/hr; age 6–13yo → 250 mL/hr; age >17yo → 500 mL/hr until proper Parkland formula rate obtained.',
           'Paramedic: Pain management — Morphine Sulfate 2 mg IV every 5 min as needed (preferred in burns). High-voltage electrical or lightning with significant tissue destruction: Sodium Bicarbonate 1 mEq/kg (max 100 mEq) in 1000 mL NS or LR wide open.'
         ],
-        tags: ['pediatric','peds','burns','lactated-ringers','parkland','morphine','electrical','trauma']
+        tags: ['paramedic','aemt','emt','pediatric','peds','burns','lactated-ringers','parkland','morphine','electrical','trauma']
       },
       {
         id: 'easi26-peds-crush',
@@ -1941,7 +2356,7 @@
           'Paramedic: Consider pain management. Sodium Bicarbonate 1 mEq IV into affected appendage (max 50 mEq total). Calcium Chloride 1 G mixed in 100 mL D5%.',
           'NOTE: Upon extrication of long-trapped appendage, electrolytes and toxins flow into main body → severe imbalances, arrhythmias, and possible cardiac arrest.'
         ],
-        tags: ['pediatric','peds','crush','compartment-syndrome','bicarbonate','calcium-chloride','trauma']
+        tags: ['paramedic','aemt','emt','pediatric','peds','crush','compartment-syndrome','bicarbonate','calcium-chloride','trauma']
       },
       {
         id: 'easi26-peds-eye',
@@ -1952,7 +2367,7 @@
           'Advanced EMT: Advanced airway. IV NS 0.9% (max 20 mL/kg).',
           'Paramedic: Consider pain management.'
         ],
-        tags: ['pediatric','peds','eye','irrigation','trauma']
+        tags: ['paramedic','aemt','emt','pediatric','peds','eye','irrigation','trauma']
       }
     ],
     meds: [
@@ -2044,6 +2459,8 @@
   let _favsOnly    = false;
   const _hiddenRoles = new Set();
   let _lastTerms = [];
+  let _ageFilter = 'all';
+  let _medClassFilter = null;
 
   function _favKey(svc){ return svc || state.currentService; }
   function _favArr(type, svc){
@@ -2088,7 +2505,7 @@
   }
 
   // --- Role detection & display helpers ---
-  const ROLE_COLORS = {emt:'#3b82f6', aemt:'#f97316', paramedic:'#ef4444'};
+  const ROLE_COLORS = {emt:'#3b82f6', aemt:'#f97316', paramedic:'#22c55e'};
 
   function normalizeRoles(text){
     return text
@@ -2096,7 +2513,8 @@
       .replace(/\bEMT-I\b/gi, 'AEMT')
       .replace(/\bEMT-Intermediate\b/gi, 'AEMT')
       .replace(/\bEMT\s+Intermediate\b/gi, 'AEMT')
-      .replace(/\bIntermediate\s+EMT\b/gi, 'AEMT');
+      .replace(/\bIntermediate\s+EMT\b/gi, 'AEMT')
+      .replace(/\bBasic\s+EMT\b/gi, 'EMT');
   }
 
   function _rn(text){
@@ -2106,19 +2524,195 @@
 
   function detectRoles(text){
     const t = _rn(text);
-    const r = [];
-    if(/paramedic/i.test(t)) r.push('paramedic');
-    if(t.includes('\x00')) r.push('aemt');
-    if(/\bEMT\b/i.test(t)) r.push('emt');
-    return r;
+    const raw = new Set();
+    if(/paramedic/i.test(t)) raw.add('paramedic');
+    if(t.includes('\x00')) raw.add('aemt');
+    if(/\bEMT\b/i.test(t)) raw.add('emt');
+    // Scope hierarchy: if EMT can do it, all providers can; if AEMT can do it, Paramedic can too
+    if(raw.has('emt')){ raw.add('aemt'); raw.add('paramedic'); }
+    if(raw.has('aemt')){ raw.add('paramedic'); }
+    return ['paramedic','aemt','emt'].filter(r=>raw.has(r));
   }
+
+  // Drug-name hints for role inference on steps with no explicit prefix
+  const _PARA_DRUGS = /\b(fentanyl|morphine|ketamine|midazolam|versed|amiodarone|succinylcholine|rocuronium|vecuronium|adenosine|haldol|haloperidol|labetalol|diltiazem|cardizem|furosemide|lasix|tranexamic acid|txa\b|lorazepam|ativan|diazepam|valium|dopamine|calcium chloride|sodium bicarb(?:onate)?|lidocaine|atropine\b|vasopressin|norepinephrine|nitroprusside)\b/i;
+  const _AEMT_DRUGS  = /\b(acetaminophen|tylenol|naloxone|narcan|albuterol|ipratropium|atrovent|glucagon|ondansetron|zofran|solu-medrol|methylprednisolone|epinephrine 1:1,000|epinephrine 1:1000|dextrose 10|d10%)\b/i;
 
   function stepRole(text){
     const t = _rn(text);
+    // Explicit role prefix detection
     if(/paramedic/i.test(t)) return 'paramedic';
     if(t.includes('\x00')) return 'aemt';
     if(/\bEMT\b/i.test(t)) return 'emt';
-    return '';
+    // "ALL:" at start of step → applies to every provider level
+    if(/^\s*ALL\s*:/i.test(t)) return 'emt';
+    // Infer from drug names when no explicit prefix
+    if(_PARA_DRUGS.test(text)) return 'paramedic';
+    if(_AEMT_DRUGS.test(text)) return 'aemt';
+    // Default: every step shows at least the EMT base label
+    return 'emt';
+  }
+
+  // Strip the role word(s) from the front of a step, keeping non-role descriptors (Pediatric, Adult).
+  // Returns { clean: text without role prefix, descriptor: 'Pediatric'|'Adult'|'' }
+  function stripRolePrefix(ns){
+    // "ALL:" → strip, no descriptor
+    let m = ns.match(/^\s*ALL\s*:\s*/i);
+    if(m) return { clean: ns.slice(m[0].length), descriptor: '' };
+
+    const ROLE = '(?:Paramedic|AEMT|Advanced\\s+EMT|Basic\\s+EMT|EMT-I\\b|EMT-Intermediate\\b|EMT\\b)';
+    const DESC = '(Pediatric|Peds|Adult|Geriatric)';
+    const SEP  = '[\\s:–\\-]+';
+    // Descriptor before role: "Pediatric AEMT:" or "Adult Paramedic:"
+    m = ns.match(new RegExp('^\\s*' + DESC + '\\s+' + ROLE + '(?:\\s*\\/\\s*' + ROLE + ')*' + SEP, 'i'));
+    if(m) return { clean: ns.slice(m[0].length), descriptor: m[1] };
+    // Role before descriptor: "Paramedic Adult:"
+    m = ns.match(new RegExp('^\\s*' + ROLE + '(?:\\s*\\/\\s*' + ROLE + ')*\\s+' + DESC + SEP, 'i'));
+    if(m) return { clean: ns.slice(m[0].length), descriptor: m[1] };
+    // Plain role prefix: "Paramedic:" / "EMT/AEMT:" / "Paramedic – Subtype:"
+    m = ns.match(new RegExp('^\\s*' + ROLE + '(?:\\s*[\\/-]\\s*' + ROLE + ')*' + SEP, 'i'));
+    if(m) return { clean: ns.slice(m[0].length), descriptor: '' };
+    return { clean: ns, descriptor: '' };
+  }
+
+  // Sanitize raw text before injecting as HTML — prevents < > from breaking markup
+  function sanitizeText(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  const _UNITS = 'mg\\/kg|mcg\\/kg|mL\\/kg|mcg\\/kg\\/min|mg\\/kg\\/hr|mg|mcg|g|mEq|mL|units?|IU';
+  const _NUM   = '\\d+(?:\\.\\d+)?(?:\\s*[–\\-]\\s*\\d+(?:\\.\\d+)?)?';
+
+  function doseHL(text){
+    // Max/ceiling dose first → amber badge
+    let result = text.replace(
+      new RegExp('\\b(max(?:imum)?\\s+(?:total\\s+)?(?:dose\\s+)?)(' + _NUM + ')\\s*(' + _UNITS + ')(?=[\\s,;.\\)\\/]|$)', 'gi'),
+      (_, pre, num, unit) => `<span class="dose-max">${pre}${num} ${unit}</span>`
+    );
+    // Remaining dose amounts → purple badge (replaceTextOnly avoids re-matching inside dose-max spans)
+    return replaceTextOnly(result, t => t.replace(
+      new RegExp('(' + _NUM + ')\\s*(' + _UNITS + ')(?=[\\s,;.\\)\\/]|$)', 'gi'),
+      '<span class="dose">$1 $2</span>'
+    ));
+  }
+
+  // Final enhancement pass: route badges + DO NOT warnings + flow arrows (runs on text nodes only)
+  function enhance(html){
+    return replaceTextOnly(html, text => {
+      // Route administration badges (case-sensitive — protocols write routes in CAPS)
+      text = text.replace(
+        /\b(SIVP|FIVP|IVP|IV\/IO|IO\/IV|IM\/IV|IV\/IM|IV|IM|IO|IN|SL|PO|NEB|SubQ|SQ)\b/g,
+        r => `<span class="rbadge">${r}</span>`
+      );
+      // Safety warnings
+      text = text.replace(
+        /\b(DO NOT|NEVER|CONTRAINDICATED|WITHHOLD|DISCONTINUE|DO NOT ADMINISTER)\b/g,
+        m => `<span class="warn">${m}</span>`
+      );
+      // Flow arrows → styled
+      text = text.replace(/→/g, '<span class="step-arrow">→</span>');
+      return text;
+    });
+  }
+
+  // Apply fn only to text nodes (not inside HTML tags) — prevents regex corruption of existing markup
+  function replaceTextOnly(html, fn){
+    return html.replace(/(<[^>]*>)|([^<]+)/g, (m, tag, text) => tag ? tag : fn(text));
+  }
+
+  // Format infusion rate tables (runs via replaceTextOnly to avoid corrupting existing HTML)
+  // Converts: "1 mcg/min = 15 gtts/min; 2 = 30; ..." → pill badges
+  function fmtRateTable(html){
+    if(!/\d+\s*=\s*\d+\s*(?:gtts|gtt)/i.test(html)) return html;
+    let unit = '';
+    const matched = html.match(/(\d+(?:\.\d+)?)\s+(mcg\/min|mg\/min|mEq\/min|mcg\/kg\/min)/i);
+    if(matched) unit = matched[2];
+    return replaceTextOnly(html, text =>
+      text.replace(
+        /(\d+(?:\.\d+)?)\s*(mcg\/min|mg\/min|mEq\/min|mcg\/kg\/min)?\s*=\s*(\d+)\s*(?:gtts\/min|gtt\/min|gtts|gtt)?\.?/gi,
+        (_, rate, u, gtts) => {
+          const displayUnit = u || unit;
+          return `<span class="rate-pill">${rate}${displayUnit?' '+displayUnit:''} → ${gtts} gtts</span>`;
+        }
+      )
+    );
+  }
+
+  // Make medication names in step text clickable (jumps to Meds tab)
+  function linkMeds(html){
+    const allMeds = (svc().meds||[]).filter(m=>m.name && m.name.length>3);
+    if(!allMeds.length) return html;
+    const sorted = [...allMeds].sort((a,b)=>b.name.length-a.name.length);
+    return replaceTextOnly(html, text => {
+      let result = text;
+      sorted.forEach(med => {
+        const esc = escapeRegExp(med.name);
+        const re = new RegExp('(?<![\\w>])'+esc+'(?![\\w<])', 'gi');
+        result = result.replace(re, match =>
+          `<a class="med-link" href="#" onclick="openMed(${JSON.stringify(med.name)});return false">${match}</a>`
+        );
+      });
+      return result;
+    });
+  }
+
+  window.openMed = function(name){
+    document.querySelector('[data-tab="meds"]').click();
+    const q = $('#q');
+    q.value = name;
+    renderAll([name.toLowerCase()]);
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+
+  // ── Category grouping ─────────────────────────────────────────────────────
+  const CATEGORY_ORDER = ['General','Adult Cardiac','Adult Medical','Adult Trauma','Pediatric Cardiac','Pediatric Medical','Pediatric Trauma'];
+  const CATEGORY_COLORS = {
+    'General':           '#5eead4',
+    'Adult Cardiac':     '#f87171',
+    'Adult Medical':     '#60a5fa',
+    'Adult Trauma':      '#fb923c',
+    'Pediatric Cardiac': '#f472b6',
+    'Pediatric Medical': '#a78bfa',
+    'Pediatric Trauma':  '#fbbf24',
+  };
+
+  function protocolCategory(p){
+    const tags = new Set((p.tags||[]).map(t=>t.toLowerCase()));
+    const title = (p.title||'').toLowerCase();
+    const isPeds = tags.has('pediatric') || title.includes('pediatric') || title.includes('– pediatric') || title.includes('- pediatric');
+    const isCardiac = ['cardiac','arrest','vtach','vfib','tachycardia','bradycardia','pea','afib','svt','ectopy','chf','hyperkalemia','acs','chest-pain'].some(t=>tags.has(t));
+    const isTrauma  = tags.has('trauma') || ['burn','amputat','crush','eye-injury','taser'].some(t=>tags.has(t));
+    const isAirway  = tags.has('airway') || tags.has('ksi') || tags.has('intubation');
+    if(isPeds){
+      if(isCardiac) return 'Pediatric Cardiac';
+      if(isTrauma)  return 'Pediatric Trauma';
+      return 'Pediatric Medical';
+    }
+    if(isAirway && !isCardiac) return 'General';
+    if(isCardiac) return 'Adult Cardiac';
+    if(isTrauma)  return 'Adult Trauma';
+    const isMedical = ['medical','abdominal','allerg','seiz','stroke','cva','overdose','sepsis','diabet','hypertens','hypotens','hypotherm','hypertherm','obstet','psychiatric','behavioral','gi-bleed','choking','nausea','croup','asthma','copd','transfusion','syncope','back-pain'].some(t=>tags.has(t)||title.includes(t));
+    if(isMedical) return 'Adult Medical';
+    return 'General';
+  }
+
+  const _collapsedCats = new Set(JSON.parse(localStorage.getItem('pref_cats')||'[]'));
+  window.toggleCat = function(slug){
+    const el = document.getElementById('cat-'+slug);
+    if(!el) return;
+    el.classList.toggle('collapsed');
+    if(el.classList.contains('collapsed')) _collapsedCats.add(slug);
+    else _collapsedCats.delete(slug);
+    localStorage.setItem('pref_cats', JSON.stringify([..._collapsedCats]));
+  };
+
+  // Detect inline numbered sub-lists like "1) text 2) text 3) text" and split them
+  function splitInlineList(text) {
+    if (!/\b[2-9]\)\s/.test(text)) return null;
+    const parts = text.split(/\s+(?=\d+\)\s)/);
+    if (parts.length < 2) return null;
+    return parts.map(p => {
+      const m = p.match(/^(\d+)\)\s*([\s\S]*)/);
+      return m ? { num: m[1], text: m[2].trim() } : { num: null, text: p };
+    });
   }
 
   function renderProtocols(filterTerms=[]){
@@ -2130,33 +2724,107 @@
       if(!steps.length) return true;
       return steps.some(s=>{ const r=stepRole(normalizeRoles(s)); return !r||!_hiddenRoles.has(r); });
     });
-    protocolsEl.innerHTML = items.map(({p,i})=>{
+    if(_ageFilter !== 'all') items = items.filter(({p})=>{
+      const cat = protocolCategory(p);
+      if(_ageFilter === 'adult') return !cat.startsWith('Pediatric');
+      if(_ageFilter === 'peds')  return !cat.startsWith('Adult');
+      return true;
+    });
+
+    const TAG_HIDE = new Set(['emt','aemt','paramedic','adult','pediatric','peds','basic']);
+    const totalProtocols = all.length;
+    const tcP = $('#tc-p'); if(tcP) tcP.textContent = items.length < totalProtocols ? `(${items.length}/${totalProtocols})` : `(${items.length})`;
+
+    if(!items.length){
+      protocolsEl.innerHTML = emptyState(_favsOnly ? 'No favorited protocols yet — tap ☆ on any protocol to save it here.' : 'No protocol matches');
+      return;
+    }
+
+    // Group by category, preserving CATEGORY_ORDER
+    const byCategory = new Map();
+    CATEGORY_ORDER.forEach(c => byCategory.set(c, []));
+    items.forEach(item => {
+      const cat = protocolCategory(item.p);
+      if(!byCategory.has(cat)) byCategory.set(cat, []);
+      byCategory.get(cat).push(item);
+    });
+
+    const ROLE_LABELS = {paramedic:'Paramedic', aemt:'AEMT', emt:'EMT'};
+
+    function renderCard({p, i}){
+      const eid = (p.id||p.title).replace(/[^a-z0-9]/gi,'_');
       const fid = (p.id||p.title).replace(/'/g,"&#39;");
       const on  = isFav('p', p.id||p.title);
-      const allText = [p.title, p.summary||'', ...(p.steps||[])].join(' ');
+      const allText = [p.title, p.summary||'', ...(p.steps||[]), ...(p.tags||[])].join(' ');
       const cardRoles = detectRoles(allText);
       const badges = cardRoles.map(r=>`<span class="role-badge rb-${r}">${r==='paramedic'?'Paramedic':r==='aemt'?'AEMT':'EMT'}</span>`).join('');
+      const visibleStepCount = (p.steps||[]).filter(s=>{ const r=stepRole(normalizeRoles(s)); return !r||!_hiddenRoles.has(r); }).length;
+      const stepsHtml = (p.steps||[]).map((s,si)=>{
+        const ns   = normalizeRoles(s);
+        const role = stepRole(ns);
+        if(role && _hiddenRoles.has(role)) return '';
+        const { clean, descriptor } = stripRolePrefix(ns);
+        const roleLabel = role ? `<span class="step-role-tag" style="color:${ROLE_COLORS[role]};border-color:${ROLE_COLORS[role]}">${ROLE_LABELS[role]}</span>` : '';
+        const ptBadge = /^(Pediatric|Peds)$/i.test(descriptor) ? `<span class="pt-badge pt-peds">Peds</span> `
+                      : /^Adult$/i.test(descriptor)            ? `<span class="pt-badge pt-adult">Adult</span> ` : '';
+        const subItems = splitInlineList(clean);
+        let stepContent;
+        if (subItems && subItems.length > 1) {
+          stepContent = subItems.map(item => {
+            const html = enhance(fmtRateTable(linkMeds(doseHL(highlight(sanitizeText(item.text), filterTerms)))));
+            return item.num
+              ? `<div class="sub-step"><span class="sub-k">${item.num}</span><span>${html}</span></div>`
+              : `<span style="display:block;margin-bottom:2px">${html}</span>`;
+          }).join('');
+        } else {
+          stepContent = enhance(fmtRateTable(linkMeds(doseHL(highlight(sanitizeText(clean), filterTerms)))));
+        }
+        const stepHtml = ptBadge + stepContent;
+        return `<div class="step-row-wrap" style="margin-bottom:6px">
+          ${roleLabel}<div class="step-content"><span class="k">${si+1}</span> ${stepHtml}</div>
+        </div>`;
+      }).join('');
       return `
-      <div class="card${on?' fav-on':''}">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
-          <div style="flex:1;min-width:0">
-            <h3 style="margin:0 0 4px">${highlight(p.title, filterTerms)}</h3>
-            ${badges ? `<div style="margin-bottom:4px">${badges}</div>` : ''}
+      <div class="card${on?' fav-on':''}" id="pcard-${eid}">
+        <div class="card-header" onclick="toggleCard('${eid}')">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+            <div style="flex:1;min-width:0">
+              <h3 style="margin:0 0 4px">${highlight(p.title, filterTerms)}</h3>
+              ${badges ? `<div style="margin-bottom:2px">${badges}</div>` : ''}
+            </div>
+            <div style="display:flex;align-items:center;gap:4px;flex:none">
+              <span class="card-chev">▾</span>
+              <button class="fav-btn${on?' on':''}" onclick="event.stopPropagation();toggleFav('p','${fid}')" title="${on?'Remove from favorites':'Add to favorites'}">${on?'★':'☆'}</button>
+            </div>
           </div>
-          <button class="fav-btn${on?' on':''}" onclick="toggleFav('p','${fid}')" title="${on?'Remove from favorites':'Add to favorites'}">${on?'★':'☆'}</button>
+          <div class="card-step-count">${visibleStepCount} step${visibleStepCount!==1?'s':''}</div>
         </div>
-        <div class="hint">${highlight(normalizeRoles(p.summary||''), filterTerms)}</div>
-        <div style="margin-top:8px">
-          ${(p.steps||[]).map((s,si)=>{
-            const ns   = normalizeRoles(s);
-            const role = stepRole(ns);
-            if(role && _hiddenRoles.has(role)) return '';
-            const st   = role ? `border-left:3px solid ${ROLE_COLORS[role]};padding-left:8px;margin-bottom:4px` : 'margin-bottom:4px';
-            return `<div style="${st}"><span class="k">${si+1}</span> ${highlight(ns, filterTerms)}</div>`;
-          }).join('')}
+        <div class="card-body">
+          <div class="hint" style="margin-bottom:6px">${highlight(normalizeRoles(p.summary||''), filterTerms)}</div>
+          <div>${stepsHtml}</div>
+          <div>${(p.tags||[]).filter(t=>!TAG_HIDE.has(t)).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
         </div>
-        <div>${(p.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
-      </div>`}).join('') || emptyState(_favsOnly ? 'No favorited protocols yet — tap ☆ on any protocol to save it here.' : 'No protocol matches');
+      </div>`;
+    }
+
+    const sections = [];
+    byCategory.forEach((catItems, cat) => {
+      if(!catItems.length) return;
+      const slug = cat.toLowerCase().replace(/\s+/g,'-');
+      const color = CATEGORY_COLORS[cat] || 'var(--muted)';
+      const collapsed = (!filterTerms.length && _collapsedCats.has(slug)) ? ' collapsed' : '';
+      sections.push(`
+      <div class="cat-section${collapsed}" id="cat-${slug}">
+        <div class="cat-header" onclick="toggleCat('${slug}')">
+          <span class="cat-dot" style="background:${color}"></span>
+          <span class="cat-name" style="color:${color}">${cat}</span>
+          <span class="cat-count">${catItems.length}</span>
+          <span class="cat-chev">▴</span>
+        </div>
+        <div class="cat-body grid">${catItems.map(renderCard).join('')}</div>
+      </div>`);
+    });
+    protocolsEl.innerHTML = sections.join('');
   }
 
   function toggleCard(eid){
@@ -2257,16 +2925,23 @@
     const all = svc().meds||[];
     let items = all.map((m,i)=>({m,i})).filter(({m})=> matchItem(m, filterTerms));
     if(_favsOnly) items = items.filter(({m})=> isFav('m', m.name));
+    if(_medClassFilter) items = items.filter(({m})=> medClasses(m.name||'').includes(_medClassFilter));
+    const tcM = $('#tc-m'); if(tcM) tcM.textContent = items.length < all.length ? `(${items.length}/${all.length})` : `(${items.length})`;
     medsEl.innerHTML = items.map(({m,i})=>{
       const on = isFav('m', m.name);
+      const roles = medRoles(m.name||'');
+      const badges = roles.map(r=>`<span class="role-badge rb-${r}">${r==='paramedic'?'Paramedic':r==='aemt'?'AEMT':'EMT'}</span>`).join('');
       return `
       <div class="card${on?' fav-on':''}">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
-          <h3 style="margin:0 0 6px;flex:1">${highlight(m.name, filterTerms)} ${m.route?`<span class="badge">${m.route}</span>`:''}</h3>
+          <div style="flex:1;min-width:0">
+            <h3 style="margin:0 0 4px">${highlight(m.name, filterTerms)} ${m.route?`<span class="badge">${m.route}</span>`:''}</h3>
+            <div style="margin-bottom:4px">${badges}</div>
+          </div>
           <button class="fav-btn${on?' on':''}" onclick="toggleFav('m','${(m.name||'').replace(/'/g,"&#39;")}')" title="${on?'Remove from favorites':'Add to favorites'}">${on?'★':'☆'}</button>
         </div>
-        <div class="hint">${highlight(m.notes||'', filterTerms)}</div>
-        ${m.contra?`<div class="hint" style="margin-top:4px"><span style="color:#f87171">✕</span> ${highlight(m.contra, filterTerms)}</div>`:''}
+        <div class="hint">${enhance(doseHL(highlight(sanitizeText(m.notes||''), filterTerms)))}</div>
+        ${m.contra?`<div class="hint" style="margin-top:4px"><span style="color:#f87171">✕</span> ${highlight(sanitizeText(m.contra||''), filterTerms)}</div>`:''}
         <div style="margin-top:8px" class="row">
           <button class="btn" onclick="loadIntoCalc('${(m.name||'').replace(/'/g, "&#39;")}')">Send to Calculator</button>
           ${typeof m.default_mgkg!=='undefined' && m.default_mgkg!==null ? `<span class="pill"><span class="k">mg/kg</span>${m.default_mgkg}</span>`:''}
@@ -2282,11 +2957,309 @@
     return terms.every(t => hay.includes(t));
   }
 
+  // ── Broselow / Pediatric Quick Reference ──────────────────────────────────
+  const BROSELOW = [
+    {
+      color:'Grey', hex:'#9ca3af', textHex:'#e2e8f0',
+      bg:'rgba(156,163,175,.1)', border:'rgba(156,163,175,.4)',
+      kgMin:3, kgMax:5.9, repKg:4,
+      ageLabel:'Newborn – 3 months',
+      vitals:{ hr:'100–160', rr:'30–60', sbp:'60–90' },
+      airway:{ tube:'3.0 uncuffed', depth:'9 cm', blade:'0–1 straight' },
+      defib:'6–10 J', cardio:'3–5 J', bolus:'80 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.04 mg', r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.1 mg',  r:'IV/IO',    note:'min 0.1 mg' },
+        { n:'Adenosine',                d:'0.4 mg',  r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'0.4 mg',  r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.04 mg', r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'20 mL',   r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'80 mL',   r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+    {
+      color:'Pink', hex:'#f9a8d4', textHex:'#fce7f3',
+      bg:'rgba(249,168,212,.1)', border:'rgba(249,168,212,.4)',
+      kgMin:6, kgMax:7.9, repKg:6,
+      ageLabel:'3 – 6 months',
+      vitals:{ hr:'90–160', rr:'24–40', sbp:'70–100' },
+      airway:{ tube:'3.5 uncuffed', depth:'10 cm', blade:'1 straight' },
+      defib:'12–16 J', cardio:'6–8 J', bolus:'120 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.06 mg', r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.12 mg', r:'IV/IO',    note:'0.02 mg/kg' },
+        { n:'Adenosine',                d:'0.6 mg',  r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'0.6 mg',  r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.06 mg', r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'30 mL',   r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'120 mL',  r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+    {
+      color:'Red', hex:'#f87171', textHex:'#fee2e2',
+      bg:'rgba(248,113,113,.1)', border:'rgba(248,113,113,.4)',
+      kgMin:8, kgMax:9.9, repKg:8,
+      ageLabel:'6 – 9 months',
+      vitals:{ hr:'80–160', rr:'22–35', sbp:'75–105' },
+      airway:{ tube:'3.5 uncuffed', depth:'11 cm', blade:'1 straight' },
+      defib:'16–18 J', cardio:'8–9 J', bolus:'160 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.08 mg', r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.16 mg', r:'IV/IO',    note:'0.02 mg/kg' },
+        { n:'Adenosine',                d:'0.8 mg',  r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'0.8 mg',  r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.08 mg', r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'40 mL',   r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'160 mL',  r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+    {
+      color:'Purple', hex:'#c084fc', textHex:'#ede9fe',
+      bg:'rgba(192,132,252,.1)', border:'rgba(192,132,252,.4)',
+      kgMin:10, kgMax:11.9, repKg:10,
+      ageLabel:'9 – 14 months',
+      vitals:{ hr:'80–150', rr:'22–30', sbp:'80–105' },
+      airway:{ tube:'4.0 uncuffed', depth:'12 cm', blade:'1 straight' },
+      defib:'20 J', cardio:'10 J', bolus:'200 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.1 mg',  r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.2 mg',  r:'IV/IO',    note:'0.02 mg/kg' },
+        { n:'Adenosine',                d:'1 mg',    r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'1 mg',    r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.1 mg',  r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'50 mL',   r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'200 mL',  r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+    {
+      color:'Yellow', hex:'#fbbf24', textHex:'#fef9c3',
+      bg:'rgba(251,191,36,.1)', border:'rgba(251,191,36,.4)',
+      kgMin:12, kgMax:14.9, repKg:12,
+      ageLabel:'14 – 18 months',
+      vitals:{ hr:'75–145', rr:'20–28', sbp:'82–108' },
+      airway:{ tube:'4.0 uncuffed', depth:'13 cm', blade:'2 straight/curved' },
+      defib:'24–28 J', cardio:'12 J', bolus:'240 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.12 mg', r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.24 mg', r:'IV/IO',    note:'0.02 mg/kg' },
+        { n:'Adenosine',                d:'1.2 mg',  r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'1.2 mg',  r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.12 mg', r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'60 mL',   r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'240 mL',  r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+    {
+      color:'White', hex:'#e2e8f0', textHex:'#f8fafc',
+      bg:'rgba(226,232,240,.07)', border:'rgba(226,232,240,.3)',
+      kgMin:15, kgMax:18.9, repKg:16,
+      ageLabel:'2 – 3 years',
+      vitals:{ hr:'70–130', rr:'18–26', sbp:'85–108' },
+      airway:{ tube:'4.5 uncuffed', depth:'14 cm', blade:'2 straight/curved' },
+      defib:'30–36 J', cardio:'16 J', bolus:'320 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.16 mg', r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.32 mg', r:'IV/IO',    note:'0.02 mg/kg' },
+        { n:'Adenosine',                d:'1.6 mg',  r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'1.6 mg',  r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.16 mg', r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'80 mL',   r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'320 mL',  r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+    {
+      color:'Blue', hex:'#60a5fa', textHex:'#dbeafe',
+      bg:'rgba(96,165,250,.1)', border:'rgba(96,165,250,.4)',
+      kgMin:19, kgMax:23.9, repKg:20,
+      ageLabel:'4 – 5 years',
+      vitals:{ hr:'65–120', rr:'16–24', sbp:'88–110' },
+      airway:{ tube:'5.0 uncuffed / 4.5 cuffed', depth:'15 cm', blade:'2 straight/curved' },
+      defib:'40 J', cardio:'20 J', bolus:'400 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.2 mg',  r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.4 mg',  r:'IV/IO',    note:'0.02 mg/kg' },
+        { n:'Adenosine',                d:'2 mg',    r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'2 mg',    r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.2 mg',  r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'100 mL',  r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'400 mL',  r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+    {
+      color:'Orange', hex:'#fb923c', textHex:'#ffedd5',
+      bg:'rgba(251,146,60,.1)', border:'rgba(251,146,60,.4)',
+      kgMin:24, kgMax:29.9, repKg:25,
+      ageLabel:'5 – 7 years',
+      vitals:{ hr:'60–115', rr:'16–22', sbp:'90–112' },
+      airway:{ tube:'5.5 uncuffed / 5.0 cuffed', depth:'16 cm', blade:'2–3 straight/curved' },
+      defib:'50 J', cardio:'25 J', bolus:'500 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.25 mg', r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.5 mg',  r:'IV/IO',    note:'max 0.5 mg' },
+        { n:'Adenosine',                d:'2.5 mg',  r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'2.5 mg',  r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.25 mg', r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'125 mL',  r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'500 mL',  r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+    {
+      color:'Green', hex:'#4ade80', textHex:'#dcfce7',
+      bg:'rgba(74,222,128,.1)', border:'rgba(74,222,128,.4)',
+      kgMin:30, kgMax:36, repKg:32,
+      ageLabel:'7 – 9 years',
+      vitals:{ hr:'55–105', rr:'14–20', sbp:'95–115' },
+      airway:{ tube:'6.0 uncuffed / 5.5 cuffed', depth:'17 cm', blade:'2–3 straight/curved' },
+      defib:'60–64 J', cardio:'32 J', bolus:'640 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.32 mg', r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.5 mg',  r:'IV/IO',    note:'max 0.5 mg' },
+        { n:'Adenosine',                d:'3.2 mg',  r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'3.2 mg',  r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.32 mg', r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'160 mL',  r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'640 mL',  r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+  ];
+
+  // Rough weight (kg) from age in months for Broselow zone lookup
+  function ageMonthsToKg(months){
+    if(months <= 1)  return 3.5;
+    if(months <= 3)  return 5;
+    if(months <= 6)  return 7;
+    if(months <= 9)  return 8.5;
+    if(months <= 12) return 10;
+    if(months <= 18) return 11;
+    if(months <= 24) return 13;
+    if(months <= 36) return 15;
+    if(months <= 48) return 17;
+    if(months <= 60) return 19;
+    if(months <= 72) return 22;
+    if(months <= 84) return 25;
+    if(months <= 96) return 28;
+    return 32;
+  }
+
+  function broselowZone(kg){
+    return BROSELOW.find(z => kg >= z.kgMin && kg <= z.kgMax) || null;
+  }
+
+  function renderBroselowCard(zone, inputKg){
+    const repKg = inputKg != null && inputKg >= zone.kgMin && inputKg <= zone.kgMax ? inputKg : zone.repKg;
+    return `
+    <div class="brose-card" style="background:${zone.bg};border-color:${zone.border}">
+      <div class="brose-card-head">
+        <span class="brose-color-dot" style="background:${zone.hex}"></span>
+        <span class="brose-color-label" style="color:${zone.hex}">${zone.color} Zone</span>
+        <span class="brose-meta">${zone.kgMin}–${zone.kgMax} kg &nbsp;·&nbsp; ${zone.ageLabel}</span>
+      </div>
+
+      <div class="brose-grid">
+        <div class="brose-box">
+          <div class="brose-box-title">Vital Signs</div>
+          <div class="brose-box-val">
+            <span class="lbl">HR </span>${zone.vitals.hr} bpm<br>
+            <span class="lbl">RR </span>${zone.vitals.rr} /min<br>
+            <span class="lbl">SBP </span>${zone.vitals.sbp} mmHg
+          </div>
+        </div>
+        <div class="brose-box">
+          <div class="brose-box-title">Airway</div>
+          <div class="brose-box-val">
+            <span class="lbl">ETT </span>${zone.airway.tube}<br>
+            <span class="lbl">Depth </span>${zone.airway.depth}<br>
+            <span class="lbl">Blade </span>${zone.airway.blade}
+          </div>
+        </div>
+        <div class="brose-box">
+          <div class="brose-box-title">Defibrillation</div>
+          <div class="brose-box-val">
+            <span class="lbl">Defib </span>${zone.defib}<br>
+            <span class="lbl">Sync </span>${zone.cardio}<br>
+            <span class="lbl">Bolus </span>${zone.bolus}
+          </div>
+        </div>
+      </div>
+
+      <div class="brose-meds">
+        <div class="brose-meds-title">Key Medications (based on ${repKg} kg)</div>
+        ${zone.meds.map(m=>`
+        <div class="brose-med-row">
+          <span class="brose-med-name">${m.n}</span>
+          <span class="brose-med-dose">${m.d}</span>
+          <span class="brose-med-route">${m.r}</span>
+          <span class="brose-med-note">(${m.note})</span>
+        </div>`).join('')}
+      </div>
+
+      <div style="margin-top:12px;font-size:11px;color:var(--muted);line-height:1.5">
+        ⚠ Doses are based on Broselow-Luten reference weights. Always verify against your service's approved pediatric protocols and medical direction.
+      </div>
+    </div>`;
+  }
+
+  function initPedsRef(){
+    const strip = document.getElementById('peds-strip');
+    if(!strip) return;
+    strip.innerHTML = BROSELOW.map(z=>
+      `<button class="brose-swatch" data-color="${z.color}"
+        style="background:${z.bg};border-color:${z.border};color:${z.hex}"
+        onclick="pedsSelectZone('${z.color}')">${z.color}<br><span style="font-weight:400;font-size:10px">${z.kgMin}–${z.kgMax} kg</span></button>`
+    ).join('');
+
+    const kgIn = document.getElementById('peds-kg');
+    const ageNum = document.getElementById('peds-age-num');
+    const ageUnit = document.getElementById('peds-age-unit');
+
+    function trySearch(){
+      const kgVal = parseFloat(kgIn.value);
+      const ageVal = parseFloat(ageNum.value);
+      if(!isNaN(kgVal) && kgVal > 0){
+        showPedsZone(broselowZone(kgVal), kgVal);
+      } else if(!isNaN(ageVal) && ageVal >= 0){
+        const months = ageUnit.value === 'years' ? ageVal * 12 : ageVal;
+        const estKg = ageMonthsToKg(months);
+        showPedsZone(broselowZone(estKg), null, estKg);
+      }
+    }
+
+    kgIn.addEventListener('input', ()=>{ ageNum.value=''; trySearch(); });
+    ageNum.addEventListener('input', ()=>{ kgIn.value=''; trySearch(); });
+    ageUnit.addEventListener('change', trySearch);
+  }
+
+  function showPedsZone(zone, inputKg, estKg){
+    const res = document.getElementById('peds-result');
+    const strip = document.getElementById('peds-strip');
+    if(!res) return;
+    document.querySelectorAll('.brose-swatch').forEach(s=>s.classList.remove('active'));
+    if(!zone){
+      res.style.display='block';
+      res.innerHTML = `<div class="brose-empty">Weight out of Broselow range (3–36 kg). For patients over 36 kg, use adult protocols.</div>`;
+      return;
+    }
+    const sw = strip ? strip.querySelector(`[data-color="${zone.color}"]`) : null;
+    if(sw) sw.classList.add('active');
+    res.style.display = 'block';
+    const estNote = estKg ? `<div style="font-size:12px;color:var(--muted);margin-bottom:8px">Estimated weight: ~${estKg} kg based on age input</div>` : '';
+    res.innerHTML = estNote + renderBroselowCard(zone, inputKg);
+  }
+
+  window.pedsSelectZone = function(color){
+    const zone = BROSELOW.find(z=>z.color===color);
+    if(!zone) return;
+    document.getElementById('peds-kg').value = '';
+    document.getElementById('peds-age-num').value = '';
+    showPedsZone(zone, null);
+  };
+
   function renderAll(terms){
     _lastTerms = terms;
     renderServiceSelect();
     renderProtocols(terms);
     renderMeds(terms);
+    renderMedClassFilter();
     renderCalcOptions();
     jsonEl.value = JSON.stringify(svc(), null, 2);
   }
@@ -2312,6 +3285,14 @@
       renderProtocols(_lastTerms);
     });
   });
+
+  document.querySelectorAll('.age-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      _ageFilter = btn.dataset.age;
+      document.querySelectorAll('.age-btn').forEach(b => b.classList.toggle('active', b === btn));
+      renderProtocols(_lastTerms);
+    });
+  });
   let deb;
   q.addEventListener('input', ()=>{
     clearTimeout(deb);
@@ -2321,101 +3302,66 @@
     }, 80);
   });
 
+  // --- Mobile keyboard handling ---
+  // Compact header + scroll results to top when keyboard opens on iPhone/iPad
+  const hdr = $('header');
+  let _blurTimer;
+
+  q.addEventListener('focus', ()=>{
+    clearTimeout(_blurTimer);
+    hdr.classList.add('search-mode');
+    // After keyboard animation (~320 ms), scroll so results fill the space above keyboard
+    setTimeout(()=> window.scrollTo({top:0, behavior:'smooth'}), 320);
+  });
+
+  q.addEventListener('blur', ()=>{
+    // Small delay so tapping a result doesn't flash the toolbar back in
+    _blurTimer = setTimeout(()=> hdr.classList.remove('search-mode'), 200);
+  });
+
+  // visualViewport fires when keyboard resizes the visible area (iOS Safari)
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', ()=>{
+      if(document.activeElement === q){
+        window.scrollTo({top:0, behavior:'smooth'});
+      }
+    });
+  }
+
+  // --- Resources quick-nav ---
+  window.jumpToSection = function(targetId){
+    if(targetId === 'peds-ref-section'){
+      const el = document.getElementById('peds-ref-section');
+      if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+      return;
+    }
+    const toggle = document.querySelector('[data-target="'+targetId+'"]');
+    if(toggle){
+      toggle.classList.remove('calc-collapsed');
+      (toggle.closest('.card') || toggle).scrollIntoView({behavior:'smooth', block:'start'});
+      return;
+    }
+    const el = document.getElementById(targetId);
+    if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+  };
+
   // --- Tabs ---
+  let _pedsRefInited = false;
   $$('.tab').forEach(btn=> btn.addEventListener('click', ()=>{
     $$('.tab').forEach(b=> b.classList.remove('active'));
     btn.classList.add('active');
     const tab = btn.dataset.tab;
     $$('.panel').forEach(p=> p.classList.add('hidden'));
     $('#panel-'+tab).classList.remove('hidden');
+    if(tab === 'resources' && !_pedsRefInited){ initPedsRef(); _pedsRefInited=true; }
   }));
 
   // --- PIN Protection ---
-  const _H = Object.freeze({
-    ep: 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3',
-    as: 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3'
-  });
-  async function _ph(v){
-    const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(v));
-    return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');
-  }
-  const _unlocked = new Set();
-  let _pendingSvc  = null;
-  let _pinFromLoad = false;
-  let _pinMode     = 'ep'; // 'ep'=EASI service, 'as'=add service
-  let _addSvcNext  = null;
-
-  function checkServicePin(){ /* PIN gate removed — Firebase login is the gate */ }
-
   // --- Services Management ---
   serviceSelect.addEventListener('change', ()=>{
     state.currentService = serviceSelect.value;
     save(state);
     renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
-  });
-
-  function requireAdminPin(title, callback){
-    _pinMode    = 'as';
-    _pendingSvc = null;
-    $('#pin-svc-title').textContent = title;
-    $('#pin-input').value = '';
-    $('#pin-error').textContent = '';
-    _addSvcNext = callback;
-    $('#pin-overlay').classList.remove('hidden');
-    setTimeout(()=>$('#pin-input').focus(), 50);
-  }
-
-  $('#add-service').addEventListener('click', ()=>{
-    const name = prompt('New service name?');
-    if(!name) return;
-    if(state.services[name]) return alert('Name already exists.');
-    state.services[name] = { protocols: [], meds: [] };
-    state.currentService = name;
-    save(state); renderAll([]);
-  });
-
-  $('#rename-service').addEventListener('click', ()=>{
-    const old = state.currentService;
-    const name = prompt('Rename service to:', old);
-    if(!name || name===old) return;
-    if(state.services[name]) return alert('Name already exists.');
-    state.services[name] = state.services[old];
-    delete state.services[old];
-    state.currentService = name;
-    save(state); renderAll([]);
-  });
-
-  $('#duplicate-service').addEventListener('click', ()=>{
-    const from = state.currentService;
-    const name = prompt('Duplicate service as:', from+' Copy');
-    if(!name) return;
-    if(state.services[name]) return alert('Name already exists.');
-    state.services[name] = JSON.parse(JSON.stringify(state.services[from]));
-    state.currentService = name;
-    save(state); renderAll([]);
-  });
-
-  $('#delete-service').addEventListener('click', ()=>{
-    const name = state.currentService;
-    if(Object.keys(state.services).length===1) return alert('Keep at least one service.');
-    if(confirm(`Delete "${name}"? This cannot be undone.`)){
-      delete state.services[name];
-      state.currentService = Object.keys(state.services)[0];
-      save(state); renderAll([]);
-    }
-  });
-
-  let _downloadUnlocked = false;
-  $('#download-protocols').addEventListener('click', ()=>{
-    const doDownload = ()=> window.open(
-      'https://docs.google.com/document/d/1f0loxMV_Td43iarl9-V5F6hJRKYbhhzr/export?format=pdf',
-      '_blank'
-    );
-    if(_downloadUnlocked){ doDownload(); return; }
-    requireAdminPin('Download Protocol Reference', ()=>{
-      _downloadUnlocked = true;
-      doDownload();
-    });
   });
 
   // --- Calculators ---
@@ -2436,7 +3382,7 @@
     $('#mgkg').value = (m.default_mgkg ?? '');
     $('#maxmg').value = (m.max_mg ?? '');
     $('#route').value = m.route||'';
-    document.querySelector('[data-tab="calc"]').click();
+    document.querySelector('[data-tab="resources"]').click();
   }
   window.loadIntoCalc = loadIntoCalc;
 
@@ -2765,44 +3711,6 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
   });
 
-  // --- PIN Modal Handlers ---
-  $('#pin-submit').addEventListener('click', async ()=>{
-    const h = await _ph($('#pin-input').value);
-    if(h === _H[_pinMode]){
-      $('#pin-overlay').classList.add('hidden');
-      if(_pinMode === 'ep'){
-        _unlocked.add(_pendingSvc);
-        state.currentService = _pendingSvc;
-        serviceSelect.value = _pendingSvc;
-        save(state);
-        renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
-      } else {
-        if(_addSvcNext){ _addSvcNext(); _addSvcNext = null; }
-      }
-      _pendingSvc  = null;
-      _pinFromLoad = false;
-      _pinMode     = 'ep';
-    } else {
-      $('#pin-error').textContent = 'Incorrect – try again.';
-      $('#pin-input').value = '';
-      $('#pin-input').focus();
-    }
-  });
-
-  $('#pin-cancel').addEventListener('click', ()=>{
-    $('#pin-overlay').classList.add('hidden');
-    if(_pinFromLoad){
-      const fallback = Object.keys(state.services).find(s => !s.startsWith('EASI Protocols'));
-      if(fallback){ state.currentService = fallback; serviceSelect.value = fallback; renderAll([]); }
-    }
-    _pendingSvc  = null;
-    _pinFromLoad = false;
-    _addSvcNext  = null;
-    _pinMode     = 'ep';
-  });
-
-  $('#pin-input').addEventListener('keydown', e=>{ if(e.key==='Enter') $('#pin-submit').click(); });
-
   // --- Report Issue Handlers ---
   $('#report-issue').addEventListener('click', ()=>{
     const protos = (state.services[state.currentService]?.protocols || []).map(p => p.name);
@@ -2831,7 +3739,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     const topic  = (selVal && selVal !== '__other') ? selVal : (other || 'General Issue');
     const subject = encodeURIComponent(`Protocol Report: ${topic}`);
     const body    = encodeURIComponent(`Service: ${state.currentService}\nProtocol / Topic: ${topic}\n\nIssue Description:\n${desc}`);
-    window.location.href = `mailto:EliasACaldwellNRP@gmail.com?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:acaldwell@easimedics.com?subject=${subject}&body=${body}`;
   });
 
   // App shell is hidden until Firebase auth resolves (see onAuthStateChanged below)
@@ -2865,13 +3773,80 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
         }
       }catch(e){ /* offline – keep local state */ }
       renderAll([]);
-      checkServicePin();
+      acquireWakeLock();
+      if(!sessionStorage.getItem('tos_ok')) showTOS();
     } else {
       window.location.replace('index.html');
     }
   });
 
   $('#auth-logout').addEventListener('click', () => fbAuth.signOut());
+
+  // --- TOS / Disclaimer (once per session) ---
+  function showTOS(){
+    $('#tos-overlay').classList.remove('hidden');
+  }
+  $('#tos-accept').addEventListener('click', ()=>{
+    sessionStorage.setItem('tos_ok','1');
+    $('#tos-overlay').classList.add('hidden');
+  });
+
+  // --- Calc card collapse toggles ---
+  document.querySelectorAll('.calc-toggle').forEach(h3 => {
+    h3.addEventListener('click', ()=>{
+      h3.classList.toggle('calc-collapsed');
+      const body = document.getElementById(h3.dataset.target);
+      if(body) body.style.display = body.style.display === 'none' ? '' : 'none';
+    });
+  });
+
+  // --- Theme & text-size controls ---
+  const SIZES = ['sm','md','lg'];
+  const SIZE_LABELS = {sm:'A', md:'A+', lg:'A++'};
+  let _sz = localStorage.getItem('pref_sz') || 'sm';
+  let _theme = localStorage.getItem('pref_theme') || 'dark';
+
+  function applyTheme(){
+    document.documentElement.classList.toggle('light', _theme === 'light');
+    $('#btn-theme').textContent = _theme === 'light' ? '🌙' : '☀';
+  }
+  function applySize(){
+    document.documentElement.setAttribute('data-sz', _sz);
+    $('#btn-size').textContent = SIZE_LABELS[_sz];
+  }
+  let _hdrCollapsed = localStorage.getItem('pref_hdr') === '1';
+  function applyHdrState(){
+    $('header').classList.toggle('hdr-collapsed', _hdrCollapsed);
+    const lbl = document.querySelector('.hdr-tab-label');
+    if(lbl) lbl.textContent = _hdrCollapsed ? 'Show toolbar' : 'Hide toolbar';
+  }
+  applyTheme(); applySize(); applyHdrState();
+
+  $('#btn-hdr-toggle').addEventListener('click', ()=>{
+    _hdrCollapsed = !_hdrCollapsed;
+    localStorage.setItem('pref_hdr', _hdrCollapsed ? '1' : '0');
+    applyHdrState();
+  });
+  $('#btn-theme').addEventListener('click', ()=>{
+    _theme = _theme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('pref_theme', _theme);
+    applyTheme();
+  });
+  $('#btn-size').addEventListener('click', ()=>{
+    _sz = SIZES[(SIZES.indexOf(_sz)+1) % SIZES.length];
+    localStorage.setItem('pref_sz', _sz);
+    applySize();
+  });
+
+  // --- Screen wake lock (keeps iPad awake during a call) ---
+  let _wakeLock = null;
+  async function acquireWakeLock(){
+    if(!('wakeLock' in navigator)) return;
+    try{ _wakeLock = await navigator.wakeLock.request('screen'); }catch(e){}
+  }
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.visibilityState === 'visible' && $('#app-shell').style.display !== 'none') acquireWakeLock();
+  });
 
   // --- Source protection (deterrents) ---
   document.addEventListener('contextmenu', e => e.preventDefault());
