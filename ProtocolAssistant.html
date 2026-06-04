@@ -93,6 +93,7 @@
     .sub-step{display:flex;gap:7px;padding:3px 0 3px 10px;margin:3px 0;border-left:2px solid rgba(94,234,212,.18);align-items:baseline}
     .sub-k{font-size:10px;font-weight:700;color:var(--accent);opacity:.75;flex:none;min-width:14px}
     .step-arrow{color:var(--accent);opacity:.85;margin:0 1px}
+    @keyframes spin{to{transform:rotate(360deg)}}
     /* tab result counts */
     .tab-cnt{font-size:11px;opacity:.65;font-weight:400}
     /* protocol category sections */
@@ -233,6 +234,10 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <div id="app-shell" style="display:none">
+  <div id="svc-loading" class="hidden" style="position:fixed;inset:0;background:rgba(11,13,16,.88);z-index:90;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px">
+    <div style="width:34px;height:34px;border:3px solid rgba(94,234,212,.18);border-top-color:var(--accent);border-radius:50%;animation:spin .75s linear infinite"></div>
+    <div style="color:var(--muted);font-size:13px;letter-spacing:.2px">Loading protocols…</div>
+  </div>
   <header>
     <div class="wrap">
       <div style="display:flex;justify-content:space-between;align-items:center">
@@ -2444,12 +2449,73 @@
   async function cloudSave(data){
     if(!fbAuth.currentUser) return;
     try{
+      // Only persist user preferences — protocol/med data lives in service_data collection
       await fbDb.collection('users').doc(fbAuth.currentUser.uid)
         .collection('appdata').doc('state')
-        .set({ currentService: data.currentService, services: data.services,
+        .set({ currentService: data.currentService, favs: data.favs||{},
                updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
     }catch(e){ /* offline – localStorage covers it */ }
   }
+
+  // ── Service data (protocols + meds) lives in Firestore, not in user docs ──
+  const SVC_CACHE_KEY = 'easi_svc_v2';
+  const SVC_DOC_ID    = 'easi-2026';
+
+  function showSvcLoading(on){
+    const el = document.getElementById('svc-loading');
+    if(el) el.classList.toggle('hidden', !on);
+  }
+
+  async function fetchSvcFromFirestore(){
+    const doc = await fbDb.collection('service_data').doc(SVC_DOC_ID).get();
+    if(doc.exists) return doc.data();
+    return null;
+  }
+
+  async function loadServiceData(){
+    // Use cache for instant render
+    let cached = null;
+    try{ const r = localStorage.getItem(SVC_CACHE_KEY); if(r) cached = JSON.parse(r); }catch(e){}
+
+    if(cached){
+      state.services['EASI Protocols - 2026'] = cached;
+      // Refresh in background — no spinner
+      fetchSvcFromFirestore().then(fresh => {
+        if(!fresh) return;
+        localStorage.setItem(SVC_CACHE_KEY, JSON.stringify(fresh));
+        state.services['EASI Protocols - 2026'] = fresh;
+        renderAll(_lastTerms);
+      }).catch(()=>{});
+      return;
+    }
+
+    // No cache — show spinner, must wait
+    showSvcLoading(true);
+    try{
+      const fresh = await fetchSvcFromFirestore();
+      if(fresh){
+        localStorage.setItem(SVC_CACHE_KEY, JSON.stringify(fresh));
+        state.services['EASI Protocols - 2026'] = fresh;
+      }
+      // else: no Firestore doc yet — EASI_2026_SERVICE fallback remains in state
+    }catch(e){
+      // Offline with no cache — EASI_2026_SERVICE fallback stays
+    }finally{
+      showSvcLoading(false);
+    }
+  }
+
+  // One-time admin seed: run window._adminSeed() from browser console while signed in
+  window._adminSeed = async function(){
+    if(!fbAuth.currentUser){ alert('Sign in first'); return; }
+    console.log('Seeding service data to Firestore…');
+    try{
+      await fbDb.collection('service_data').doc(SVC_DOC_ID).set(EASI_2026_SERVICE);
+      localStorage.setItem(SVC_CACHE_KEY, JSON.stringify(EASI_2026_SERVICE));
+      console.log('✓ Seeded! You can now remove EASI_2026_SERVICE from the HTML after confirming.');
+      alert('Seeded successfully. Check console.');
+    }catch(e){ console.error('Seed failed:', e); alert('Failed: '+e.message); }
+  };
 
   let state = load();
 
@@ -3747,6 +3813,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
 
   // --- Firebase Auth & Cloud Sync ---
   function applyMigrations(data){
+    if(!data.services) data.services = {};
     if(data.services['EASI AMBULANCE'] && !data.services['EASI Protocols - 2025']){
       data.services['EASI Protocols - 2025'] = data.services['EASI AMBULANCE'];
       delete data.services['EASI AMBULANCE'];
@@ -3763,16 +3830,21 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       $('#app-shell').style.display = '';
       $('#user-email').textContent = user.email;
       $('#user-bar').style.display = 'flex';
+      // Load user preferences (currentService, favs) — NOT service protocol data
       try{
         const doc = await fbDb.collection('users').doc(user.uid)
           .collection('appdata').doc('state').get();
-        if(doc.exists && doc.data().services){
-          state = applyMigrations(doc.data());
+        if(doc.exists){
+          const d = doc.data();
+          if(d.currentService) state.currentService = d.currentService;
+          if(d.favs)           state.favs = d.favs;
           localStorage.setItem(KEY, JSON.stringify(state));
         } else {
           cloudSave(state);
         }
       }catch(e){ /* offline – keep local state */ }
+      // Load service data (protocols/meds) from protected Firestore collection
+      await loadServiceData();
       renderAll([]);
       acquireWakeLock();
       if(!sessionStorage.getItem('tos_ok')) showTOS();
