@@ -90,6 +90,15 @@
     .card.collapsed .card-step-count{display:block}
     /* tab result counts */
     .tab-cnt{font-size:11px;opacity:.65;font-weight:400;margin-left:2px}
+    /* protocol category sections */
+    .cat-section{margin-bottom:18px}
+    .cat-header{display:flex;align-items:center;gap:8px;padding:8px 0 7px;cursor:pointer;user-select:none;-webkit-user-select:none;border-bottom:2px solid var(--border);margin-bottom:12px}
+    .cat-dot{width:9px;height:9px;border-radius:50%;flex:none}
+    .cat-name{font-weight:700;font-size:12px;flex:1;letter-spacing:.6px;text-transform:uppercase}
+    .cat-count{font-size:11px;color:var(--muted);background:var(--input-bg);border:1px solid var(--border);border-radius:999px;padding:1px 8px}
+    .cat-chev{font-size:10px;color:var(--muted);transition:transform .25s cubic-bezier(.4,0,.2,1)}
+    .cat-section.collapsed .cat-chev{transform:rotate(180deg)}
+    .cat-section.collapsed .cat-body{display:none}
     /* vertical role label on steps */
     .step-row-wrap{display:flex;align-items:flex-start;gap:6px}
     .step-role-tag{writing-mode:vertical-rl;text-orientation:mixed;font-size:9px;font-weight:700;letter-spacing:.5px;border-left:2px solid;padding:2px 2px;border-radius:2px;opacity:.85;line-height:1;flex:none;align-self:stretch;display:flex;align-items:center;text-transform:uppercase}
@@ -193,7 +202,7 @@
   <main class="wrap">
     <!-- Protocols -->
     <section id="panel-protocols" class="panel">
-      <div id="protocols" class="grid"></div>
+      <div id="protocols"></div>
     </section>
 
     <!-- Meds -->
@@ -2343,6 +2352,48 @@
     window.scrollTo({top:0,behavior:'smooth'});
   };
 
+  // ── Category grouping ─────────────────────────────────────────────────────
+  const CATEGORY_ORDER = ['General','Adult Cardiac','Adult Medical','Adult Trauma','Pediatric Cardiac','Pediatric Medical','Pediatric Trauma'];
+  const CATEGORY_COLORS = {
+    'General':           '#5eead4',
+    'Adult Cardiac':     '#f87171',
+    'Adult Medical':     '#60a5fa',
+    'Adult Trauma':      '#fb923c',
+    'Pediatric Cardiac': '#f472b6',
+    'Pediatric Medical': '#a78bfa',
+    'Pediatric Trauma':  '#fbbf24',
+  };
+
+  function protocolCategory(p){
+    const tags = new Set((p.tags||[]).map(t=>t.toLowerCase()));
+    const title = (p.title||'').toLowerCase();
+    const isPeds = tags.has('pediatric') || title.includes('pediatric') || title.includes('– pediatric') || title.includes('- pediatric');
+    const isCardiac = ['cardiac','arrest','vtach','vfib','tachycardia','bradycardia','pea','afib','svt','ectopy','chf','hyperkalemia','acs','chest-pain'].some(t=>tags.has(t));
+    const isTrauma  = tags.has('trauma') || ['burn','amputat','crush','eye-injury','taser'].some(t=>tags.has(t));
+    const isAirway  = tags.has('airway') || tags.has('ksi') || tags.has('intubation');
+    if(isPeds){
+      if(isCardiac) return 'Pediatric Cardiac';
+      if(isTrauma)  return 'Pediatric Trauma';
+      return 'Pediatric Medical';
+    }
+    if(isAirway && !isCardiac) return 'General';
+    if(isCardiac) return 'Adult Cardiac';
+    if(isTrauma)  return 'Adult Trauma';
+    const isMedical = ['medical','abdominal','allerg','seiz','stroke','cva','overdose','sepsis','diabet','hypertens','hypotens','hypotherm','hypertherm','obstet','psychiatric','behavioral','gi-bleed','choking','nausea','croup','asthma','copd','transfusion','syncope','back-pain'].some(t=>tags.has(t)||title.includes(t));
+    if(isMedical) return 'Adult Medical';
+    return 'General';
+  }
+
+  const _collapsedCats = new Set(JSON.parse(localStorage.getItem('pref_cats')||'[]'));
+  window.toggleCat = function(slug){
+    const el = document.getElementById('cat-'+slug);
+    if(!el) return;
+    el.classList.toggle('collapsed');
+    if(el.classList.contains('collapsed')) _collapsedCats.add(slug);
+    else _collapsedCats.delete(slug);
+    localStorage.setItem('pref_cats', JSON.stringify([..._collapsedCats]));
+  };
+
   function renderProtocols(filterTerms=[]){
     const all = svc().protocols||[];
     let items = all.map((p,i)=>({p,i})).filter(({p})=> matchItem(p, filterTerms));
@@ -2352,33 +2403,43 @@
       if(!steps.length) return true;
       return steps.some(s=>{ const r=stepRole(normalizeRoles(s)); return !r||!_hiddenRoles.has(r); });
     });
-    // Tags to suppress from chip display — role/population info already shown as colour badges
+
     const TAG_HIDE = new Set(['emt','aemt','paramedic','adult','pediatric','peds','basic']);
-    const totalProtocols = (svc().protocols||[]).length;
+    const totalProtocols = all.length;
     const tcP = $('#tc-p'); if(tcP) tcP.textContent = items.length < totalProtocols ? `(${items.length}/${totalProtocols})` : `(${items.length})`;
-    protocolsEl.innerHTML = items.map(({p,i})=>{
+
+    if(!items.length){
+      protocolsEl.innerHTML = emptyState(_favsOnly ? 'No favorited protocols yet — tap ☆ on any protocol to save it here.' : 'No protocol matches');
+      return;
+    }
+
+    // Group by category, preserving CATEGORY_ORDER
+    const byCategory = new Map();
+    CATEGORY_ORDER.forEach(c => byCategory.set(c, []));
+    items.forEach(item => {
+      const cat = protocolCategory(item.p);
+      if(!byCategory.has(cat)) byCategory.set(cat, []);
+      byCategory.get(cat).push(item);
+    });
+
+    const ROLE_LABELS = {paramedic:'Paramedic', aemt:'AEMT', emt:'EMT'};
+
+    function renderCard({p, i}){
       const eid = (p.id||p.title).replace(/[^a-z0-9]/gi,'_');
       const fid = (p.id||p.title).replace(/'/g,"&#39;");
       const on  = isFav('p', p.id||p.title);
       const allText = [p.title, p.summary||'', ...(p.steps||[]), ...(p.tags||[])].join(' ');
       const cardRoles = detectRoles(allText);
       const badges = cardRoles.map(r=>`<span class="role-badge rb-${r}">${r==='paramedic'?'Paramedic':r==='aemt'?'AEMT':'EMT'}</span>`).join('');
-      const ROLE_LABELS = {paramedic:'Paramedic', aemt:'AEMT', emt:'EMT'};
-      const visibleStepCount = (p.steps||[]).filter(s=>{
-        const r = stepRole(normalizeRoles(s));
-        return !r || !_hiddenRoles.has(r);
-      }).length;
+      const visibleStepCount = (p.steps||[]).filter(s=>{ const r=stepRole(normalizeRoles(s)); return !r||!_hiddenRoles.has(r); }).length;
       const stepsHtml = (p.steps||[]).map((s,si)=>{
         const ns   = normalizeRoles(s);
         const role = stepRole(ns);
         if(role && _hiddenRoles.has(role)) return '';
         const { clean, descriptor } = stripRolePrefix(ns);
         const roleLabel = role ? `<span class="step-role-tag" style="color:${ROLE_COLORS[role]};border-color:${ROLE_COLORS[role]}">${ROLE_LABELS[role]}</span>` : '';
-        const ptBadge = /^(Pediatric|Peds)$/i.test(descriptor)
-          ? `<span class="pt-badge pt-peds">Peds</span> `
-          : /^Adult$/i.test(descriptor)
-          ? `<span class="pt-badge pt-adult">Adult</span> `
-          : '';
+        const ptBadge = /^(Pediatric|Peds)$/i.test(descriptor) ? `<span class="pt-badge pt-peds">Peds</span> `
+                      : /^Adult$/i.test(descriptor)            ? `<span class="pt-badge pt-adult">Adult</span> ` : '';
         const stepHtml = ptBadge + enhance(fmtRateTable(linkMeds(doseHL(highlight(sanitizeText(clean), filterTerms)))));
         return `<div class="step-row-wrap" style="margin-bottom:6px">
           ${roleLabel}<div class="step-content"><span class="k">${si+1}</span> ${stepHtml}</div>
@@ -2401,7 +2462,27 @@
           <div>${stepsHtml}</div>
           <div>${(p.tags||[]).filter(t=>!TAG_HIDE.has(t)).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
         </div>
-      </div>`}).join('') || emptyState(_favsOnly ? 'No favorited protocols yet — tap ☆ on any protocol to save it here.' : 'No protocol matches');
+      </div>`;
+    }
+
+    const sections = [];
+    byCategory.forEach((catItems, cat) => {
+      if(!catItems.length) return;
+      const slug = cat.toLowerCase().replace(/\s+/g,'-');
+      const color = CATEGORY_COLORS[cat] || 'var(--muted)';
+      const collapsed = _collapsedCats.has(slug) ? ' collapsed' : '';
+      sections.push(`
+      <div class="cat-section${collapsed}" id="cat-${slug}">
+        <div class="cat-header" onclick="toggleCat('${slug}')">
+          <span class="cat-dot" style="background:${color}"></span>
+          <span class="cat-name" style="color:${color}">${cat}</span>
+          <span class="cat-count">${catItems.length}</span>
+          <span class="cat-chev">▴</span>
+        </div>
+        <div class="cat-body grid">${catItems.map(renderCard).join('')}</div>
+      </div>`);
+    });
+    protocolsEl.innerHTML = sections.join('');
   }
 
   function toggleCard(eid){
