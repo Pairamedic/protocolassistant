@@ -2159,6 +2159,100 @@
       </div>`}).join('') || emptyState(_favsOnly ? 'No favorited protocols yet — tap ☆ on any protocol to save it here.' : 'No protocol matches');
   }
 
+  function toggleCard(eid){
+    const el = document.getElementById('pcard-'+eid);
+    if(el) el.classList.toggle('collapsed');
+  }
+
+  // Med → provider role lookup (pattern matched against lowercased name)
+  const MED_ROLES = [
+    // EMT + AEMT + Paramedic
+    { roles:['emt','aemt','paramedic'], match:/aspirin|oral\s*gluco|nitroglycerin/ },
+    // AEMT + Paramedic
+    { roles:['aemt','paramedic'], match:/acetaminophen|tylenol|naloxone|narcan|albuterol|ipratropium|atrovent|duoneb|normal saline|lactated ringer|dextrose 10|d10%|glucagon|ondansetron|zofran|solu-medrol|methylprednisolone|epinephrine 1:1,000|epinephrine 1:1000\b/ },
+    // Paramedic only (everything not matched above)
+  ];
+  function medRoles(name){
+    const n = name.toLowerCase();
+    for(const entry of MED_ROLES){
+      if(entry.match.test(n)){
+        const s = new Set(entry.roles);
+        if(s.has('emt')){ s.add('aemt'); s.add('paramedic'); }
+        if(s.has('aemt')) s.add('paramedic');
+        return ['paramedic','aemt','emt'].filter(r=>s.has(r));
+      }
+    }
+    return ['paramedic'];
+  }
+
+  const MED_CLASS_MAP = [
+    // Analgesics: pain-management drugs — NOT anesthetic ketamine or infusion ketamine
+    { cls:'Analgesics',        match:/acetaminophen|tylenol|\baspirin\b|\bfentanyl\b|hydromorphone|dilaudid|morphine|ketamine.*analg/i },
+    // Antiarrhythmics: rate/rhythm drugs (amiodarone infusion included via 'amiodarone')
+    { cls:'Antiarrhythmics',   match:/amiodarone|adenosine|\batropine\b|diltiazem|lidocaine|magnesium sulfate|verapamil/i },
+    // Antibiotics
+    { cls:'Antibiotics',       match:/\bancef\b|cefazolin/i },
+    // Antiemetics
+    { cls:'Antiemetics',       match:/ondansetron|zofran/i },
+    // Antihistamines
+    { cls:'Antihistamines',    match:/benadryl|diphenhydramine/i },
+    // Antihypertensives (diltiazem & verapamil listed here too — dual-class CCBs)
+    { cls:'Antihypertensives', match:/labetalol|hydralazine|nitroglycerin|diltiazem|verapamil/i },
+    // Antihypoglycemics: dextrose 10% and oral glucose only (NOT dextrose 5% carrier)
+    { cls:'Antihypoglycemics', match:/dextrose 10|d10%|glucagon|glucose.*oral|oral.*glucose/i },
+    // Antiplatelet
+    { cls:'Antiplatelet',      match:/\baspirin\b/i },
+    // Antipsychotics
+    { cls:'Antipsychotics',    match:/haloperidol|haldol/i },
+    // Benzodiazepines
+    { cls:'Benzodiazepines',   match:/midazolam|versed|diazepam|lorazepam/i },
+    // Bronchodilators (duoneb = albuterol+ipratropium combo)
+    { cls:'Bronchodilators',   match:/albuterol|ipratropium|atrovent|duoneb/i },
+    // Corticosteroids
+    { cls:'Corticosteroids',   match:/solu-medrol|methylprednisolone/i },
+    // Dissociative: all ketamine formulations
+    { cls:'Dissociative',      match:/\bketamine\b/i },
+    // Diuretics
+    { cls:'Diuretics',         match:/furosemide|lasix/i },
+    // Electrolytes: ionic/mineral replacements (dextrose is glucose, not an electrolyte)
+    { cls:'Electrolytes',      match:/calcium chloride|magnesium sulfate|sodium bicarb/i },
+    // Hemostatics
+    { cls:'Hemostatics',       match:/\btxa\b|tranexamic/i },
+    // IV Fluids: crystalloid volume expanders
+    { cls:'IV Fluids',         match:/normal saline|lactated ringer|dextrose 5%/i },
+    // Opioids
+    { cls:'Opioids',           match:/\bfentanyl\b|morphine|hydromorphone|dilaudid/i },
+    // Reversal Agents
+    { cls:'Reversal Agents',   match:/naloxone|narcan/i },
+    // Sedatives: all ketamine + benzodiazepines used for procedural sedation
+    { cls:'Sedatives',         match:/\bketamine\b|midazolam/i },
+    // Sympathomimetics: catecholamines (dopamine included for vasoactive use)
+    { cls:'Sympathomimetics',  match:/epinephrine|dopamine/i },
+    // Vitamins
+    { cls:'Vitamins',          match:/thiamine/i },
+  ];
+  function medClasses(name){
+    if(!name) return [];
+    return MED_CLASS_MAP.filter(e=>e.match.test(name)).map(e=>e.cls);
+  }
+  function renderMedClassFilter(){
+    const container = document.getElementById('med-class-filter');
+    if(!container) return;
+    const allMeds = svc().meds||[];
+    if(!allMeds.length){ container.innerHTML=''; return; }
+    const usedClasses = new Set();
+    allMeds.forEach(m => medClasses(m.name||'').forEach(c => usedClasses.add(c)));
+    const ordered = MED_CLASS_MAP.map(e=>e.cls).filter(c=>usedClasses.has(c));
+    container.innerHTML = ordered.map(c =>
+      `<button class="cls-chip${_medClassFilter===c?' active':''}" onclick="setMedClass(${JSON.stringify(c)})">${c}</button>`
+    ).join('');
+  }
+  window.setMedClass = function(cls){
+    _medClassFilter = (_medClassFilter === cls) ? null : cls;
+    renderMedClassFilter();
+    renderMeds(_lastTerms);
+  };
+
   function renderMeds(filterTerms=[]){
     const all = svc().meds||[];
     let items = all.map((m,i)=>({m,i})).filter(({m})=> matchItem(m, filterTerms));
