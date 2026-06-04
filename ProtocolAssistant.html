@@ -64,6 +64,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <div id="app-shell" style="display:none">
   <header>
     <div class="wrap">
       <div style="display:flex;justify-content:space-between;align-items:center">
@@ -411,6 +412,7 @@
 
     <div class="footer">Offline‑friendly reference. Always follow your service’s latest approved protocols.</div>
   </main>
+  </div><!-- /app-shell -->
 
   <!-- Auth Overlay -->
   <div id="auth-overlay" class="modal-overlay" style="z-index:200;align-items:center;padding:16px">
@@ -2132,16 +2134,26 @@
   }));
 
   // --- PIN Protection ---
-  const EASI_PIN = 'easimedics2026';
+  const _H = Object.freeze({
+    ep: '69242e53fda75a55fcc6749a1f4838530f418cd797f4aa07ce07c91272789878',
+    as: '2dabf611b1c8dab003b6737864283f37533f56820edbf34cf4970f5eee2eacee'
+  });
+  async function _ph(v){
+    const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(v));
+    return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');
+  }
   const _unlocked = new Set();
-  let _pendingSvc = null;
+  let _pendingSvc  = null;
   let _pinFromLoad = false;
+  let _pinMode     = 'ep'; // 'ep'=EASI service, 'as'=add service
+  let _addSvcNext  = null;
 
   function checkServicePin(){
     const svc = state.currentService;
     if(svc.startsWith('EASI Protocols') && !_unlocked.has(svc)){
-      _pendingSvc = svc;
-      _pinFromLoad = true;
+      _pendingSvc   = svc;
+      _pinFromLoad  = true;
+      _pinMode      = 'ep';
       $('#pin-svc-title').textContent = svc;
       $('#pin-input').value = '';
       $('#pin-error').textContent = '';
@@ -2154,8 +2166,9 @@
   serviceSelect.addEventListener('change', ()=>{
     const target = serviceSelect.value;
     if(target.startsWith('EASI Protocols') && !_unlocked.has(target)){
-      _pendingSvc = target;
+      _pendingSvc  = target;
       _pinFromLoad = false;
+      _pinMode     = 'ep';
       serviceSelect.value = state.currentService; // revert dropdown
       $('#pin-svc-title').textContent = target;
       $('#pin-input').value = '';
@@ -2170,13 +2183,22 @@
   });
 
   $('#add-service').addEventListener('click', ()=>{
-    const name = prompt('New service name?');
-    if(!name) return;
-    if(state.services[name]) return alert('Name already exists.');
-    state.services[name] = { protocols: [], meds: [] };
-    state.currentService = name;
-    save(state);
-    renderAll([]);
+    _pinMode    = 'as';
+    _pendingSvc = null;
+    $('#pin-svc-title').textContent = 'Add New Service';
+    $('#pin-input').value = '';
+    $('#pin-error').textContent = '';
+    _addSvcNext = ()=>{
+      const name = prompt('New service name?');
+      if(!name) return;
+      if(state.services[name]) return alert('Name already exists.');
+      state.services[name] = { protocols: [], meds: [] };
+      state.currentService = name;
+      save(state);
+      renderAll([]);
+    };
+    $('#pin-overlay').classList.remove('hidden');
+    setTimeout(()=>$('#pin-input').focus(), 50);
   });
 
   $('#rename-service').addEventListener('click', ()=>{
@@ -2558,18 +2580,24 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   });
 
   // --- PIN Modal Handlers ---
-  $('#pin-submit').addEventListener('click', ()=>{
-    if($('#pin-input').value === EASI_PIN){
-      _unlocked.add(_pendingSvc);
+  $('#pin-submit').addEventListener('click', async ()=>{
+    const h = await _ph($('#pin-input').value);
+    if(h === _H[_pinMode]){
       $('#pin-overlay').classList.add('hidden');
-      state.currentService = _pendingSvc;
-      serviceSelect.value = _pendingSvc;
-      save(state);
-      renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
-      _pendingSvc = null;
+      if(_pinMode === 'ep'){
+        _unlocked.add(_pendingSvc);
+        state.currentService = _pendingSvc;
+        serviceSelect.value = _pendingSvc;
+        save(state);
+        renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
+      } else {
+        if(_addSvcNext){ _addSvcNext(); _addSvcNext = null; }
+      }
+      _pendingSvc  = null;
       _pinFromLoad = false;
+      _pinMode     = 'ep';
     } else {
-      $('#pin-error').textContent = 'Incorrect PIN – try again.';
+      $('#pin-error').textContent = 'Incorrect – try again.';
       $('#pin-input').value = '';
       $('#pin-input').focus();
     }
@@ -2581,8 +2609,10 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       const fallback = Object.keys(state.services).find(s => !s.startsWith('EASI Protocols'));
       if(fallback){ state.currentService = fallback; serviceSelect.value = fallback; renderAll([]); }
     }
-    _pendingSvc = null;
+    _pendingSvc  = null;
     _pinFromLoad = false;
+    _addSvcNext  = null;
+    _pinMode     = 'ep';
   });
 
   $('#pin-input').addEventListener('keydown', e=>{ if(e.key==='Enter') $('#pin-submit').click(); });
@@ -2618,8 +2648,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     window.location.href = `mailto:EliasACaldwellNRP@gmail.com?subject=${subject}&body=${body}`;
   });
 
-  // Init (renders from localStorage immediately so app is responsive)
-  renderAll([]);
+  // App shell is hidden until Firebase auth resolves (see onAuthStateChanged below)
 
   // --- Firebase Auth & Cloud Sync ---
   function applyMigrations(data){
@@ -2636,6 +2665,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   fbAuth.onAuthStateChanged(async user => {
     if(user){
       $('#auth-overlay').style.display = 'none';
+      $('#app-shell').style.display = '';
       $('#user-email').textContent = user.email;
       $('#user-bar').style.display = 'flex';
       try{
@@ -2700,6 +2730,16 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   $('#auth-logout').addEventListener('click', () => fbAuth.signOut());
 
   $('#auth-pass').addEventListener('keydown', e => { if(e.key==='Enter') $('#auth-login').click(); });
+
+  // --- Source protection (deterrents) ---
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('keydown', e => {
+    const k = e.key.toLowerCase();
+    if(e.key === 'F12'){ e.preventDefault(); return; }
+    if((e.ctrlKey||e.metaKey) && !e.shiftKey && k === 'u'){ e.preventDefault(); return; }
+    if((e.ctrlKey||e.metaKey) && !e.shiftKey && k === 's'){ e.preventDefault(); return; }
+    if((e.ctrlKey||e.metaKey) && e.shiftKey && (k==='i'||k==='j'||k==='c'||k==='k')) e.preventDefault();
+  });
   </script>
 </body>
 </html>
