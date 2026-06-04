@@ -2672,7 +2672,7 @@
       if(!catItems.length) return;
       const slug = cat.toLowerCase().replace(/\s+/g,'-');
       const color = CATEGORY_COLORS[cat] || 'var(--muted)';
-      const collapsed = _collapsedCats.has(slug) ? ' collapsed' : '';
+      const collapsed = (!filterTerms.length && _collapsedCats.has(slug)) ? ' collapsed' : '';
       sections.push(`
       <div class="cat-section${collapsed}" id="cat-${slug}">
         <div class="cat-header" onclick="toggleCat('${slug}')">
