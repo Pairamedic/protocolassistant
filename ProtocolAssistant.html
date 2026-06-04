@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>EMS Protocol Assistant V1</title>
+  <title>EMS Protocol Assistant V.1</title>
   <style>
     :root { --bg:#0b0d10; --card:#141820; --muted:#a7b0be; --text:#e6eef8; --accent:#5eead4; --accent2:#93c5fd; }
     *{box-sizing:border-box}
@@ -54,6 +54,15 @@
     .fav-btn{background:none;border:none;font-size:18px;cursor:pointer;padding:2px 5px;color:#4b5568;line-height:1;flex:none;transition:color .15s}
     .fav-btn:hover,.fav-btn.on{color:#fbbf24}
     .card.fav-on{border-color:rgba(251,191,36,.28)}
+    .role-badge{display:inline-block;padding:2px 7px;border-radius:6px;font-size:10px;font-weight:600;border:1px solid;margin-right:4px;margin-bottom:2px}
+    .rb-emt{background:rgba(59,130,246,.15);color:#60a5fa;border-color:rgba(59,130,246,.35)}
+    .rb-aemt{background:rgba(249,115,22,.15);color:#fb923c;border-color:rgba(249,115,22,.35)}
+    .rb-paramedic{background:rgba(239,68,68,.15);color:#f87171;border-color:rgba(239,68,68,.35)}
+    .role-toggle-btn{border-radius:12px;font-size:11px;font-weight:600;padding:3px 10px;cursor:pointer;border:1px solid;transition:all .15s;font-family:inherit}
+    .role-toggle-btn.rb-paramedic{background:rgba(239,68,68,.15);color:#f87171;border-color:rgba(239,68,68,.35)}
+    .role-toggle-btn.rb-aemt{background:rgba(249,115,22,.15);color:#fb923c;border-color:rgba(249,115,22,.35)}
+    .role-toggle-btn.rb-emt{background:rgba(59,130,246,.15);color:#60a5fa;border-color:rgba(59,130,246,.35);opacity:.6;cursor:default}
+    .role-toggle-btn.off{background:rgba(255,255,255,.05)!important;color:rgba(167,176,190,.5)!important;border-color:rgba(255,255,255,.1)!important;text-decoration:line-through}
     .panel-toolbar{display:flex;justify-content:flex-end;padding:10px 0 4px}
     /* auth */
     #user-bar{ display:none;align-items:center;gap:8px;font-size:12px;color:var(--muted) }
@@ -68,7 +77,7 @@
   <header>
     <div class="wrap">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <div class="title">🚑 EMS Protocol Assistant V1</div>
+        <div class="title">🚑 EMS Protocol Assistant V.1</div>
         <div id="user-bar">
           <span id="user-email" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
           <button id="auth-logout" class="btn" style="padding:5px 10px;font-size:12px;flex:none">Sign out</button>
@@ -87,6 +96,12 @@
         <div style="display:flex;gap:8px;align-items:center">
           <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Search protocols, meds, keywords…" style="flex:1;width:auto" />
           <button id="fav-filter" class="btn" title="Show favorites only" style="flex:none;padding:10px 14px;font-size:16px;white-space:nowrap">☆</button>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:6px">
+          <span style="font-size:11px;color:var(--muted);flex:none">Show roles:</span>
+          <button id="role-toggle-paramedic" class="role-toggle-btn rb-paramedic" title="Toggle Paramedic steps">Paramedic</button>
+          <button id="role-toggle-aemt" class="role-toggle-btn rb-aemt" title="Toggle AEMT steps">AEMT</button>
+          <button id="role-toggle-emt" class="role-toggle-btn rb-emt" title="EMT always shown" disabled>EMT</button>
         </div>
       </div>
       <div class="tabs">
@@ -2026,7 +2041,8 @@
   fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
 
   // --- Favorites ---
-  let _favsOnly  = false;
+  let _favsOnly    = false;
+  const _hiddenRoles = new Set();
   let _lastTerms = [];
 
   function _favKey(svc){ return svc || state.currentService; }
@@ -2071,22 +2087,73 @@
     }).join('');
   }
 
+  // --- Role detection & display helpers ---
+  const ROLE_COLORS = {emt:'#3b82f6', aemt:'#f97316', paramedic:'#ef4444'};
+
+  function normalizeRoles(text){
+    return text
+      .replace(/\bAdvanced\s+EMT\b/gi, 'AEMT')
+      .replace(/\bEMT-I\b/gi, 'AEMT')
+      .replace(/\bEMT-Intermediate\b/gi, 'AEMT')
+      .replace(/\bEMT\s+Intermediate\b/gi, 'AEMT')
+      .replace(/\bIntermediate\s+EMT\b/gi, 'AEMT');
+  }
+
+  function _rn(text){
+    // Replace all AEMT variants with null char so \bEMT\b won't false-match inside them
+    return text.replace(/\bAdvanced\s+EMT\b|\bAEMT\b|\bEMT-I\b|\bEMT-Intermediate\b|\bEMT\s+Intermediate\b/gi, '\x00');
+  }
+
+  function detectRoles(text){
+    const t = _rn(text);
+    const r = [];
+    if(/paramedic/i.test(t)) r.push('paramedic');
+    if(t.includes('\x00')) r.push('aemt');
+    if(/\bEMT\b/i.test(t)) r.push('emt');
+    return r;
+  }
+
+  function stepRole(text){
+    const t = _rn(text);
+    if(/paramedic/i.test(t)) return 'paramedic';
+    if(t.includes('\x00')) return 'aemt';
+    if(/\bEMT\b/i.test(t)) return 'emt';
+    return '';
+  }
+
   function renderProtocols(filterTerms=[]){
     const all = svc().protocols||[];
     let items = all.map((p,i)=>({p,i})).filter(({p})=> matchItem(p, filterTerms));
     if(_favsOnly) items = items.filter(({p})=> isFav('p', p.id||p.title));
+    if(_hiddenRoles.size) items = items.filter(({p})=>{
+      const steps = p.steps||[];
+      if(!steps.length) return true;
+      return steps.some(s=>{ const r=stepRole(normalizeRoles(s)); return !r||!_hiddenRoles.has(r); });
+    });
     protocolsEl.innerHTML = items.map(({p,i})=>{
       const fid = (p.id||p.title).replace(/'/g,"&#39;");
       const on  = isFav('p', p.id||p.title);
+      const allText = [p.title, p.summary||'', ...(p.steps||[])].join(' ');
+      const cardRoles = detectRoles(allText);
+      const badges = cardRoles.map(r=>`<span class="role-badge rb-${r}">${r==='paramedic'?'Paramedic':r==='aemt'?'AEMT':'EMT'}</span>`).join('');
       return `
       <div class="card${on?' fav-on':''}">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
-          <h3 style="margin:0 0 6px;flex:1">${highlight(p.title, filterTerms)}</h3>
+          <div style="flex:1;min-width:0">
+            <h3 style="margin:0 0 4px">${highlight(p.title, filterTerms)}</h3>
+            ${badges ? `<div style="margin-bottom:4px">${badges}</div>` : ''}
+          </div>
           <button class="fav-btn${on?' on':''}" onclick="toggleFav('p','${fid}')" title="${on?'Remove from favorites':'Add to favorites'}">${on?'★':'☆'}</button>
         </div>
-        <div class="hint">${highlight(p.summary||'', filterTerms)}</div>
+        <div class="hint">${highlight(normalizeRoles(p.summary||''), filterTerms)}</div>
         <div style="margin-top:8px">
-          ${(p.steps||[]).map((s,si)=>`<div><span class="k">${si+1}</span> ${highlight(s, filterTerms)}</div>`).join('')}
+          ${(p.steps||[]).map((s,si)=>{
+            const ns   = normalizeRoles(s);
+            const role = stepRole(ns);
+            if(role && _hiddenRoles.has(role)) return '';
+            const st   = role ? `border-left:3px solid ${ROLE_COLORS[role]};padding-left:8px;margin-bottom:4px` : 'margin-bottom:4px';
+            return `<div style="${st}"><span class="k">${si+1}</span> ${highlight(ns, filterTerms)}</div>`;
+          }).join('')}
         </div>
         <div>${(p.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
       </div>`}).join('') || emptyState(_favsOnly ? 'No favorited protocols yet — tap ☆ on any protocol to save it here.' : 'No protocol matches');
@@ -2142,6 +2209,15 @@
     renderProtocols(_lastTerms);
     renderMeds(_lastTerms);
   });
+
+  ['paramedic','aemt'].forEach(role => {
+    $(`#role-toggle-${role}`).addEventListener('click', ()=>{
+      if(_hiddenRoles.has(role)) _hiddenRoles.delete(role);
+      else _hiddenRoles.add(role);
+      $(`#role-toggle-${role}`).classList.toggle('off', _hiddenRoles.has(role));
+      renderProtocols(_lastTerms);
+    });
+  });
   let deb;
   q.addEventListener('input', ()=>{
     clearTimeout(deb);
@@ -2175,38 +2251,13 @@
   let _pinMode     = 'ep'; // 'ep'=EASI service, 'as'=add service
   let _addSvcNext  = null;
 
-  function checkServicePin(){
-    const svc = state.currentService;
-    if(svc.startsWith('EASI Protocols') && !_unlocked.has(svc)){
-      _pendingSvc   = svc;
-      _pinFromLoad  = true;
-      _pinMode      = 'ep';
-      $('#pin-svc-title').textContent = svc;
-      $('#pin-input').value = '';
-      $('#pin-error').textContent = '';
-      $('#pin-overlay').classList.remove('hidden');
-      setTimeout(()=>$('#pin-input').focus(), 100);
-    }
-  }
+  function checkServicePin(){ /* PIN gate removed — Firebase login is the gate */ }
 
   // --- Services Management ---
   serviceSelect.addEventListener('change', ()=>{
-    const target = serviceSelect.value;
-    if(target.startsWith('EASI Protocols') && !_unlocked.has(target)){
-      _pendingSvc  = target;
-      _pinFromLoad = false;
-      _pinMode     = 'ep';
-      serviceSelect.value = state.currentService; // revert dropdown
-      $('#pin-svc-title').textContent = target;
-      $('#pin-input').value = '';
-      $('#pin-error').textContent = '';
-      $('#pin-overlay').classList.remove('hidden');
-      setTimeout(()=>$('#pin-input').focus(), 50);
-    } else {
-      state.currentService = target;
-      save(state);
-      renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
-    }
+    state.currentService = serviceSelect.value;
+    save(state);
+    renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
   });
 
   function requireAdminPin(title, callback){
@@ -2221,51 +2272,43 @@
   }
 
   $('#add-service').addEventListener('click', ()=>{
-    requireAdminPin('Add New Service', ()=>{
-      const name = prompt('New service name?');
-      if(!name) return;
-      if(state.services[name]) return alert('Name already exists.');
-      state.services[name] = { protocols: [], meds: [] };
-      state.currentService = name;
-      save(state); renderAll([]);
-    });
+    const name = prompt('New service name?');
+    if(!name) return;
+    if(state.services[name]) return alert('Name already exists.');
+    state.services[name] = { protocols: [], meds: [] };
+    state.currentService = name;
+    save(state); renderAll([]);
   });
 
   $('#rename-service').addEventListener('click', ()=>{
-    requireAdminPin('Rename Service', ()=>{
-      const old = state.currentService;
-      const name = prompt('Rename service to:', old);
-      if(!name || name===old) return;
-      if(state.services[name]) return alert('Name already exists.');
-      state.services[name] = state.services[old];
-      delete state.services[old];
-      state.currentService = name;
-      save(state); renderAll([]);
-    });
+    const old = state.currentService;
+    const name = prompt('Rename service to:', old);
+    if(!name || name===old) return;
+    if(state.services[name]) return alert('Name already exists.');
+    state.services[name] = state.services[old];
+    delete state.services[old];
+    state.currentService = name;
+    save(state); renderAll([]);
   });
 
   $('#duplicate-service').addEventListener('click', ()=>{
-    requireAdminPin('Duplicate Service', ()=>{
-      const from = state.currentService;
-      const name = prompt('Duplicate service as:', from+' Copy');
-      if(!name) return;
-      if(state.services[name]) return alert('Name already exists.');
-      state.services[name] = JSON.parse(JSON.stringify(state.services[from]));
-      state.currentService = name;
-      save(state); renderAll([]);
-    });
+    const from = state.currentService;
+    const name = prompt('Duplicate service as:', from+' Copy');
+    if(!name) return;
+    if(state.services[name]) return alert('Name already exists.');
+    state.services[name] = JSON.parse(JSON.stringify(state.services[from]));
+    state.currentService = name;
+    save(state); renderAll([]);
   });
 
   $('#delete-service').addEventListener('click', ()=>{
-    requireAdminPin('Delete Service', ()=>{
-      const name = state.currentService;
-      if(Object.keys(state.services).length===1) return alert('Keep at least one service.');
-      if(confirm(`Delete "${name}"? This cannot be undone.`)){
-        delete state.services[name];
-        state.currentService = Object.keys(state.services)[0];
-        save(state); renderAll([]);
-      }
-    });
+    const name = state.currentService;
+    if(Object.keys(state.services).length===1) return alert('Keep at least one service.');
+    if(confirm(`Delete "${name}"? This cannot be undone.`)){
+      delete state.services[name];
+      state.currentService = Object.keys(state.services)[0];
+      save(state); renderAll([]);
+    }
   });
 
   let _downloadUnlocked = false;
@@ -2452,10 +2495,8 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
 
   // Import/Export — admin unlock
   $('#unlock-importexport').addEventListener('click', ()=>{
-    requireAdminPin('Unlock Import / Export', ()=>{
-      $('#importexport-locked').classList.add('hidden');
-      $('#importexport-card').classList.remove('hidden');
-    });
+    $('#importexport-locked').classList.add('hidden');
+    $('#importexport-card').classList.remove('hidden');
   });
 
   // Import/Export (per‑service)
