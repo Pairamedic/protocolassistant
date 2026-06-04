@@ -27,6 +27,9 @@
     .err{color:#f87171}
     .ok{color:#4ade80}
     .reset-btn{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline;display:block;margin:14px auto 0;font-family:inherit}
+    .remember-row{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+    .remember-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex:none}
+    .remember-row label{font-size:13px;color:var(--muted);cursor:pointer;user-select:none;margin:0}
     .spinner{display:none;text-align:center;padding:20px;color:var(--muted);font-size:14px}
     .spin{display:inline-block;width:22px;height:22px;border:2px solid rgba(255,255,255,.15);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}
     @keyframes spin{to{transform:rotate(360deg)}}
@@ -50,6 +53,10 @@
     <div class="fg">
       <label>Password</label>
       <input id="pass" type="password" autocomplete="current-password" placeholder="Password" />
+    </div>
+    <div class="remember-row">
+      <input type="checkbox" id="remember-me" checked />
+      <label for="remember-me">Remember me</label>
     </div>
     <div class="row">
       <button id="btn-login" class="btn primary" style="flex:2">Sign In</button>
@@ -106,8 +113,13 @@
       const email = $('email').value.trim(), pass = $('pass').value;
       setMsg('');
       if(!email || !pass){ setMsg('Enter email and password.'); return; }
-      try{ await fbAuth.signInWithEmailAndPassword(email, pass); }
-      catch(e){ setMsg(errMsg(e.code)); }
+      const persistence = $('remember-me').checked
+        ? firebase.auth.Auth.Persistence.LOCAL
+        : firebase.auth.Auth.Persistence.SESSION;
+      try{
+        await fbAuth.setPersistence(persistence);
+        await fbAuth.signInWithEmailAndPassword(email, pass);
+      }catch(e){ setMsg(errMsg(e.code)); }
     });
 
     $('btn-register').addEventListener('click', async () => {
