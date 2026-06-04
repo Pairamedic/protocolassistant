@@ -53,12 +53,25 @@
     .edit-btn{padding:5px 10px;font-size:11px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:#0f131a;color:var(--muted);cursor:pointer;flex:none}
     .edit-btn:hover{color:var(--accent);border-color:rgba(94,234,212,.35)}
     .panel-toolbar{display:flex;justify-content:flex-end;padding:10px 0 4px}
+    /* auth */
+    #user-bar{ display:none;align-items:center;gap:8px;font-size:12px;color:var(--muted) }
+    .auth-card{ background:#141820;border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:28px;width:100%;max-width:400px }
   </style>
 </head>
 <body>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <header>
     <div class="wrap">
-      <div class="title">🚑 EMS Protocols & Doses</div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="title">🚑 EMS Protocols & Doses</div>
+        <div id="user-bar">
+          <span id="user-email" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+          <button id="auth-logout" class="btn" style="padding:5px 10px;font-size:12px;flex:none">Sign out</button>
+        </div>
+      </div>
       <div class="bar">
         <div class="toolbar">
           <select id="service-select" title="Ambulance Service"></select>
@@ -397,6 +410,27 @@
     <div class="footer">Offline‑friendly reference. Always follow your service’s latest approved protocols.</div>
   </main>
 
+  <!-- Auth Overlay -->
+  <div id="auth-overlay" class="modal-overlay" style="z-index:200;align-items:center;padding:16px">
+    <div class="auth-card">
+      <div style="text-align:center;margin-bottom:22px">
+        <div style="font-size:32px">🚑</div>
+        <h2 style="margin:8px 0 4px;font-size:20px">EMS Protocols</h2>
+        <p class="hint" style="margin:0">Sign in to sync your data across all devices</p>
+      </div>
+      <div class="fg"><label>Email</label><input id="auth-email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" /></div>
+      <div class="fg"><label>Password</label><input id="auth-pass" type="password" autocomplete="current-password" placeholder="6+ characters" /></div>
+      <div class="row" style="gap:10px;margin-top:6px">
+        <button id="auth-login" class="btn primary" style="flex:2">Sign In</button>
+        <button id="auth-register" class="btn">Create Account</button>
+      </div>
+      <div id="auth-error" style="color:#f87171;font-size:13px;margin-top:10px;min-height:18px;text-align:center"></div>
+      <div style="text-align:center;margin-top:14px">
+        <button id="auth-reset" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline">Forgot password?</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Edit / Add Modal -->
   <div id="edit-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
     <div class="modal-box">
@@ -436,6 +470,18 @@
   </div>
 
   <script>
+  // --- Firebase ---
+  firebase.initializeApp({
+    apiKey: "AIzaSyAcnp4uXeOgzuzIHpO5UL6Eq9fvhVHFs7Y",
+    authDomain: "emsprotocolapp.firebaseapp.com",
+    projectId: "emsprotocolapp",
+    storageBucket: "emsprotocolapp.firebasestorage.app",
+    messagingSenderId: "498482397906",
+    appId: "1:498482397906:web:5517abc5d83cf6cf15e30b"
+  });
+  const fbAuth = firebase.auth();
+  const fbDb   = firebase.firestore();
+
   // --- Multi‑service client-side store ---
   const KEY = 'ems-protocols-multi-v1';
   const $ = sel => document.querySelector(sel);
@@ -1926,7 +1972,19 @@
     save(data);
     return data;
   }
-  function save(data){ localStorage.setItem(KEY, JSON.stringify(data)); }
+  function save(data){
+    localStorage.setItem(KEY, JSON.stringify(data));
+    cloudSave(data);
+  }
+  async function cloudSave(data){
+    if(!fbAuth.currentUser) return;
+    try{
+      await fbDb.collection('users').doc(fbAuth.currentUser.uid)
+        .collection('appdata').doc('state')
+        .set({ currentService: data.currentService, services: data.services,
+               updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    }catch(e){ /* offline – localStorage covers it */ }
+  }
 
   let state = load();
 
@@ -2424,8 +2482,87 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
   });
 
-  // Init
+  // Init (renders from localStorage immediately so app is responsive)
   renderAll([]);
+
+  // --- Firebase Auth & Cloud Sync ---
+  function applyMigrations(data){
+    if(data.services['EASI AMBULANCE'] && !data.services['EASI Protocols - 2025']){
+      data.services['EASI Protocols - 2025'] = data.services['EASI AMBULANCE'];
+      delete data.services['EASI AMBULANCE'];
+      if(data.currentService==='EASI AMBULANCE') data.currentService='EASI Protocols - 2025';
+    }
+    if(!data.services['EASI Protocols - 2026'])
+      data.services['EASI Protocols - 2026'] = JSON.parse(JSON.stringify(EASI_2026_SERVICE));
+    return data;
+  }
+
+  fbAuth.onAuthStateChanged(async user => {
+    if(user){
+      $('#auth-overlay').style.display = 'none';
+      $('#user-email').textContent = user.email;
+      $('#user-bar').style.display = 'flex';
+      try{
+        const doc = await fbDb.collection('users').doc(user.uid)
+          .collection('appdata').doc('state').get();
+        if(doc.exists && doc.data().services){
+          state = applyMigrations(doc.data());
+          localStorage.setItem(KEY, JSON.stringify(state));
+        } else {
+          cloudSave(state); // first sign-in: push local data up
+        }
+      }catch(e){ /* offline – keep local state */ }
+      renderAll([]);
+    } else {
+      $('#auth-overlay').style.display = 'flex';
+      $('#user-bar').style.display = 'none';
+    }
+  });
+
+  function authError(code){
+    return ({
+      'auth/user-not-found':'Incorrect email or password.',
+      'auth/wrong-password':'Incorrect email or password.',
+      'auth/invalid-credential':'Incorrect email or password.',
+      'auth/email-already-in-use':'An account with that email already exists.',
+      'auth/invalid-email':'Please enter a valid email address.',
+      'auth/weak-password':'Password must be at least 6 characters.',
+      'auth/too-many-requests':'Too many attempts – try again later.',
+      'auth/network-request-failed':'Network error – check your connection.',
+    })[code] || 'Something went wrong. Try again.';
+  }
+
+  $('#auth-login').addEventListener('click', async () => {
+    const email = $('#auth-email').value.trim();
+    const pass  = $('#auth-pass').value;
+    $('#auth-error').textContent = '';
+    if(!email||!pass){ $('#auth-error').textContent='Enter email and password.'; return; }
+    try{ await fbAuth.signInWithEmailAndPassword(email, pass); }
+    catch(e){ $('#auth-error').textContent = authError(e.code); }
+  });
+
+  $('#auth-register').addEventListener('click', async () => {
+    const email = $('#auth-email').value.trim();
+    const pass  = $('#auth-pass').value;
+    $('#auth-error').textContent = '';
+    if(!email||!pass){ $('#auth-error').textContent='Enter email and password.'; return; }
+    try{ await fbAuth.createUserWithEmailAndPassword(email, pass); }
+    catch(e){ $('#auth-error').textContent = authError(e.code); }
+  });
+
+  $('#auth-reset').addEventListener('click', async () => {
+    const email = $('#auth-email').value.trim();
+    if(!email){ $('#auth-error').textContent='Enter your email above first.'; return; }
+    try{
+      await fbAuth.sendPasswordResetEmail(email);
+      $('#auth-error').style.color='#4ade80';
+      $('#auth-error').textContent='Password reset email sent — check your inbox.';
+    }catch(e){ $('#auth-error').textContent = authError(e.code); }
+  });
+
+  $('#auth-logout').addEventListener('click', () => fbAuth.signOut());
+
+  $('#auth-pass').addEventListener('keydown', e => { if(e.key==='Enter') $('#auth-login').click(); });
   </script>
 </body>
 </html>
