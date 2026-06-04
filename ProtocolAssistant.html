@@ -2496,8 +2496,12 @@
       if(fresh){
         localStorage.setItem(SVC_CACHE_KEY, JSON.stringify(fresh));
         state.services['EASI Protocols - 2026'] = fresh;
+      } else {
+        // No Firestore doc yet — auto-seed from built-in data (first-run setup)
+        await fbDb.collection('service_data').doc(SVC_DOC_ID).set(EASI_2026_SERVICE);
+        localStorage.setItem(SVC_CACHE_KEY, JSON.stringify(EASI_2026_SERVICE));
+        state.services['EASI Protocols - 2026'] = EASI_2026_SERVICE;
       }
-      // else: no Firestore doc yet — EASI_2026_SERVICE fallback remains in state
     }catch(e){
       // Offline with no cache — EASI_2026_SERVICE fallback stays
     }finally{
