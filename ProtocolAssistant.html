@@ -58,6 +58,11 @@
     .rb-emt{background:rgba(59,130,246,.15);color:#60a5fa;border-color:rgba(59,130,246,.35)}
     .rb-aemt{background:rgba(249,115,22,.15);color:#fb923c;border-color:rgba(249,115,22,.35)}
     .rb-paramedic{background:rgba(239,68,68,.15);color:#f87171;border-color:rgba(239,68,68,.35)}
+    .role-toggle-btn{border-radius:12px;font-size:11px;font-weight:600;padding:3px 10px;cursor:pointer;border:1px solid;transition:all .15s;font-family:inherit}
+    .role-toggle-btn.rb-paramedic{background:rgba(239,68,68,.15);color:#f87171;border-color:rgba(239,68,68,.35)}
+    .role-toggle-btn.rb-aemt{background:rgba(249,115,22,.15);color:#fb923c;border-color:rgba(249,115,22,.35)}
+    .role-toggle-btn.rb-emt{background:rgba(59,130,246,.15);color:#60a5fa;border-color:rgba(59,130,246,.35);opacity:.6;cursor:default}
+    .role-toggle-btn.off{background:rgba(255,255,255,.05)!important;color:rgba(167,176,190,.5)!important;border-color:rgba(255,255,255,.1)!important;text-decoration:line-through}
     .panel-toolbar{display:flex;justify-content:flex-end;padding:10px 0 4px}
     /* auth */
     #user-bar{ display:none;align-items:center;gap:8px;font-size:12px;color:var(--muted) }
@@ -91,6 +96,12 @@
         <div style="display:flex;gap:8px;align-items:center">
           <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Search protocols, meds, keywords…" style="flex:1;width:auto" />
           <button id="fav-filter" class="btn" title="Show favorites only" style="flex:none;padding:10px 14px;font-size:16px;white-space:nowrap">☆</button>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:6px">
+          <span style="font-size:11px;color:var(--muted);flex:none">Show roles:</span>
+          <button id="role-toggle-paramedic" class="role-toggle-btn rb-paramedic" title="Toggle Paramedic steps">Paramedic</button>
+          <button id="role-toggle-aemt" class="role-toggle-btn rb-aemt" title="Toggle AEMT steps">AEMT</button>
+          <button id="role-toggle-emt" class="role-toggle-btn rb-emt" title="EMT always shown" disabled>EMT</button>
         </div>
       </div>
       <div class="tabs">
@@ -2030,7 +2041,8 @@
   fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
 
   // --- Favorites ---
-  let _favsOnly  = false;
+  let _favsOnly    = false;
+  const _hiddenRoles = new Set();
   let _lastTerms = [];
 
   function _favKey(svc){ return svc || state.currentService; }
@@ -2113,6 +2125,11 @@
     const all = svc().protocols||[];
     let items = all.map((p,i)=>({p,i})).filter(({p})=> matchItem(p, filterTerms));
     if(_favsOnly) items = items.filter(({p})=> isFav('p', p.id||p.title));
+    if(_hiddenRoles.size) items = items.filter(({p})=>{
+      const steps = p.steps||[];
+      if(!steps.length) return true;
+      return steps.some(s=>{ const r=stepRole(normalizeRoles(s)); return !r||!_hiddenRoles.has(r); });
+    });
     protocolsEl.innerHTML = items.map(({p,i})=>{
       const fid = (p.id||p.title).replace(/'/g,"&#39;");
       const on  = isFav('p', p.id||p.title);
@@ -2133,6 +2150,7 @@
           ${(p.steps||[]).map((s,si)=>{
             const ns   = normalizeRoles(s);
             const role = stepRole(ns);
+            if(role && _hiddenRoles.has(role)) return '';
             const st   = role ? `border-left:3px solid ${ROLE_COLORS[role]};padding-left:8px;margin-bottom:4px` : 'margin-bottom:4px';
             return `<div style="${st}"><span class="k">${si+1}</span> ${highlight(ns, filterTerms)}</div>`;
           }).join('')}
@@ -2190,6 +2208,15 @@
     btn.title = _favsOnly ? 'Show all' : 'Show favorites only';
     renderProtocols(_lastTerms);
     renderMeds(_lastTerms);
+  });
+
+  ['paramedic','aemt'].forEach(role => {
+    $(`#role-toggle-${role}`).addEventListener('click', ()=>{
+      if(_hiddenRoles.has(role)) _hiddenRoles.delete(role);
+      else _hiddenRoles.add(role);
+      $(`#role-toggle-${role}`).classList.toggle('off', _hiddenRoles.has(role));
+      renderProtocols(_lastTerms);
+    });
   });
   let deb;
   q.addEventListener('input', ()=>{
