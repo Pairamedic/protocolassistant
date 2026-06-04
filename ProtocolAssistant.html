@@ -2162,8 +2162,8 @@
 
   // --- PIN Protection ---
   const _H = Object.freeze({
-    ep: '69242e53fda75a55fcc6749a1f4838530f418cd797f4aa07ce07c91272789878',
-    as: '2dabf611b1c8dab003b6737864283f37533f56820edbf34cf4970f5eee2eacee'
+    ep: 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3',
+    as: 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3'
   });
   async function _ph(v){
     const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(v));
@@ -2268,12 +2268,16 @@
     });
   });
 
+  let _downloadUnlocked = false;
   $('#download-protocols').addEventListener('click', ()=>{
+    const doDownload = ()=> window.open(
+      'https://docs.google.com/document/d/1f0loxMV_Td43iarl9-V5F6hJRKYbhhzr/export?format=pdf',
+      '_blank'
+    );
+    if(_downloadUnlocked){ doDownload(); return; }
     requireAdminPin('Download Protocol Reference', ()=>{
-      window.open(
-        'https://docs.google.com/document/d/1f0loxMV_Td43iarl9-V5F6hJRKYbhhzr/export?format=pdf',
-        '_blank'
-      );
+      _downloadUnlocked = true;
+      doDownload();
     });
   });
 
