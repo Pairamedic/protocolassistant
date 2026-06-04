@@ -86,9 +86,6 @@
       <div class="bar">
         <div class="toolbar">
           <select id="service-select" title="Ambulance Service"></select>
-          <button id="add-service" class="btn">New Service</button>
-          <button id="rename-service" class="btn">Rename</button>
-          <button id="duplicate-service" class="btn">Duplicate</button>
           <button id="report-issue" class="btn" style="color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08)">🚩 Report Issue</button>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
@@ -2225,36 +2222,6 @@
     state.currentService = serviceSelect.value;
     save(state);
     renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
-  });
-
-  $('#add-service').addEventListener('click', ()=>{
-    const name = prompt('New service name?');
-    if(!name) return;
-    if(state.services[name]) return alert('Name already exists.');
-    state.services[name] = { protocols: [], meds: [] };
-    state.currentService = name;
-    save(state); renderAll([]);
-  });
-
-  $('#rename-service').addEventListener('click', ()=>{
-    const old = state.currentService;
-    const name = prompt('Rename service to:', old);
-    if(!name || name===old) return;
-    if(state.services[name]) return alert('Name already exists.');
-    state.services[name] = state.services[old];
-    delete state.services[old];
-    state.currentService = name;
-    save(state); renderAll([]);
-  });
-
-  $('#duplicate-service').addEventListener('click', ()=>{
-    const from = state.currentService;
-    const name = prompt('Duplicate service as:', from+' Copy');
-    if(!name) return;
-    if(state.services[name]) return alert('Name already exists.');
-    state.services[name] = JSON.parse(JSON.stringify(state.services[from]));
-    state.currentService = name;
-    save(state); renderAll([]);
   });
 
   // --- Calculators ---
