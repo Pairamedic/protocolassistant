@@ -158,6 +158,43 @@
     .cls-chip{background:var(--input-bg);border:1px solid var(--border);border-radius:999px;color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;padding:5px 12px;font-family:inherit;transition:all .15s;white-space:nowrap}
     .cls-chip.active{background:rgba(192,132,252,.12);color:#c084fc;border-color:rgba(192,132,252,.4)}
     :root.light .cls-chip.active{background:rgba(147,51,234,.1);color:#7c3aed;border-color:rgba(147,51,234,.3)}
+    /* resources panel */
+    .res-section{margin-bottom:22px}
+    .res-section-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:10px}
+    .res-section-title{font-weight:700;font-size:16px}
+    .res-attribution{font-size:11px;color:var(--muted);font-style:italic}
+    /* peds search */
+    .peds-search-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:14px}
+    .peds-input-grp{display:flex;flex-direction:column;gap:4px}
+    .peds-input-grp label{font-size:12px;color:var(--muted)}
+    .peds-or{font-size:13px;color:var(--muted);padding-bottom:8px;align-self:flex-end}
+    /* broselow color strip */
+    .brose-strip{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px}
+    .brose-swatch{border:2px solid transparent;border-radius:8px;padding:5px 10px;cursor:pointer;font-size:11px;font-weight:700;transition:all .15s;white-space:nowrap}
+    .brose-swatch:hover,.brose-swatch.active{border-color:var(--text)!important;transform:translateY(-1px)}
+    /* broselow result card */
+    .brose-card{border-radius:16px;border:2px solid;padding:16px 18px;margin-top:4px}
+    .brose-card-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+    .brose-color-dot{width:14px;height:14px;border-radius:50%;flex:none}
+    .brose-color-label{font-weight:800;font-size:17px;letter-spacing:.3px}
+    .brose-meta{font-size:13px;color:var(--muted)}
+    .brose-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media(min-width:600px){.brose-grid{grid-template-columns:1fr 1fr 1fr}}
+    .brose-box{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+    :root.light .brose-box{background:rgba(0,0,0,.03)}
+    .brose-box-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:6px}
+    .brose-box-val{font-size:14px;font-weight:600;line-height:1.5}
+    .brose-box-val .lbl{font-size:11px;color:var(--muted);font-weight:400}
+    .brose-meds{margin-top:10px}
+    .brose-meds-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:8px}
+    .brose-med-row{display:flex;align-items:baseline;gap:6px;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px}
+    .brose-med-row:last-child{border-bottom:none}
+    .brose-med-name{flex:1;min-width:0}
+    .brose-med-dose{font-weight:700;white-space:nowrap}
+    .brose-med-route{color:#7dd3fc;font-size:11px;font-weight:700;white-space:nowrap}
+    .brose-med-note{font-size:11px;color:var(--muted);white-space:nowrap}
+    :root.light .brose-med-route{color:#0369a1}
+    .brose-empty{color:var(--muted);padding:20px 0;text-align:center;font-size:14px}
   </style>
 </head>
 <body>
@@ -184,6 +221,7 @@
           <div id="header-toolbar" class="toolbar">
             <select id="service-select" title="Ambulance Service"></select>
             <button id="report-issue" class="btn" style="color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08)">🚩 Report Issue</button>
+            <a id="btn-pdf" href="EASI-Protocols-2026.pdf" download class="btn" style="color:#34d399;border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.08);text-decoration:none;display:inline-flex;align-items:center;gap:5px">📄 Protocols PDF</a>
           </div>
           <div style="display:flex;gap:8px;align-items:center">
             <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Search protocols, meds, keywords…" style="flex:1;width:auto" />
@@ -200,6 +238,7 @@
           <button class="tab active" data-tab="protocols">Protocols <span class="tab-cnt" id="tc-p"></span></button>
           <button class="tab" data-tab="meds">Meds <span class="tab-cnt" id="tc-m"></span></button>
           <button class="tab" data-tab="calc">Dose Calc</button>
+          <button class="tab" data-tab="resources">Resources</button>
         </div>
         <div class="hint">Select an Ambulance Service. Data is saved automatically.</div>
       </div>
@@ -551,6 +590,43 @@
         </div>
         <textarea id="json" rows="12" style="width:100%;margin-top:10px;border-radius:12px;padding:12px;background:#0f131a;color:var(--text);border:1px solid rgba(255,255,255,.12)"></textarea>
       </div>
+    </section>
+
+    <!-- Resources -->
+    <section id="panel-resources" class="panel hidden">
+
+      <!-- Pediatric Quick Reference -->
+      <div class="res-section">
+        <div class="res-section-head">
+          <span class="res-section-title">🧒 Pediatric Quick Reference</span>
+          <span class="res-attribution">Based on the Pediatric Quick Reference Chart · Arkansas Department of Health (Broselow-Luten system)</span>
+        </div>
+
+        <div class="peds-search-row">
+          <div class="peds-input-grp">
+            <label for="peds-kg">Weight (kg)</label>
+            <input type="number" id="peds-kg" placeholder="e.g. 14" min="3" max="36" step="0.5"
+              style="width:110px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:15px" />
+          </div>
+          <div class="peds-or">— or —</div>
+          <div class="peds-input-grp">
+            <label>Age</label>
+            <div style="display:flex;gap:6px">
+              <input type="number" id="peds-age-num" placeholder="e.g. 2" min="0" max="9"
+                style="width:72px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:15px" />
+              <select id="peds-age-unit"
+                style="padding:10px 10px;border-radius:12px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:15px">
+                <option value="months">months</option>
+                <option value="years">years</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div id="peds-strip" class="brose-strip"></div>
+        <div id="peds-result" class="brose-empty" style="display:none"></div>
+      </div>
+
     </section>
 
     <div class="footer">Offline‑friendly reference. Always follow your service’s latest approved protocols.</div>
@@ -2614,6 +2690,303 @@
     return terms.every(t => hay.includes(t));
   }
 
+  // ── Broselow / Pediatric Quick Reference ──────────────────────────────────
+  const BROSELOW = [
+    {
+      color:'Grey', hex:'#9ca3af', textHex:'#e2e8f0',
+      bg:'rgba(156,163,175,.1)', border:'rgba(156,163,175,.4)',
+      kgMin:3, kgMax:5.9, repKg:4,
+      ageLabel:'Newborn – 3 months',
+      vitals:{ hr:'100–160', rr:'30–60', sbp:'60–90' },
+      airway:{ tube:'3.0 uncuffed', depth:'9 cm', blade:'0–1 straight' },
+      defib:'6–10 J', cardio:'3–5 J', bolus:'80 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.04 mg', r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.1 mg',  r:'IV/IO',    note:'min 0.1 mg' },
+        { n:'Adenosine',                d:'0.4 mg',  r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'0.4 mg',  r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.04 mg', r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'20 mL',   r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'80 mL',   r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+    {
+      color:'Pink', hex:'#f9a8d4', textHex:'#fce7f3',
+      bg:'rgba(249,168,212,.1)', border:'rgba(249,168,212,.4)',
+      kgMin:6, kgMax:7.9, repKg:6,
+      ageLabel:'3 – 6 months',
+      vitals:{ hr:'90–160', rr:'24–40', sbp:'70–100' },
+      airway:{ tube:'3.5 uncuffed', depth:'10 cm', blade:'1 straight' },
+      defib:'12–16 J', cardio:'6–8 J', bolus:'120 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.06 mg', r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.12 mg', r:'IV/IO',    note:'0.02 mg/kg' },
+        { n:'Adenosine',                d:'0.6 mg',  r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'0.6 mg',  r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.06 mg', r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'30 mL',   r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'120 mL',  r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+    {
+      color:'Red', hex:'#f87171', textHex:'#fee2e2',
+      bg:'rgba(248,113,113,.1)', border:'rgba(248,113,113,.4)',
+      kgMin:8, kgMax:9.9, repKg:8,
+      ageLabel:'6 – 9 months',
+      vitals:{ hr:'80–160', rr:'22–35', sbp:'75–105' },
+      airway:{ tube:'3.5 uncuffed', depth:'11 cm', blade:'1 straight' },
+      defib:'16–18 J', cardio:'8–9 J', bolus:'160 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.08 mg', r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.16 mg', r:'IV/IO',    note:'0.02 mg/kg' },
+        { n:'Adenosine',                d:'0.8 mg',  r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'0.8 mg',  r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.08 mg', r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'40 mL',   r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'160 mL',  r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+    {
+      color:'Purple', hex:'#c084fc', textHex:'#ede9fe',
+      bg:'rgba(192,132,252,.1)', border:'rgba(192,132,252,.4)',
+      kgMin:10, kgMax:11.9, repKg:10,
+      ageLabel:'9 – 14 months',
+      vitals:{ hr:'80–150', rr:'22–30', sbp:'80–105' },
+      airway:{ tube:'4.0 uncuffed', depth:'12 cm', blade:'1 straight' },
+      defib:'20 J', cardio:'10 J', bolus:'200 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.1 mg',  r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.2 mg',  r:'IV/IO',    note:'0.02 mg/kg' },
+        { n:'Adenosine',                d:'1 mg',    r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'1 mg',    r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.1 mg',  r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'50 mL',   r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'200 mL',  r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+    {
+      color:'Yellow', hex:'#fbbf24', textHex:'#fef9c3',
+      bg:'rgba(251,191,36,.1)', border:'rgba(251,191,36,.4)',
+      kgMin:12, kgMax:14.9, repKg:12,
+      ageLabel:'14 – 18 months',
+      vitals:{ hr:'75–145', rr:'20–28', sbp:'82–108' },
+      airway:{ tube:'4.0 uncuffed', depth:'13 cm', blade:'2 straight/curved' },
+      defib:'24–28 J', cardio:'12 J', bolus:'240 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.12 mg', r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.24 mg', r:'IV/IO',    note:'0.02 mg/kg' },
+        { n:'Adenosine',                d:'1.2 mg',  r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'1.2 mg',  r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.12 mg', r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'60 mL',   r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'240 mL',  r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+    {
+      color:'White', hex:'#e2e8f0', textHex:'#f8fafc',
+      bg:'rgba(226,232,240,.07)', border:'rgba(226,232,240,.3)',
+      kgMin:15, kgMax:18.9, repKg:16,
+      ageLabel:'2 – 3 years',
+      vitals:{ hr:'70–130', rr:'18–26', sbp:'85–108' },
+      airway:{ tube:'4.5 uncuffed', depth:'14 cm', blade:'2 straight/curved' },
+      defib:'30–36 J', cardio:'16 J', bolus:'320 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.16 mg', r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.32 mg', r:'IV/IO',    note:'0.02 mg/kg' },
+        { n:'Adenosine',                d:'1.6 mg',  r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'1.6 mg',  r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.16 mg', r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'80 mL',   r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'320 mL',  r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+    {
+      color:'Blue', hex:'#60a5fa', textHex:'#dbeafe',
+      bg:'rgba(96,165,250,.1)', border:'rgba(96,165,250,.4)',
+      kgMin:19, kgMax:23.9, repKg:20,
+      ageLabel:'4 – 5 years',
+      vitals:{ hr:'65–120', rr:'16–24', sbp:'88–110' },
+      airway:{ tube:'5.0 uncuffed / 4.5 cuffed', depth:'15 cm', blade:'2 straight/curved' },
+      defib:'40 J', cardio:'20 J', bolus:'400 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.2 mg',  r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.4 mg',  r:'IV/IO',    note:'0.02 mg/kg' },
+        { n:'Adenosine',                d:'2 mg',    r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'2 mg',    r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.2 mg',  r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'100 mL',  r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'400 mL',  r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+    {
+      color:'Orange', hex:'#fb923c', textHex:'#ffedd5',
+      bg:'rgba(251,146,60,.1)', border:'rgba(251,146,60,.4)',
+      kgMin:24, kgMax:29.9, repKg:25,
+      ageLabel:'5 – 7 years',
+      vitals:{ hr:'60–115', rr:'16–22', sbp:'90–112' },
+      airway:{ tube:'5.5 uncuffed / 5.0 cuffed', depth:'16 cm', blade:'2–3 straight/curved' },
+      defib:'50 J', cardio:'25 J', bolus:'500 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.25 mg', r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.5 mg',  r:'IV/IO',    note:'max 0.5 mg' },
+        { n:'Adenosine',                d:'2.5 mg',  r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'2.5 mg',  r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.25 mg', r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'125 mL',  r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'500 mL',  r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+    {
+      color:'Green', hex:'#4ade80', textHex:'#dcfce7',
+      bg:'rgba(74,222,128,.1)', border:'rgba(74,222,128,.4)',
+      kgMin:30, kgMax:36, repKg:32,
+      ageLabel:'7 – 9 years',
+      vitals:{ hr:'55–105', rr:'14–20', sbp:'95–115' },
+      airway:{ tube:'6.0 uncuffed / 5.5 cuffed', depth:'17 cm', blade:'2–3 straight/curved' },
+      defib:'60–64 J', cardio:'32 J', bolus:'640 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.32 mg', r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.5 mg',  r:'IV/IO',    note:'max 0.5 mg' },
+        { n:'Adenosine',                d:'3.2 mg',  r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'3.2 mg',  r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.32 mg', r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'160 mL',  r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'640 mL',  r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+  ];
+
+  // Rough weight (kg) from age in months for Broselow zone lookup
+  function ageMonthsToKg(months){
+    if(months <= 1)  return 3.5;
+    if(months <= 3)  return 5;
+    if(months <= 6)  return 7;
+    if(months <= 9)  return 8.5;
+    if(months <= 12) return 10;
+    if(months <= 18) return 11;
+    if(months <= 24) return 13;
+    if(months <= 36) return 15;
+    if(months <= 48) return 17;
+    if(months <= 60) return 19;
+    if(months <= 72) return 22;
+    if(months <= 84) return 25;
+    if(months <= 96) return 28;
+    return 32;
+  }
+
+  function broselowZone(kg){
+    return BROSELOW.find(z => kg >= z.kgMin && kg <= z.kgMax) || null;
+  }
+
+  function renderBroselowCard(zone, inputKg){
+    const repKg = inputKg != null && inputKg >= zone.kgMin && inputKg <= zone.kgMax ? inputKg : zone.repKg;
+    return `
+    <div class="brose-card" style="background:${zone.bg};border-color:${zone.border}">
+      <div class="brose-card-head">
+        <span class="brose-color-dot" style="background:${zone.hex}"></span>
+        <span class="brose-color-label" style="color:${zone.hex}">${zone.color} Zone</span>
+        <span class="brose-meta">${zone.kgMin}–${zone.kgMax} kg &nbsp;·&nbsp; ${zone.ageLabel}</span>
+      </div>
+
+      <div class="brose-grid">
+        <div class="brose-box">
+          <div class="brose-box-title">Vital Signs</div>
+          <div class="brose-box-val">
+            <span class="lbl">HR </span>${zone.vitals.hr} bpm<br>
+            <span class="lbl">RR </span>${zone.vitals.rr} /min<br>
+            <span class="lbl">SBP </span>${zone.vitals.sbp} mmHg
+          </div>
+        </div>
+        <div class="brose-box">
+          <div class="brose-box-title">Airway</div>
+          <div class="brose-box-val">
+            <span class="lbl">ETT </span>${zone.airway.tube}<br>
+            <span class="lbl">Depth </span>${zone.airway.depth}<br>
+            <span class="lbl">Blade </span>${zone.airway.blade}
+          </div>
+        </div>
+        <div class="brose-box">
+          <div class="brose-box-title">Defibrillation</div>
+          <div class="brose-box-val">
+            <span class="lbl">Defib </span>${zone.defib}<br>
+            <span class="lbl">Sync </span>${zone.cardio}<br>
+            <span class="lbl">Bolus </span>${zone.bolus}
+          </div>
+        </div>
+      </div>
+
+      <div class="brose-meds">
+        <div class="brose-meds-title">Key Medications (based on ${repKg} kg)</div>
+        ${zone.meds.map(m=>`
+        <div class="brose-med-row">
+          <span class="brose-med-name">${m.n}</span>
+          <span class="brose-med-dose">${m.d}</span>
+          <span class="brose-med-route">${m.r}</span>
+          <span class="brose-med-note">(${m.note})</span>
+        </div>`).join('')}
+      </div>
+
+      <div style="margin-top:12px;font-size:11px;color:var(--muted);line-height:1.5">
+        ⚠ Doses are based on Broselow-Luten reference weights. Always verify against your service's approved pediatric protocols and medical direction.
+      </div>
+    </div>`;
+  }
+
+  function initPedsRef(){
+    const strip = document.getElementById('peds-strip');
+    if(!strip) return;
+    strip.innerHTML = BROSELOW.map(z=>
+      `<button class="brose-swatch" data-color="${z.color}"
+        style="background:${z.bg};border-color:${z.border};color:${z.hex}"
+        onclick="pedsSelectZone('${z.color}')">${z.color}<br><span style="font-weight:400;font-size:10px">${z.kgMin}–${z.kgMax} kg</span></button>`
+    ).join('');
+
+    const kgIn = document.getElementById('peds-kg');
+    const ageNum = document.getElementById('peds-age-num');
+    const ageUnit = document.getElementById('peds-age-unit');
+
+    function trySearch(){
+      const kgVal = parseFloat(kgIn.value);
+      const ageVal = parseFloat(ageNum.value);
+      if(!isNaN(kgVal) && kgVal > 0){
+        showPedsZone(broselowZone(kgVal), kgVal);
+      } else if(!isNaN(ageVal) && ageVal >= 0){
+        const months = ageUnit.value === 'years' ? ageVal * 12 : ageVal;
+        const estKg = ageMonthsToKg(months);
+        showPedsZone(broselowZone(estKg), null, estKg);
+      }
+    }
+
+    kgIn.addEventListener('input', ()=>{ ageNum.value=''; trySearch(); });
+    ageNum.addEventListener('input', ()=>{ kgIn.value=''; trySearch(); });
+    ageUnit.addEventListener('change', trySearch);
+  }
+
+  function showPedsZone(zone, inputKg, estKg){
+    const res = document.getElementById('peds-result');
+    const strip = document.getElementById('peds-strip');
+    if(!res) return;
+    document.querySelectorAll('.brose-swatch').forEach(s=>s.classList.remove('active'));
+    if(!zone){
+      res.style.display='block';
+      res.innerHTML = `<div class="brose-empty">Weight out of Broselow range (3–36 kg). For patients over 36 kg, use adult protocols.</div>`;
+      return;
+    }
+    const sw = strip ? strip.querySelector(`[data-color="${zone.color}"]`) : null;
+    if(sw) sw.classList.add('active');
+    res.style.display = 'block';
+    const estNote = estKg ? `<div style="font-size:12px;color:var(--muted);margin-bottom:8px">Estimated weight: ~${estKg} kg based on age input</div>` : '';
+    res.innerHTML = estNote + renderBroselowCard(zone, inputKg);
+  }
+
+  window.pedsSelectZone = function(color){
+    const zone = BROSELOW.find(z=>z.color===color);
+    if(!zone) return;
+    document.getElementById('peds-kg').value = '';
+    document.getElementById('peds-age-num').value = '';
+    showPedsZone(zone, null);
+  };
+
   function renderAll(terms){
     _lastTerms = terms;
     renderServiceSelect();
@@ -2689,12 +3062,14 @@
   }
 
   // --- Tabs ---
+  let _pedsRefInited = false;
   $$('.tab').forEach(btn=> btn.addEventListener('click', ()=>{
     $$('.tab').forEach(b=> b.classList.remove('active'));
     btn.classList.add('active');
     const tab = btn.dataset.tab;
     $$('.panel').forEach(p=> p.classList.add('hidden'));
     $('#panel-'+tab).classList.remove('hidden');
+    if(tab === 'resources' && !_pedsRefInited){ initPedsRef(); _pedsRefInited=true; }
   }));
 
   // --- PIN Protection ---
