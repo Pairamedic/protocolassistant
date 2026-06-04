@@ -86,6 +86,13 @@
     .card.collapsed .card-header::after{content:'▾'}
     .card-body{display:block;margin-top:8px}
     .card.collapsed .card-body{display:none}
+    /* compact header when keyboard is open on mobile */
+    @media(max-width:767px){
+      header.search-mode #header-toolbar,
+      header.search-mode #role-row,
+      header.search-mode .hint{ display:none!important }
+      header.search-mode .tabs{ margin-top:6px }
+    }
     /* ui controls */
     .ui-ctrl-btn{background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer;font-size:13px;font-weight:600;padding:4px 9px;font-family:inherit;line-height:1.4}
     .ui-ctrl-btn:hover{color:var(--text)}
@@ -113,7 +120,7 @@
         </div>
       </div>
       <div class="bar">
-        <div class="toolbar">
+        <div id="header-toolbar" class="toolbar">
           <select id="service-select" title="Ambulance Service"></select>
           <button id="report-issue" class="btn" style="color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08)">🚩 Report Issue</button>
         </div>
@@ -121,7 +128,7 @@
           <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Search protocols, meds, keywords…" style="flex:1;width:auto" />
           <button id="fav-filter" class="btn" title="Show favorites only" style="flex:none;padding:10px 14px;font-size:16px;white-space:nowrap">☆</button>
         </div>
-        <div style="display:flex;gap:6px;align-items:center;margin-top:6px">
+        <div id="role-row" style="display:flex;gap:6px;align-items:center;margin-top:6px">
           <span style="font-size:11px;color:var(--muted);flex:none">Show roles:</span>
           <button id="role-toggle-paramedic" class="role-toggle-btn rb-paramedic" title="Toggle Paramedic steps">Paramedic</button>
           <button id="role-toggle-aemt" class="role-toggle-btn rb-aemt" title="Toggle AEMT steps">AEMT</button>
@@ -2251,6 +2258,32 @@
       renderAll(terms);
     }, 80);
   });
+
+  // --- Mobile keyboard handling ---
+  // Compact header + scroll results to top when keyboard opens on iPhone/iPad
+  const hdr = $('header');
+  let _blurTimer;
+
+  q.addEventListener('focus', ()=>{
+    clearTimeout(_blurTimer);
+    hdr.classList.add('search-mode');
+    // After keyboard animation (~320 ms), scroll so results fill the space above keyboard
+    setTimeout(()=> window.scrollTo({top:0, behavior:'smooth'}), 320);
+  });
+
+  q.addEventListener('blur', ()=>{
+    // Small delay so tapping a result doesn't flash the toolbar back in
+    _blurTimer = setTimeout(()=> hdr.classList.remove('search-mode'), 200);
+  });
+
+  // visualViewport fires when keyboard resizes the visible area (iOS Safari)
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', ()=>{
+      if(document.activeElement === q){
+        window.scrollTo({top:0, behavior:'smooth'});
+      }
+    });
+  }
 
   // --- Tabs ---
   $$('.tab').forEach(btn=> btn.addEventListener('click', ()=>{
