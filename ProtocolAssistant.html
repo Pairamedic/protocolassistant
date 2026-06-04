@@ -195,6 +195,23 @@
     .brose-med-note{font-size:11px;color:var(--muted);white-space:nowrap}
     :root.light .brose-med-route{color:#0369a1}
     .brose-empty{color:var(--muted);padding:20px 0;text-align:center;font-size:14px}
+    /* key contacts */
+    .contacts-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:4px}
+    @media(min-width:640px){.contacts-grid{grid-template-columns:1fr 1fr}}
+    @media(min-width:1000px){.contacts-grid{grid-template-columns:1fr 1fr 1fr}}
+    .contact-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:6px}
+    .contact-name{font-weight:700;font-size:16px;line-height:1.2}
+    .contact-title{font-size:12px;font-weight:600;letter-spacing:.3px;color:var(--accent)}
+    :root.light .contact-title{color:var(--accent)}
+    .contact-desc{font-size:12px;color:var(--muted);line-height:1.5;flex:1}
+    .contact-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+    .contact-btn{display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:10px;border:1px solid;font-size:13px;font-weight:600;text-decoration:none;font-family:inherit;cursor:pointer;transition:opacity .15s;white-space:nowrap}
+    .contact-btn:hover{opacity:.8}
+    .contact-btn-call{background:rgba(34,197,94,.12);color:#4ade80;border-color:rgba(34,197,94,.35)}
+    .contact-btn-mail{background:rgba(147,197,253,.1);color:var(--accent2);border-color:rgba(147,197,253,.25)}
+    :root.light .contact-btn-call{background:rgba(34,197,94,.1);color:#15803d;border-color:rgba(34,197,94,.3)}
+    :root.light .contact-btn-mail{background:rgba(37,99,235,.08);color:#2563eb;border-color:rgba(37,99,235,.25)}
+    .contact-hours{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:rgba(251,191,36,.12);color:#fbbf24;border:1px solid rgba(251,191,36,.3);letter-spacing:.3px;text-transform:uppercase;align-self:flex-start}
   </style>
 </head>
 <body>
@@ -594,6 +611,73 @@
 
     <!-- Resources -->
     <section id="panel-resources" class="panel hidden">
+
+      <!-- Key Contacts -->
+      <div class="res-section">
+        <div class="res-section-head">
+          <span class="res-section-title">📞 Key Contacts — EASI Medics</span>
+        </div>
+        <div class="contacts-grid">
+
+          <!-- Dwayne Aalseth -->
+          <div class="contact-card">
+            <div class="contact-name">Dwayne Aalseth</div>
+            <div class="contact-title">Operations Director</div>
+            <div class="contact-desc">Operational leadership and director-level concerns.</div>
+            <div class="contact-actions">
+              <a class="contact-btn contact-btn-call" href="tel:+18705753004">📞 (870) 575-3004</a>
+              <a class="contact-btn contact-btn-mail" href="mailto:daalseth@easimedics.com">✉ daalseth@easimedics.com</a>
+            </div>
+          </div>
+
+          <!-- Clyde McDaniel -->
+          <div class="contact-card">
+            <div class="contact-name">Clyde McDaniel</div>
+            <div class="contact-title">Operations Supervisor</div>
+            <div class="contact-desc">Day-to-day operational supervision and field concerns.</div>
+            <div class="contact-actions">
+              <a class="contact-btn contact-btn-call" href="tel:+18703291448">📞 (870) 329-1448</a>
+              <a class="contact-btn contact-btn-mail" href="mailto:cmcdaniel@easimedics.com">✉ cmcdaniel@easimedics.com</a>
+            </div>
+          </div>
+
+          <!-- Cheryl Smith -->
+          <div class="contact-card">
+            <div class="contact-name">Cheryl Smith</div>
+            <div class="contact-title">Operations Administrator</div>
+            <div class="contact-desc">Scheduling — contact for anything related to your schedule.</div>
+            <div class="contact-actions">
+              <a class="contact-btn contact-btn-call" href="tel:+18707182909">📞 (870) 718-2909</a>
+              <a class="contact-btn contact-btn-mail" href="mailto:csmith@easimedics.com">✉ csmith@easimedics.com</a>
+            </div>
+          </div>
+
+          <!-- Greg Moody -->
+          <div class="contact-card">
+            <div class="contact-name">Greg Moody</div>
+            <div class="contact-title">Office Manager</div>
+            <span class="contact-hours">Business Hours Only</span>
+            <div class="contact-desc">Payroll, HCMTOGO, insurance, and HR/benefits questions.</div>
+            <div class="contact-actions">
+              <a class="contact-btn contact-btn-call" href="tel:+18706439456">📞 (870) 643-9456</a>
+              <a class="contact-btn contact-btn-mail" href="mailto:gmoody@easimedics.com">✉ gmoody@easimedics.com</a>
+            </div>
+          </div>
+
+          <!-- Nyeisha Aldridge -->
+          <div class="contact-card">
+            <div class="contact-name">Nyeisha Aldridge</div>
+            <div class="contact-title">Director of Public Outreach</div>
+            <span class="contact-hours">Business Hours Only</span>
+            <div class="contact-desc">Uniforms, PR-related questions, and social media.</div>
+            <div class="contact-actions">
+              <a class="contact-btn contact-btn-call" href="tel:+19039600139">📞 (903) 960-0139</a>
+              <a class="contact-btn contact-btn-mail" href="mailto:naldridge@easimedics.com">✉ naldridge@easimedics.com</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
 
       <!-- Pediatric Quick Reference -->
       <div class="res-section">
