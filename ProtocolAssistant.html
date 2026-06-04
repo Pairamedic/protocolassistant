@@ -2913,7 +2913,7 @@
     allMeds.forEach(m => medClasses(m.name||'').forEach(c => usedClasses.add(c)));
     const ordered = MED_CLASS_MAP.map(e=>e.cls).filter(c=>usedClasses.has(c));
     container.innerHTML = ordered.map(c =>
-      `<button class="cls-chip${_medClassFilter===c?' active':''}" onclick="setMedClass(${JSON.stringify(c)})">${c}</button>`
+      `<button class="cls-chip${_medClassFilter===c?' active':''}" onclick="setMedClass('${c}')">${c}</button>`
     ).join('');
   }
   window.setMedClass = function(cls){
