@@ -97,6 +97,11 @@
       header.search-mode .hint{ display:none!important }
       header.search-mode .tabs{ margin-top:6px }
     }
+    /* calc card toggles */
+    .calc-toggle{display:flex;justify-content:space-between;align-items:center;margin:0 0 10px}
+    .calc-chev{font-size:12px;color:var(--muted);transition:transform .2s}
+    .calc-collapsed .calc-chev{transform:rotate(180deg)}
+    .calc-collapsed + div[id^="calc-body"]{display:none}
     /* ui controls */
     .ui-ctrl-btn{background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer;font-size:13px;font-weight:600;padding:4px 9px;font-family:inherit;line-height:1.4}
     .ui-ctrl-btn:hover{color:var(--text)}
@@ -163,7 +168,8 @@
     <!-- Calculator Suite -->
     <section id="panel-calc" class="panel hidden">
       <div class="card">
-        <h3>Weight‑Based Dose Calculator</h3>
+        <h3 class="calc-toggle" data-target="calc-body-weight" style="cursor:pointer;user-select:none">Weight‑Based Dose Calculator <span class="calc-chev">▴</span></h3>
+        <div id="calc-body-weight">
         <div class="row">
           <div>
             <label class="hint">Medication</label>
@@ -202,10 +208,12 @@
           <button id="reset" class="btn">Reset</button>
         </div>
         <div id="result" class="mono" style="margin-top:12px"></div>
+        </div>
       </div>
 
       <div class="card">
-        <h3>Standard Dose → Volume</h3>
+        <h3 class="calc-toggle" data-target="calc-body-std" style="cursor:pointer;user-select:none">Standard Dose → Volume <span class="calc-chev">▴</span></h3>
+        <div id="calc-body-std">
         <p class="hint">(Dose ordered / Dose on hand) × Volume on hand = mL to draw. Or use mg/mL directly.</p>
         <div class="row">
           <div>
@@ -235,10 +243,12 @@
           <button id="std-calc" class="btn primary">Calculate</button>
           <button id="std-reset" class="btn">Reset</button>
         </div>
+        </div>
       </div>
 
       <div class="card">
-        <h3>IV Infusion (mcg/kg/min → gtts/min)</h3>
+        <h3 class="calc-toggle" data-target="calc-body-iv" style="cursor:pointer;user-select:none">IV Infusion (mcg/kg/min → gtts/min) <span class="calc-chev">▴</span></h3>
+        <div id="calc-body-iv">
         <p class="hint">Enter ordered dose, weight, drug in bag (mg), bag volume (mL), and drip set (gtt/mL). Computes mL/hr and gtts/min.</p>
         <div class="row">
           <div>
@@ -272,10 +282,12 @@
           <button id="iv-reset" class="btn">Reset</button>
         </div>
         <div id="iv-result" class="mono" style="margin-top:12px"></div>
+        </div>
       </div>
 
       <div class="card">
-        <h3>Manual Drip Timing</h3>
+        <h3 class="calc-toggle" data-target="calc-body-md" style="cursor:pointer;user-select:none">Manual Drip Timing <span class="calc-chev">▴</span></h3>
+        <div id="calc-body-md">
         <p class="hint">Target drops/min → drops per 10 seconds (÷6).</p>
         <div class="row">
           <div>
@@ -291,10 +303,12 @@
           <button id="md-calc" class="btn primary">Calculate</button>
           <button id="md-reset" class="btn">Reset</button>
         </div>
+        </div>
       </div>
 
       <div class="card">
-        <h3>Fluid Over Time</h3>
+        <h3 class="calc-toggle" data-target="calc-body-fo" style="cursor:pointer;user-select:none">Fluid Over Time <span class="calc-chev">▴</span></h3>
+        <div id="calc-body-fo">
         <p class="hint">Given volume, drip set, and time, compute gtts/min and mL/hr.</p>
         <div class="row">
           <div>
@@ -315,10 +329,12 @@
           <button id="fo-reset" class="btn">Reset</button>
         </div>
         <div id="fo-result" class="mono" style="margin-top:12px"></div>
+        </div>
       </div>
 
       <div class="card">
-  <h3>Pump mL/hr → Manual gtts/min</h3>
+  <h3 class="calc-toggle" data-target="calc-body-pump" style="cursor:pointer;user-select:none">Pump mL/hr → Manual gtts/min <span class="calc-chev">▴</span></h3>
+  <div id="calc-body-pump">
   <p class="hint">Formula: gtts/min = (mL/hr × gtt/mL) ÷ 60. With 60-drop (microdrip), gtts/min = mL/hr.</p>
   <div class="row">
     <div>
@@ -335,10 +351,12 @@
     <button id="pump-reset" class="btn">Reset</button>
   </div>
   <div id="pump-result" class="mono" style="margin-top:12px"></div>
+  </div>
 </div>
 
       <div class="card">
-        <h3>APGAR Calculator</h3>
+        <h3 class="calc-toggle" data-target="calc-body-apgar" style="cursor:pointer;user-select:none">APGAR Calculator <span class="calc-chev">▴</span></h3>
+        <div id="calc-body-apgar">
         <div class="row">
           <div>
             <label class="hint">Appearance</label>
@@ -366,10 +384,12 @@
           <button id="apgar-reset" class="btn">Reset</button>
         </div>
         <div id="apgar-result" class="mono" style="margin-top:12px"></div>
+        </div>
       </div>
 
       <div class="card">
-        <h3>GCS Calculator</h3>
+        <h3 class="calc-toggle" data-target="calc-body-gcs" style="cursor:pointer;user-select:none">GCS Calculator <span class="calc-chev">▴</span></h3>
+        <div id="calc-body-gcs">
         <div class="row">
           <div>
             <label class="hint">Eye (E)</label>
@@ -389,10 +409,12 @@
           <button id="gcs-reset" class="btn">Reset</button>
         </div>
         <div id="gcs-result" class="mono" style="margin-top:12px"></div>
+        </div>
       </div>
 
       <div class="card">
-        <h3>Oxygen Duration</h3>
+        <h3 class="calc-toggle" data-target="calc-body-o2" style="cursor:pointer;user-select:none">Oxygen Duration <span class="calc-chev">▴</span></h3>
+        <div id="calc-body-o2">
         <div class="row">
           <div>
             <label class="hint">Cylinder</label>
@@ -422,6 +444,7 @@
           <button id="o2-reset" class="btn">Reset</button>
         </div>
         <div id="o2-result" class="mono" style="margin-top:12px"></div>
+        </div>
       </div>
 
       <div class="card">
@@ -474,6 +497,26 @@
   </div><!-- /app-shell -->
 
   <!-- Report Issue Modal -->
+  <!-- TOS / Disclaimer Modal (shown once per session after login) -->
+  <div id="tos-overlay" class="modal-overlay hidden">
+    <div class="modal-box" style="max-width:480px;text-align:center">
+      <div style="font-size:36px;margin-bottom:12px">⚠️</div>
+      <h3 style="margin:0 0 12px;font-size:17px">Reference Guide Only</h3>
+      <p style="color:var(--muted);font-size:14px;line-height:1.6;text-align:left;margin:0 0 12px">
+        This app is a <strong style="color:var(--text)">clinical reference tool only.</strong>
+        Nothing displayed here authorizes, replaces, or overrides your agency's
+        medical director–approved protocols or your state's defined scope of practice.
+        All providers must verify medications, doses, and procedures against their
+        service's official protocols before administration.
+      </p>
+      <p style="color:var(--muted);font-size:14px;line-height:1.6;text-align:left;margin:0 0 20px">
+        <strong style="color:var(--text)">Calculators</strong> use standard EMS formulas
+        and must be independently verified for accuracy before use in patient care.
+      </p>
+      <button id="tos-accept" class="btn primary" style="width:100%;font-size:15px;padding:14px">I Understand — Continue</button>
+    </div>
+  </div>
+
   <div id="report-overlay" class="modal-overlay hidden">
     <div class="modal-box" style="max-width:480px">
       <div class="modal-head">
@@ -2738,12 +2781,31 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       }catch(e){ /* offline – keep local state */ }
       renderAll([]);
       acquireWakeLock();
+      if(!sessionStorage.getItem('tos_ok')) showTOS();
     } else {
       window.location.replace('index.html');
     }
   });
 
   $('#auth-logout').addEventListener('click', () => fbAuth.signOut());
+
+  // --- TOS / Disclaimer (once per session) ---
+  function showTOS(){
+    $('#tos-overlay').classList.remove('hidden');
+  }
+  $('#tos-accept').addEventListener('click', ()=>{
+    sessionStorage.setItem('tos_ok','1');
+    $('#tos-overlay').classList.add('hidden');
+  });
+
+  // --- Calc card collapse toggles ---
+  document.querySelectorAll('.calc-toggle').forEach(h3 => {
+    h3.addEventListener('click', ()=>{
+      h3.classList.toggle('calc-collapsed');
+      const body = document.getElementById(h3.dataset.target);
+      if(body) body.style.display = body.style.display === 'none' ? '' : 'none';
+    });
+  });
 
   // --- Theme & text-size controls ---
   const SIZES = ['sm','md','lg'];
