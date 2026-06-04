@@ -86,6 +86,10 @@
     .card.collapsed .card-header::after{content:'▾'}
     .card-body{display:block;margin-top:8px}
     .card.collapsed .card-body{display:none}
+    /* collapsed header */
+    header.hdr-collapsed .bar,
+    header.hdr-collapsed .tabs,
+    header.hdr-collapsed .hint{display:none!important}
     /* compact header when keyboard is open on mobile */
     @media(max-width:767px){
       header.search-mode #header-toolbar,
@@ -111,6 +115,7 @@
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div class="title">🚑 EMS Protocol Assistant V.1</div>
         <div style="display:flex;align-items:center;gap:6px">
+          <button id="btn-hdr-toggle" class="ui-ctrl-btn" title="Collapse/expand header">▲</button>
           <button id="btn-theme" class="ui-ctrl-btn" title="Toggle light/dark mode">☀</button>
           <button id="btn-size" class="ui-ctrl-btn" title="Cycle text size">A</button>
           <div id="user-bar">
@@ -2191,19 +2196,40 @@
     if(el) el.classList.toggle('collapsed');
   }
 
+  // Med → provider role lookup (pattern matched against lowercased name)
+  const MED_ROLES = [
+    // EMT + AEMT + Paramedic
+    { roles:['emt','aemt','paramedic'], match:/aspirin|oral\s*gluco|nitroglycerin/ },
+    // AEMT + Paramedic
+    { roles:['aemt','paramedic'], match:/acetaminophen|tylenol|naloxone|narcan|albuterol|ipratropium|atrovent|duoneb|normal saline|lactated ringer|dextrose 10|d10%|glucagon|ondansetron|zofran|solu-medrol|methylprednisolone|epinephrine 1:1,000|epinephrine 1:1000\b/ },
+    // Paramedic only (everything not matched above)
+  ];
+  function medRoles(name){
+    const n = name.toLowerCase();
+    for(const entry of MED_ROLES){
+      if(entry.match.test(n)) return entry.roles;
+    }
+    return ['paramedic']; // default: paramedic only
+  }
+
   function renderMeds(filterTerms=[]){
     const all = svc().meds||[];
     let items = all.map((m,i)=>({m,i})).filter(({m})=> matchItem(m, filterTerms));
     if(_favsOnly) items = items.filter(({m})=> isFav('m', m.name));
     medsEl.innerHTML = items.map(({m,i})=>{
       const on = isFav('m', m.name);
+      const roles = medRoles(m.name||'');
+      const badges = roles.map(r=>`<span class="role-badge rb-${r}">${r==='paramedic'?'Paramedic':r==='aemt'?'AEMT':'EMT'}</span>`).join('');
       return `
       <div class="card${on?' fav-on':''}">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
-          <h3 style="margin:0 0 6px;flex:1">${highlight(m.name, filterTerms)} ${m.route?`<span class="badge">${m.route}</span>`:''}</h3>
+          <div style="flex:1;min-width:0">
+            <h3 style="margin:0 0 4px">${highlight(m.name, filterTerms)} ${m.route?`<span class="badge">${m.route}</span>`:''}</h3>
+            <div style="margin-bottom:4px">${badges}</div>
+          </div>
           <button class="fav-btn${on?' on':''}" onclick="toggleFav('m','${(m.name||'').replace(/'/g,"&#39;")}')" title="${on?'Remove from favorites':'Add to favorites'}">${on?'★':'☆'}</button>
         </div>
-        <div class="hint">${highlight(m.notes||'', filterTerms)}</div>
+        <div class="hint">${doseHL(highlight(m.notes||'', filterTerms))}</div>
         ${m.contra?`<div class="hint" style="margin-top:4px"><span style="color:#f87171">✕</span> ${highlight(m.contra, filterTerms)}</div>`:''}
         <div style="margin-top:8px" class="row">
           <button class="btn" onclick="loadIntoCalc('${(m.name||'').replace(/'/g, "&#39;")}')">Send to Calculator</button>
@@ -2733,8 +2759,19 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     document.documentElement.setAttribute('data-sz', _sz);
     $('#btn-size').textContent = SIZE_LABELS[_sz];
   }
-  applyTheme(); applySize();
+  let _hdrCollapsed = localStorage.getItem('pref_hdr') === '1';
+  function applyHdrState(){
+    $('header').classList.toggle('hdr-collapsed', _hdrCollapsed);
+    $('#btn-hdr-toggle').textContent = _hdrCollapsed ? '▼' : '▲';
+    $('#btn-hdr-toggle').title = _hdrCollapsed ? 'Expand header' : 'Collapse header';
+  }
+  applyTheme(); applySize(); applyHdrState();
 
+  $('#btn-hdr-toggle').addEventListener('click', ()=>{
+    _hdrCollapsed = !_hdrCollapsed;
+    localStorage.setItem('pref_hdr', _hdrCollapsed ? '1' : '0');
+    applyHdrState();
+  });
   $('#btn-theme').addEventListener('click', ()=>{
     _theme = _theme === 'dark' ? 'light' : 'dark';
     localStorage.setItem('pref_theme', _theme);
