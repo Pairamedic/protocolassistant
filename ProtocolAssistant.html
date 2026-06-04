@@ -666,9 +666,15 @@
     <!-- Contacts -->
     <section id="panel-contacts" class="panel hidden">
 
-      <div class="res-section">
+      <!-- Quick-jump nav -->
+      <div class="res-nav">
+        <button class="res-nav-chip" onclick="jumpToSection('contacts-internal')">👥 Internal</button>
+        <button class="res-nav-chip" onclick="jumpToSection('contacts-clinical')">🏥 Clinical</button>
+      </div>
+
+      <div id="contacts-internal" class="res-section">
         <div class="res-section-head">
-          <span class="res-section-title">📞 Key Contacts — EASI Medics</span>
+          <span class="res-section-title">👥 Internal — EASI Medics</span>
         </div>
 
         <!-- Josh Bishop — CEO -->
@@ -771,6 +777,44 @@
             <div class="contact-actions">
               <a class="contact-btn contact-btn-call" href="tel:+18705561301">📞 (870) 556-1301</a>
               <a class="contact-btn contact-btn-mail" href="mailto:twoods@easimedics.com">✉ twoods@easimedics.com</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Clinical Contacts -->
+      <div id="contacts-clinical" class="res-section" style="margin-top:8px">
+        <div class="res-section-head">
+          <span class="res-section-title">🏥 Clinical</span>
+        </div>
+        <div class="contacts-grid">
+
+          <!-- Arkansas Trauma Com -->
+          <div class="contact-card">
+            <div class="contact-name">Arkansas Trauma Com</div>
+            <div class="contact-title">Trauma Communications</div>
+            <div class="contact-actions">
+              <a class="contact-btn contact-btn-call" href="tel:+15013011409">📞 (501) 301-1409</a>
+            </div>
+          </div>
+
+          <!-- Poison Control -->
+          <div class="contact-card">
+            <div class="contact-name">Poison Control</div>
+            <div class="contact-title">National Poison Hotline</div>
+            <div class="contact-actions">
+              <a class="contact-btn contact-btn-call" href="tel:+18002221222">📞 1 (800) 222-1222</a>
+            </div>
+          </div>
+
+          <!-- JRMC ER -->
+          <div class="contact-card">
+            <div class="contact-name">JRMC Emergency Room</div>
+            <div class="contact-title">First-Line Medical Control</div>
+            <div class="contact-desc">Primary medical control contact. When transporting to an alternate facility, contact the receiving ER physician directly when possible — if unreachable, follow standing protocol.</div>
+            <div class="contact-actions">
+              <a class="contact-btn contact-btn-call" href="tel:+18705417111">📞 (870) 541-7111</a>
             </div>
           </div>
 
