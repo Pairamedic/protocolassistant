@@ -22,8 +22,9 @@
     input::placeholder{color:#8a94a7}
     :root.light input::placeholder{color:#94a3b8}
     .tabs{display:flex;gap:8px;margin-top:12px}
-    .tab{flex:1;text-align:center;padding:12px 12px;border-radius:12px;background:var(--input-bg);border:1px solid var(--border);cursor:pointer;font-size:15px}
+    .tab{flex:1;text-align:center;padding:10px 6px;border-radius:12px;background:var(--input-bg);border:1px solid var(--border);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;gap:3px;white-space:nowrap}
     .tab.active{background:linear-gradient(180deg,var(--input-bg),var(--card));border-color:rgba(148,163,184,.25);box-shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 0 0 2px rgba(94,234,212,.15)}
+
     :root.light .tab.active{box-shadow:0 0 0 2px rgba(13,148,136,.2)}
     .hint{color:var(--muted);font-size:13px;margin-top:6px}
     .grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px}
@@ -93,7 +94,7 @@
     .sub-k{font-size:10px;font-weight:700;color:var(--accent);opacity:.75;flex:none;min-width:14px}
     .step-arrow{color:var(--accent);opacity:.85;margin:0 1px}
     /* tab result counts */
-    .tab-cnt{font-size:11px;opacity:.65;font-weight:400;margin-left:2px}
+    .tab-cnt{font-size:11px;opacity:.65;font-weight:400}
     /* protocol category sections */
     .cat-section{margin-bottom:18px}
     .cat-header{display:flex;align-items:center;gap:8px;padding:8px 0 7px;cursor:pointer;user-select:none;-webkit-user-select:none;border-bottom:2px solid var(--border);margin-bottom:12px}
