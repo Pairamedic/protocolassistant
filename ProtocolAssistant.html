@@ -86,10 +86,17 @@
     .card.collapsed .card-header::after{content:'▾'}
     .card-body{display:block;margin-top:8px}
     .card.collapsed .card-body{display:none}
-    /* collapsed header */
-    header.hdr-collapsed .bar,
-    header.hdr-collapsed .tabs,
-    header.hdr-collapsed .hint{display:none!important}
+    /* vertical role label on steps */
+    .step-row-wrap{display:flex;align-items:flex-start;gap:6px}
+    .step-role-tag{writing-mode:vertical-rl;text-orientation:mixed;font-size:9px;font-weight:700;letter-spacing:.5px;border-left:2px solid;padding:2px 2px;border-radius:2px;opacity:.85;line-height:1;flex:none;align-self:stretch;display:flex;align-items:center;text-transform:uppercase}
+    .step-content{flex:1;min-width:0}
+    /* smooth collapsible header */
+    .hdr-collapsible{overflow:hidden;max-height:400px;opacity:1;transition:max-height .32s cubic-bezier(.4,0,.2,1),opacity .25s ease,margin .25s ease}
+    header.hdr-collapsed .hdr-collapsible{max-height:0!important;opacity:0;margin-top:0!important;margin-bottom:0!important}
+    .hdr-pull-tab{display:flex;align-items:center;justify-content:center;width:100%;background:none;border:none;padding:4px 0 2px;cursor:pointer;color:var(--muted);gap:6px;font-size:11px;font-family:inherit;letter-spacing:.4px;text-transform:uppercase}
+    .hdr-pull-tab:hover{color:var(--text)}
+    .hdr-pull-tab .chev{font-size:10px;transition:transform .3s cubic-bezier(.4,0,.2,1)}
+    header.hdr-collapsed .hdr-pull-tab .chev{transform:rotate(180deg)}
     /* compact header when keyboard is open on mobile */
     @media(max-width:767px){
       header.search-mode #header-toolbar,
@@ -107,6 +114,12 @@
     .ui-ctrl-btn:hover{color:var(--text)}
     /* auth */
     #user-bar{display:none;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+    /* med hyperlinks in protocol steps */
+    .med-link{color:var(--accent);text-decoration:underline dotted;cursor:pointer;font-weight:600}
+    .med-link:hover{text-decoration:underline solid}
+    /* infusion rate pills */
+    .rate-pill{display:inline-block;background:rgba(94,234,212,.1);border:1px solid rgba(94,234,212,.2);border-radius:6px;padding:1px 6px;font-size:.9em;white-space:nowrap;margin:1px 2px}
+    :root.light .rate-pill{background:rgba(13,148,136,.08);border-color:rgba(13,148,136,.2)}
   </style>
 </head>
 <body>
@@ -120,7 +133,6 @@
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div class="title">🚑 EMS Protocol Assistant V.1</div>
         <div style="display:flex;align-items:center;gap:6px">
-          <button id="btn-hdr-toggle" class="ui-ctrl-btn" title="Collapse/expand header">▲</button>
           <button id="btn-theme" class="ui-ctrl-btn" title="Toggle light/dark mode">☀</button>
           <button id="btn-size" class="ui-ctrl-btn" title="Cycle text size">A</button>
           <div id="user-bar">
@@ -129,28 +141,33 @@
           </div>
         </div>
       </div>
-      <div class="bar">
-        <div id="header-toolbar" class="toolbar">
-          <select id="service-select" title="Ambulance Service"></select>
-          <button id="report-issue" class="btn" style="color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08)">🚩 Report Issue</button>
+      <div class="hdr-collapsible">
+        <div class="bar">
+          <div id="header-toolbar" class="toolbar">
+            <select id="service-select" title="Ambulance Service"></select>
+            <button id="report-issue" class="btn" style="color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08)">🚩 Report Issue</button>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Search protocols, meds, keywords…" style="flex:1;width:auto" />
+            <button id="fav-filter" class="btn" title="Show favorites only" style="flex:none;padding:10px 14px;font-size:16px;white-space:nowrap">☆</button>
+          </div>
+          <div id="role-row" style="display:flex;gap:6px;align-items:center;margin-top:6px">
+            <span style="font-size:11px;color:var(--muted);flex:none">Show roles:</span>
+            <button id="role-toggle-paramedic" class="role-toggle-btn rb-paramedic" title="Toggle Paramedic steps">Paramedic</button>
+            <button id="role-toggle-aemt" class="role-toggle-btn rb-aemt" title="Toggle AEMT steps">AEMT</button>
+            <button id="role-toggle-emt" class="role-toggle-btn rb-emt" title="EMT always shown" disabled>EMT</button>
+          </div>
         </div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Search protocols, meds, keywords…" style="flex:1;width:auto" />
-          <button id="fav-filter" class="btn" title="Show favorites only" style="flex:none;padding:10px 14px;font-size:16px;white-space:nowrap">☆</button>
+        <div class="tabs">
+          <button class="tab active" data-tab="protocols">Protocols</button>
+          <button class="tab" data-tab="meds">Meds</button>
+          <button class="tab" data-tab="calc">Dose Calc</button>
         </div>
-        <div id="role-row" style="display:flex;gap:6px;align-items:center;margin-top:6px">
-          <span style="font-size:11px;color:var(--muted);flex:none">Show roles:</span>
-          <button id="role-toggle-paramedic" class="role-toggle-btn rb-paramedic" title="Toggle Paramedic steps">Paramedic</button>
-          <button id="role-toggle-aemt" class="role-toggle-btn rb-aemt" title="Toggle AEMT steps">AEMT</button>
-          <button id="role-toggle-emt" class="role-toggle-btn rb-emt" title="EMT always shown" disabled>EMT</button>
-        </div>
+        <div class="hint">Select an Ambulance Service. Data is saved automatically.</div>
       </div>
-      <div class="tabs">
-        <button class="tab active" data-tab="protocols">Protocols</button>
-        <button class="tab" data-tab="meds">Meds</button>
-        <button class="tab" data-tab="calc">Dose Calc</button>
-      </div>
-      <div class="hint">Select an Ambulance Service. Data is saved automatically.</div>
+      <button class="hdr-pull-tab" id="btn-hdr-toggle">
+        <span class="chev">▴</span><span class="hdr-tab-label">Hide toolbar</span>
+      </button>
     </div>
   </header>
 
@@ -1259,10 +1276,10 @@
         title: 'General Patient Protocol',
         summary: 'Documentation and assessment requirements for transport and no-transport calls.',
         steps: [
-          'No Transport / No Haul: 1) Demographics. 2) 1 complete set of vital signs. 3) Detailed narrative (include encouragement of transport). 4) Proper signatures.',
-          'Transport: 1) Demographics. 2) Minimum 2 sets of vital signs (Critical every 5 min / Stable every 20 min). 3) Detailed narrative. 4) Assessment. 5) Proper signatures. 6) Pt identifiers (MRN/SS#).'
+          'EMT: No Transport / No Haul: 1) Demographics. 2) 1 complete set of vital signs. 3) Detailed narrative (include encouragement of transport). 4) Proper signatures.',
+          'EMT: Transport: 1) Demographics. 2) Minimum 2 sets of vital signs (Critical every 5 min / Stable every 20 min). 3) Detailed narrative. 4) Assessment. 5) Proper signatures. 6) Pt identifiers (MRN/SS#).'
         ],
-        tags: ['general','documentation','transport','vitals','narrative']
+        tags: ['emt','aemt','paramedic','general','documentation','transport','vitals','narrative']
       },
       {
         id: 'easi26-triage',
@@ -1274,7 +1291,7 @@
           'Assist patient to waiting area and give triage nurse a verbal patient report.',
           'Obtain proper signatures from receiving nurse.'
         ],
-        tags: ['paramedic','emt','triage','er','overcrowded','stable','diversion']
+        tags: ['paramedic','aemt','emt','triage','er','overcrowded','stable','diversion']
       },
       {
         id: 'easi26-airway',
@@ -2170,11 +2187,14 @@
 
   function detectRoles(text){
     const t = _rn(text);
-    const r = [];
-    if(/paramedic/i.test(t)) r.push('paramedic');
-    if(t.includes('\x00')) r.push('aemt');
-    if(/\bEMT\b/i.test(t)) r.push('emt');
-    return r;
+    const raw = new Set();
+    if(/paramedic/i.test(t)) raw.add('paramedic');
+    if(t.includes('\x00')) raw.add('aemt');
+    if(/\bEMT\b/i.test(t)) raw.add('emt');
+    // Scope hierarchy: if EMT can do it, all providers can; if AEMT can do it, Paramedic can too
+    if(raw.has('emt')){ raw.add('aemt'); raw.add('paramedic'); }
+    if(raw.has('aemt')){ raw.add('paramedic'); }
+    return ['paramedic','aemt','emt'].filter(r=>raw.has(r));
   }
 
   function stepRole(text){
@@ -2192,6 +2212,55 @@
     );
   }
 
+  // Apply fn only to text nodes (not inside HTML tags) — prevents regex corruption of existing markup
+  function replaceTextOnly(html, fn){
+    return html.replace(/(<[^>]*>)|([^<]+)/g, (m, tag, text) => tag ? tag : fn(text));
+  }
+
+  // Format infusion rate tables (runs via replaceTextOnly to avoid corrupting existing HTML)
+  // Converts: "1 mcg/min = 15 gtts/min; 2 = 30; ..." → pill badges
+  function fmtRateTable(html){
+    if(!/\d+\s*=\s*\d+\s*(?:gtts|gtt)/i.test(html)) return html;
+    let unit = '';
+    const matched = html.match(/(\d+(?:\.\d+)?)\s+(mcg\/min|mg\/min|mEq\/min|mcg\/kg\/min)/i);
+    if(matched) unit = matched[2];
+    return replaceTextOnly(html, text =>
+      text.replace(
+        /(\d+(?:\.\d+)?)\s*(mcg\/min|mg\/min|mEq\/min|mcg\/kg\/min)?\s*=\s*(\d+)\s*(?:gtts\/min|gtt\/min|gtts|gtt)?\.?/gi,
+        (_, rate, u, gtts) => {
+          const displayUnit = u || unit;
+          return `<span class="rate-pill">${rate}${displayUnit?' '+displayUnit:''} → ${gtts} gtts</span>`;
+        }
+      )
+    );
+  }
+
+  // Make medication names in step text clickable (jumps to Meds tab)
+  function linkMeds(html){
+    const allMeds = (svc().meds||[]).filter(m=>m.name && m.name.length>3);
+    if(!allMeds.length) return html;
+    const sorted = [...allMeds].sort((a,b)=>b.name.length-a.name.length);
+    return replaceTextOnly(html, text => {
+      let result = text;
+      sorted.forEach(med => {
+        const esc = escapeRegExp(med.name);
+        const re = new RegExp('(?<![\\w>])'+esc+'(?![\\w<])', 'gi');
+        result = result.replace(re, match =>
+          `<a class="med-link" href="#" onclick="openMed(${JSON.stringify(med.name)});return false">${match}</a>`
+        );
+      });
+      return result;
+    });
+  }
+
+  window.openMed = function(name){
+    document.querySelector('[data-tab="meds"]').click();
+    const q = $('#q');
+    q.value = name;
+    renderAll([name.toLowerCase()]);
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+
   function renderProtocols(filterTerms=[]){
     const all = svc().protocols||[];
     let items = all.map((p,i)=>({p,i})).filter(({p})=> matchItem(p, filterTerms));
@@ -2208,12 +2277,18 @@
       const allText = [p.title, p.summary||'', ...(p.steps||[])].join(' ');
       const cardRoles = detectRoles(allText);
       const badges = cardRoles.map(r=>`<span class="role-badge rb-${r}">${r==='paramedic'?'Paramedic':r==='aemt'?'AEMT':'EMT'}</span>`).join('');
+      const ROLE_LABELS = {paramedic:'Paramedic', aemt:'AEMT', emt:'EMT'};
       const stepsHtml = (p.steps||[]).map((s,si)=>{
         const ns   = normalizeRoles(s);
         const role = stepRole(ns);
         if(role && _hiddenRoles.has(role)) return '';
-        const st = role ? `border-left:3px solid ${ROLE_COLORS[role]};padding-left:8px;margin-bottom:6px` : 'margin-bottom:6px';
-        return `<div style="${st}"><span class="k">${si+1}</span> ${doseHL(highlight(ns, filterTerms))}</div>`;
+        // Strip leading role label from step text (e.g. "Paramedic: ...", "EMT/AEMT: ...")
+        const clean = ns.replace(/^\s*(Paramedic|AEMT|Advanced\s+EMT|EMT)[\s\/\-]*(Paramedic|AEMT|Advanced\s+EMT|EMT)?[\s:–\-]+/i,'');
+        const roleLabel = role ? `<span class="step-role-tag" style="color:${ROLE_COLORS[role]};border-color:${ROLE_COLORS[role]}">${ROLE_LABELS[role]}</span>` : '';
+        const stepHtml = fmtRateTable(linkMeds(doseHL(highlight(clean, filterTerms))));
+        return `<div class="step-row-wrap" style="margin-bottom:6px">
+          ${roleLabel}<div class="step-content"><span class="k">${si+1}</span> ${stepHtml}</div>
+        </div>`;
       }).join('');
       return `
       <div class="card${on?' fav-on':''}" id="pcard-${eid}">
@@ -2250,9 +2325,14 @@
   function medRoles(name){
     const n = name.toLowerCase();
     for(const entry of MED_ROLES){
-      if(entry.match.test(n)) return entry.roles;
+      if(entry.match.test(n)){
+        const s = new Set(entry.roles);
+        if(s.has('emt')){ s.add('aemt'); s.add('paramedic'); }
+        if(s.has('aemt')) s.add('paramedic');
+        return ['paramedic','aemt','emt'].filter(r=>s.has(r));
+      }
     }
-    return ['paramedic']; // default: paramedic only
+    return ['paramedic'];
   }
 
   function renderMeds(filterTerms=[]){
@@ -2824,8 +2904,8 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   let _hdrCollapsed = localStorage.getItem('pref_hdr') === '1';
   function applyHdrState(){
     $('header').classList.toggle('hdr-collapsed', _hdrCollapsed);
-    $('#btn-hdr-toggle').textContent = _hdrCollapsed ? '▼' : '▲';
-    $('#btn-hdr-toggle').title = _hdrCollapsed ? 'Expand header' : 'Collapse header';
+    const lbl = document.querySelector('.hdr-tab-label');
+    if(lbl) lbl.textContent = _hdrCollapsed ? 'Show toolbar' : 'Hide toolbar';
   }
   applyTheme(); applySize(); applyHdrState();
 
