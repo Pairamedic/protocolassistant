@@ -268,12 +268,7 @@
   <header>
     <div class="wrap">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <div class="title" style="display:flex;align-items:center;gap:9px">
-          <div style="width:30px;height:30px;border-radius:7px;background:#fff;overflow:hidden;flex:none;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.35)">
-            <img src="easi-logo.jpg" alt="EASI" style="width:100%;height:100%;object-fit:contain" />
-          </div>
-          EMS Protocol Assistant V.1
-        </div>
+        <div id="app-title" class="title" style="display:flex;align-items:center;gap:9px">🚑 EMS Protocol Assistant V.1</div>
         <div style="display:flex;align-items:center;gap:6px">
           <button id="btn-theme" class="ui-ctrl-btn" title="Toggle light/dark mode">☀</button>
           <button id="btn-size" class="ui-ctrl-btn" title="Cycle text size">A</button>
@@ -2545,7 +2540,7 @@
   };
 
   const SAMPLE = {
-    currentService: 'EASI Protocols - 2026',
+    currentService: '',
     services: {
       'EASI Protocols - 2025': JSON.parse(JSON.stringify(SAMPLE_SERVICE)),
       'EASI Protocols - 2026': JSON.parse(JSON.stringify(EASI_2026_SERVICE))
@@ -2692,14 +2687,38 @@
   }
   function escapeRegExp(s){ return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&') }
 
+  const SERVICE_DISPLAY = {
+    'EASI Protocols - 2026': 'Emergency Medical Ambulance Service INC',
+    'EASI Protocols - 2025': 'Emergency Medical Ambulance Service INC',
+  };
+  const LOGO_HTML = `<div style="width:30px;height:30px;border-radius:7px;background:#fff;overflow:hidden;flex:none;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.35)"><img src="easi-logo.jpg" alt="EASI" style="width:100%;height:100%;object-fit:contain"/></div>`;
+
+  function updateTitle(){
+    const el = $('#app-title');
+    const name = SERVICE_DISPLAY[state.currentService];
+    el.innerHTML = name ? `${LOGO_HTML} ${name}` : '🚑 EMS Protocol Assistant V.1';
+  }
+
+  function noServiceState(){
+    return `<div class="card" style="text-align:center;padding:36px 20px">
+      <div style="font-size:44px;margin-bottom:14px">🚑</div>
+      <div style="font-weight:700;font-size:17px;margin-bottom:8px">Select a service to get started</div>
+      <p style="color:var(--muted);font-size:14px;margin:0 0 18px">Use the <strong style="color:var(--text)">service dropdown</strong> in the toolbar above to load your protocols and medications.</p>
+    </div>`;
+  }
+
   function renderServiceSelect(){
     const names = Object.keys(state.services);
-    serviceSelect.innerHTML = names.map(n=>{
+    const noSel = !state.currentService;
+    const placeholder = `<option value="" ${noSel?'selected ':''} disabled>— Select a service —</option>`;
+    serviceSelect.innerHTML = placeholder + names.map(n=>{
       const outdated = n.includes('2025');
       const style = outdated ? ' style="text-decoration:line-through;opacity:0.55"' : '';
       const label = outdated ? n + ' [outdated]' : n;
       return `<option ${n===state.currentService?'selected':''}${style} value="${n}">${label}</option>`;
     }).join('');
+    serviceSelect.style.color = noSel ? 'var(--accent)' : '';
+    serviceSelect.style.borderColor = noSel ? 'rgba(94,234,212,.45)' : '';
   }
 
   // --- Role detection & display helpers ---
@@ -2914,6 +2933,7 @@
   }
 
   function renderProtocols(filterTerms=[]){
+    if(!state.currentService || !svc()){ protocolsEl.innerHTML = noServiceState(); return; }
     const all = svc().protocols||[];
     let items = all.map((p,i)=>({p,i})).filter(({p})=> matchItem(p, filterTerms));
     if(_favsOnly) items = items.filter(({p})=> isFav('p', p.id||p.title));
@@ -3120,6 +3140,7 @@
   };
 
   function renderMeds(filterTerms=[]){
+    if(!state.currentService || !svc()){ medsEl.innerHTML = noServiceState(); return; }
     const all = svc().meds||[];
     let items = all.map((m,i)=>({m,i})).filter(({m})=> matchItem(m, filterTerms));
     if(_favsOnly) items = items.filter(({m})=> isFav('m', m.name));
@@ -3454,12 +3475,13 @@
 
   function renderAll(terms){
     _lastTerms = terms;
+    updateTitle();
     renderServiceSelect();
     renderProtocols(terms);
     renderMeds(terms);
     renderMedClassFilter();
     renderCalcOptions();
-    jsonEl.value = JSON.stringify(svc(), null, 2);
+    jsonEl.value = svc() ? JSON.stringify(svc(), null, 2) : '';
   }
 
   // --- Search ---
@@ -3578,15 +3600,16 @@
     _pinPendingService = null;
     _pinPrevService = null;
   }
-  function submitPin(){
+  async function submitPin(){
     const entered = $('#pin-input').value.trim();
     const correct = PINNED_SERVICES[_pinPendingService];
     if(entered === correct){
       sessionStorage.setItem('pin_unlocked_' + _pinPendingService, '1');
-      const svc = _pinPendingService;
+      const chosen = _pinPendingService;
       closePinPrompt(false);
-      state.currentService = svc;
+      state.currentService = chosen;
       save(state);
+      if(!svc() || !(svc().protocols||[]).length) await loadServiceData();
       renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
     } else {
       $('#pin-error').textContent = 'Incorrect PIN — try again.';
@@ -3600,8 +3623,9 @@
   $('#pin-overlay').addEventListener('click', e => { if(e.target === $('#pin-overlay')) closePinPrompt(true); });
 
   // --- Services Management ---
-  serviceSelect.addEventListener('change', ()=>{
+  serviceSelect.addEventListener('change', async ()=>{
     const chosen = serviceSelect.value;
+    if(!chosen) return;
     const prev = state.currentService;
     if(PINNED_SERVICES[chosen] && !sessionStorage.getItem('pin_unlocked_' + chosen)){
       openPinPrompt(chosen, prev);
@@ -3609,6 +3633,7 @@
     }
     state.currentService = chosen;
     save(state);
+    if(!svc() || !(svc().protocols||[]).length) await loadServiceData();
     renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
   });
 
@@ -4032,8 +4057,8 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
           cloudSave(state);
         }
       }catch(e){ /* offline – keep local state */ }
-      // Load service data (protocols/meds) from protected Firestore collection
-      await loadServiceData();
+      // Auto-load saved service; new users see the "select a service" prompt instead
+      if(state.currentService) await loadServiceData();
       renderAll([]);
       acquireWakeLock();
       if(!sessionStorage.getItem('tos_ok')) showTOS();
