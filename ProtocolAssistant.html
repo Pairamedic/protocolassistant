@@ -21,8 +21,7 @@
     :root.light header{background:linear-gradient(180deg,rgba(241,245,249,.98),rgba(241,245,249,.92));border-bottom-color:rgba(0,0,0,.08)}
     .wrap{max-width:1024px;margin:0 auto;padding:16px}
     .title{font-weight:700;letter-spacing:.2px;font-size:18px}
-    .bar{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
-    @media(min-width:860px){.bar{grid-template-columns:1fr 1fr;align-items:start} #role-row{grid-column:1/-1}}
+    .bar{display:flex;flex-direction:column;gap:8px;margin-top:10px}
     input[type="search"],input[type="text"],input[type="number"],select,textarea{width:100%;padding:14px 14px;border-radius:14px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);outline:none}
     input::placeholder{color:#8a94a7}
     :root.light input::placeholder{color:#94a3b8}
@@ -286,14 +285,14 @@
       </div>
       <div class="hdr-collapsible">
         <div class="bar">
+          <div style="display:flex;gap:8px;align-items:center">
+            <select id="service-select" title="Ambulance Service" style="flex:1;min-width:0;width:auto"></select>
+            <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Search…" style="flex:1;min-width:0;width:auto" />
+            <button id="fav-filter" class="btn" title="Show favorites only" style="flex:none;padding:10px 14px;font-size:16px;white-space:nowrap">☆</button>
+          </div>
           <div id="header-toolbar" class="toolbar">
-            <select id="service-select" title="Ambulance Service"></select>
             <button id="report-issue" class="btn" style="color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08);font-size:13px;padding:8px 12px">🚩 Report Issue</button>
             <a id="btn-pdf" href="EASI-Protocols-2026.pdf" download class="btn" style="color:#34d399;border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.08);font-size:13px;padding:8px 12px;text-decoration:none;display:inline-flex;align-items:center;gap:5px">📄 Protocols PDF</a>
-          </div>
-          <div style="display:flex;gap:8px;align-items:center;align-self:start">
-            <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Search protocols, meds, keywords…" style="flex:1;width:auto" />
-            <button id="fav-filter" class="btn" title="Show favorites only" style="flex:none;padding:10px 14px;font-size:16px;white-space:nowrap">☆</button>
           </div>
           <div id="role-row" style="display:flex;gap:6px;align-items:center;margin-top:6px">
             <span style="font-size:11px;color:var(--muted);flex:none">Show roles:</span>
@@ -4103,7 +4102,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     const subject = encodeURIComponent(`Protocol Report: ${topic}`);
     const body    = encodeURIComponent(`Service: ${state.currentService}\nProtocol / Topic: ${topic}\n\nIssue Description:\n${desc}`);
     e.currentTarget.href = `mailto:eliasacaldwellnrp@gmail.com?subject=${subject}&body=${body}`;
-    closeReport();
+    setTimeout(closeReport, 300);
   });
 
   // App shell is hidden until Firebase auth resolves (see onAuthStateChanged below)
