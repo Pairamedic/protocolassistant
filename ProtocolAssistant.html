@@ -282,6 +282,8 @@
         <div class="bar">
           <div id="header-toolbar" class="toolbar">
             <select id="service-select" title="Ambulance Service"></select>
+            <button id="report-issue" class="btn" style="color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08);font-size:13px;padding:8px 12px">🚩 Report Issue</button>
+            <a id="btn-pdf" href="EASI-Protocols-2026.pdf" download class="btn" style="color:#34d399;border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.08);font-size:13px;padding:8px 12px;text-decoration:none;display:inline-flex;align-items:center;gap:5px">📄 Protocols PDF</a>
           </div>
           <div style="display:flex;gap:8px;align-items:center">
             <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Search protocols, meds, keywords…" style="flex:1;width:auto" />
@@ -860,12 +862,10 @@
           <div class="contact-card">
             <div class="contact-name">Cheryl Smith</div>
             <div class="contact-title">Operations Administrator</div>
+            <span class="contact-hours">📵 Phone: Business Hours Only</span>
             <div class="contact-desc">Scheduling — contact for anything related to your schedule.</div>
-            <div class="contact-actions" style="flex-direction:column;align-items:flex-start">
-              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-                <a class="contact-btn contact-btn-call" href="tel:+18707182909">📞 (870) 718-2909</a>
-                <span class="contact-hours">Phone: Business Hours Only</span>
-              </div>
+            <div class="contact-actions">
+              <a class="contact-btn contact-btn-call" href="tel:+18707182909">📞 (870) 718-2909</a>
               <a class="contact-btn contact-btn-mail" href="mailto:csmith@easimedics.com">✉ csmith@easimedics.com</a>
             </div>
           </div>
@@ -899,7 +899,7 @@
             <div class="contact-name">Tammy Woods</div>
             <div class="contact-title">FTO Coordinator</div>
             <span class="contact-hours">📵 Phone: Business Hours Only</span>
-            <div class="contact-desc">New hire orientation and training.</div>
+            <div class="contact-desc">Primary point of contact for FTOs. New hire orientation and training.</div>
             <div class="contact-actions">
               <a class="contact-btn contact-btn-call" href="tel:+18705561301">📞 (870) 556-1301</a>
               <a class="contact-btn contact-btn-mail" href="mailto:twoods@easimedics.com">✉ twoods@easimedics.com</a>
@@ -945,12 +945,6 @@
           </div>
 
         </div>
-      </div>
-
-      <!-- Utility actions -->
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;padding-top:14px;border-top:1px solid var(--border)">
-        <button id="report-issue" class="btn" style="color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08)">🚩 Report Issue</button>
-        <a id="btn-pdf" href="EASI-Protocols-2026.pdf" download class="btn" style="color:#34d399;border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.08);text-decoration:none;display:inline-flex;align-items:center;gap:5px">📄 Protocols PDF</a>
       </div>
 
     </section>
