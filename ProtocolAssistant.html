@@ -194,7 +194,7 @@
     :root.light .pt-adult{background:rgba(99,102,241,.1);color:#4338ca;border-color:rgba(99,102,241,.3)}
     /* age filter toggle — protocols panel */
     .tab-filter{padding:8px 0 4px}
-    .tab-filter select{-webkit-appearance:none;appearance:none;text-align:center;text-align-last:center;font-size:16px;font-weight:600;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a7b0be' fill='none' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:40px}
+    .tab-filter select{-webkit-appearance:none;appearance:none;text-align:center;text-align-last:center;font-size:16px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a7b0be' fill='none' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:40px}
     /* drug class filter chips — meds panel */
     /* resources panel */
     .res-section{margin-bottom:22px}
@@ -322,9 +322,9 @@
     <section id="panel-protocols" class="panel">
       <div class="tab-filter">
         <select id="age-filter-select">
-          <option value="all">👥 All Ages</option>
-          <option value="adult">🧑 Adult</option>
-          <option value="peds">🧒 Pediatric</option>
+          <option value="all">👥 ALL AGES</option>
+          <option value="adult">🧑 ADULT</option>
+          <option value="peds">🧒 PEDIATRIC</option>
         </select>
       </div>
       <div id="protocols"></div>
@@ -344,18 +344,18 @@
       <!-- Quick-jump nav -->
       <div class="tab-filter">
         <select id="res-nav-select">
-          <option value="">⬇ Jump to section…</option>
-          <option value="peds-ref-section">🧒 Peds Ref</option>
-          <option value="calc-body-weight">⚖️ Weight Dose</option>
-          <option value="calc-body-std">💊 Std Dose</option>
-          <option value="calc-body-iv">💉 IV Infusion</option>
-          <option value="calc-body-md">⏱ Drip Timing</option>
-          <option value="calc-body-fo">💧 Fluid Over Time</option>
-          <option value="calc-body-pump">🔄 Pump Rate</option>
+          <option value="">SELECT RESOURCE</option>
+          <option value="peds-ref-section">🧒 PEDS REF</option>
+          <option value="calc-body-weight">⚖️ WEIGHT DOSE</option>
+          <option value="calc-body-std">💊 STD DOSE</option>
+          <option value="calc-body-iv">💉 IV INFUSION</option>
+          <option value="calc-body-md">⏱ DRIP TIMING</option>
+          <option value="calc-body-fo">💧 FLUID OVER TIME</option>
+          <option value="calc-body-pump">🔄 PUMP RATE</option>
           <option value="calc-body-apgar">👶 APGAR</option>
           <option value="calc-body-gcs">🧠 GCS</option>
-          <option value="calc-body-o2">🫁 O₂ Duration</option>
-          <option value="vent-section">📏 Vent Settings</option>
+          <option value="calc-body-o2">🫁 O₂ DURATION</option>
+          <option value="vent-section">📏 VENT SETTINGS</option>
         </select>
       </div>
 
@@ -765,9 +765,9 @@
     <section id="panel-contacts" class="panel hidden">
       <div class="tab-filter">
         <select id="contacts-nav-select">
-          <option value="">⬇ Jump to section…</option>
-          <option value="contacts-internal">👥 Internal</option>
-          <option value="contacts-clinical">🏥 Clinical</option>
+          <option value="">SELECT SECTION</option>
+          <option value="contacts-internal">👥 INTERNAL</option>
+          <option value="contacts-clinical">🏥 CLINICAL</option>
         </select>
       </div>
       <div id="contacts-render"></div>
@@ -3023,12 +3023,12 @@
     const sel = document.getElementById('med-class-filter');
     if(!sel) return;
     const allMeds = (svc()?.meds)||[];
-    if(!allMeds.length){ sel.innerHTML = '<option value="">All classes</option>'; return; }
+    if(!allMeds.length){ sel.innerHTML = '<option value="">ALL CLASSES</option>'; return; }
     const usedClasses = new Set();
     allMeds.forEach(m => medClasses(m.name||'').forEach(c => usedClasses.add(c)));
     const ordered = MED_CLASS_MAP.map(e=>e.cls).filter(c=>usedClasses.has(c));
-    sel.innerHTML = '<option value="">All classes</option>' + ordered.map(c =>
-      `<option value="${c}"${_medClassFilter===c?' selected':''}>${c}</option>`
+    sel.innerHTML = '<option value="">ALL CLASSES</option>' + ordered.map(c =>
+      `<option value="${c}"${_medClassFilter===c?' selected':''}>${c.toUpperCase()}</option>`
     ).join('');
   }
 
