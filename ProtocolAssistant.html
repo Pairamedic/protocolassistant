@@ -121,11 +121,38 @@
       header.search-mode .hint{ display:none!important }
       header.search-mode .tabs{ margin-top:6px }
     }
-    /* calc card toggles */
-    .calc-toggle{display:flex;justify-content:space-between;align-items:center;margin:0 0 10px}
-    .calc-chev{font-size:12px;color:var(--muted);transition:transform .2s}
-    .calc-collapsed .calc-chev{transform:rotate(180deg)}
-    .calc-collapsed + div[id^="calc-body"]{display:none}
+    /* calc redesign */
+    .calc-toggle{cursor:pointer;user-select:none;-webkit-user-select:none}
+    .calc-chev{font-size:13px;color:var(--muted);transition:transform .2s;flex:none}
+    .calc-collapsed .calc-chev{transform:rotate(-90deg)}
+    .calc-section-hd{display:flex;align-items:center;gap:8px;padding:18px 0 10px;border-bottom:2px solid var(--border);margin-bottom:12px}
+    .calc-section-dot{width:8px;height:8px;border-radius:50%;flex:none}
+    .calc-section-title{font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase}
+    .calc-card{background:var(--card);border:1px solid var(--border);border-radius:16px;margin-bottom:10px;overflow:hidden}
+    .calc-card-hd{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid transparent;transition:border-color .15s}
+    .calc-card-hd:hover{border-bottom-color:var(--border)}
+    .calc-card-title{display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px}
+    .calc-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex:none}
+    .calc-card-body{padding:14px 16px 16px}
+    .calc-grid{display:grid;gap:10px;margin-bottom:12px}
+    .calc-grid.g2{grid-template-columns:1fr 1fr}
+    .calc-grid.g3{grid-template-columns:1fr 1fr 1fr}
+    @media(max-width:500px){.calc-grid.g3{grid-template-columns:1fr 1fr}}
+    .calc-field{display:flex;flex-direction:column;gap:4px}
+    .calc-field label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
+    .calc-field input,.calc-field select{padding:9px 11px;border-radius:10px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:14px;width:100%;font-family:inherit}
+    .wt-row{display:flex;gap:6px}
+    .wt-row input{flex:1;min-width:0}
+    .wt-row select{width:64px;flex:none}
+    .calc-actions{display:flex;gap:8px}
+    .calc-btn{padding:10px 14px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;border:1px solid;transition:opacity .15s}
+    .calc-btn.primary{flex:1;background:rgba(94,234,212,.1);color:var(--accent);border-color:rgba(94,234,212,.3)}
+    .calc-btn.secondary{background:var(--input-bg);color:var(--muted);border-color:var(--border)}
+    .calc-btn:hover{opacity:.8}
+    .calc-result{margin-top:12px;border-radius:11px;padding:12px 14px;background:rgba(94,234,212,.05);border:1px solid rgba(94,234,212,.15);font-size:14px;line-height:1.7}
+    .calc-result:empty{display:none}
+    .calc-result b{color:var(--accent);font-size:16px}
+    .calc-hint{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5}
     /* ui controls */
     .ui-ctrl-btn{background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer;font-size:13px;font-weight:600;padding:4px 9px;font-family:inherit;line-height:1.4}
     .ui-ctrl-btn:hover{color:var(--text)}
@@ -249,8 +276,6 @@
         <div class="bar">
           <div id="header-toolbar" class="toolbar">
             <select id="service-select" title="Ambulance Service"></select>
-            <button id="report-issue" class="btn" style="color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08)">🚩 Report Issue</button>
-            <a id="btn-pdf" href="EASI-Protocols-2026.pdf" download class="btn" style="color:#34d399;border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.08);text-decoration:none;display:inline-flex;align-items:center;gap:5px">📄 Protocols PDF</a>
           </div>
           <div style="display:flex;gap:8px;align-items:center">
             <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Search protocols, meds, keywords…" style="flex:1;width:auto" />
@@ -281,7 +306,7 @@
     <!-- Protocols -->
     <section id="panel-protocols" class="panel">
       <div class="age-filter-row" id="age-filter-row">
-        <button class="age-btn active" data-age="all">All Ages</button>
+        <button class="age-btn active" data-age="all">All</button>
         <button class="age-btn" data-age="adult">Adult</button>
         <button class="age-btn" data-age="peds">Pediatric</button>
       </div>
@@ -342,307 +367,373 @@
         <div id="peds-result" class="brose-empty" style="display:none"></div>
       </div>
 
-      <div class="card">
-        <h3 class="calc-toggle" data-target="calc-body-weight" style="cursor:pointer;user-select:none">Weight‑Based Dose Calculator <span class="calc-chev">▴</span></h3>
-        <div id="calc-body-weight">
-        <div class="row">
-          <div>
-            <label class="hint">Medication</label>
-            <select id="calc-med"></select>
+      <!-- ── DOSE CALCULATORS ── -->
+      <div class="calc-section-hd">
+        <span class="calc-section-dot" style="background:#5eead4"></span>
+        <span class="calc-section-title" style="color:#5eead4">Dose Calculators</span>
+      </div>
+
+      <div class="calc-card">
+        <div class="calc-card-hd calc-toggle" data-target="calc-body-weight">
+          <div class="calc-card-title">
+            <div class="calc-icon" style="background:rgba(94,234,212,.12)">⚖️</div>
+            Weight-Based Dose
           </div>
-          <div>
-            <label class="hint">Weight</label>
-            <div class="row">
-              <input id="wt" type="number" inputmode="decimal" placeholder="e.g. 70" />
-              <select id="unit"><option value="kg">kg</option><option value="lb">lb</option></select>
+          <span class="calc-chev">▾</span>
+        </div>
+        <div class="calc-card-body" id="calc-body-weight">
+          <div class="calc-grid g2">
+            <div class="calc-field">
+              <label>Medication</label>
+              <select id="calc-med"></select>
+            </div>
+            <div class="calc-field">
+              <label>Weight</label>
+              <div class="wt-row">
+                <input id="wt" type="number" inputmode="decimal" placeholder="e.g. 70" />
+                <select id="unit"><option value="kg">kg</option><option value="lb">lb</option></select>
+              </div>
+            </div>
+            <div class="calc-field">
+              <label>mg/kg (override)</label>
+              <input id="mgkg" type="number" inputmode="decimal" placeholder="auto from med" />
+            </div>
+            <div class="calc-field">
+              <label>Max dose (mg)</label>
+              <input id="maxmg" type="number" inputmode="decimal" placeholder="auto from med" />
+            </div>
+            <div class="calc-field">
+              <label>Concentration (mg/mL)</label>
+              <input id="conc" type="number" inputmode="decimal" placeholder="e.g. 10" />
+            </div>
+            <div class="calc-field">
+              <label>Route</label>
+              <input id="route" type="text" placeholder="auto from med" />
             </div>
           </div>
-        </div>
-        <div class="row" style="margin-top:10px">
-          <div>
-            <label class="hint">mg/kg (override)</label>
-            <input id="mgkg" type="number" inputmode="decimal" placeholder="auto from med" />
+          <div class="calc-actions">
+            <button id="calc" class="calc-btn primary">Calculate</button>
+            <button id="reset" class="calc-btn secondary">Reset</button>
           </div>
-          <div>
-            <label class="hint">Max dose mg</label>
-            <input id="maxmg" type="number" inputmode="decimal" placeholder="auto from med" />
-          </div>
-        </div>
-        <div class="row" style="margin-top:10px">
-          <div>
-            <label class="hint">Concentration (mg/mL)</label>
-            <input id="conc" type="number" inputmode="decimal" placeholder="e.g. 10" />
-          </div>
-          <div>
-            <label class="hint">Route</label>
-            <input id="route" type="text" placeholder="auto from med" />
-          </div>
-        </div>
-        <div style="margin-top:12px" class="row">
-          <button id="calc" class="btn primary">Calculate</button>
-          <button id="reset" class="btn">Reset</button>
-        </div>
-        <div id="result" class="mono" style="margin-top:12px"></div>
+          <div id="result" class="calc-result"></div>
         </div>
       </div>
 
-      <div class="card">
-        <h3 class="calc-toggle" data-target="calc-body-std" style="cursor:pointer;user-select:none">Standard Dose → Volume <span class="calc-chev">▴</span></h3>
-        <div id="calc-body-std">
-        <p class="hint">(Dose ordered / Dose on hand) × Volume on hand = mL to draw. Or use mg/mL directly.</p>
-        <div class="row">
-          <div>
-            <label class="hint">Dose ordered</label>
-            <input id="std-dose-ordered" type="number" inputmode="decimal" placeholder="e.g. 5" />
+      <div class="calc-card">
+        <div class="calc-card-hd calc-toggle" data-target="calc-body-std">
+          <div class="calc-card-title">
+            <div class="calc-icon" style="background:rgba(147,197,253,.12)">💊</div>
+            Standard Dose → Volume
           </div>
-          <div>
-            <label class="hint">Dose on hand</label>
-            <input id="std-dose-onhand" type="number" inputmode="decimal" placeholder="e.g. 10" />
-          </div>
-          <div>
-            <label class="hint">Volume on hand (mL)</label>
-            <input id="std-vol-onhand" type="number" inputmode="decimal" placeholder="e.g. 1" />
-          </div>
+          <span class="calc-chev">▾</span>
         </div>
-        <div class="row" style="margin-top:10px">
-          <div>
-            <label class="hint">OR: Concentration (mg/mL)</label>
+        <div class="calc-card-body" id="calc-body-std">
+          <p class="calc-hint">(Dose ordered ÷ Dose on hand) × Volume on hand = mL to draw</p>
+          <div class="calc-grid g3">
+            <div class="calc-field">
+              <label>Dose ordered</label>
+              <input id="std-dose-ordered" type="number" inputmode="decimal" placeholder="e.g. 5" />
+            </div>
+            <div class="calc-field">
+              <label>Dose on hand</label>
+              <input id="std-dose-onhand" type="number" inputmode="decimal" placeholder="e.g. 10" />
+            </div>
+            <div class="calc-field">
+              <label>Volume on hand (mL)</label>
+              <input id="std-vol-onhand" type="number" inputmode="decimal" placeholder="e.g. 1" />
+            </div>
+          </div>
+          <div class="calc-field" style="margin-bottom:12px">
+            <label>OR: Concentration (mg/mL)</label>
             <input id="std-conc" type="number" inputmode="decimal" placeholder="e.g. 10" />
           </div>
-          <div>
-            <label class="hint">Result</label>
-            <div id="std-result" class="mono" style="padding:12px;border:1px solid rgba(255,255,255,.12);border-radius:12px;min-height:44px"></div>
+          <div class="calc-actions">
+            <button id="std-calc" class="calc-btn primary">Calculate</button>
+            <button id="std-reset" class="calc-btn secondary">Reset</button>
           </div>
-        </div>
-        <div style="margin-top:12px" class="row">
-          <button id="std-calc" class="btn primary">Calculate</button>
-          <button id="std-reset" class="btn">Reset</button>
-        </div>
+          <div id="std-result" class="calc-result"></div>
         </div>
       </div>
 
-      <div class="card">
-        <h3 class="calc-toggle" data-target="calc-body-iv" style="cursor:pointer;user-select:none">IV Infusion (mcg/kg/min → gtts/min) <span class="calc-chev">▴</span></h3>
-        <div id="calc-body-iv">
-        <p class="hint">Enter ordered dose, weight, drug in bag (mg), bag volume (mL), and drip set (gtt/mL). Computes mL/hr and gtts/min.</p>
-        <div class="row">
-          <div>
-            <label class="hint">Ordered (mcg/kg/min)</label>
-            <input id="iv-ordered" type="number" inputmode="decimal" placeholder="e.g. 5" />
+      <!-- ── IV & FLUIDS ── -->
+      <div class="calc-section-hd">
+        <span class="calc-section-dot" style="background:#7dd3fc"></span>
+        <span class="calc-section-title" style="color:#7dd3fc">IV &amp; Fluids</span>
+      </div>
+
+      <div class="calc-card">
+        <div class="calc-card-hd calc-toggle" data-target="calc-body-iv">
+          <div class="calc-card-title">
+            <div class="calc-icon" style="background:rgba(125,211,252,.12)">💉</div>
+            IV Infusion (mcg/kg/min)
           </div>
-          <div>
-            <label class="hint">Weight</label>
-            <div class="row">
-              <input id="iv-wt" type="number" inputmode="decimal" placeholder="e.g. 70" />
-              <select id="iv-unit"><option value="kg">kg</option><option value="lb">lb</option></select>
+          <span class="calc-chev">▾</span>
+        </div>
+        <div class="calc-card-body" id="calc-body-iv">
+          <p class="calc-hint">Computes mL/hr and gtts/min from ordered dose, weight, drug amount, and bag volume.</p>
+          <div class="calc-grid g2">
+            <div class="calc-field">
+              <label>Ordered (mcg/kg/min)</label>
+              <input id="iv-ordered" type="number" inputmode="decimal" placeholder="e.g. 5" />
+            </div>
+            <div class="calc-field">
+              <label>Weight</label>
+              <div class="wt-row">
+                <input id="iv-wt" type="number" inputmode="decimal" placeholder="e.g. 70" />
+                <select id="iv-unit"><option value="kg">kg</option><option value="lb">lb</option></select>
+              </div>
+            </div>
+            <div class="calc-field">
+              <label>Drug in bag (mg)</label>
+              <input id="iv-bagmg" type="number" inputmode="decimal" placeholder="e.g. 400" />
+            </div>
+            <div class="calc-field">
+              <label>Bag volume (mL)</label>
+              <input id="iv-bagvol" type="number" inputmode="decimal" placeholder="e.g. 250" />
+            </div>
+            <div class="calc-field">
+              <label>Drip set (gtt/mL)</label>
+              <input id="iv-dripset" type="number" inputmode="decimal" placeholder="10 / 15 / 20 / 60" />
             </div>
           </div>
-        </div>
-        <div class="row" style="margin-top:10px">
-          <div>
-            <label class="hint">Drug in bag (mg)</label>
-            <input id="iv-bagmg" type="number" inputmode="decimal" placeholder="e.g. 400" />
+          <div class="calc-actions">
+            <button id="iv-calc" class="calc-btn primary">Calculate</button>
+            <button id="iv-reset" class="calc-btn secondary">Reset</button>
           </div>
-          <div>
-            <label class="hint">Bag volume (mL)</label>
-            <input id="iv-bagvol" type="number" inputmode="decimal" placeholder="e.g. 250" />
-          </div>
-          <div>
-            <label class="hint">Drip set (gtt/mL)</label>
-            <input id="iv-dripset" type="number" inputmode="decimal" placeholder="10 / 15 / 20 / 60" />
-          </div>
-        </div>
-        <div style="margin-top:12px" class="row">
-          <button id="iv-calc" class="btn primary">Calculate</button>
-          <button id="iv-reset" class="btn">Reset</button>
-        </div>
-        <div id="iv-result" class="mono" style="margin-top:12px"></div>
+          <div id="iv-result" class="calc-result"></div>
         </div>
       </div>
 
-      <div class="card">
-        <h3 class="calc-toggle" data-target="calc-body-md" style="cursor:pointer;user-select:none">Manual Drip Timing <span class="calc-chev">▴</span></h3>
-        <div id="calc-body-md">
-        <p class="hint">Target drops/min → drops per 10 seconds (÷6).</p>
-        <div class="row">
-          <div>
-            <label class="hint">Target (gtts/min)</label>
-            <input id="md-target" type="number" inputmode="decimal" placeholder="e.g. 30" />
+      <div class="calc-card">
+        <div class="calc-card-hd calc-toggle" data-target="calc-body-md">
+          <div class="calc-card-title">
+            <div class="calc-icon" style="background:rgba(125,211,252,.12)">⏱</div>
+            Manual Drip Timing
           </div>
-          <div>
-            <label class="hint">Result</label>
-            <div id="md-result" class="mono" style="padding:12px;border:1px solid rgba(255,255,255,.12);border-radius:12px;min-height:44px"></div>
-          </div>
+          <span class="calc-chev">▾</span>
         </div>
-        <div style="margin-top:12px" class="row">
-          <button id="md-calc" class="btn primary">Calculate</button>
-          <button id="md-reset" class="btn">Reset</button>
-        </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3 class="calc-toggle" data-target="calc-body-fo" style="cursor:pointer;user-select:none">Fluid Over Time <span class="calc-chev">▴</span></h3>
-        <div id="calc-body-fo">
-        <p class="hint">Given volume, drip set, and time, compute gtts/min and mL/hr.</p>
-        <div class="row">
-          <div>
-            <label class="hint">Volume (mL)</label>
-            <input id="fo-volume" type="number" inputmode="decimal" placeholder="e.g. 1000" />
-          </div>
-          <div>
-            <label class="hint">Drip set (gtt/mL)</label>
-            <input id="fo-dripset" type="number" inputmode="decimal" placeholder="10 / 15 / 20 / 60" />
-          </div>
-          <div>
-            <label class="hint">Time (min)</label>
-            <input id="fo-time" type="number" inputmode="decimal" placeholder="e.g. 60" />
-          </div>
-        </div>
-        <div style="margin-top:12px" class="row">
-          <button id="fo-calc" class="btn primary">Calculate</button>
-          <button id="fo-reset" class="btn">Reset</button>
-        </div>
-        <div id="fo-result" class="mono" style="margin-top:12px"></div>
-        </div>
-      </div>
-
-      <div class="card">
-  <h3 class="calc-toggle" data-target="calc-body-pump" style="cursor:pointer;user-select:none">Pump mL/hr → Manual gtts/min <span class="calc-chev">▴</span></h3>
-  <div id="calc-body-pump">
-  <p class="hint">Formula: gtts/min = (mL/hr × gtt/mL) ÷ 60. With 60-drop (microdrip), gtts/min = mL/hr.</p>
-  <div class="row">
-    <div>
-      <label class="hint">Pump rate (mL/hr)</label>
-      <input id="pump-rate" type="number" inputmode="decimal" placeholder="e.g. 120" />
-    </div>
-    <div>
-      <label class="hint">Drip set (gtt/mL)</label>
-      <input id="pump-dripset" type="number" inputmode="decimal" placeholder="10 / 15 / 20 / 60" />
-    </div>
-  </div>
-  <div style="margin-top:12px" class="row">
-    <button id="pump-calc" class="btn primary">Calculate</button>
-    <button id="pump-reset" class="btn">Reset</button>
-  </div>
-  <div id="pump-result" class="mono" style="margin-top:12px"></div>
-  </div>
-</div>
-
-      <div class="card">
-        <h3 class="calc-toggle" data-target="calc-body-apgar" style="cursor:pointer;user-select:none">APGAR Calculator <span class="calc-chev">▴</span></h3>
-        <div id="calc-body-apgar">
-        <div class="row">
-          <div>
-            <label class="hint">Appearance</label>
-            <select id="apgar-a"><option value="0">0: Blue/Pale</option><option value="1">1: Body pink, limbs blue</option><option value="2">2: Completely pink</option></select>
-          </div>
-          <div>
-            <label class="hint">Pulse</label>
-            <select id="apgar-p"><option value="0">0: Absent</option><option value="1">1: &lt;100</option><option value="2">2: ≥100</option></select>
-          </div>
-          <div>
-            <label class="hint">Grimace</label>
-            <select id="apgar-g"><option value="0">0: No response</option><option value="1">1: Grimace</option><option value="2">2: Cough/Sneeze/Cry</option></select>
-          </div>
-          <div>
-            <label class="hint">Activity</label>
-            <select id="apgar-ac"><option value="0">0: Limp</option><option value="1">1: Some flexion</option><option value="2">2: Active</option></select>
-          </div>
-          <div>
-            <label class="hint">Respiration</label>
-            <select id="apgar-r"><option value="0">0: Absent</option><option value="1">1: Slow/Irregular</option><option value="2">2: Good cry</option></select>
-          </div>
-        </div>
-        <div style="margin-top:12px" class="row">
-          <button id="apgar-calc" class="btn primary">Calculate</button>
-          <button id="apgar-reset" class="btn">Reset</button>
-        </div>
-        <div id="apgar-result" class="mono" style="margin-top:12px"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3 class="calc-toggle" data-target="calc-body-gcs" style="cursor:pointer;user-select:none">GCS Calculator <span class="calc-chev">▴</span></h3>
-        <div id="calc-body-gcs">
-        <div class="row">
-          <div>
-            <label class="hint">Eye (E)</label>
-            <select id="gcs-e"><option value="1">1: None</option><option value="2">2: To pain</option><option value="3">3: To voice</option><option value="4" selected>4: Spontaneous</option></select>
-          </div>
-          <div>
-            <label class="hint">Verbal (V)</label>
-            <select id="gcs-v"><option value="1">1: None</option><option value="2">2: Incomprehensible</option><option value="3">3: Inappropriate</option><option value="4">4: Confused</option><option value="5" selected>5: Oriented</option></select>
-          </div>
-          <div>
-            <label class="hint">Motor (M)</label>
-            <select id="gcs-m"><option value="1">1: None</option><option value="2">2: Extensor</option><option value="3">3: Flexor</option><option value="4">4: Withdraws</option><option value="5">5: Localizes</option><option value="6" selected>6: Obeys</option></select>
-          </div>
-        </div>
-        <div style="margin-top:12px" class="row">
-          <button id="gcs-calc" class="btn primary">Calculate</button>
-          <button id="gcs-reset" class="btn">Reset</button>
-        </div>
-        <div id="gcs-result" class="mono" style="margin-top:12px"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3 class="calc-toggle" data-target="calc-body-o2" style="cursor:pointer;user-select:none">Oxygen Duration <span class="calc-chev">▴</span></h3>
-        <div id="calc-body-o2">
-        <div class="row">
-          <div>
-            <label class="hint">Cylinder</label>
-            <select id="o2-cylinder">
-              <option value="0.16">D (0.16)</option>
-              <option value="0.28" selected>E (0.28)</option>
-              <option value="1.56">M (1.56)</option>
-              <option value="2.41">G (2.41)</option>
-              <option value="3.14">H (3.14)</option>
-            </select>
-          </div>
-          <div>
-            <label class="hint">Pressure (psi)</label>
-            <input id="o2-psi" type="number" inputmode="decimal" placeholder="e.g. 2000" />
-          </div>
-          <div>
-            <label class="hint">Residual (psi)</label>
-            <input id="o2-res" type="number" inputmode="decimal" value="200" />
-          </div>
-          <div>
-            <label class="hint">Flow (L/min)</label>
-            <input id="o2-flow" type="number" inputmode="decimal" placeholder="e.g. 15" />
-          </div>
-        </div>
-        <div style="margin-top:12px" class="row">
-          <button id="o2-calc" class="btn primary">Calculate</button>
-          <button id="o2-reset" class="btn">Reset</button>
-        </div>
-        <div id="o2-result" class="mono" style="margin-top:12px"></div>
-        </div>
-      </div>
-
-      <div class="card" id="vent-section">
-        <h3>Vent Settings (IBW & TV)</h3>
-        <p class="hint">Quick tidal volume planner using IBW (Devine). Always follow clinical judgment & protocols.</p>
-        <div class="row">
-          <div>
-            <label class="hint">Sex</label>
-            <select id="vent-sex"><option value="male">Male</option><option value="female">Female</option></select>
-          </div>
-          <div>
-            <label class="hint">Height</label>
-            <div class="row">
-              <input id="vent-height" type="number" inputmode="decimal" placeholder="e.g. 70" />
-              <select id="vent-hunit"><option value="in">in</option><option value="cm">cm</option></select>
+        <div class="calc-card-body" id="calc-body-md">
+          <p class="calc-hint">Target drops/min ÷ 6 = drops every 10 seconds.</p>
+          <div class="calc-grid g2">
+            <div class="calc-field">
+              <label>Target (gtts/min)</label>
+              <input id="md-target" type="number" inputmode="decimal" placeholder="e.g. 30" />
             </div>
           </div>
+          <div class="calc-actions">
+            <button id="md-calc" class="calc-btn primary">Calculate</button>
+            <button id="md-reset" class="calc-btn secondary">Reset</button>
+          </div>
+          <div id="md-result" class="calc-result"></div>
         </div>
-        <div style="margin-top:12px" class="row">
-          <button id="vent-calc" class="btn primary">Calculate</button>
-          <button id="vent-reset" class="btn">Reset</button>
+      </div>
+
+      <div class="calc-card">
+        <div class="calc-card-hd calc-toggle" data-target="calc-body-fo">
+          <div class="calc-card-title">
+            <div class="calc-icon" style="background:rgba(125,211,252,.12)">💧</div>
+            Fluid Over Time
+          </div>
+          <span class="calc-chev">▾</span>
         </div>
-        <div id="vent-result" class="mono" style="margin-top:12px"></div>
+        <div class="calc-card-body" id="calc-body-fo">
+          <p class="calc-hint">Given volume, drip set, and time — computes gtts/min and mL/hr.</p>
+          <div class="calc-grid g3">
+            <div class="calc-field">
+              <label>Volume (mL)</label>
+              <input id="fo-volume" type="number" inputmode="decimal" placeholder="e.g. 1000" />
+            </div>
+            <div class="calc-field">
+              <label>Drip set (gtt/mL)</label>
+              <input id="fo-dripset" type="number" inputmode="decimal" placeholder="10 / 15 / 20 / 60" />
+            </div>
+            <div class="calc-field">
+              <label>Time (min)</label>
+              <input id="fo-time" type="number" inputmode="decimal" placeholder="e.g. 60" />
+            </div>
+          </div>
+          <div class="calc-actions">
+            <button id="fo-calc" class="calc-btn primary">Calculate</button>
+            <button id="fo-reset" class="calc-btn secondary">Reset</button>
+          </div>
+          <div id="fo-result" class="calc-result"></div>
+        </div>
+      </div>
+
+      <div class="calc-card">
+        <div class="calc-card-hd calc-toggle" data-target="calc-body-pump">
+          <div class="calc-card-title">
+            <div class="calc-icon" style="background:rgba(125,211,252,.12)">🔄</div>
+            Pump Rate → Manual gtts/min
+          </div>
+          <span class="calc-chev">▾</span>
+        </div>
+        <div class="calc-card-body" id="calc-body-pump">
+          <p class="calc-hint">gtts/min = (mL/hr × gtt/mL) ÷ 60. With 60-drop microdrip: gtts/min = mL/hr.</p>
+          <div class="calc-grid g2">
+            <div class="calc-field">
+              <label>Pump rate (mL/hr)</label>
+              <input id="pump-rate" type="number" inputmode="decimal" placeholder="e.g. 120" />
+            </div>
+            <div class="calc-field">
+              <label>Drip set (gtt/mL)</label>
+              <input id="pump-dripset" type="number" inputmode="decimal" placeholder="10 / 15 / 20 / 60" />
+            </div>
+          </div>
+          <div class="calc-actions">
+            <button id="pump-calc" class="calc-btn primary">Calculate</button>
+            <button id="pump-reset" class="calc-btn secondary">Reset</button>
+          </div>
+          <div id="pump-result" class="calc-result"></div>
+        </div>
+      </div>
+
+      <!-- ── ASSESSMENT ── -->
+      <div class="calc-section-hd">
+        <span class="calc-section-dot" style="background:#c084fc"></span>
+        <span class="calc-section-title" style="color:#c084fc">Assessment</span>
+      </div>
+
+      <div class="calc-card">
+        <div class="calc-card-hd calc-toggle" data-target="calc-body-apgar">
+          <div class="calc-card-title">
+            <div class="calc-icon" style="background:rgba(192,132,252,.12)">👶</div>
+            APGAR Score
+          </div>
+          <span class="calc-chev">▾</span>
+        </div>
+        <div class="calc-card-body" id="calc-body-apgar">
+          <div class="calc-grid g2">
+            <div class="calc-field">
+              <label>Appearance</label>
+              <select id="apgar-a"><option value="0">0 — Blue/Pale all over</option><option value="1">1 — Body pink, limbs blue</option><option value="2">2 — Completely pink</option></select>
+            </div>
+            <div class="calc-field">
+              <label>Pulse</label>
+              <select id="apgar-p"><option value="0">0 — Absent</option><option value="1">1 — &lt;100 bpm</option><option value="2">2 — ≥100 bpm</option></select>
+            </div>
+            <div class="calc-field">
+              <label>Grimace / Reflex</label>
+              <select id="apgar-g"><option value="0">0 — No response</option><option value="1">1 — Grimace</option><option value="2">2 — Cough / Sneeze / Cry</option></select>
+            </div>
+            <div class="calc-field">
+              <label>Activity / Tone</label>
+              <select id="apgar-ac"><option value="0">0 — Limp</option><option value="1">1 — Some flexion</option><option value="2">2 — Active motion</option></select>
+            </div>
+            <div class="calc-field">
+              <label>Respiration</label>
+              <select id="apgar-r"><option value="0">0 — Absent</option><option value="1">1 — Slow / Irregular</option><option value="2">2 — Good cry</option></select>
+            </div>
+          </div>
+          <div class="calc-actions">
+            <button id="apgar-calc" class="calc-btn primary">Calculate</button>
+            <button id="apgar-reset" class="calc-btn secondary">Reset</button>
+          </div>
+          <div id="apgar-result" class="calc-result"></div>
+        </div>
+      </div>
+
+      <div class="calc-card">
+        <div class="calc-card-hd calc-toggle" data-target="calc-body-gcs">
+          <div class="calc-card-title">
+            <div class="calc-icon" style="background:rgba(192,132,252,.12)">🧠</div>
+            Glasgow Coma Scale
+          </div>
+          <span class="calc-chev">▾</span>
+        </div>
+        <div class="calc-card-body" id="calc-body-gcs">
+          <div class="calc-grid g3">
+            <div class="calc-field">
+              <label>Eye Opening (E)</label>
+              <select id="gcs-e"><option value="1">1 — None</option><option value="2">2 — To pain</option><option value="3">3 — To voice</option><option value="4" selected>4 — Spontaneous</option></select>
+            </div>
+            <div class="calc-field">
+              <label>Verbal (V)</label>
+              <select id="gcs-v"><option value="1">1 — None</option><option value="2">2 — Incomprehensible</option><option value="3">3 — Inappropriate</option><option value="4">4 — Confused</option><option value="5" selected>5 — Oriented</option></select>
+            </div>
+            <div class="calc-field">
+              <label>Motor (M)</label>
+              <select id="gcs-m"><option value="1">1 — None</option><option value="2">2 — Extensor</option><option value="3">3 — Flexor</option><option value="4">4 — Withdraws</option><option value="5">5 — Localizes</option><option value="6" selected>6 — Obeys</option></select>
+            </div>
+          </div>
+          <div class="calc-actions">
+            <button id="gcs-calc" class="calc-btn primary">Calculate</button>
+            <button id="gcs-reset" class="calc-btn secondary">Reset</button>
+          </div>
+          <div id="gcs-result" class="calc-result"></div>
+        </div>
+      </div>
+
+      <div class="calc-card">
+        <div class="calc-card-hd calc-toggle" data-target="calc-body-o2">
+          <div class="calc-card-title">
+            <div class="calc-icon" style="background:rgba(192,132,252,.12)">🫁</div>
+            Oxygen Duration
+          </div>
+          <span class="calc-chev">▾</span>
+        </div>
+        <div class="calc-card-body" id="calc-body-o2">
+          <div class="calc-grid g2">
+            <div class="calc-field">
+              <label>Cylinder</label>
+              <select id="o2-cylinder">
+                <option value="0.16">D cylinder (0.16)</option>
+                <option value="0.28" selected>E cylinder (0.28)</option>
+                <option value="1.56">M cylinder (1.56)</option>
+                <option value="2.41">G cylinder (2.41)</option>
+                <option value="3.14">H cylinder (3.14)</option>
+              </select>
+            </div>
+            <div class="calc-field">
+              <label>Current pressure (psi)</label>
+              <input id="o2-psi" type="number" inputmode="decimal" placeholder="e.g. 2000" />
+            </div>
+            <div class="calc-field">
+              <label>Safe residual (psi)</label>
+              <input id="o2-res" type="number" inputmode="decimal" value="200" />
+            </div>
+            <div class="calc-field">
+              <label>Flow rate (L/min)</label>
+              <input id="o2-flow" type="number" inputmode="decimal" placeholder="e.g. 15" />
+            </div>
+          </div>
+          <div class="calc-actions">
+            <button id="o2-calc" class="calc-btn primary">Calculate</button>
+            <button id="o2-reset" class="calc-btn secondary">Reset</button>
+          </div>
+          <div id="o2-result" class="calc-result"></div>
+        </div>
+      </div>
+
+      <div class="calc-card" id="vent-section">
+        <div class="calc-card-hd calc-toggle" data-target="calc-body-vent">
+          <div class="calc-card-title">
+            <div class="calc-icon" style="background:rgba(192,132,252,.12)">📏</div>
+            Vent Settings (IBW &amp; TV)
+          </div>
+          <span class="calc-chev">▾</span>
+        </div>
+        <div class="calc-card-body" id="calc-body-vent">
+          <p class="calc-hint">Tidal volume planner using IBW (Devine formula). Always follow clinical judgment and protocols.</p>
+          <div class="calc-grid g2">
+            <div class="calc-field">
+              <label>Sex</label>
+              <select id="vent-sex"><option value="male">Male</option><option value="female">Female</option></select>
+            </div>
+            <div class="calc-field">
+              <label>Height</label>
+              <div class="wt-row">
+                <input id="vent-height" type="number" inputmode="decimal" placeholder="e.g. 70" />
+                <select id="vent-hunit"><option value="in">in</option><option value="cm">cm</option></select>
+              </div>
+            </div>
+          </div>
+          <div class="calc-actions">
+            <button id="vent-calc" class="calc-btn primary">Calculate</button>
+            <button id="vent-reset" class="calc-btn secondary">Reset</button>
+          </div>
+          <div id="vent-result" class="calc-result"></div>
+        </div>
       </div>
 
       <div id="importexport-locked" class="card" style="text-align:center;padding:28px 20px">
@@ -839,6 +930,12 @@
           </div>
 
         </div>
+      </div>
+
+      <!-- Utility actions -->
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;padding-top:14px;border-top:1px solid var(--border)">
+        <button id="report-issue" class="btn" style="color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08)">🚩 Report Issue</button>
+        <a id="btn-pdf" href="EASI-Protocols-2026.pdf" download class="btn" style="color:#34d399;border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.08);text-decoration:none;display:inline-flex;align-items:center;gap:5px">📄 Protocols PDF</a>
       </div>
 
     </section>
@@ -3338,7 +3435,10 @@
     const toggle = document.querySelector('[data-target="'+targetId+'"]');
     if(toggle){
       toggle.classList.remove('calc-collapsed');
-      (toggle.closest('.card') || toggle).scrollIntoView({behavior:'smooth', block:'start'});
+      const body = document.getElementById(targetId);
+      if(body) body.style.display = '';
+      const card = toggle.closest('.calc-card') || toggle.closest('.card') || toggle;
+      card.scrollIntoView({behavior:'smooth', block:'start'});
       return;
     }
     const el = document.getElementById(targetId);
@@ -3378,11 +3478,19 @@
   function loadIntoCalc(name){
     const m = (svc().meds||[]).find(x=>x.name===name);
     if(!m) return;
-    $('#calc-med').value = m.name;
-    $('#mgkg').value = (m.default_mgkg ?? '');
-    $('#maxmg').value = (m.max_mg ?? '');
-    $('#route').value = m.route||'';
+    const isWeightBased = !!(m.default_mgkg != null || /\bmg\/kg\b|\bmcg\/kg\b|\bml\/kg\b/i.test(m.notes||''));
     document.querySelector('[data-tab="resources"]').click();
+    setTimeout(()=>{
+      if(isWeightBased){
+        $('#calc-med').value = m.name;
+        $('#mgkg').value = m.default_mgkg ?? '';
+        $('#maxmg').value = m.max_mg ?? '';
+        $('#route').value = m.route || '';
+        jumpToSection('calc-body-weight');
+      } else {
+        jumpToSection('calc-body-std');
+      }
+    }, 50);
   }
   window.loadIntoCalc = loadIntoCalc;
 
