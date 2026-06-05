@@ -1068,7 +1068,8 @@
       <div id="proto-fields">
         <div class="fg"><label>Title *</label><input id="pf-title" type="text" placeholder="Protocol title" /></div>
         <div class="fg"><label>Summary (one-line overview)</label><textarea id="pf-summary" rows="2" placeholder="Brief description shown under title"></textarea></div>
-        <div class="fg" style="margin-bottom:4px"><label>Steps</label></div>
+        <div class="fg" style="margin-bottom:2px"><label>Steps</label></div>
+        <p style="font-size:11px;color:var(--muted);margin:0 0 8px;line-height:1.4">Tip: use <code style="background:rgba(255,255,255,.07);padding:1px 5px;border-radius:4px">1) 2) 3)</code> inside a step to create sub-numbered items. Use <code style="background:rgba(255,255,255,.07);padding:1px 5px;border-radius:4px">→</code> to show a treatment arrow.</p>
         <div id="pf-steps-list"></div>
         <button id="pf-add-step" class="btn" style="width:100%;margin-bottom:12px">+ Add Step</button>
         <div class="fg"><label>Tags (comma-separated, lowercase)</label><input id="pf-tags" type="text" placeholder="e.g. airway, adult, ketamine, cardiac" /></div>
@@ -1089,7 +1090,8 @@
 
       <div class="row" style="margin-top:16px;gap:10px">
         <button id="modal-delete" class="btn danger">Delete</button>
-        <button id="modal-save" class="btn primary" style="flex:2">Save</button>
+        <button id="modal-save" class="btn primary" style="flex:1">Save</button>
+        <button id="modal-save-push" class="btn" style="flex:1;color:#34d399;border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.08)">Save &amp; Push ☁</button>
       </div>
     </div>
   </div>
@@ -3985,7 +3987,11 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       <div class="step-row">
         <span class="k" style="margin-top:8px;flex:none">${i+1}</span>
         <textarea class="step-ta" rows="2">${s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea>
-        <button class="btn danger" style="flex:none;padding:6px 10px;margin-top:2px" onclick="removeStep(${i})">✕</button>
+        <div style="display:flex;flex-direction:column;gap:3px;flex:none">
+          <button class="btn" style="padding:4px 8px;font-size:13px;line-height:1" onclick="moveStep(${i},-1)" ${i===0?'disabled':''}>↑</button>
+          <button class="btn" style="padding:4px 8px;font-size:13px;line-height:1" onclick="moveStep(${i},1)" ${i===steps.length-1?'disabled':''}>↓</button>
+          <button class="btn danger" style="padding:4px 8px;font-size:13px;line-height:1" onclick="removeStep(${i})">✕</button>
+        </div>
       </div>
     `).join('');
   }
@@ -3997,6 +4003,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   window.openEditProtocol = (idx) => openModal('protocol', idx);
   window.openEditMed      = (idx) => openModal('med', idx);
   window.removeStep = (i) => { const s = collectSteps(); s.splice(i,1); renderStepsList(s); };
+  window.moveStep   = (i, dir) => { const s = collectSteps(); const j = i+dir; if(j<0||j>=s.length) return; [s[i],s[j]]=[s[j],s[i]]; renderStepsList(s); };
 
   $('#pf-add-step').addEventListener('click', ()=>{
     const steps = collectSteps();
@@ -4049,6 +4056,15 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     closeModal();
     renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
     if(_adminMode) renderAdminPanel();
+  });
+
+  $('#modal-save-push').addEventListener('click', async ()=>{
+    $('#modal-save').click();
+    if(!svc()) return;
+    try {
+      await cloudSaveServiceData();
+      alert('Saved and pushed to cloud.');
+    } catch(e) { alert('Push failed: ' + e.message); }
   });
 
   $('#modal-delete').addEventListener('click', ()=>{
