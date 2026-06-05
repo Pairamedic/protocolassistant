@@ -193,14 +193,9 @@
     :root.light .pt-peds{background:rgba(249,115,22,.1);color:#c2410c;border-color:rgba(249,115,22,.3)}
     :root.light .pt-adult{background:rgba(99,102,241,.1);color:#4338ca;border-color:rgba(99,102,241,.3)}
     /* age filter toggle — protocols panel */
-    .age-filter-row{display:flex;gap:6px;padding:10px 0 4px;flex-wrap:wrap}
-    .age-btn{background:var(--input-bg);border:1px solid var(--border);border-radius:999px;color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;padding:5px 14px;font-family:inherit;transition:all .15s;white-space:nowrap}
-    .age-btn.active{background:rgba(94,234,212,.12);color:var(--accent);border-color:rgba(94,234,212,.4)}
-    :root.light .age-btn.active{background:rgba(13,148,136,.1);color:var(--accent);border-color:rgba(13,148,136,.35)}
+    .tab-filter{padding:8px 0 4px}
+    .tab-filter select{-webkit-appearance:none;appearance:none;text-align:center;text-align-last:center;font-size:16px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a7b0be' fill='none' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:40px}
     /* drug class filter chips — meds panel */
-    .cls-chip{background:var(--input-bg);border:1px solid var(--border);border-radius:999px;color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;padding:5px 12px;font-family:inherit;transition:all .15s;white-space:nowrap}
-    .cls-chip.active{background:rgba(192,132,252,.12);color:#c084fc;border-color:rgba(192,132,252,.4)}
-    :root.light .cls-chip.active{background:rgba(147,51,234,.1);color:#7c3aed;border-color:rgba(147,51,234,.3)}
     /* resources panel */
     .res-section{margin-bottom:22px}
     .res-section-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:10px}
@@ -259,10 +254,6 @@
     :root.light .contact-btn-mail{background:rgba(37,99,235,.08);color:#2563eb;border-color:rgba(37,99,235,.25)}
     .contact-hours{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.35);letter-spacing:.3px;text-transform:uppercase;align-self:flex-start}
     /* resources quick-nav bar */
-    .res-nav{display:flex;gap:6px;overflow-x:auto;padding:10px 0 12px;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-wrap:nowrap;margin-bottom:4px}
-    .res-nav::-webkit-scrollbar{display:none}
-    .res-nav-chip{background:var(--input-bg);border:1px solid var(--border);border-radius:999px;color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;padding:6px 14px;font-family:inherit;transition:all .15s;white-space:nowrap;flex:none}
-    .res-nav-chip:hover{color:var(--accent);border-color:rgba(94,234,212,.4)}
   </style>
 </head>
 <body>
@@ -329,18 +320,20 @@
   <main class="wrap">
     <!-- Protocols -->
     <section id="panel-protocols" class="panel">
-      <div class="age-filter-row" id="age-filter-row">
-        <button class="age-btn active" data-age="all">All</button>
-        <button class="age-btn" data-age="adult">Adult</button>
-        <button class="age-btn" data-age="peds">Pediatric</button>
+      <div class="tab-filter">
+        <select id="age-filter-select">
+          <option value="all">👥 ALL AGES</option>
+          <option value="adult">🧑 ADULT</option>
+          <option value="peds">🧒 PEDIATRIC</option>
+        </select>
       </div>
       <div id="protocols"></div>
     </section>
 
     <!-- Meds -->
     <section id="panel-meds" class="panel hidden">
-      <div style="padding:8px 0 4px">
-        <select id="med-class-filter" style="width:100%;max-width:260px;padding:8px 12px;font-size:13px;border-radius:10px"></select>
+      <div class="tab-filter">
+        <select id="med-class-filter"></select>
       </div>
       <div id="meds" class="grid"></div>
     </section>
@@ -349,18 +342,21 @@
     <section id="panel-resources" class="panel hidden">
 
       <!-- Quick-jump nav -->
-      <div class="res-nav">
-        <button class="res-nav-chip" onclick="jumpToSection('peds-ref-section')">🧒 Peds Ref</button>
-        <button class="res-nav-chip" onclick="jumpToSection('calc-body-weight')">⚖️ Weight Dose</button>
-        <button class="res-nav-chip" onclick="jumpToSection('calc-body-std')">💊 Std Dose</button>
-        <button class="res-nav-chip" onclick="jumpToSection('calc-body-iv')">💉 IV Infusion</button>
-        <button class="res-nav-chip" onclick="jumpToSection('calc-body-md')">⏱ Drip Timing</button>
-        <button class="res-nav-chip" onclick="jumpToSection('calc-body-fo')">💧 Fluid Over Time</button>
-        <button class="res-nav-chip" onclick="jumpToSection('calc-body-pump')">🔄 Pump Rate</button>
-        <button class="res-nav-chip" onclick="jumpToSection('calc-body-apgar')">👶 APGAR</button>
-        <button class="res-nav-chip" onclick="jumpToSection('calc-body-gcs')">🧠 GCS</button>
-        <button class="res-nav-chip" onclick="jumpToSection('calc-body-o2')">🫁 O₂ Duration</button>
-        <button class="res-nav-chip" onclick="jumpToSection('vent-section')">📏 Vent Settings</button>
+      <div class="tab-filter">
+        <select id="res-nav-select">
+          <option value="">SELECT RESOURCE</option>
+          <option value="peds-ref-section">🧒 PEDS REF</option>
+          <option value="calc-body-weight">⚖️ WEIGHT DOSE</option>
+          <option value="calc-body-std">💊 STD DOSE</option>
+          <option value="calc-body-iv">💉 IV INFUSION</option>
+          <option value="calc-body-md">⏱ DRIP TIMING</option>
+          <option value="calc-body-fo">💧 FLUID OVER TIME</option>
+          <option value="calc-body-pump">🔄 PUMP RATE</option>
+          <option value="calc-body-apgar">👶 APGAR</option>
+          <option value="calc-body-gcs">🧠 GCS</option>
+          <option value="calc-body-o2">🫁 O₂ DURATION</option>
+          <option value="vent-section">📏 VENT SETTINGS</option>
+        </select>
       </div>
 
       <!-- Pediatric Quick Reference (moved from Contacts) -->
@@ -767,10 +763,12 @@
 
     <!-- Contacts -->
     <section id="panel-contacts" class="panel hidden">
-      <!-- Quick-jump nav -->
-      <div class="res-nav">
-        <button class="res-nav-chip" onclick="jumpToSection('contacts-internal')">👥 Internal</button>
-        <button class="res-nav-chip" onclick="jumpToSection('contacts-clinical')">🏥 Clinical</button>
+      <div class="tab-filter">
+        <select id="contacts-nav-select">
+          <option value="">SELECT SECTION</option>
+          <option value="contacts-internal">👥 INTERNAL</option>
+          <option value="contacts-clinical">🏥 CLINICAL</option>
+        </select>
       </div>
       <div id="contacts-render"></div>
     </section>
@@ -2424,7 +2422,7 @@
     contacts: [
       { id:'c-kenneth-starnes', group:'internal', name:'Kenneth Starnes', role:'President', exec:true, desc:'Executive leadership — not a day-to-day contact.', phone:'', email:'' },
       { id:'c-josh-bishop', group:'internal', name:'Josh Bishop', role:'CEO', exec:true, desc:'Executive leadership — not a day-to-day contact.', phone:'', email:'jbishop@easimedics.com' },
-      { id:'c-pinebluff', group:'internal', name:'Pine Bluff On-Duty Supervisor', role:'Shared Duty Line', wide:true, desc:'Call-ins, shift coverage requests, and on-shift operational issues — reach out here first before escalating. Rotating supervisors: Shanna McDonel · David Collins · Allison Anderson', phone:'8706431143', email:'', badge:'① First Contact', badge_color:'accent' },
+      { id:'c-pinebluff', group:'internal', name:'Pine Bluff On-Duty Supervisor', role:'Shared Duty Line', wide:true, desc:'Call-ins, shift coverage requests, and on-shift operational issues — reach out here first before escalating. Supervisors: Shanna McDonel · David Collins · Allison Anderson. Relief Supervisors: Tanna Robinson (David\'s Shift) · Aaron Caldwell (Shanna\'s Shift) · Josh Robertson (Allison\'s Shift)', phone:'8706431143', email:'', badge:'① First Contact', badge_color:'accent' },
       { id:'c-clyde-mcdaniel', group:'internal', name:'Clyde McDaniel', role:'Operations Supervisor', desc:'Contact after your local on-duty supervisor. Day-to-day operational supervision and field concerns.', phone:'8703291448', email:'cmcdaniel@easimedics.com', badge:'② 2nd Contact', badge_color:'accent' },
       { id:'c-dwayne-aalseth', group:'internal', name:'Dwayne Aalseth', role:'Operations Director', desc:'Final escalation only — exhaust your local supervisor and Clyde first.', phone:'8705753004', email:'daalseth@easimedics.com', badge:'③ Last Resort', badge_color:'danger' },
       { id:'c-cheryl-smith', group:'internal', name:'Cheryl Smith', role:'Operations Administrator', desc:'Scheduling — contact for anything related to your schedule.', phone:'8707182909', email:'csmith@easimedics.com', hours_restricted:true },
@@ -3025,12 +3023,12 @@
     const sel = document.getElementById('med-class-filter');
     if(!sel) return;
     const allMeds = (svc()?.meds)||[];
-    if(!allMeds.length){ sel.innerHTML = '<option value="">All classes</option>'; return; }
+    if(!allMeds.length){ sel.innerHTML = '<option value="">ALL CLASSES</option>'; return; }
     const usedClasses = new Set();
     allMeds.forEach(m => medClasses(m.name||'').forEach(c => usedClasses.add(c)));
     const ordered = MED_CLASS_MAP.map(e=>e.cls).filter(c=>usedClasses.has(c));
-    sel.innerHTML = '<option value="">All classes</option>' + ordered.map(c =>
-      `<option value="${c}"${_medClassFilter===c?' selected':''}>${c}</option>`
+    sel.innerHTML = '<option value="">ALL CLASSES</option>' + ordered.map(c =>
+      `<option value="${c}"${_medClassFilter===c?' selected':''}>${c.toUpperCase()}</option>`
     ).join('');
   }
 
@@ -3476,12 +3474,15 @@
     });
   });
 
-  document.querySelectorAll('.age-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      _ageFilter = btn.dataset.age;
-      document.querySelectorAll('.age-btn').forEach(b => b.classList.toggle('active', b === btn));
-      renderProtocols(_lastTerms);
-    });
+  document.getElementById('age-filter-select').addEventListener('change', function(){
+    _ageFilter = this.value;
+    renderProtocols(_lastTerms);
+  });
+  document.getElementById('res-nav-select').addEventListener('change', function(){
+    if(this.value){ jumpToSection(this.value); this.selectedIndex = 0; }
+  });
+  document.getElementById('contacts-nav-select').addEventListener('change', function(){
+    if(this.value){ jumpToSection(this.value); this.selectedIndex = 0; }
   });
   let deb;
   q.addEventListener('input', ()=>{
@@ -4136,7 +4137,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     if(user){
       $('#app-shell').style.display = '';
       $('#user-email').textContent = user.email;
-      $('#btn-settings').style.display = '';
+      $('#btn-settings').style.display = 'block';
       _adminMode = ADMIN_EMAILS.has(user.email);
       if(_adminMode) $('#btn-admin').classList.remove('hidden');
       // Load user preferences (currentService, favs) — NOT service protocol data
@@ -4184,7 +4185,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
 
   // --- Theme & text-size controls ---
   const SIZES = ['sm','md','lg'];
-  const SIZE_LABELS = {sm:'A Small', md:'A Medium', lg:'A Large'};
+  const SIZE_LABELS = {sm:'Aa Text: Small', md:'Aa Text: Medium', lg:'Aa Text: Large'};
   let _sz = localStorage.getItem('pref_sz') || 'sm';
   let _theme = localStorage.getItem('pref_theme') || 'dark';
 
