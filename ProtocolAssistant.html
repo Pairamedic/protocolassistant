@@ -782,185 +782,12 @@
 
     <!-- Contacts -->
     <section id="panel-contacts" class="panel hidden">
-
       <!-- Quick-jump nav -->
       <div class="res-nav">
         <button class="res-nav-chip" onclick="jumpToSection('contacts-internal')">👥 Internal</button>
         <button class="res-nav-chip" onclick="jumpToSection('contacts-clinical')">🏥 Clinical</button>
       </div>
-
-      <div id="contacts-internal" class="res-section">
-        <div class="res-section-head">
-          <span class="res-section-title">👥 Internal — EASI Medics</span>
-        </div>
-
-        <!-- Kenneth Starnes — President -->
-        <div class="contact-card-ceo">
-          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-            <div style="font-weight:800;font-size:18px">Kenneth Starnes</div>
-            <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:rgba(99,102,241,.15);color:#a5b4fc;border:1px solid rgba(99,102,241,.3);letter-spacing:.4px;text-transform:uppercase">President</span>
-          </div>
-          <div style="font-size:12px;color:var(--muted);font-style:italic;line-height:1.4">Executive leadership — not a day-to-day contact.</div>
-        </div>
-
-        <!-- Josh Bishop — CEO -->
-        <div class="contact-card-ceo">
-          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-            <div style="font-weight:800;font-size:18px">Josh Bishop</div>
-            <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:rgba(99,102,241,.15);color:#a5b4fc;border:1px solid rgba(99,102,241,.3);letter-spacing:.4px;text-transform:uppercase">CEO</span>
-          </div>
-          <div style="font-size:12px;color:var(--muted);font-style:italic;line-height:1.4">Executive leadership — not a day-to-day contact.</div>
-          <div style="margin-top:4px">
-            <a class="contact-btn contact-btn-mail" href="mailto:jbishop@easimedics.com">✉ jbishop@easimedics.com</a>
-          </div>
-        </div>
-
-        <!-- Escalation chain callout -->
-        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;background:rgba(94,234,212,.07);border:1px solid rgba(94,234,212,.18);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:12px;font-weight:600;color:var(--muted)">
-          <span style="color:var(--accent);font-size:11px;letter-spacing:.5px;text-transform:uppercase;font-weight:700;flex:none">Escalation order for operational concerns</span>
-          <span style="flex:none;color:var(--border)">|</span>
-          <span style="color:var(--text)">① Pine Bluff On-Duty Supervisor</span>
-          <span style="flex:none">→</span>
-          <span style="color:var(--text)">② Clyde McDaniel</span>
-          <span style="flex:none">→</span>
-          <span style="color:var(--text)">③ Dwayne Aalseth</span>
-        </div>
-
-        <div class="contacts-grid">
-
-          <!-- Pine Bluff On-Duty Supervisor — shared line -->
-          <div class="contact-card" style="border-color:rgba(94,234,212,.25);grid-column:1/-1">
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-              <div class="contact-name">Pine Bluff On-Duty Supervisor</div>
-              <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:rgba(94,234,212,.15);color:var(--accent);border:1px solid rgba(94,234,212,.35);letter-spacing:.3px;text-transform:uppercase;white-space:nowrap">① First Contact</span>
-            </div>
-            <div class="contact-title">Shared Duty Line</div>
-            <div class="contact-desc" style="line-height:1.5">
-              Call-ins, shift coverage requests, and on-shift operational issues — reach out here first before escalating.<br>
-              <span style="font-size:11px;color:var(--muted)">Rotating supervisors on this line: <strong style="color:var(--text)">Shanna McDonel · David Collins · Allison Anderson</strong></span>
-            </div>
-            <div class="contact-actions">
-              <a class="contact-btn contact-btn-call" href="tel:+18706431143">📞 (870) 643-1143</a>
-            </div>
-          </div>
-
-          <!-- Clyde McDaniel -->
-          <div class="contact-card">
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-              <div class="contact-name">Clyde McDaniel</div>
-              <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:rgba(94,234,212,.12);color:var(--accent);border:1px solid rgba(94,234,212,.3);letter-spacing:.3px;text-transform:uppercase;white-space:nowrap">② 2nd Contact</span>
-            </div>
-            <div class="contact-title">Operations Supervisor</div>
-            <div class="contact-desc">Contact after your local on-duty supervisor. Day-to-day operational supervision and field concerns.</div>
-            <div class="contact-actions">
-              <a class="contact-btn contact-btn-call" href="tel:+18703291448">📞 (870) 329-1448</a>
-              <a class="contact-btn contact-btn-mail" href="mailto:cmcdaniel@easimedics.com">✉ cmcdaniel@easimedics.com</a>
-            </div>
-          </div>
-
-          <!-- Dwayne Aalseth -->
-          <div class="contact-card">
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-              <div class="contact-name">Dwayne Aalseth</div>
-              <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:rgba(248,113,113,.1);color:#f87171;border:1px solid rgba(248,113,113,.3);letter-spacing:.3px;text-transform:uppercase;white-space:nowrap">③ Last Resort</span>
-            </div>
-            <div class="contact-title">Operations Director</div>
-            <div class="contact-desc">Final escalation only — exhaust your local supervisor and Clyde first.</div>
-            <div class="contact-actions">
-              <a class="contact-btn contact-btn-call" href="tel:+18705753004">📞 (870) 575-3004</a>
-              <a class="contact-btn contact-btn-mail" href="mailto:daalseth@easimedics.com">✉ daalseth@easimedics.com</a>
-            </div>
-          </div>
-
-          <!-- Cheryl Smith -->
-          <div class="contact-card">
-            <div class="contact-name">Cheryl Smith</div>
-            <div class="contact-title">Operations Administrator</div>
-            <span class="contact-hours">📵 Phone: Business Hours Only</span>
-            <div class="contact-desc">Scheduling — contact for anything related to your schedule.</div>
-            <div class="contact-actions">
-              <a class="contact-btn contact-btn-call" href="tel:+18707182909">📞 (870) 718-2909</a>
-              <a class="contact-btn contact-btn-mail" href="mailto:csmith@easimedics.com">✉ csmith@easimedics.com</a>
-            </div>
-          </div>
-
-          <!-- Greg Moody -->
-          <div class="contact-card">
-            <div class="contact-name">Greg Moody</div>
-            <div class="contact-title">Office Manager</div>
-            <span class="contact-hours">📵 Phone: Business Hours Only</span>
-            <div class="contact-desc">Payroll, HCMTOGO, insurance, and HR/benefits questions.</div>
-            <div class="contact-actions">
-              <a class="contact-btn contact-btn-call" href="tel:+18706439456">📞 (870) 643-9456</a>
-              <a class="contact-btn contact-btn-mail" href="mailto:gmoody@easimedics.com">✉ gmoody@easimedics.com</a>
-            </div>
-          </div>
-
-          <!-- Nyeisha Aldridge -->
-          <div class="contact-card">
-            <div class="contact-name">Nyeisha Aldridge</div>
-            <div class="contact-title">Director of Public Outreach</div>
-            <span class="contact-hours">📵 Phone: Business Hours Only</span>
-            <div class="contact-desc">Uniforms, PR-related questions, and social media.</div>
-            <div class="contact-actions">
-              <a class="contact-btn contact-btn-call" href="tel:+19039600139">📞 (903) 960-0139</a>
-              <a class="contact-btn contact-btn-mail" href="mailto:naldridge@easimedics.com">✉ naldridge@easimedics.com</a>
-            </div>
-          </div>
-
-          <!-- Tammy Woods -->
-          <div class="contact-card">
-            <div class="contact-name">Tammy Woods</div>
-            <div class="contact-title">FTO Coordinator</div>
-            <span class="contact-hours">📵 Phone: Business Hours Only</span>
-            <div class="contact-desc">Primary point of contact for FTOs. New hire orientation and training.</div>
-            <div class="contact-actions">
-              <a class="contact-btn contact-btn-call" href="tel:+18705561301">📞 (870) 556-1301</a>
-              <a class="contact-btn contact-btn-mail" href="mailto:twoods@easimedics.com">✉ twoods@easimedics.com</a>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- Clinical Contacts -->
-      <div id="contacts-clinical" class="res-section" style="margin-top:8px">
-        <div class="res-section-head">
-          <span class="res-section-title">🏥 Clinical</span>
-        </div>
-        <div class="contacts-grid">
-
-          <!-- JRMC ER -->
-          <div class="contact-card">
-            <div class="contact-name">JRMC Emergency Room</div>
-            <div class="contact-title">First-Line Medical Control</div>
-            <div class="contact-desc">Primary medical control contact. When transporting to an alternate facility, contact the receiving ER physician directly when possible — if unreachable, follow standing protocol.</div>
-            <div class="contact-actions">
-              <a class="contact-btn contact-btn-call" href="tel:+18705417111">📞 (870) 541-7111</a>
-            </div>
-          </div>
-
-          <!-- Arkansas Trauma Com -->
-          <div class="contact-card">
-            <div class="contact-name">Arkansas Trauma Com</div>
-            <div class="contact-title">Trauma Communications</div>
-            <div class="contact-actions">
-              <a class="contact-btn contact-btn-call" href="tel:+15013011409">📞 (501) 301-1409</a>
-            </div>
-          </div>
-
-          <!-- Poison Control -->
-          <div class="contact-card">
-            <div class="contact-name">Poison Control</div>
-            <div class="contact-title">National Poison Hotline</div>
-            <div class="contact-actions">
-              <a class="contact-btn contact-btn-call" href="tel:+18002221222">📞 1 (800) 222-1222</a>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
+      <div id="contacts-render"></div>
     </section>
 
     <div class="footer">Offline‑friendly reference. Always follow your service’s latest approved protocols.</div>
@@ -1036,7 +863,13 @@
         <h4 style="margin:0;font-size:14px">Medications <span id="admin-m-count" style="font-weight:400;color:var(--muted)"></span></h4>
         <button id="admin-add-med" class="btn primary" style="padding:5px 12px;font-size:12px">+ Add Med</button>
       </div>
-      <div id="admin-meds-list" style="border:1px solid var(--border);border-radius:12px;overflow:hidden;max-height:240px;overflow-y:auto"></div>
+      <div id="admin-meds-list" style="border:1px solid var(--border);border-radius:12px;overflow:hidden;max-height:240px;overflow-y:auto;margin-bottom:18px"></div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <h4 style="margin:0;font-size:14px">Contacts <span id="admin-c-count" style="font-weight:400;color:var(--muted)"></span></h4>
+        <button id="admin-add-contact" class="btn primary" style="padding:5px 12px;font-size:12px">+ Add Contact</button>
+      </div>
+      <div id="admin-contacts-list" style="border:1px solid var(--border);border-radius:12px;overflow:hidden;max-height:240px;overflow-y:auto"></div>
     </div>
   </div>
 
@@ -1073,6 +906,36 @@
         <div id="pf-steps-list"></div>
         <button id="pf-add-step" class="btn" style="width:100%;margin-bottom:12px">+ Add Step</button>
         <div class="fg"><label>Tags (comma-separated, lowercase)</label><input id="pf-tags" type="text" placeholder="e.g. airway, adult, ketamine, cardiac" /></div>
+      </div>
+
+      <!-- Contact fields -->
+      <div id="contact-fields" class="hidden">
+        <div class="fg"><label>Name *</label><input id="cf-name" type="text" placeholder="Full name" /></div>
+        <div class="fg"><label>Role / Title</label><input id="cf-role" type="text" placeholder="e.g. Operations Supervisor" /></div>
+        <div class="fg">
+          <label>Group</label>
+          <select id="cf-group" style="width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:15px">
+            <option value="internal">👥 Internal</option>
+            <option value="clinical">🏥 Clinical</option>
+          </select>
+        </div>
+        <div class="fg"><label>Description</label><textarea id="cf-desc" rows="2" placeholder="What this person handles"></textarea></div>
+        <div class="fg"><label>Phone (10 digits, no dashes)</label><input id="cf-phone" type="tel" placeholder="e.g. 8705551234" /></div>
+        <div class="fg"><label>Email</label><input id="cf-email" type="email" placeholder="name@example.com" /></div>
+        <div class="fg"><label>Escalation Badge Text</label><input id="cf-badge" type="text" placeholder="e.g. ① First Contact  (leave blank if none)" /></div>
+        <div class="fg">
+          <label>Badge Color</label>
+          <select id="cf-badge-color" style="width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:15px">
+            <option value="accent">Teal (default)</option>
+            <option value="danger">Red (last resort)</option>
+            <option value="warning">Yellow</option>
+          </select>
+        </div>
+        <div class="row" style="gap:20px;margin-bottom:10px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer"><input id="cf-hours" type="checkbox" /> Business Hours Only</label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer"><input id="cf-exec" type="checkbox" /> Executive card style</label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer"><input id="cf-wide" type="checkbox" /> Wide card (full width)</label>
+        </div>
       </div>
 
       <!-- Medication fields -->
@@ -2572,6 +2435,20 @@
       { name: 'Thiamine', route: 'IV', notes: 'General medical illness (alcohol use): 100 mg IV.', contra: 'None in emergency', se: 'Rare hypotension with rapid push; local irritation' },
       { name: 'Tranexamic Acid (TXA)', route: 'IV infusion', notes: 'Upper GI bleed with decompensated shock: 2 G IV over 10 min. Trauma significant bleeding: 2 G IV over 10 min.', contra: 'Active intravascular clotting, subarachnoid hemorrhage, allergy', se: 'Nausea, vomiting, hypotension if pushed too fast' },
       { name: 'Verapamil', route: 'SIVP', notes: 'Stable AFib/AFlutter without significant HF: 5 mg IV; if no change after 5 min → 10 mg IV.', contra: 'Hypotension, WPW with AF, wide-complex VT/VF, significant CHF', se: 'Hypotension, bradycardia, AV block' }
+    ],
+    contacts: [
+      { id:'c-kenneth-starnes', group:'internal', name:'Kenneth Starnes', role:'President', exec:true, desc:'Executive leadership — not a day-to-day contact.', phone:'', email:'' },
+      { id:'c-josh-bishop', group:'internal', name:'Josh Bishop', role:'CEO', exec:true, desc:'Executive leadership — not a day-to-day contact.', phone:'', email:'jbishop@easimedics.com' },
+      { id:'c-pinebluff', group:'internal', name:'Pine Bluff On-Duty Supervisor', role:'Shared Duty Line', wide:true, desc:'Call-ins, shift coverage requests, and on-shift operational issues — reach out here first before escalating. Rotating supervisors: Shanna McDonel · David Collins · Allison Anderson', phone:'8706431143', email:'', badge:'① First Contact', badge_color:'accent' },
+      { id:'c-clyde-mcdaniel', group:'internal', name:'Clyde McDaniel', role:'Operations Supervisor', desc:'Contact after your local on-duty supervisor. Day-to-day operational supervision and field concerns.', phone:'8703291448', email:'cmcdaniel@easimedics.com', badge:'② 2nd Contact', badge_color:'accent' },
+      { id:'c-dwayne-aalseth', group:'internal', name:'Dwayne Aalseth', role:'Operations Director', desc:'Final escalation only — exhaust your local supervisor and Clyde first.', phone:'8705753004', email:'daalseth@easimedics.com', badge:'③ Last Resort', badge_color:'danger' },
+      { id:'c-cheryl-smith', group:'internal', name:'Cheryl Smith', role:'Operations Administrator', desc:'Scheduling — contact for anything related to your schedule.', phone:'8707182909', email:'csmith@easimedics.com', hours_restricted:true },
+      { id:'c-greg-moody', group:'internal', name:'Greg Moody', role:'Office Manager', desc:'Payroll, HCMTOGO, insurance, and HR/benefits questions.', phone:'8706439456', email:'gmoody@easimedics.com', hours_restricted:true },
+      { id:'c-nyeisha-aldridge', group:'internal', name:'Nyeisha Aldridge', role:'Director of Public Outreach', desc:'Uniforms, PR-related questions, and social media.', phone:'9039600139', email:'naldridge@easimedics.com', hours_restricted:true },
+      { id:'c-tammy-woods', group:'internal', name:'Tammy Woods', role:'FTO Coordinator', desc:'Primary point of contact for FTOs. New hire orientation and training.', phone:'8705561301', email:'twoods@easimedics.com', hours_restricted:true },
+      { id:'c-jrmc', group:'clinical', name:'JRMC Emergency Room', role:'First-Line Medical Control', desc:'Primary medical control contact. When transporting to an alternate facility, contact the receiving ER physician directly when possible — if unreachable, follow standing protocol.', phone:'8705417111', email:'' },
+      { id:'c-arktrauma', group:'clinical', name:'Arkansas Trauma Com', role:'Trauma Communications', phone:'5013011409', email:'' },
+      { id:'c-poison', group:'clinical', name:'Poison Control', role:'National Poison Hotline', phone:'8002221222', email:'' }
     ]
   };
 
