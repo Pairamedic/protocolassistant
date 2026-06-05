@@ -193,14 +193,8 @@
     :root.light .pt-peds{background:rgba(249,115,22,.1);color:#c2410c;border-color:rgba(249,115,22,.3)}
     :root.light .pt-adult{background:rgba(99,102,241,.1);color:#4338ca;border-color:rgba(99,102,241,.3)}
     /* age filter toggle — protocols panel */
-    .age-filter-row{display:flex;gap:6px;padding:10px 0 4px;flex-wrap:wrap}
-    .age-btn{background:var(--input-bg);border:1px solid var(--border);border-radius:999px;color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;padding:5px 14px;font-family:inherit;transition:all .15s;white-space:nowrap}
-    .age-btn.active{background:rgba(94,234,212,.12);color:var(--accent);border-color:rgba(94,234,212,.4)}
-    :root.light .age-btn.active{background:rgba(13,148,136,.1);color:var(--accent);border-color:rgba(13,148,136,.35)}
+    .tab-filter{padding:8px 0 4px}
     /* drug class filter chips — meds panel */
-    .cls-chip{background:var(--input-bg);border:1px solid var(--border);border-radius:999px;color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;padding:5px 12px;font-family:inherit;transition:all .15s;white-space:nowrap}
-    .cls-chip.active{background:rgba(192,132,252,.12);color:#c084fc;border-color:rgba(192,132,252,.4)}
-    :root.light .cls-chip.active{background:rgba(147,51,234,.1);color:#7c3aed;border-color:rgba(147,51,234,.3)}
     /* resources panel */
     .res-section{margin-bottom:22px}
     .res-section-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:10px}
@@ -259,10 +253,6 @@
     :root.light .contact-btn-mail{background:rgba(37,99,235,.08);color:#2563eb;border-color:rgba(37,99,235,.25)}
     .contact-hours{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.35);letter-spacing:.3px;text-transform:uppercase;align-self:flex-start}
     /* resources quick-nav bar */
-    .res-nav{display:flex;gap:6px;overflow-x:auto;padding:10px 0 12px;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-wrap:nowrap;margin-bottom:4px}
-    .res-nav::-webkit-scrollbar{display:none}
-    .res-nav-chip{background:var(--input-bg);border:1px solid var(--border);border-radius:999px;color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;padding:6px 14px;font-family:inherit;transition:all .15s;white-space:nowrap;flex:none}
-    .res-nav-chip:hover{color:var(--accent);border-color:rgba(94,234,212,.4)}
   </style>
 </head>
 <body>
@@ -329,18 +319,20 @@
   <main class="wrap">
     <!-- Protocols -->
     <section id="panel-protocols" class="panel">
-      <div class="age-filter-row" id="age-filter-row">
-        <button class="age-btn active" data-age="all">All</button>
-        <button class="age-btn" data-age="adult">Adult</button>
-        <button class="age-btn" data-age="peds">Pediatric</button>
+      <div class="tab-filter">
+        <select id="age-filter-select">
+          <option value="all">👥 All Ages</option>
+          <option value="adult">🧑 Adult</option>
+          <option value="peds">🧒 Pediatric</option>
+        </select>
       </div>
       <div id="protocols"></div>
     </section>
 
     <!-- Meds -->
     <section id="panel-meds" class="panel hidden">
-      <div style="padding:8px 0 4px">
-        <select id="med-class-filter" style="width:100%;max-width:260px;padding:8px 12px;font-size:13px;border-radius:10px"></select>
+      <div class="tab-filter">
+        <select id="med-class-filter"></select>
       </div>
       <div id="meds" class="grid"></div>
     </section>
@@ -349,18 +341,21 @@
     <section id="panel-resources" class="panel hidden">
 
       <!-- Quick-jump nav -->
-      <div class="res-nav">
-        <button class="res-nav-chip" onclick="jumpToSection('peds-ref-section')">🧒 Peds Ref</button>
-        <button class="res-nav-chip" onclick="jumpToSection('calc-body-weight')">⚖️ Weight Dose</button>
-        <button class="res-nav-chip" onclick="jumpToSection('calc-body-std')">💊 Std Dose</button>
-        <button class="res-nav-chip" onclick="jumpToSection('calc-body-iv')">💉 IV Infusion</button>
-        <button class="res-nav-chip" onclick="jumpToSection('calc-body-md')">⏱ Drip Timing</button>
-        <button class="res-nav-chip" onclick="jumpToSection('calc-body-fo')">💧 Fluid Over Time</button>
-        <button class="res-nav-chip" onclick="jumpToSection('calc-body-pump')">🔄 Pump Rate</button>
-        <button class="res-nav-chip" onclick="jumpToSection('calc-body-apgar')">👶 APGAR</button>
-        <button class="res-nav-chip" onclick="jumpToSection('calc-body-gcs')">🧠 GCS</button>
-        <button class="res-nav-chip" onclick="jumpToSection('calc-body-o2')">🫁 O₂ Duration</button>
-        <button class="res-nav-chip" onclick="jumpToSection('vent-section')">📏 Vent Settings</button>
+      <div class="tab-filter">
+        <select id="res-nav-select">
+          <option value="">⬇ Jump to section…</option>
+          <option value="peds-ref-section">🧒 Peds Ref</option>
+          <option value="calc-body-weight">⚖️ Weight Dose</option>
+          <option value="calc-body-std">💊 Std Dose</option>
+          <option value="calc-body-iv">💉 IV Infusion</option>
+          <option value="calc-body-md">⏱ Drip Timing</option>
+          <option value="calc-body-fo">💧 Fluid Over Time</option>
+          <option value="calc-body-pump">🔄 Pump Rate</option>
+          <option value="calc-body-apgar">👶 APGAR</option>
+          <option value="calc-body-gcs">🧠 GCS</option>
+          <option value="calc-body-o2">🫁 O₂ Duration</option>
+          <option value="vent-section">📏 Vent Settings</option>
+        </select>
       </div>
 
       <!-- Pediatric Quick Reference (moved from Contacts) -->
@@ -767,10 +762,12 @@
 
     <!-- Contacts -->
     <section id="panel-contacts" class="panel hidden">
-      <!-- Quick-jump nav -->
-      <div class="res-nav">
-        <button class="res-nav-chip" onclick="jumpToSection('contacts-internal')">👥 Internal</button>
-        <button class="res-nav-chip" onclick="jumpToSection('contacts-clinical')">🏥 Clinical</button>
+      <div class="tab-filter">
+        <select id="contacts-nav-select">
+          <option value="">⬇ Jump to section…</option>
+          <option value="contacts-internal">👥 Internal</option>
+          <option value="contacts-clinical">🏥 Clinical</option>
+        </select>
       </div>
       <div id="contacts-render"></div>
     </section>
@@ -3476,12 +3473,15 @@
     });
   });
 
-  document.querySelectorAll('.age-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      _ageFilter = btn.dataset.age;
-      document.querySelectorAll('.age-btn').forEach(b => b.classList.toggle('active', b === btn));
-      renderProtocols(_lastTerms);
-    });
+  document.getElementById('age-filter-select').addEventListener('change', function(){
+    _ageFilter = this.value;
+    renderProtocols(_lastTerms);
+  });
+  document.getElementById('res-nav-select').addEventListener('change', function(){
+    if(this.value){ jumpToSection(this.value); this.selectedIndex = 0; }
+  });
+  document.getElementById('contacts-nav-select').addEventListener('change', function(){
+    if(this.value){ jumpToSection(this.value); this.selectedIndex = 0; }
   });
   let deb;
   q.addEventListener('input', ()=>{
