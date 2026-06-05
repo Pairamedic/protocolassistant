@@ -15,25 +15,33 @@
     html,body{height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
     body{display:flex;flex-direction:column;max-width:500px;margin:0 auto}
 
-    /* Header */
-    .hdr{background:var(--card);border-bottom:1px solid var(--border);padding:10px 14px 8px;position:sticky;top:0;z-index:100}
-    .hrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:6px}
-    .hleft{display:flex;align-items:center;gap:7px;min-width:0;flex:1}
+    /* ── Header ── */
+    .hdr{background:var(--card);border-bottom:1px solid var(--border);padding:10px 14px 0;position:sticky;top:0;z-index:100}
+    .hr1{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:6px}
+    .hleft{display:flex;align-items:center;gap:7px;flex:1;min-width:0}
     .htitle{font-size:16px;font-weight:700;white-space:nowrap}
     .dbtn{background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:12px;padding:5px 9px;cursor:pointer;font-family:inherit;white-space:nowrap}
     .dbtn:active{background:rgba(255,255,255,.13)}
-    .mbtn{font-size:11px;font-weight:700;padding:5px 10px;border-radius:8px;border:1px solid var(--border);cursor:pointer;font-family:inherit;letter-spacing:.3px;background:rgba(255,255,255,.07);color:var(--muted)}
+    .mbtn{font-size:11px;font-weight:700;padding:5px 10px;border-radius:8px;border:1px solid var(--border);cursor:pointer;font-family:inherit;background:rgba(255,255,255,.07);color:var(--muted);white-space:nowrap}
     .mbtn.on{background:rgba(251,191,36,.15);border-color:rgba(251,191,36,.4);color:var(--warn)}
     .hacts{display:flex;gap:6px;flex-shrink:0}
     .ibtn{background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:6px 9px;cursor:pointer;font-size:15px;font-family:inherit}
     .ibtn:active{background:rgba(255,255,255,.14)}
     .ibtn.on{background:rgba(94,234,212,.15);border-color:var(--accent);color:var(--accent)}
-    .sbar{display:flex;align-items:center;gap:8px;background:#0f131a;border:1px solid var(--border);border-radius:10px;padding:8px 12px}
+    .sbar{display:flex;align-items:center;gap:8px;background:#0f131a;border:1px solid var(--border);border-radius:10px;padding:8px 12px;margin-bottom:8px}
     .sbar input{background:none;border:none;color:var(--text);font-size:15px;flex:1;outline:none;font-family:inherit}
     .sbar input::placeholder{color:var(--muted)}
 
-    /* Main */
-    .main{flex:1;overflow-y:auto;padding:10px 14px 88px}
+    /* Coverage bar */
+    .covbar{display:flex;align-items:center;gap:0;background:#0f131a;border-radius:10px;margin-bottom:8px;overflow:hidden}
+    .covitem{flex:1;text-align:center;padding:7px 4px;font-size:11px;font-weight:700;border-right:1px solid var(--border)}
+    .covitem:last-child{border-right:none}
+    .covitem .cv{font-size:15px;font-weight:800;display:block;line-height:1.1}
+    .covitem .cl{font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-top:1px}
+    .cv-als{color:var(--als)}.cv-bls{color:var(--bls)}.cv-os{color:var(--warn)}.cv-oo{color:var(--danger)}.cv-emp{color:var(--muted)}
+
+    /* ── Main ── */
+    .main{flex:1;overflow-y:auto;padding:10px 14px 92px}
 
     /* Modified banner */
     .modbanner{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:10px;padding:9px 13px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
@@ -45,6 +53,14 @@
     .gnlbl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px}
     .gntext{font-size:13px;line-height:1.5;white-space:pre-wrap}
     .gnempty{font-size:13px;color:var(--muted);font-style:italic}
+
+    /* Unassigned crew section */
+    .unassigned{background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);border-radius:10px;margin-bottom:10px;overflow:hidden}
+    .unassigned-hd{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;cursor:pointer}
+    .unassigned-lbl{font-size:12px;color:var(--warn);font-weight:700}
+    .unassigned-body{padding:0 10px 10px;display:flex;flex-wrap:wrap;gap:6px}
+    .ucrew-chip{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:12px;font-weight:600;cursor:pointer}
+    .ucrew-chip:active{background:rgba(255,255,255,.12)}
 
     /* Station */
     .station{margin-bottom:10px}
@@ -60,7 +76,7 @@
 
     /* Unit card */
     .ucard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 13px}
-    .ucard.mod-card{border-color:rgba(251,191,36,.2)}
+    .ucard.modcard{border-color:rgba(251,191,36,.2)}
     .utop{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:4px;flex-wrap:wrap}
     .unum{font-size:13px;font-weight:700}
     .ubdgs{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
@@ -68,16 +84,18 @@
     .b-als{background:rgba(96,165,250,.15);color:var(--als);border:1px solid rgba(96,165,250,.3)}
     .b-bls{background:rgba(74,222,128,.15);color:var(--bls);border:1px solid rgba(74,222,128,.3)}
     .b-extra{background:rgba(251,191,36,.15);color:var(--warn);border:1px solid rgba(251,191,36,.3)}
-    .sbtn{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;border:1px solid;cursor:pointer;background:none;font-family:inherit;letter-spacing:.3px}
+    .sbtn{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;border:1px solid;cursor:pointer;background:none;font-family:inherit;letter-spacing:.3px;display:flex;align-items:center;gap:3px}
     .s-av{color:#4ade80;border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.1)}
     .s-os{color:var(--warn);border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.1)}
     .s-oo{color:var(--danger);border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.1)}
+    .sts-time{font-size:9px;opacity:.8}
     .uppl{display:flex;gap:8px;margin-bottom:7px}
     .person{flex:1;background:rgba(255,255,255,.04);border-radius:8px;padding:8px 9px}
-    .person.unfilled{background:rgba(251,191,36,.04);border:1px dashed rgba(251,191,36,.2)}
+    .person.unfilled{background:rgba(251,191,36,.04);border:1px dashed rgba(251,191,36,.25);cursor:pointer}
+    .person.unfilled:active{background:rgba(251,191,36,.1)}
     .prole{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
     .pname{font-size:13px;font-weight:600;margin-bottom:5px;word-break:break-word}
-    .pname.empty{color:var(--muted);font-weight:400;font-style:italic}
+    .pname.empty{color:var(--muted);font-weight:400;font-style:italic;font-size:12px}
     a.clink{display:flex;align-items:center;gap:4px;background:rgba(94,234,212,.1);border:1px solid rgba(94,234,212,.2);border-radius:7px;padding:5px 8px;color:var(--accent);text-decoration:none;font-size:12px;font-weight:600}
     a.clink:active{background:rgba(94,234,212,.2)}
     .nonum{color:var(--muted);font-size:11px}
@@ -93,7 +111,7 @@
     .bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;background:var(--card);border-top:1px solid var(--border);display:flex;padding:6px 0 max(env(safe-area-inset-bottom,0px),6px)}
     .nbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;color:var(--muted);cursor:pointer;padding:4px 0;font-family:inherit;font-size:10px}
     .nbtn.active{color:var(--accent)}
-    .nico{font-size:20px}
+    .nico{font-size:18px}
 
     /* Dispatch */
     .dcard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px;margin-bottom:10px}
@@ -103,19 +121,26 @@
     .dlbl{font-size:12px;color:var(--muted)}
     .dval{font-size:13px;font-weight:500}
 
-    /* Edit banner */
-    .ebanner{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:10px;padding:8px 14px;margin-bottom:10px;font-size:12px;color:var(--warn);text-align:center}
-
     /* Crew directory */
     .crew-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 13px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
     .crew-card:active{background:var(--card2)}
-    .crew-left{}
     .crew-name{font-size:15px;font-weight:600;margin-bottom:2px}
     .crew-info{font-size:12px;color:var(--muted)}
     .crew-cert{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px}
     .cert-als{background:rgba(96,165,250,.15);color:var(--als);border:1px solid rgba(96,165,250,.3)}
     .cert-bls{background:rgba(74,222,128,.15);color:var(--bls);border:1px solid rgba(74,222,128,.3)}
-    .crew-search{margin-bottom:10px}
+
+    /* Event log */
+    .log-entry{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 13px;margin-bottom:7px;display:flex;align-items:flex-start;gap:10px}
+    .log-entry.auto{opacity:.7}
+    .log-time{font-size:11px;color:var(--accent);white-space:nowrap;font-weight:700;margin-top:1px;flex-shrink:0}
+    .log-text{font-size:13px;flex:1;line-height:1.4}
+    .log-del{color:var(--muted);cursor:pointer;font-size:14px;flex-shrink:0;padding:0 2px}
+    .log-del:active{color:var(--danger)}
+    .log-section-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:12px 0 6px}
+
+    /* Edit banner */
+    .ebanner{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:10px;padding:8px 14px;margin-bottom:10px;font-size:12px;color:var(--warn);text-align:center}
 
     /* Overlay / sheet */
     .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:flex-end;justify-content:center}
@@ -148,6 +173,15 @@
     .ac-n{font-size:14px;font-weight:600}
     .ac-p{font-size:12px;color:var(--muted);margin-top:1px}
 
+    /* Preset items */
+    .preset-item{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 13px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+    .preset-name{font-size:14px;font-weight:600}
+    .preset-date{font-size:11px;color:var(--muted)}
+    .preset-acts{display:flex;gap:6px}
+    .preset-btn{font-size:12px;padding:5px 10px;border-radius:7px;border:1px solid var(--border);cursor:pointer;font-family:inherit;background:rgba(255,255,255,.07);color:var(--text)}
+    .preset-btn:active{background:rgba(255,255,255,.13)}
+    .preset-btn.load{border-color:rgba(94,234,212,.3);color:var(--accent);background:rgba(94,234,212,.08)}
+
     /* Search */
     .sres{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 13px;margin-bottom:8px;cursor:pointer}
     .sres:active{background:var(--card2)}
@@ -161,7 +195,7 @@
     @media print{
       *{box-sizing:border-box}
       body{background:white!important;color:black!important;font-size:11pt;max-width:100%}
-      .hdr,.bnav,.overlay,.hacts,.sbar,.ebanner,.eico,.sbtn,.uacts,.modbanner,.gnotes .gnempty{display:none!important}
+      .hdr,.bnav,.overlay,.hacts,.sbar,.covbar,.ebanner,.eico,.sbtn,.uacts,.modbanner{display:none!important}
       .main{padding:0!important;overflow:visible!important}
       .ponly{display:block!important}
       .ph{text-align:center;margin-bottom:12pt;padding-bottom:8pt;border-bottom:2pt solid #333}
@@ -204,14 +238,14 @@
 </div>
 
 <div class="hdr">
-  <div class="hrow">
+  <div class="hr1">
     <div class="hleft">
       <div class="htitle">Shift Roster</div>
       <button class="dbtn" id="dateBtn" onclick="openDate()">Set date</button>
       <button class="mbtn" id="modBtn" onclick="toggleModified()">Normal</button>
     </div>
     <div class="hacts">
-      <button class="ibtn" onclick="openGenNotes()" title="Shift notes">📝</button>
+      <button class="ibtn" onclick="openGenNotes()" title="Notes">📝</button>
       <button class="ibtn" id="editBtn" onclick="toggleEdit()" title="Edit">✏️</button>
       <button class="ibtn" onclick="showExport()" title="Export">⬆️</button>
     </div>
@@ -220,6 +254,7 @@
     <span style="color:var(--muted)">🔍</span>
     <input type="search" id="searchInput" placeholder="Search name or unit…" oninput="render()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
   </div>
+  <div class="covbar" id="covBar"></div>
 </div>
 
 <div class="main" id="main"></div>
@@ -228,13 +263,18 @@
   <button class="nbtn active" id="navRoster" onclick="showView('roster')"><span class="nico">🚑</span>Roster</button>
   <button class="nbtn" id="navDispatch" onclick="showView('dispatch')"><span class="nico">📻</span>Dispatch</button>
   <button class="nbtn" id="navCrew" onclick="showView('crew')"><span class="nico">👥</span>Crew</button>
+  <button class="nbtn" id="navLog" onclick="showView('log')"><span class="nico">📋</span>Log</button>
 </div>
 
-<!-- Unit / dispatch edit -->
+<!-- Unit / dispatch edit sheet -->
 <div class="overlay" id="editSheet" onclick="oob(event,'editSheet')">
   <div class="sheet"><div class="shandle"></div><div class="stitle" id="editTitle"></div><div id="editBody"></div></div>
 </div>
-<!-- General notes -->
+<!-- Quick-assign sheet -->
+<div class="overlay" id="qaSheet" onclick="oob(event,'qaSheet')">
+  <div class="sheet"><div class="shandle"></div><div class="stitle" id="qaTitle"></div><div id="qaBody"></div></div>
+</div>
+<!-- General notes sheet -->
 <div class="overlay" id="notesSheet" onclick="oob(event,'notesSheet')">
   <div class="sheet">
     <div class="shandle"></div><div class="stitle">Shift Notes</div>
@@ -242,7 +282,7 @@
     <div class="sacts"><button class="btn bsec" onclick="cs('notesSheet')">Cancel</button><button class="btn bpri" onclick="saveGenNotes()">Save</button></div>
   </div>
 </div>
-<!-- Date -->
+<!-- Date sheet -->
 <div class="overlay" id="dateSheet" onclick="oob(event,'dateSheet')">
   <div class="sheet">
     <div class="shandle"></div><div class="stitle">Shift Date</div>
@@ -250,11 +290,19 @@
     <div class="sacts"><button class="btn bsec" onclick="cs('dateSheet')">Cancel</button><button class="btn bpri" onclick="saveDate()">Save</button></div>
   </div>
 </div>
-<!-- Crew member edit -->
+<!-- Crew member edit sheet -->
 <div class="overlay" id="crewSheet" onclick="oob(event,'crewSheet')">
-  <div class="sheet"><div class="shandle"></div><div class="stitle" id="crewSheetTitle"></div><div id="crewSheetBody"></div></div>
+  <div class="sheet"><div class="shandle"></div><div class="stitle" id="crewTitle"></div><div id="crewBody"></div></div>
 </div>
-<!-- Export -->
+<!-- Add log entry sheet -->
+<div class="overlay" id="logSheet" onclick="oob(event,'logSheet')">
+  <div class="sheet">
+    <div class="shandle"></div><div class="stitle">Add Log Entry</div>
+    <div class="fg"><div class="flbl">Entry</div><textarea class="fi" id="logInput" rows="4" placeholder="e.g. Unit 279 cleared hospital, back in service…"></textarea></div>
+    <div class="sacts"><button class="btn bsec" onclick="cs('logSheet')">Cancel</button><button class="btn bpri" onclick="saveLogEntry()">Add</button></div>
+  </div>
+</div>
+<!-- Export sheet -->
 <div class="overlay" id="exportSheet" onclick="oob(event,'exportSheet')">
   <div class="sheet">
     <div class="shandle"></div><div class="stitle">Export &amp; Update</div>
@@ -263,6 +311,10 @@
     <hr class="divider">
     <button class="btn bsec bfull" onclick="printRoster()">🖨️ Print / Save as PDF</button>
     <button class="btn bsec bfull" onclick="copyText()">📋 Copy Roster as Text</button>
+    <hr class="divider">
+    <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Shift Presets</div>
+    <button class="btn bsec bfull" onclick="savePreset()">💾 Save current as preset…</button>
+    <div id="presetList"></div>
     <hr class="divider">
     <button class="btn bsec bfull" onclick="exportJSON()">Export JSON data</button>
     <button class="btn bsec bfull" onclick="document.getElementById('jfile').click()">Import JSON data</button>
@@ -274,7 +326,7 @@
 
 <script>
 // ROSTER_DATA_START
-const DEFAULT_DATA = {"shiftDate":"","shiftNotes":"","modified":null,"crew":[{"id":"c1","name":"Aaron","phone":"870-316-1165","cert":"ALS"},{"id":"c2","name":"Nikki","phone":"501-499-0741","cert":"ALS"},{"id":"c3","name":"Ricky","phone":"870-316-1165","cert":"ALS"},{"id":"c4","name":"Brandi","phone":"501-499-0741","cert":"ALS"},{"id":"c5","name":"Troupe","phone":"870-316-1165","cert":"ALS"},{"id":"c6","name":"Cailey","phone":"501-499-0741","cert":"ALS"},{"id":"c7","name":"Rebekah","phone":"501-286-1661","cert":"ALS"},{"id":"c8","name":"Diamond","phone":"501-658-3572","cert":"ALS"},{"id":"c9","name":"Jamie","phone":"","cert":"BLS"},{"id":"c10","name":"Tim","phone":"","cert":"BLS"},{"id":"c11","name":"Denise","phone":"870-897-8131","cert":"BLS"},{"id":"c12","name":"Kayla","phone":"870-461-0037","cert":"BLS"},{"id":"c13","name":"Daniel","phone":"","cert":"ALS"},{"id":"c14","name":"Walker","phone":"","cert":"ALS"},{"id":"c15","name":"Bubba","phone":"","cert":"ALS"},{"id":"c16","name":"Andrea","phone":"","cert":"ALS"},{"id":"c17","name":"Cindy","phone":"","cert":"ALS"},{"id":"c18","name":"Kelly","phone":"","cert":"ALS"},{"id":"c19","name":"Roland","phone":"870-413-3777","cert":"ALS"},{"id":"c20","name":"Jimmy","phone":"","cert":"ALS"},{"id":"c21","name":"Chris S.","phone":"903-280-4528","cert":"ALS"},{"id":"c22","name":"Shyanne","phone":"","cert":"ALS"},{"id":"c23","name":"Dennis","phone":"","cert":"ALS"},{"id":"c24","name":"Patrick","phone":"","cert":"ALS"},{"id":"c25","name":"Morgan","phone":"","cert":"BLS"},{"id":"c26","name":"Shawn","phone":"","cert":"BLS"},{"id":"c27","name":"Lindy","phone":"","cert":"BLS"},{"id":"c28","name":"Amanda","phone":"","cert":"BLS"}],"stations":[{"name":"Pine Bluff","units":[{"id":"u1","unitNumber":"279-ALS-PB","lead":"Aaron","leadPhone":"870-316-1165","secondary":"Nikki","secondaryPhone":"501-499-0741","shiftStart":"0600","status":"available","notes":""},{"id":"u2","unitNumber":"185-ALS-PB","lead":"Ricky","leadPhone":"870-316-1165","secondary":"Brandi","secondaryPhone":"501-499-0741","shiftStart":"0700","status":"available","notes":""},{"id":"u3","unitNumber":"SR2-ALS-PB","lead":"Troupe","leadPhone":"870-316-1165","secondary":"Cailey","secondaryPhone":"501-499-0741","shiftStart":"0800","status":"available","notes":""},{"id":"u4","unitNumber":"268-ALS-PB","lead":"Rebekah","leadPhone":"501-286-1661","secondary":"Diamond","secondaryPhone":"501-658-3572","shiftStart":"0900","status":"available","notes":""},{"id":"u5","unitNumber":"193-BLS-PB","lead":"Jamie","leadPhone":"","secondary":"Tim","secondaryPhone":"","shiftStart":"0600","status":"available","notes":""},{"id":"u6","unitNumber":"191-BLS-PB","lead":"Denise","leadPhone":"870-897-8131","secondary":"Kayla","secondaryPhone":"870-461-0037","shiftStart":"0800","status":"available","notes":""},{"id":"u7","unitNumber":"195-BLS-PB (Extra)","lead":"NA","leadPhone":"","secondary":"NA","secondaryPhone":"","shiftStart":"1800","status":"available","notes":""}]},{"name":"England","units":[{"id":"u8","unitNumber":"263-ALS-ENGLAND","lead":"Daniel","leadPhone":"","secondary":"Walker","secondaryPhone":"","shiftStart":"0700","status":"available","notes":""}]},{"name":"Star City","units":[{"id":"u9","unitNumber":"279-ALS-Star City","lead":"Bubba","leadPhone":"","secondary":"Andrea","secondaryPhone":"","shiftStart":"0800","status":"available","notes":""}]},{"name":"Warren","units":[{"id":"u10","unitNumber":"178-ALS-Warren","lead":"Cindy","leadPhone":"","secondary":"Kelly","secondaryPhone":"","shiftStart":"0800","status":"available","notes":""},{"id":"u11","unitNumber":"374-ALS-Warren","lead":"Roland","leadPhone":"870-413-3777","secondary":"Jimmy","secondaryPhone":"","shiftStart":"0900","status":"available","notes":""}]},{"name":"Rison","units":[{"id":"u12","unitNumber":"267-ALS-RISON","lead":"Chris S.","leadPhone":"903-280-4528","secondary":"Shyanne","secondaryPhone":"","shiftStart":"0900","status":"available","notes":""}]},{"name":"DeWitt","units":[{"id":"u13","unitNumber":"181-ALS-DEWITT","lead":"Dennis","leadPhone":"","secondary":"Patrick","secondaryPhone":"","shiftStart":"0900","status":"available","notes":""},{"id":"u14","unitNumber":"184-BLS-DEWITT","lead":"Morgan","leadPhone":"","secondary":"Shawn","secondaryPhone":"","shiftStart":"0900","status":"available","notes":""}]},{"name":"Clarendon","units":[{"id":"u15","unitNumber":"175-BLS-CLARENDON","lead":"Lindy","leadPhone":"","secondary":"Amanda","secondaryPhone":"","shiftStart":"0900","status":"available","notes":""}]}],"dispatch":[{"id":"d1","shiftTime":"0700","supervisor":"Marilyn","dispatcher":"Megan","dispatch2":"Autumn","notes":""},{"id":"d2","shiftTime":"1900","supervisor":"Susan","dispatcher":"Lizzie","dispatch2":"Amber","notes":""}]};
+const DEFAULT_DATA = {"shiftDate":"","shiftNotes":"","modified":null,"presets":[],"eventLog":[],"crew":[{"id":"c1","name":"Aaron","phone":"870-316-1165","cert":"ALS"},{"id":"c2","name":"Nikki","phone":"501-499-0741","cert":"ALS"},{"id":"c3","name":"Ricky","phone":"870-316-1165","cert":"ALS"},{"id":"c4","name":"Brandi","phone":"501-499-0741","cert":"ALS"},{"id":"c5","name":"Troupe","phone":"870-316-1165","cert":"ALS"},{"id":"c6","name":"Cailey","phone":"501-499-0741","cert":"ALS"},{"id":"c7","name":"Rebekah","phone":"501-286-1661","cert":"ALS"},{"id":"c8","name":"Diamond","phone":"501-658-3572","cert":"ALS"},{"id":"c9","name":"Jamie","phone":"","cert":"BLS"},{"id":"c10","name":"Tim","phone":"","cert":"BLS"},{"id":"c11","name":"Denise","phone":"870-897-8131","cert":"BLS"},{"id":"c12","name":"Kayla","phone":"870-461-0037","cert":"BLS"},{"id":"c13","name":"Daniel","phone":"","cert":"ALS"},{"id":"c14","name":"Walker","phone":"","cert":"ALS"},{"id":"c15","name":"Bubba","phone":"","cert":"ALS"},{"id":"c16","name":"Andrea","phone":"","cert":"ALS"},{"id":"c17","name":"Cindy","phone":"","cert":"ALS"},{"id":"c18","name":"Kelly","phone":"","cert":"ALS"},{"id":"c19","name":"Roland","phone":"870-413-3777","cert":"ALS"},{"id":"c20","name":"Jimmy","phone":"","cert":"ALS"},{"id":"c21","name":"Chris S.","phone":"903-280-4528","cert":"ALS"},{"id":"c22","name":"Shyanne","phone":"","cert":"ALS"},{"id":"c23","name":"Dennis","phone":"","cert":"ALS"},{"id":"c24","name":"Patrick","phone":"","cert":"ALS"},{"id":"c25","name":"Morgan","phone":"","cert":"BLS"},{"id":"c26","name":"Shawn","phone":"","cert":"BLS"},{"id":"c27","name":"Lindy","phone":"","cert":"BLS"},{"id":"c28","name":"Amanda","phone":"","cert":"BLS"}],"stations":[{"name":"Pine Bluff","units":[{"id":"u1","unitNumber":"279-ALS-PB","lead":"Aaron","leadPhone":"870-316-1165","secondary":"Nikki","secondaryPhone":"501-499-0741","shiftStart":"0600","status":"available","statusChangedAt":null,"notes":""},{"id":"u2","unitNumber":"185-ALS-PB","lead":"Ricky","leadPhone":"870-316-1165","secondary":"Brandi","secondaryPhone":"501-499-0741","shiftStart":"0700","status":"available","statusChangedAt":null,"notes":""},{"id":"u3","unitNumber":"SR2-ALS-PB","lead":"Troupe","leadPhone":"870-316-1165","secondary":"Cailey","secondaryPhone":"501-499-0741","shiftStart":"0800","status":"available","statusChangedAt":null,"notes":""},{"id":"u4","unitNumber":"268-ALS-PB","lead":"Rebekah","leadPhone":"501-286-1661","secondary":"Diamond","secondaryPhone":"501-658-3572","shiftStart":"0900","status":"available","statusChangedAt":null,"notes":""},{"id":"u5","unitNumber":"193-BLS-PB","lead":"Jamie","leadPhone":"","secondary":"Tim","secondaryPhone":"","shiftStart":"0600","status":"available","statusChangedAt":null,"notes":""},{"id":"u6","unitNumber":"191-BLS-PB","lead":"Denise","leadPhone":"870-897-8131","secondary":"Kayla","secondaryPhone":"870-461-0037","shiftStart":"0800","status":"available","statusChangedAt":null,"notes":""},{"id":"u7","unitNumber":"195-BLS-PB (Extra)","lead":"NA","leadPhone":"","secondary":"NA","secondaryPhone":"","shiftStart":"1800","status":"available","statusChangedAt":null,"notes":""}]},{"name":"England","units":[{"id":"u8","unitNumber":"263-ALS-ENGLAND","lead":"Daniel","leadPhone":"","secondary":"Walker","secondaryPhone":"","shiftStart":"0700","status":"available","statusChangedAt":null,"notes":""}]},{"name":"Star City","units":[{"id":"u9","unitNumber":"279-ALS-Star City","lead":"Bubba","leadPhone":"","secondary":"Andrea","secondaryPhone":"","shiftStart":"0800","status":"available","statusChangedAt":null,"notes":""}]},{"name":"Warren","units":[{"id":"u10","unitNumber":"178-ALS-Warren","lead":"Cindy","leadPhone":"","secondary":"Kelly","secondaryPhone":"","shiftStart":"0800","status":"available","statusChangedAt":null,"notes":""},{"id":"u11","unitNumber":"374-ALS-Warren","lead":"Roland","leadPhone":"870-413-3777","secondary":"Jimmy","secondaryPhone":"","shiftStart":"0900","status":"available","statusChangedAt":null,"notes":""}]},{"name":"Rison","units":[{"id":"u12","unitNumber":"267-ALS-RISON","lead":"Chris S.","leadPhone":"903-280-4528","secondary":"Shyanne","secondaryPhone":"","shiftStart":"0900","status":"available","statusChangedAt":null,"notes":""}]},{"name":"DeWitt","units":[{"id":"u13","unitNumber":"181-ALS-DEWITT","lead":"Dennis","leadPhone":"","secondary":"Patrick","secondaryPhone":"","shiftStart":"0900","status":"available","statusChangedAt":null,"notes":""},{"id":"u14","unitNumber":"184-BLS-DEWITT","lead":"Morgan","leadPhone":"","secondary":"Shawn","secondaryPhone":"","shiftStart":"0900","status":"available","statusChangedAt":null,"notes":""}]},{"name":"Clarendon","units":[{"id":"u15","unitNumber":"175-BLS-CLARENDON","lead":"Lindy","leadPhone":"","secondary":"Amanda","secondaryPhone":"","shiftStart":"0900","status":"available","statusChangedAt":null,"notes":""}]}],"dispatch":[{"id":"d1","shiftTime":"0700","supervisor":"Marilyn","dispatcher":"Megan","dispatch2":"Autumn","notes":""},{"id":"d2","shiftTime":"1900","supervisor":"Susan","dispatcher":"Lizzie","dispatch2":"Amber","notes":""}]};
 // ROSTER_DATA_END
 
 // ── STATE ──────────────────────────────────────────────────────────────────────
@@ -283,6 +335,7 @@ let editMode = false;
 let modifiedMode = false;
 let view = 'roster';
 let expanded = new Set();
+let unassignedOpen = true;
 
 function load() {
   try {
@@ -290,9 +343,9 @@ function load() {
     const e = localStorage.getItem('sr_exp'); if (e) expanded = new Set(JSON.parse(e));
     const m = localStorage.getItem('sr_mod'); if (m) modifiedMode = JSON.parse(m);
   } catch(_) {}
-  // Ensure crew array exists (migration from old saves)
   if (!roster.crew) roster.crew = JSON.parse(JSON.stringify(DEFAULT_DATA.crew));
-  if (!Array.isArray(roster.crew)) roster.crew = JSON.parse(JSON.stringify(DEFAULT_DATA.crew));
+  if (!roster.presets) roster.presets = [];
+  if (!roster.eventLog) roster.eventLog = [];
 }
 function save() {
   localStorage.setItem('sr', JSON.stringify(roster));
@@ -303,15 +356,44 @@ function save() {
 // ── HELPERS ────────────────────────────────────────────────────────────────────
 function utype(n){const u=n.toUpperCase();if(u.includes('(EXTRA)'))return'extra';if(u.includes('ALS'))return'als';if(u.includes('BLS'))return'bls';return'als';}
 function ubadge(n){const t=utype(n),cls=t==='extra'?'b-extra':t==='als'?'b-als':'b-bls',lbl=t==='extra'?'Extra':t.toUpperCase();return`<span class="ubdg ${cls}">${lbl}</span>`;}
-function slbl(s){return s==='on-scene'?'● On Scene':s==='oos'?'● OOS':'● Available';}
+function slbl(s){return s==='on-scene'?'On Scene':s==='oos'?'OOS':'Available';}
 function scls(s){return s==='on-scene'?'s-os':s==='oos'?'s-oo':'s-av';}
+function sdot(s){return s==='on-scene'?'🟡':s==='oos'?'🔴':'🟢';}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function uid(){return'_'+Math.random().toString(36).slice(2,9);}
 function fmtDate(d){if(!d)return'Set date';try{return new Date(d+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});}catch(_){return d;}}
+function fmtTime(iso){if(!iso)return'';try{return new Date(iso).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true});}catch(_){return'';}}
+function fmtLogTime(iso){if(!iso)return'';try{const d=new Date(iso);return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true});}catch(_){return'';}}
 
-// Active data source based on mode
-function getStations(){return(modifiedMode&&roster.modified)?roster.modified.stations:roster.stations;}
-function findUnit(id){for(const st of getStations()){const u=st.units.find(x=>x.id===id);if(u)return{u,st};}return null;}
+function getSt(){return(modifiedMode&&roster.modified)?roster.modified.stations:roster.stations;}
+function findUnit(id){for(const st of getSt()){const u=st.units.find(x=>x.id===id);if(u)return{u,st};}return null;}
+
+function getUnassigned(){
+  if(!modifiedMode||!roster.modified)return[];
+  const used=new Set();
+  roster.modified.stations.forEach(st=>st.units.forEach(u=>{if(u.lead)used.add(u.lead.trim().toLowerCase());if(u.secondary)used.add(u.secondary.trim().toLowerCase());}));
+  return(roster.crew||[]).filter(c=>c.name&&!used.has(c.name.trim().toLowerCase()));
+}
+
+function coverage(){
+  const sts=getSt();
+  let als=0,alsT=0,bls=0,blsT=0,os=0,oos=0,empty=0;
+  sts.forEach(st=>st.units.forEach(u=>{
+    const t=utype(u.unitNumber);
+    const staffed=u.lead&&u.lead.toLowerCase()!=='na';
+    if(t==='als'||t==='extra'){alsT++;if(u.status==='oos')oos++;else if(u.status==='on-scene')os++;else if(staffed)als++;}
+    else{blsT++;if(u.status==='oos')oos++;else if(u.status==='on-scene')os++;else if(staffed)bls++;}
+    if(!staffed&&u.status!=='oos')empty++;
+  }));
+  return{als,alsT,bls,blsT,os,oos,empty};
+}
+
+// ── LOG ────────────────────────────────────────────────────────────────────────
+function addLog(text, auto=false){
+  if(!roster.eventLog)roster.eventLog=[];
+  roster.eventLog.unshift({id:uid(),time:new Date().toISOString(),text,auto});
+  if(roster.eventLog.length>300)roster.eventLog=roster.eventLog.slice(0,300);
+}
 
 // ── VIEW ───────────────────────────────────────────────────────────────────────
 function showView(v){
@@ -323,37 +405,62 @@ function showView(v){
 }
 
 function render(){
-  // Header state
-  document.getElementById('dateBtn').textContent=fmtDate(modifiedMode&&roster.modified?roster.modified.shiftDate:roster.shiftDate);
+  // Header
+  const activeDate=modifiedMode&&roster.modified?roster.modified.shiftDate:roster.shiftDate;
+  document.getElementById('dateBtn').textContent=fmtDate(activeDate);
   document.getElementById('modBtn').textContent=modifiedMode?'Modified':'Normal';
   document.getElementById('modBtn').classList.toggle('on',modifiedMode);
-  document.getElementById('printDate').textContent='Shift Date: '+fmtDate(modifiedMode&&roster.modified?roster.modified.shiftDate:roster.shiftDate);
+  document.getElementById('printDate').textContent='Shift Date: '+fmtDate(activeDate);
   document.getElementById('printMod').style.display=modifiedMode?'block':'none';
-  const pn=document.getElementById('printNotes');
   const notes=modifiedMode&&roster.modified?roster.modified.shiftNotes:roster.shiftNotes;
-  if(notes&&notes.trim()){pn.textContent=notes;pn.style.display='block';}else{pn.style.display='none';}
+  const pn=document.getElementById('printNotes');
+  if(notes&&notes.trim()){pn.textContent=notes;pn.style.display='block';}else pn.style.display='none';
+
+  // Coverage bar
+  const cb=document.getElementById('covBar');
+  if(view==='roster'||view==='dispatch'){
+    const c=coverage();
+    const empHtml=modifiedMode&&c.empty?`<div class="covitem"><span class="cv cv-emp">${c.empty}</span><div class="cl">Empty</div></div>`:'';
+    cb.innerHTML=`
+      <div class="covitem"><span class="cv cv-als">${c.als}</span><div class="cl">ALS Up</div></div>
+      <div class="covitem"><span class="cv cv-bls">${c.bls}</span><div class="cl">BLS Up</div></div>
+      <div class="covitem"><span class="cv cv-os">${c.os}</span><div class="cl">On Scene</div></div>
+      <div class="covitem"><span class="cv cv-oo">${c.oos}</span><div class="cl">OOS</div></div>
+      ${empHtml}`;
+    cb.style.display='flex';
+  } else {
+    cb.style.display='none';
+  }
 
   const q=document.getElementById('searchInput').value.trim().toLowerCase();
   if(q){renderSearch(q);return;}
-  if(view==='dispatch'){renderDispatch();return;}
-  if(view==='crew'){renderCrew();return;}
-  renderRoster();
+  if(view==='dispatch')renderDispatch();
+  else if(view==='crew')renderCrew();
+  else if(view==='log')renderLog();
+  else renderRoster();
 }
 
 // ── ROSTER ─────────────────────────────────────────────────────────────────────
 function renderRoster(){
   let h='';
-  if(editMode&&!modifiedMode) h+=`<div class="ebanner">✏️ Edit Mode — tap a unit to edit default crew</div>`;
+  if(editMode&&!modifiedMode)h+=`<div class="ebanner">✏️ Edit Mode — tap a unit to edit default crew</div>`;
   if(modifiedMode){
-    const mn = roster.modified?.shiftNotes;
     h+=`<div class="modbanner"><span class="modlbl">⚠ Modified Shift</span><button class="modclear" onclick="clearModified()">Clear &amp; return to normal</button></div>`;
-    h+=`<div class="gnotes" onclick="openGenNotes()"><div class="gnlbl">📝 Shift Notes</div>${mn&&mn.trim()?`<div class="gntext">${esc(mn)}</div>`:`<div class="gnempty">Tap to add shift notes…</div>`}</div>`;
-  } else {
-    const sn=roster.shiftNotes;
-    h+=`<div class="gnotes" onclick="openGenNotes()"><div class="gnlbl">📝 Shift Notes</div>${sn&&sn.trim()?`<div class="gntext">${esc(sn)}</div>`:`<div class="gnempty">Tap to add shift notes…</div>`}</div>`;
+    const unass=getUnassigned();
+    if(unass.length){
+      h+=`<div class="unassigned">
+        <div class="unassigned-hd" onclick="unassignedOpen=!unassignedOpen;render()">
+          <span class="unassigned-lbl">⚠ ${unass.length} crew unassigned</span>
+          <span style="font-size:11px;color:var(--muted)">${unassignedOpen?'▲':'▼'}</span>
+        </div>
+        ${unassignedOpen?`<div class="unassigned-body">${unass.map(c=>`<span class="ucrew-chip" onclick="openEditCrew(${JSON.stringify(c.id)})" title="${esc(c.phone)}">${esc(c.name)} <span style="font-size:9px;opacity:.7">${esc(c.cert)}</span></span>`).join('')}</div>`:''}
+      </div>`;
+    }
   }
+  const notesKey=modifiedMode&&roster.modified?roster.modified.shiftNotes:roster.shiftNotes;
+  h+=`<div class="gnotes" onclick="openGenNotes()"><div class="gnlbl">📝 Shift Notes</div>${notesKey&&notesKey.trim()?`<div class="gntext">${esc(notesKey)}</div>`:`<div class="gnempty">Tap to add shift notes…</div>`}</div>`;
 
-  getStations().forEach(st=>{
+  getSt().forEach(st=>{
     const open=expanded.has(st.name);
     h+=`<div class="station ${open?'open':'closed'}">
       <div class="sthd" onclick="toggleSt(${JSON.stringify(st.name)})">
@@ -366,49 +473,79 @@ function renderRoster(){
       </div>
     </div>`;
   });
-  if(editMode&&!modifiedMode) h+=`<button class="btn bsec" style="width:100%;margin-top:4px" onclick="addStation()">+ Add Station</button>`;
+  if(editMode&&!modifiedMode)h+=`<button class="btn bsec" style="width:100%;margin-top:4px" onclick="addStation()">+ Add Station</button>`;
   document.getElementById('main').innerHTML=h;
 }
 
 function ucardHTML(u,stName){
-  const s=u.status||'available',hasN=u.notes&&u.notes.trim();
-  const isEmpty=modifiedMode&&!u.lead&&!u.secondary;
-  const cardClick=(editMode&&!modifiedMode)||modifiedMode?`onclick="openEditUnit(${JSON.stringify(u.id)},${JSON.stringify(stName)})"`:'' ;
-  return`<div class="ucard${modifiedMode?' mod-card':''}" ${cardClick} style="${((editMode&&!modifiedMode)||modifiedMode)?'cursor:pointer':''}">
+  const s=u.status||'available',hasN=u.notes&&u.notes.trim(),ts=fmtTime(u.statusChangedAt);
+  const tsPart=ts&&s!=='available'?`<span class="sts-time">since ${ts}</span>`:'';
+  const canTap=(editMode&&!modifiedMode)||modifiedMode;
+  const cardClick=canTap?`onclick="openEditUnit(${JSON.stringify(u.id)},${JSON.stringify(stName)})"`:'' ;
+  const leadEmpty=modifiedMode&&!u.lead,secEmpty=modifiedMode&&!u.secondary;
+  return`<div class="ucard${modifiedMode?' modcard':''}" ${cardClick} style="${canTap?'cursor:pointer':''}">
     <div class="utop">
       <span class="unum">${esc(u.unitNumber)}</span>
       <div class="ubdgs">
         ${ubadge(u.unitNumber)}
-        <button class="sbtn ${scls(s)}" onclick="event.stopPropagation();cycleStatus(${JSON.stringify(u.id)})" title="Tap to change status">${slbl(s)}</button>
+        <button class="sbtn ${scls(s)}" onclick="event.stopPropagation();cycleStatus(${JSON.stringify(u.id)})" title="Tap to change status">${sdot(s)} ${slbl(s)}${tsPart}</button>
       </div>
     </div>
     <div class="uppl">
-      <div class="person${!u.lead&&modifiedMode?' unfilled':''}">
+      <div class="person${leadEmpty?' unfilled':''}" ${leadEmpty?`onclick="event.stopPropagation();quickAssign(${JSON.stringify(u.id)},'lead')"`:''}">
         <div class="prole">Lead</div>
-        <div class="pname${!u.lead?' empty':''}">${u.lead?esc(u.lead):'— tap to assign'}</div>
-        ${u.leadPhone?`<a class="clink" href="tel:${esc(u.leadPhone)}" onclick="event.stopPropagation()">📞 ${esc(u.leadPhone)}</a>`:`<span class="nonum">${modifiedMode?'':'No number'}</span>`}
+        <div class="pname${!u.lead?' empty':''}">${u.lead?esc(u.lead):'tap to assign'}</div>
+        ${u.leadPhone?`<a class="clink" href="tel:${esc(u.leadPhone)}" onclick="event.stopPropagation()">📞 ${esc(u.leadPhone)}</a>`:`<span class="nonum">${!leadEmpty?'No number':''}</span>`}
       </div>
-      <div class="person${!u.secondary&&modifiedMode?' unfilled':''}">
+      <div class="person${secEmpty?' unfilled':''}" ${secEmpty?`onclick="event.stopPropagation();quickAssign(${JSON.stringify(u.id)},'secondary')"`:''}">
         <div class="prole">Secondary</div>
-        <div class="pname${!u.secondary?' empty':''}">${u.secondary?esc(u.secondary):'— tap to assign'}</div>
-        ${u.secondaryPhone?`<a class="clink" href="tel:${esc(u.secondaryPhone)}" onclick="event.stopPropagation()">📞 ${esc(u.secondaryPhone)}</a>`:`<span class="nonum">${modifiedMode?'':'No number'}</span>`}
+        <div class="pname${!u.secondary?' empty':''}">${u.secondary?esc(u.secondary):'tap to assign'}</div>
+        ${u.secondaryPhone?`<a class="clink" href="tel:${esc(u.secondaryPhone)}" onclick="event.stopPropagation()">📞 ${esc(u.secondaryPhone)}</a>`:`<span class="nonum">${!secEmpty?'No number':''}</span>`}
       </div>
     </div>
     <div class="ufoot">
       <div class="ushft">Shift: <span class="stm">${esc(u.shiftStart||'—')}</span></div>
       <div class="uacts">
         ${hasN?'<span title="Has notes">📝</span>':''}
-        ${!((editMode&&!modifiedMode)||modifiedMode)?`<span class="eico" onclick="event.stopPropagation();openEditUnit(${JSON.stringify(u.id)},${JSON.stringify(stName)})" title="Edit">✏️</span>`:''}
+        ${!canTap?`<span class="eico" onclick="event.stopPropagation();openEditUnit(${JSON.stringify(u.id)},${JSON.stringify(stName)})" title="Edit">✏️</span>`:''}
       </div>
     </div>
     ${hasN?`<div class="unotes">${esc(u.notes)}</div>`:''}
   </div>`;
 }
 
+// ── QUICK ASSIGN ───────────────────────────────────────────────────────────────
+function quickAssign(unitId, role){
+  const found=findUnit(unitId);if(!found)return;
+  const u=found.u;
+  const isLead=role==='lead';
+  document.getElementById('qaTitle').textContent=`Assign ${isLead?'Lead':'Secondary'} — ${u.unitNumber}`;
+  document.getElementById('qaBody').innerHTML=`
+    ${nameField('Name','qa_nm','qa_ac',isLead?'qa_ph':'qa_ph2','')}
+    <div class="fg"><div class="flbl">Phone</div><input class="fi" id="${isLead?'qa_ph':'qa_ph2'}" type="tel" placeholder="Auto-fills from crew directory"></div>
+    <div class="sacts">
+      <button class="btn bsec" onclick="cs('qaSheet')">Cancel</button>
+      <button class="btn bpri" onclick="saveQuickAssign(${JSON.stringify(unitId)},${JSON.stringify(role)})">Assign</button>
+    </div>`;
+  document.getElementById('qaSheet').classList.add('show');
+  setTimeout(()=>document.getElementById('qa_nm').focus(),300);
+}
+
+function saveQuickAssign(unitId,role){
+  const found=findUnit(unitId);if(!found)return;
+  const u=found.u,isLead=role==='lead';
+  const phId=isLead?'qa_ph':'qa_ph2';
+  const name=document.getElementById('qa_nm').value.trim();
+  const phone=document.getElementById(phId).value.trim();
+  if(isLead){u.lead=name;u.leadPhone=phone;}else{u.secondary=name;u.secondaryPhone=phone;}
+  if(name)addLog(`${u.unitNumber} — ${isLead?'Lead':'Secondary'} assigned: ${name}`,true);
+  save();cs('qaSheet');render();
+}
+
 // ── DISPATCH ───────────────────────────────────────────────────────────────────
 function renderDispatch(){
   let h='';
-  if(editMode) h+=`<div class="ebanner">✏️ Edit Mode — tap a shift to edit</div>`;
+  if(editMode)h+=`<div class="ebanner">✏️ Edit Mode — tap a shift to edit</div>`;
   const sn=roster.shiftNotes;
   h+=`<div class="gnotes" onclick="openGenNotes()"><div class="gnlbl">📝 Shift Notes</div>${sn&&sn.trim()?`<div class="gntext">${esc(sn)}</div>`:`<div class="gnempty">Tap to add shift notes…</div>`}</div>`;
   roster.dispatch.forEach(d=>{
@@ -421,23 +558,20 @@ function renderDispatch(){
       ${hasN?`<div class="unotes" style="margin-top:8px">${esc(d.notes)}</div>`:''}
     </div>`;
   });
-  if(editMode) h+=`<button class="btn bsec" style="width:100%;margin-top:4px" onclick="addDispatch()">+ Add Dispatch Shift</button>`;
+  if(editMode)h+=`<button class="btn bsec" style="width:100%;margin-top:4px" onclick="addDispatch()">+ Add Dispatch Shift</button>`;
   document.getElementById('main').innerHTML=h;
 }
 
-// ── CREW DIRECTORY ─────────────────────────────────────────────────────────────
+// ── CREW ────────────────────────────────────────────────────────────────────────
 function renderCrew(){
   const q=document.getElementById('searchInput').value.trim().toLowerCase();
   const list=(roster.crew||[]).filter(c=>!q||c.name.toLowerCase().includes(q)||c.phone.includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
   let h=`<button class="btn bpri" style="width:100%;margin-bottom:12px" onclick="openEditCrew(null)">+ Add Crew Member</button>`;
-  if(!list.length){h+=`<div class="empty">No crew members found</div>`;}
+  if(!list.length)h+=`<div class="empty">No crew members found</div>`;
   list.forEach(c=>{
     const certCls=c.cert==='BLS'?'cert-bls':'cert-als';
     h+=`<div class="crew-card" onclick="openEditCrew(${JSON.stringify(c.id)})">
-      <div class="crew-left">
-        <div class="crew-name">${esc(c.name)}</div>
-        <div class="crew-info">${c.phone?esc(c.phone):'No number on file'}</div>
-      </div>
+      <div><div class="crew-name">${esc(c.name)}</div><div class="crew-info">${c.phone?esc(c.phone):'No number on file'}</div></div>
       <span class="crew-cert ${certCls}">${esc(c.cert||'ALS')}</span>
     </div>`;
   });
@@ -446,8 +580,8 @@ function renderCrew(){
 
 function openEditCrew(id){
   const c=id?roster.crew.find(x=>x.id===id):null;
-  document.getElementById('crewSheetTitle').textContent=c?c.name:'New Crew Member';
-  document.getElementById('crewSheetBody').innerHTML=`
+  document.getElementById('crewTitle').textContent=c?c.name:'New Crew Member';
+  document.getElementById('crewBody').innerHTML=`
     <div class="fg"><div class="flbl">Name</div><input class="fi" id="cw_nm" value="${esc(c?.name||'')}"></div>
     <div class="fg"><div class="flbl">Phone</div><input class="fi" id="cw_ph" value="${esc(c?.phone||'')}" type="tel" placeholder="870-000-0000"></div>
     <div class="fg"><div class="flbl">Certification</div>
@@ -465,34 +599,61 @@ function openEditCrew(id){
 }
 
 function saveCrew(id){
-  const name=document.getElementById('cw_nm').value.trim();
-  const phone=document.getElementById('cw_ph').value.trim();
-  const cert=document.getElementById('cw_ct').value;
+  const name=document.getElementById('cw_nm').value.trim(),phone=document.getElementById('cw_ph').value.trim(),cert=document.getElementById('cw_ct').value;
   if(!name){alert('Name required.');return;}
-  if(id){
-    const c=roster.crew.find(x=>x.id===id);
-    if(c){c.name=name;c.phone=phone;c.cert=cert;}
-  } else {
-    roster.crew.push({id:uid(),name,phone,cert});
-  }
+  if(id){const c=roster.crew.find(x=>x.id===id);if(c){c.name=name;c.phone=phone;c.cert=cert;}}
+  else roster.crew.push({id:uid(),name,phone,cert});
   save();cs('crewSheet');render();
 }
 
 function deleteCrew(id){
   if(!confirm('Remove from directory?'))return;
-  roster.crew=roster.crew.filter(c=>c.id!==id);
-  save();cs('crewSheet');render();
+  roster.crew=roster.crew.filter(c=>c.id!==id);save();cs('crewSheet');render();
+}
+
+// ── EVENT LOG ──────────────────────────────────────────────────────────────────
+function renderLog(){
+  const log=roster.eventLog||[];
+  let h=`<div style="display:flex;gap:8px;margin-bottom:12px">
+    <button class="btn bpri" style="flex:1" onclick="document.getElementById('logSheet').classList.add('show')">+ Add Entry</button>
+    ${log.length?`<button class="btn bsec" onclick="clearLog()">Clear log</button>`:''}
+  </div>`;
+  if(!log.length){h+=`<div class="empty"><div style="font-size:32px;margin-bottom:10px">📋</div>No log entries yet.<br>Status changes auto-log here.</div>`;document.getElementById('main').innerHTML=h;return;}
+  let lastDate='';
+  log.forEach(e=>{
+    const d=new Date(e.time),dateStr=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    if(dateStr!==lastDate){h+=`<div class="log-section-lbl">${dateStr}</div>`;lastDate=dateStr;}
+    h+=`<div class="log-entry${e.auto?' auto':''}">
+      <div class="log-time">${fmtLogTime(e.time)}</div>
+      <div class="log-text">${esc(e.text)}</div>
+      <span class="log-del" onclick="deleteLog(${JSON.stringify(e.id)})" title="Delete">✕</span>
+    </div>`;
+  });
+  document.getElementById('main').innerHTML=h;
+}
+
+function saveLogEntry(){
+  const txt=document.getElementById('logInput').value.trim();
+  if(!txt)return;
+  addLog(txt,false);save();cs('logSheet');document.getElementById('logInput').value='';render();
+}
+
+function deleteLog(id){
+  roster.eventLog=(roster.eventLog||[]).filter(e=>e.id!==id);save();render();
+}
+
+function clearLog(){
+  if(!confirm('Clear all log entries?'))return;
+  roster.eventLog=[];save();render();
 }
 
 // ── SEARCH ─────────────────────────────────────────────────────────────────────
 function renderSearch(q){
   let results=[];
-  getStations().forEach(st=>{
-    st.units.forEach(u=>{
-      if([u.unitNumber,u.lead,u.secondary,st.name,u.notes||''].some(s=>s.toLowerCase().includes(q)))
-        results.push({type:'unit',unit:u,stName:st.name});
-    });
-  });
+  getSt().forEach(st=>st.units.forEach(u=>{
+    if([u.unitNumber,u.lead,u.secondary,st.name,u.notes||''].some(s=>s.toLowerCase().includes(q)))
+      results.push({type:'unit',unit:u,stName:st.name});
+  }));
   roster.dispatch.forEach(d=>{
     if([d.supervisor,d.dispatcher,d.dispatch2||'',d.shiftTime].some(s=>s.toLowerCase().includes(q)))
       results.push({type:'dispatch',d});
@@ -501,124 +662,95 @@ function renderSearch(q){
     if([c.name,c.phone].some(s=>s.toLowerCase().includes(q)))
       results.push({type:'crew',c});
   });
+  (roster.eventLog||[]).forEach(e=>{
+    if(e.text.toLowerCase().includes(q))
+      results.push({type:'log',e});
+  });
   if(!results.length){document.getElementById('main').innerHTML=`<div class="empty"><div style="font-size:36px;margin-bottom:10px">🔍</div>No results for "<strong>${esc(q)}</strong>"</div>`;return;}
   let h=`<div style="font-size:12px;color:var(--muted);margin-bottom:10px">${results.length} result${results.length!==1?'s':''}</div>`;
   results.forEach(r=>{
-    if(r.type==='unit'){
-      const u=r.unit;
-      h+=`<div class="sres" onclick="openEditUnit(${JSON.stringify(u.id)},${JSON.stringify(r.stName)})">
-        <div class="ru">${esc(u.unitNumber)} · ${esc(r.stName)}</div>
-        <div class="rn">${esc(u.lead||'—')}${u.secondary?' / '+esc(u.secondary):''}</div>
-        <div class="rs">Shift ${esc(u.shiftStart)}</div>
-      </div>`;
-    } else if(r.type==='dispatch'){
-      const d=r.d;
-      h+=`<div class="sres" onclick="showView('dispatch')">
-        <div class="ru">Dispatch — Shift ${esc(d.shiftTime)}</div>
-        <div class="rn">${[d.supervisor,d.dispatcher,d.dispatch2].filter(Boolean).map(esc).join(', ')}</div>
-        <div class="rs">Dispatch</div>
-      </div>`;
-    } else {
-      const c=r.c;
-      h+=`<div class="sres" onclick="openEditCrew(${JSON.stringify(c.id)})">
-        <div class="ru">Crew Member</div>
-        <div class="rn">${esc(c.name)}</div>
-        <div class="rs">${c.phone?esc(c.phone):'No number'} · ${esc(c.cert)}</div>
-      </div>`;
-    }
+    if(r.type==='unit'){const u=r.unit;h+=`<div class="sres" onclick="openEditUnit(${JSON.stringify(u.id)},${JSON.stringify(r.stName)})"><div class="ru">${esc(u.unitNumber)} · ${esc(r.stName)}</div><div class="rn">${esc(u.lead||'—')}${u.secondary?' / '+esc(u.secondary):''}</div><div class="rs">Shift ${esc(u.shiftStart)}</div></div>`;}
+    else if(r.type==='dispatch'){const d=r.d;h+=`<div class="sres" onclick="showView('dispatch')"><div class="ru">Dispatch — Shift ${esc(d.shiftTime)}</div><div class="rn">${[d.supervisor,d.dispatcher,d.dispatch2].filter(Boolean).map(esc).join(', ')}</div><div class="rs">Dispatch</div></div>`;}
+    else if(r.type==='crew'){const c=r.c;h+=`<div class="sres" onclick="openEditCrew(${JSON.stringify(c.id)})"><div class="ru">Crew Member</div><div class="rn">${esc(c.name)}</div><div class="rs">${c.phone?esc(c.phone):'No number'} · ${esc(c.cert)}</div></div>`;}
+    else{const e=r.e;h+=`<div class="sres" onclick="showView('log')"><div class="ru">Log — ${fmtLogTime(e.time)}</div><div class="rn">${esc(e.text)}</div><div class="rs">Event Log</div></div>`;}
   });
   document.getElementById('main').innerHTML=h;
 }
 
 // ── AUTOCOMPLETE ───────────────────────────────────────────────────────────────
-function acShow(inp, listId, phoneFieldId){
-  const val=inp.value.trim().toLowerCase();
-  const list=document.getElementById(listId);
-  if(!val||val.length<1){list.innerHTML='';return;}
-  const matches=(roster.crew||[]).filter(c=>c.name.toLowerCase().startsWith(val)||c.name.toLowerCase().includes(val)).slice(0,6);
-  if(!matches.length){list.innerHTML='';return;}
-  list.innerHTML=matches.map(c=>`
-    <div class="ac-item" onmousedown="acFill(${JSON.stringify(inp.id)},${JSON.stringify(phoneFieldId)},${JSON.stringify(c.name)},${JSON.stringify(c.phone)},${JSON.stringify(listId)})">
-      <div class="ac-n">${esc(c.name)}</div>
-      ${c.phone||c.cert?`<div class="ac-p">${[c.phone,c.cert].filter(Boolean).join(' · ')}</div>`:''}
-    </div>`).join('');
+function acShow(inp,listId,phoneId){
+  const val=inp.value.trim().toLowerCase(),list=document.getElementById(listId);
+  if(!val){list.innerHTML='';return;}
+  const m=(roster.crew||[]).filter(c=>c.name.toLowerCase().startsWith(val)||c.name.toLowerCase().includes(val)).slice(0,6);
+  if(!m.length){list.innerHTML='';return;}
+  list.innerHTML=m.map(c=>`<div class="ac-item" onmousedown="acFill(${JSON.stringify(inp.id)},${JSON.stringify(phoneId)},${JSON.stringify(c.name)},${JSON.stringify(c.phone)},${JSON.stringify(listId)})"><div class="ac-n">${esc(c.name)}</div>${c.phone||c.cert?`<div class="ac-p">${[c.phone,c.cert].filter(Boolean).join(' · ')}</div>`:''}</div>`).join('');
 }
-
-function acFill(nameId, phoneId, name, phone, listId){
-  document.getElementById(nameId).value=name;
-  if(phoneId&&phone) document.getElementById(phoneId).value=phone;
+function acFill(nId,pId,name,phone,listId){
+  document.getElementById(nId).value=name;
+  if(pId&&phone){const el=document.getElementById(pId);if(el)el.value=phone;}
   document.getElementById(listId).innerHTML='';
 }
+function acHide(listId){setTimeout(()=>{const el=document.getElementById(listId);if(el)el.innerHTML='';},160);}
+function nameField(lbl,inputId,listId,phoneId,val){
+  return`<div class="fg"><div class="flbl">${lbl}</div><div class="ac-wrap"><input class="fi" id="${inputId}" value="${esc(val)}" autocomplete="off" autocorrect="off" oninput="acShow(this,'${listId}','${phoneId}')" onblur="acHide('${listId}')"><div class="ac-list" id="${listId}"></div></div></div>`;
+}
 
-function acHide(listId){ setTimeout(()=>{ const el=document.getElementById(listId); if(el) el.innerHTML=''; },160); }
-
-function nameField(labelText, inputId, listId, phoneId, val){
-  return`<div class="fg">
-    <div class="flbl">${labelText}</div>
-    <div class="ac-wrap">
-      <input class="fi" id="${inputId}" value="${esc(val)}" autocomplete="off" autocorrect="off"
-        oninput="acShow(this,'${listId}','${phoneId}')"
-        onblur="acHide('${listId}')">
-      <div class="ac-list" id="${listId}"></div>
-    </div>
-  </div>`;
+// ── STATUS CYCLE ───────────────────────────────────────────────────────────────
+function cycleStatus(id){
+  const cyc={'available':'on-scene','on-scene':'oos','oos':'available'};
+  const found=findUnit(id);
+  if(!found)return;
+  const u=found.u,old=u.status||'available',nw=cyc[old]||'available';
+  u.status=nw;
+  u.statusChangedAt=nw!=='available'?new Date().toISOString():null;
+  addLog(`${u.unitNumber} → ${nw==='on-scene'?'ON SCENE':nw==='oos'?'OOS':'AVAILABLE'}`,true);
+  save();render();
 }
 
 // ── MODIFIED SHIFT ─────────────────────────────────────────────────────────────
 function toggleModified(){
   if(modifiedMode){
-    // Already in modified mode — offer to turn it off
-    if(confirm('Switch back to Normal view? Modified shift data is preserved.')){
-      modifiedMode=false; save(); render();
-    }
+    if(confirm('Switch back to Normal view? Modified shift is preserved.')){modifiedMode=false;save();render();}
   } else {
-    // Switch to modified
     if(!roster.modified){
-      if(!confirm('Create a Modified Shift?\n\nAll crew slots will be blank — fill in who is actually working each unit today.')) return;
+      if(!confirm('Create a Modified Shift?\n\nUnit numbers and shift times stay — all crew slots start blank.'))return;
       roster.modified={
-        shiftDate:roster.shiftDate,
-        shiftNotes:'',
-        stations:roster.stations.map(st=>({
-          ...st,
-          units:st.units.map(u=>({
-            ...u,
-            lead:'',leadPhone:'',
-            secondary:'',secondaryPhone:'',
-            status:'available',notes:''
-          }))
-        }))
+        shiftDate:roster.shiftDate,shiftNotes:'',
+        stations:roster.stations.map(st=>({...st,units:st.units.map(u=>({...u,lead:'',leadPhone:'',secondary:'',secondaryPhone:'',status:'available',statusChangedAt:null,notes:''}))})
+        )
       };
+      addLog('Modified shift created',false);
     }
-    modifiedMode=true;
-    save();render();
+    modifiedMode=true;save();render();
   }
 }
 
 function clearModified(){
-  if(!confirm('Clear the modified shift and return to the normal roster?')) return;
-  roster.modified=null;
-  modifiedMode=false;
-  save();render();
+  if(!confirm('Clear the modified shift and return to normal roster?'))return;
+  roster.modified=null;modifiedMode=false;addLog('Modified shift cleared',false);save();render();
 }
 
+// ── STATION TOGGLE / EDIT MODE ─────────────────────────────────────────────────
+function toggleSt(name){expanded.has(name)?expanded.delete(name):expanded.add(name);save();render();}
+function toggleEdit(){editMode=!editMode;document.getElementById('editBtn').classList.toggle('on',editMode);render();}
+
 // ── UNIT EDIT ──────────────────────────────────────────────────────────────────
-function openEditUnit(id, stName){
-  const found=findUnit(id);
-  if(!found) return;
+function openEditUnit(id,stName){
+  const found=findUnit(id);if(!found)return;
   const u=found.u;
   document.getElementById('editTitle').textContent=u.unitNumber||'Edit Unit';
   document.getElementById('editBody').innerHTML=`
-    ${modifiedMode?'':`<div class="fg"><div class="flbl">Unit Number</div><input class="fi" id="f_un" value="${esc(u.unitNumber)}"></div>`}
+    ${!modifiedMode?`<div class="fg"><div class="flbl">Unit Number</div><input class="fi" id="f_un" value="${esc(u.unitNumber)}"></div>`:''}
     ${nameField('Lead Provider','f_ld','ac_ld','f_lp',u.lead)}
     <div class="fg"><div class="flbl">Lead Phone</div><input class="fi" id="f_lp" value="${esc(u.leadPhone)}" type="tel" placeholder="870-000-0000"></div>
     ${nameField('Secondary Provider','f_sc','ac_sc','f_sp',u.secondary)}
     <div class="fg"><div class="flbl">Secondary Phone</div><input class="fi" id="f_sp" value="${esc(u.secondaryPhone)}" type="tel" placeholder="501-000-0000"></div>
-    ${modifiedMode?'':`<div class="fg"><div class="flbl">Shift Start</div><input class="fi" id="f_ss" value="${esc(u.shiftStart)}" placeholder="0600"></div>`}
+    ${!modifiedMode?`<div class="fg"><div class="flbl">Shift Start</div><input class="fi" id="f_ss" value="${esc(u.shiftStart)}" placeholder="0600"></div>`:''}
     <div class="fg"><div class="flbl">Status</div>
       <select class="fi" id="f_st">
-        <option value="available" ${u.status==='available'||!u.status?'selected':''}>● Available</option>
-        <option value="on-scene" ${u.status==='on-scene'?'selected':''}>● On Scene</option>
-        <option value="oos" ${u.status==='oos'?'selected':''}>● Out of Service</option>
+        <option value="available" ${u.status==='available'||!u.status?'selected':''}>🟢 Available</option>
+        <option value="on-scene" ${u.status==='on-scene'?'selected':''}>🟡 On Scene</option>
+        <option value="oos" ${u.status==='oos'?'selected':''}>🔴 Out of Service</option>
       </select>
     </div>
     <div class="fg"><div class="flbl">Unit / Crew Notes</div><textarea class="fi" id="f_nt" rows="3" placeholder="Notes specific to this crew or unit…">${esc(u.notes||'')}</textarea></div>
@@ -631,29 +763,34 @@ function openEditUnit(id, stName){
 }
 
 function saveUnit(id){
-  const found=findUnit(id); if(!found) return;
-  const u=found.u;
-  if(!modifiedMode) u.unitNumber=document.getElementById('f_un').value.trim();
+  const found=findUnit(id);if(!found)return;
+  const u=found.u,oldStatus=u.status||'available';
+  if(!modifiedMode)u.unitNumber=document.getElementById('f_un').value.trim();
   u.lead=document.getElementById('f_ld').value.trim();
   u.leadPhone=document.getElementById('f_lp').value.trim();
   u.secondary=document.getElementById('f_sc').value.trim();
   u.secondaryPhone=document.getElementById('f_sp').value.trim();
-  if(!modifiedMode) u.shiftStart=document.getElementById('f_ss').value.trim();
-  u.status=document.getElementById('f_st').value;
+  if(!modifiedMode)u.shiftStart=document.getElementById('f_ss').value.trim();
+  const newStatus=document.getElementById('f_st').value;
+  if(newStatus!==oldStatus){
+    u.statusChangedAt=newStatus!=='available'?new Date().toISOString():null;
+    addLog(`${u.unitNumber} → ${newStatus==='on-scene'?'ON SCENE':newStatus==='oos'?'OOS':'AVAILABLE'}`,true);
+  }
+  u.status=newStatus;
   u.notes=document.getElementById('f_nt').value.trim();
   save();cs('editSheet');render();
 }
 
-function delUnit(id, stName){
+function delUnit(id,stName){
   if(!confirm('Delete this unit?'))return;
   const st=roster.stations.find(s=>s.name===stName);
-  if(st) st.units=st.units.filter(u=>u.id!==id);
+  if(st)st.units=st.units.filter(u=>u.id!==id);
   save();cs('editSheet');render();
 }
 
 function addUnit(stName){
   const st=roster.stations.find(s=>s.name===stName);if(!st)return;
-  const u={id:uid(),unitNumber:'',lead:'',leadPhone:'',secondary:'',secondaryPhone:'',shiftStart:'0700',status:'available',notes:''};
+  const u={id:uid(),unitNumber:'',lead:'',leadPhone:'',secondary:'',secondaryPhone:'',shiftStart:'0700',status:'available',statusChangedAt:null,notes:''};
   st.units.push(u);save();openEditUnit(u.id,stName);render();
 }
 
@@ -702,85 +839,88 @@ function addDispatch(){
 }
 
 // ── DATE / NOTES ───────────────────────────────────────────────────────────────
-function openDate(){
-  const d=modifiedMode&&roster.modified?roster.modified.shiftDate:roster.shiftDate;
-  document.getElementById('dateInput').value=d||'';
-  document.getElementById('dateSheet').classList.add('show');
-}
-function saveDate(){
-  const val=document.getElementById('dateInput').value;
-  if(modifiedMode&&roster.modified) roster.modified.shiftDate=val; else roster.shiftDate=val;
-  save();cs('dateSheet');render();
-}
-function openGenNotes(){
-  const n=modifiedMode&&roster.modified?roster.modified.shiftNotes:roster.shiftNotes;
-  document.getElementById('gnInput').value=n||'';
-  document.getElementById('notesSheet').classList.add('show');
-}
-function saveGenNotes(){
-  const val=document.getElementById('gnInput').value;
-  if(modifiedMode&&roster.modified) roster.modified.shiftNotes=val; else roster.shiftNotes=val;
-  save();cs('notesSheet');render();
+function openDate(){document.getElementById('dateInput').value=(modifiedMode&&roster.modified?roster.modified.shiftDate:roster.shiftDate)||'';document.getElementById('dateSheet').classList.add('show');}
+function saveDate(){const v=document.getElementById('dateInput').value;if(modifiedMode&&roster.modified)roster.modified.shiftDate=v;else roster.shiftDate=v;save();cs('dateSheet');render();}
+function openGenNotes(){document.getElementById('gnInput').value=(modifiedMode&&roster.modified?roster.modified.shiftNotes:roster.shiftNotes)||'';document.getElementById('notesSheet').classList.add('show');}
+function saveGenNotes(){const v=document.getElementById('gnInput').value;if(modifiedMode&&roster.modified)roster.modified.shiftNotes=v;else roster.shiftNotes=v;save();cs('notesSheet');render();}
+
+// ── PRESETS ────────────────────────────────────────────────────────────────────
+function savePreset(){
+  const name=prompt('Preset name (e.g. "A Shift", "B Shift"):');
+  if(!name||!name.trim())return;
+  if(!roster.presets)roster.presets=[];
+  roster.presets.push({id:uid(),name:name.trim(),createdAt:new Date().toISOString(),stations:JSON.parse(JSON.stringify(roster.stations))});
+  save();renderPresets();
 }
 
-// ── STATUS CYCLE ───────────────────────────────────────────────────────────────
-function cycleStatus(id){
-  const cyc={'available':'on-scene','on-scene':'oos','oos':'available'};
-  const found=findUnit(id);
-  if(found){found.u.status=cyc[found.u.status||'available']||'available';save();render();}
+function loadPreset(id){
+  const p=(roster.presets||[]).find(x=>x.id===id);
+  if(!p||!confirm(`Load preset "${p.name}"? This will replace the current normal roster.`))return;
+  roster.stations=JSON.parse(JSON.stringify(p.stations));
+  addLog(`Loaded preset: ${p.name}`,false);
+  save();cs('exportSheet');render();
 }
 
-// ── STATION TOGGLE ─────────────────────────────────────────────────────────────
-function toggleSt(name){expanded.has(name)?expanded.delete(name):expanded.add(name);save();render();}
-function toggleEdit(){editMode=!editMode;document.getElementById('editBtn').classList.toggle('on',editMode);render();}
+function deletePreset(id){
+  if(!confirm('Delete this preset?'))return;
+  roster.presets=(roster.presets||[]).filter(p=>p.id!==id);save();renderPresets();
+}
+
+function renderPresets(){
+  const list=roster.presets||[];
+  const el=document.getElementById('presetList');if(!el)return;
+  if(!list.length){el.innerHTML='<p style="font-size:12px;color:var(--muted);margin-bottom:8px">No saved presets yet.</p>';return;}
+  el.innerHTML=list.map(p=>{
+    const d=new Date(p.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    return`<div class="preset-item">
+      <div><div class="preset-name">${esc(p.name)}</div><div class="preset-date">Saved ${d}</div></div>
+      <div class="preset-acts">
+        <button class="preset-btn load" onclick="loadPreset(${JSON.stringify(p.id)})">Load</button>
+        <button class="preset-btn" onclick="deletePreset(${JSON.stringify(p.id)})">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
 
 // ── SHEETS ─────────────────────────────────────────────────────────────────────
 function cs(id){document.getElementById(id).classList.remove('show');}
 function oob(e,id){if(e.target.classList.contains('overlay'))cs(id);}
-function showExport(){document.getElementById('exportSheet').classList.add('show');}
+function showExport(){renderPresets();document.getElementById('exportSheet').classList.add('show');}
 
 // ── PRINT / EXPORT ─────────────────────────────────────────────────────────────
 function printRoster(){
   cs('exportSheet');
-  const orig=new Set(expanded);
-  getStations().forEach(s=>expanded.add(s.name));
-  render();
+  const orig=new Set(expanded);getSt().forEach(s=>expanded.add(s.name));render();
   setTimeout(()=>{window.print();expanded=orig;render();},150);
 }
 
 function copyText(){
-  const sts=getStations();
-  const notes=modifiedMode&&roster.modified?roster.modified.shiftNotes:roster.shiftNotes;
-  const date=modifiedMode&&roster.modified?roster.modified.shiftDate:roster.shiftDate;
+  const sts=getSt(),notes=modifiedMode&&roster.modified?roster.modified.shiftNotes:roster.shiftNotes,date=modifiedMode&&roster.modified?roster.modified.shiftDate:roster.shiftDate;
   let lines=[`SHIFT ROSTER${modifiedMode?' [MODIFIED]':''} — ${fmtDate(date)}`];
-  if(notes) lines.push(`\nSHIFT NOTES:\n${notes}`);
+  if(notes)lines.push(`\nSHIFT NOTES:\n${notes}`);
   sts.forEach(st=>{
     lines.push(`\n── ${st.name.toUpperCase()} ──`);
     st.units.forEach(u=>{
-      lines.push(`\n${u.unitNumber} [${(u.status||'AVAILABLE').toUpperCase()}]`);
+      const ts=fmtTime(u.statusChangedAt);
+      lines.push(`\n${u.unitNumber} [${(u.status||'AVAILABLE').toUpperCase()}${ts?' since '+ts:''}]`);
       lines.push(`  Lead: ${u.lead||'—'}${u.leadPhone?' ('+u.leadPhone+')':''}`);
       lines.push(`  Secondary: ${u.secondary||'—'}${u.secondaryPhone?' ('+u.secondaryPhone+')':''}`);
       lines.push(`  Shift Start: ${u.shiftStart||'—'}`);
-      if(u.notes) lines.push(`  Notes: ${u.notes}`);
+      if(u.notes)lines.push(`  Notes: ${u.notes}`);
     });
   });
   lines.push(`\n── DISPATCH ──`);
   roster.dispatch.forEach(d=>{
     lines.push(`\nShift ${d.shiftTime}: Supervisor: ${d.supervisor||'—'} | Dispatcher: ${d.dispatcher||'—'} | Dispatch: ${d.dispatch2||'—'}`);
-    if(d.notes) lines.push(`  Notes: ${d.notes}`);
+    if(d.notes)lines.push(`  Notes: ${d.notes}`);
   });
   const txt=lines.join('\n');
-  (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject())
-    .then(()=>alert('Roster copied to clipboard.'))
-    .catch(()=>{const ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);alert('Copied.');});
+  (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>alert('Copied.')).catch(()=>{const ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);alert('Copied.');});
 }
 
 function exportHTML(){
   const src=document.documentElement.outerHTML;
-  const updated=src.replace(
-    /\/\/ ROSTER_DATA_START[\s\S]*?\/\/ ROSTER_DATA_END/,
-    `// ROSTER_DATA_START\nconst DEFAULT_DATA = ${JSON.stringify(roster)};\n// ROSTER_DATA_END`
-  );
+  const updated=src.replace(/\/\/ ROSTER_DATA_START[\s\S]*?\/\/ ROSTER_DATA_END/,`// ROSTER_DATA_START\nconst DEFAULT_DATA = ${JSON.stringify(roster)};\n// ROSTER_DATA_END`);
   dl('shift-roster.html',updated,'text/html');
 }
 
@@ -789,12 +929,12 @@ function exportJSON(){dl('shift-roster.json',JSON.stringify(roster,null,2),'appl
 function importJSON(e){
   const file=e.target.files[0];if(!file)return;
   const r=new FileReader();
-  r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(!d.stations||!d.dispatch)throw new Error('Invalid format');roster=d;if(!roster.crew)roster.crew=[];save();cs('exportSheet');render();alert('Imported.');}catch(err){alert('Failed: '+err.message);}};
+  r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(!d.stations||!d.dispatch)throw new Error('Invalid format');roster=d;if(!roster.crew)roster.crew=[];if(!roster.presets)roster.presets=[];if(!roster.eventLog)roster.eventLog=[];save();cs('exportSheet');render();alert('Imported.');}catch(err){alert('Failed: '+err.message);}};
   r.readAsText(file);e.target.value='';
 }
 
 function resetDefault(){
-  if(!confirm('Reset all data to embedded defaults? All local edits, crew directory changes, and the modified shift will be lost.'))return;
+  if(!confirm('Reset all data to embedded defaults?'))return;
   roster=JSON.parse(JSON.stringify(DEFAULT_DATA));modifiedMode=false;save();cs('exportSheet');render();
 }
 
