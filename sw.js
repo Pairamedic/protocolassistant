@@ -1,4 +1,4 @@
-const CACHE = 'easi-protocols-v2';
+const CACHE = 'easi-protocols-v3';
 const CORE = ['./ProtocolAssistant.html', './easi-logo.jpg', './manifest.json'];
 
 self.addEventListener('install', e => {
