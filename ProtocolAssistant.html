@@ -4009,7 +4009,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       };
       if(!obj.title){ alert('Title is required.'); return; }
       if(idx===-1) s.protocols.push(obj); else s.protocols[idx] = obj;
-    } else {
+    } else if(type === 'med') {
       const mgkg  = parseFloat($('#mf-mgkg').value);
       const maxmg = parseFloat($('#mf-maxmg').value);
       const obj = {
