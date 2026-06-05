@@ -770,6 +770,14 @@
         </div>
         <textarea id="json" rows="12" style="width:100%;margin-top:10px;border-radius:12px;padding:12px;background:#0f131a;color:var(--text);border:1px solid rgba(255,255,255,.12)"></textarea>
       </div>
+
+      <!-- App Update -->
+      <div class="card" style="margin-top:18px">
+        <div style="font-weight:700;font-size:15px;margin-bottom:6px">🔄 Update App</div>
+        <p style="color:var(--muted);font-size:13px;margin:0 0 6px">Clears the cached app files and reloads to fetch the latest version.</p>
+        <p style="color:var(--muted);font-size:13px;margin:0 0 14px"><strong style="color:#fbbf24">⚠ Note:</strong> This clears the app cache. <strong style="color:var(--text)">Your favorited protocols and settings are stored separately and will not be affected.</strong></p>
+        <button id="btn-update-app" class="btn" style="color:#38bdf8;border-color:rgba(56,189,248,.35);background:rgba(56,189,248,.08)">🔄 Clear Cache &amp; Update</button>
+      </div>
     </section>
 
     <!-- Contacts -->
@@ -4276,6 +4284,27 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   }
   document.addEventListener('visibilitychange', ()=>{
     if(document.visibilityState === 'visible' && $('#app-shell').style.display !== 'none') acquireWakeLock();
+  });
+
+  // --- Update App ---
+  $('#btn-update-app').addEventListener('click', async () => {
+    const ok = confirm(
+      'Clear Cache & Update\n\n' +
+      'This will delete the cached app files and reload to fetch the latest version.\n\n' +
+      '✓ Your favorited protocols and settings are stored separately in your browser storage and will NOT be affected.\n\n' +
+      'The app will reload automatically. Continue?'
+    );
+    if (!ok) return;
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+    localStorage.removeItem(SVC_CACHE_KEY);
+    if ('serviceWorker' in navigator) {
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (reg) await reg.update();
+    }
+    window.location.reload(true);
   });
 
   // --- Source protection (deterrents) ---
