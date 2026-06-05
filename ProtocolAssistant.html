@@ -1011,6 +1011,22 @@
     </div>
   </div>
 
+  <!-- PIN Prompt Modal -->
+  <div id="pin-overlay" class="modal-overlay hidden">
+    <div class="modal-box" style="max-width:340px;text-align:center">
+      <div style="font-size:36px;margin-bottom:10px">🔐</div>
+      <h3 style="margin:0 0 6px">Access Required</h3>
+      <p style="color:var(--muted);font-size:13px;margin:0 0 18px">Enter PIN to access <strong style="color:var(--text)">EASI Protocols - 2025</strong></p>
+      <input id="pin-input" type="password" inputmode="numeric" maxlength="10" placeholder="Enter PIN"
+        style="text-align:center;letter-spacing:6px;font-size:20px;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);width:100%;font-family:inherit" />
+      <p id="pin-error" style="color:#f87171;font-size:12px;margin:8px 0 0;min-height:16px"></p>
+      <div class="row" style="gap:10px;margin-top:14px">
+        <button id="pin-cancel" class="btn" style="flex:1">Cancel</button>
+        <button id="pin-submit" class="btn primary" style="flex:2">Unlock</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Edit / Add Modal -->
   <div id="edit-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
     <div class="modal-box">
@@ -3542,9 +3558,56 @@
   }));
 
   // --- PIN Protection ---
+  const PINNED_SERVICES = { 'EASI Protocols - 2025': '37819' };
+  let _pinPendingService = null;
+  let _pinPrevService = null;
+
+  function openPinPrompt(pendingService, prevService){
+    _pinPendingService = pendingService;
+    _pinPrevService = prevService;
+    $('#pin-input').value = '';
+    $('#pin-error').textContent = '';
+    $('#pin-overlay').classList.remove('hidden');
+    setTimeout(() => $('#pin-input').focus(), 80);
+  }
+  function closePinPrompt(revert){
+    $('#pin-overlay').classList.add('hidden');
+    if(revert && _pinPrevService !== null){
+      serviceSelect.value = _pinPrevService;
+    }
+    _pinPendingService = null;
+    _pinPrevService = null;
+  }
+  function submitPin(){
+    const entered = $('#pin-input').value.trim();
+    const correct = PINNED_SERVICES[_pinPendingService];
+    if(entered === correct){
+      sessionStorage.setItem('pin_unlocked_' + _pinPendingService, '1');
+      const svc = _pinPendingService;
+      closePinPrompt(false);
+      state.currentService = svc;
+      save(state);
+      renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
+    } else {
+      $('#pin-error').textContent = 'Incorrect PIN — try again.';
+      $('#pin-input').value = '';
+      $('#pin-input').focus();
+    }
+  }
+  $('#pin-submit').addEventListener('click', submitPin);
+  $('#pin-input').addEventListener('keydown', e => { if(e.key === 'Enter') submitPin(); });
+  $('#pin-cancel').addEventListener('click', () => closePinPrompt(true));
+  $('#pin-overlay').addEventListener('click', e => { if(e.target === $('#pin-overlay')) closePinPrompt(true); });
+
   // --- Services Management ---
   serviceSelect.addEventListener('change', ()=>{
-    state.currentService = serviceSelect.value;
+    const chosen = serviceSelect.value;
+    const prev = state.currentService;
+    if(PINNED_SERVICES[chosen] && !sessionStorage.getItem('pin_unlocked_' + chosen)){
+      openPinPrompt(chosen, prev);
+      return;
+    }
+    state.currentService = chosen;
     save(state);
     renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
   });
