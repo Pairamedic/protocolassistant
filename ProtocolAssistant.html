@@ -278,6 +278,7 @@
           <button id="btn-admin" class="ui-ctrl-btn hidden" title="Admin Panel">⚙️</button>
           <button id="btn-theme" class="ui-ctrl-btn" title="Toggle light/dark mode">☀</button>
           <button id="btn-size" class="ui-ctrl-btn" title="Cycle text size">A</button>
+          <button id="btn-update-app" class="ui-ctrl-btn" title="Update App">🔄</button>
           <div id="user-bar">
             <span id="user-email" style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
             <button id="auth-logout" class="btn" style="padding:5px 10px;font-size:12px;flex:none">Sign out</button>
@@ -335,15 +336,6 @@
 
     <!-- Resources (Calculators + Peds Ref) -->
     <section id="panel-resources" class="panel hidden">
-
-      <!-- App Update -->
-      <div class="card" style="margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:14px 16px">
-        <div>
-          <div style="font-weight:700;font-size:14px;margin-bottom:2px">🔄 Update App</div>
-          <div style="color:var(--muted);font-size:12px">Clear cache &amp; reload the latest version. Favorites are safe.</div>
-        </div>
-        <button id="btn-update-app" class="btn" style="flex:none;color:#38bdf8;border-color:rgba(56,189,248,.35);background:rgba(56,189,248,.08);white-space:nowrap">🔄 Update</button>
-      </div>
 
       <!-- Quick-jump nav -->
       <div class="res-nav">
@@ -4192,10 +4184,14 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     const desc   = $('#report-desc').value.trim();
     if(!desc){ $('#report-desc').style.borderColor='#f87171'; $('#report-desc').focus(); return; }
     $('#report-desc').style.borderColor = '';
-    const topic  = (selVal && selVal !== '__other') ? selVal : (other || 'General Issue');
+    const topic   = (selVal && selVal !== '__other') ? selVal : (other || 'General Issue');
     const subject = encodeURIComponent(`Protocol Report: ${topic}`);
     const body    = encodeURIComponent(`Service: ${state.currentService}\nProtocol / Topic: ${topic}\n\nIssue Description:\n${desc}`);
-    window.location.href = `mailto:eliasacaldwellnrp@gmail.com?subject=${subject}&body=${body}`;
+    const a = document.createElement('a');
+    a.href = `mailto:eliasacaldwellnrp@gmail.com?subject=${subject}&body=${body}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   });
 
   // App shell is hidden until Firebase auth resolves (see onAuthStateChanged below)
