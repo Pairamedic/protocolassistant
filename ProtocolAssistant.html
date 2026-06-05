@@ -22,7 +22,7 @@
     .wrap{max-width:1024px;margin:0 auto;padding:16px}
     .title{font-weight:700;letter-spacing:.2px;font-size:18px}
     .bar{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
-    @media(min-width:860px){.bar{grid-template-columns:1fr 1fr;align-items:start}}
+    @media(min-width:860px){.bar{grid-template-columns:1fr 1fr;align-items:start} #role-row{grid-column:1/-1}}
     input[type="search"],input[type="text"],input[type="number"],select,textarea{width:100%;padding:14px 14px;border-radius:14px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);outline:none}
     input::placeholder{color:#8a94a7}
     :root.light input::placeholder{color:#94a3b8}
@@ -291,7 +291,7 @@
             <button id="report-issue" class="btn" style="color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08);font-size:13px;padding:8px 12px">🚩 Report Issue</button>
             <a id="btn-pdf" href="EASI-Protocols-2026.pdf" download class="btn" style="color:#34d399;border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.08);font-size:13px;padding:8px 12px;text-decoration:none;display:inline-flex;align-items:center;gap:5px">📄 Protocols PDF</a>
           </div>
-          <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
+          <div style="display:flex;gap:8px;align-items:center;align-self:start">
             <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Search protocols, meds, keywords…" style="flex:1;width:auto" />
             <button id="fav-filter" class="btn" title="Show favorites only" style="flex:none;padding:10px 14px;font-size:16px;white-space:nowrap">☆</button>
           </div>
@@ -810,7 +810,7 @@
       </div>
       <div class="row" style="gap:10px;margin-top:14px">
         <button id="report-cancel" class="btn" style="flex:1">Cancel</button>
-        <button id="report-send" class="btn primary" style="flex:2">📧 Compose Email</button>
+        <a id="report-send" href="mailto:eliasacaldwellnrp@gmail.com" class="btn primary" style="flex:2;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:5px">📧 Compose Email</a>
       </div>
       <p class="hint" style="margin:10px 0 0;font-size:12px;text-align:center">Opens your mail app — pre-filled to eliasacaldwellnrp@gmail.com</p>
     </div>
@@ -4093,18 +4093,17 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   $('#report-cancel').addEventListener('click', closeReport);
   $('#report-overlay').addEventListener('click', e=>{ if(e.target===$('#report-overlay')) closeReport(); });
 
-  $('#report-send').addEventListener('click', ()=>{
+  $('#report-send').addEventListener('click', (e)=>{
     const selVal = $('#report-protocol').value;
     const other  = $('#report-topic-other').value.trim();
     const desc   = $('#report-desc').value.trim();
-    if(!desc){ $('#report-desc').style.borderColor='#f87171'; $('#report-desc').focus(); return; }
+    if(!desc){ e.preventDefault(); $('#report-desc').style.borderColor='#f87171'; $('#report-desc').focus(); return; }
     $('#report-desc').style.borderColor = '';
     const topic   = (selVal && selVal !== '__other') ? selVal : (other || 'General Issue');
     const subject = encodeURIComponent(`Protocol Report: ${topic}`);
     const body    = encodeURIComponent(`Service: ${state.currentService}\nProtocol / Topic: ${topic}\n\nIssue Description:\n${desc}`);
-    const mailUrl = `mailto:eliasacaldwellnrp@gmail.com?subject=${subject}&body=${body}`;
+    e.currentTarget.href = `mailto:eliasacaldwellnrp@gmail.com?subject=${subject}&body=${body}`;
     closeReport();
-    setTimeout(() => { window.location.href = mailUrl; }, 150);
   });
 
   // App shell is hidden until Firebase auth resolves (see onAuthStateChanged below)
