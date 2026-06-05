@@ -2507,6 +2507,7 @@
     try{ const r = localStorage.getItem(SVC_CACHE_KEY); if(r) cached = JSON.parse(r); }catch(e){}
 
     if(cached){
+      if(!cached.contacts) cached.contacts = JSON.parse(JSON.stringify(EASI_2026_SERVICE.contacts||[]));
       state.services['EASI Protocols - 2026'] = cached;
       // Refresh in background — no spinner
       fetchSvcFromFirestore().then(fresh => {
@@ -3632,7 +3633,7 @@
       closePinPrompt(false);
       state.currentService = chosen;
       save(state);
-      if(!svc() || !(svc().protocols||[]).length) await loadServiceData();
+      if(!svc() || !(svc().protocols||[]).length || !(svc().contacts||[]).length) await loadServiceData();
       renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
     } else {
       $('#pin-error').textContent = 'Incorrect PIN — try again.';
