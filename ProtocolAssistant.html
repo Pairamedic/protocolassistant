@@ -987,7 +987,7 @@
         <button id="report-cancel" class="btn" style="flex:1">Cancel</button>
         <button id="report-send" class="btn primary" style="flex:2">📧 Compose Email</button>
       </div>
-      <p class="hint" style="margin:10px 0 0;font-size:12px;text-align:center">Opens your mail app — pre-filled to acaldwell@easimedics.com</p>
+      <p class="hint" style="margin:10px 0 0;font-size:12px;text-align:center">Opens your mail app — pre-filled to eliasacaldwellnrp@gmail.com</p>
     </div>
   </div>
 
@@ -3847,7 +3847,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     const topic  = (selVal && selVal !== '__other') ? selVal : (other || 'General Issue');
     const subject = encodeURIComponent(`Protocol Report: ${topic}`);
     const body    = encodeURIComponent(`Service: ${state.currentService}\nProtocol / Topic: ${topic}\n\nIssue Description:\n${desc}`);
-    window.location.href = `mailto:acaldwell@easimedics.com?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:eliasacaldwellnrp@gmail.com?subject=${subject}&body=${body}`;
   });
 
   // App shell is hidden until Firebase auth resolves (see onAuthStateChanged below)
