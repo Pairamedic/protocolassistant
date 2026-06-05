@@ -194,7 +194,7 @@
     :root.light .pt-adult{background:rgba(99,102,241,.1);color:#4338ca;border-color:rgba(99,102,241,.3)}
     /* age filter toggle — protocols panel */
     .tab-filter{padding:8px 0 4px}
-    .tab-filter select{text-align:center;font-size:16px;font-weight:600}
+    .tab-filter select{-webkit-appearance:none;appearance:none;text-align:center;text-align-last:center;font-size:16px;font-weight:600;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a7b0be' fill='none' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:40px}
     /* drug class filter chips — meds panel */
     /* resources panel */
     .res-section{margin-bottom:22px}
@@ -4185,7 +4185,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
 
   // --- Theme & text-size controls ---
   const SIZES = ['sm','md','lg'];
-  const SIZE_LABELS = {sm:'A Small', md:'A Medium', lg:'A Large'};
+  const SIZE_LABELS = {sm:'Aa Text: Small', md:'Aa Text: Medium', lg:'Aa Text: Large'};
   let _sz = localStorage.getItem('pref_sz') || 'sm';
   let _theme = localStorage.getItem('pref_theme') || 'dark';
 
