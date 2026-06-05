@@ -193,7 +193,7 @@
     :root.light .pt-peds{background:rgba(249,115,22,.1);color:#c2410c;border-color:rgba(249,115,22,.3)}
     :root.light .pt-adult{background:rgba(99,102,241,.1);color:#4338ca;border-color:rgba(99,102,241,.3)}
     /* age filter toggle — protocols panel */
-    .tab-filter{padding:8px 0 4px}
+    .tab-filter{padding:8px 0 12px}
     .tab-filter select{-webkit-appearance:none;appearance:none;text-align:center;text-align-last:center;font-size:16px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a7b0be' fill='none' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:40px}
     /* drug class filter chips — meds panel */
     /* resources panel */
@@ -344,7 +344,6 @@
       <!-- Quick-jump nav -->
       <div class="tab-filter">
         <select id="res-nav-select">
-          <option value="">SELECT RESOURCE</option>
           <option value="peds-ref-section">🧒 PEDS REF</option>
           <option value="calc-body-weight">⚖️ WEIGHT DOSE</option>
           <option value="calc-body-std">💊 STD DOSE</option>
@@ -765,7 +764,6 @@
     <section id="panel-contacts" class="panel hidden">
       <div class="tab-filter">
         <select id="contacts-nav-select">
-          <option value="">SELECT SECTION</option>
           <option value="contacts-internal">👥 INTERNAL</option>
           <option value="contacts-clinical">🏥 CLINICAL</option>
         </select>
@@ -3423,7 +3421,6 @@
       </div>`:'';
     const internalHtml = internal.length?`
       <div id="contacts-internal" class="res-section">
-        <div class="res-section-head"><span class="res-section-title">👥 Internal — EASI Medics</span></div>
         ${internal.filter(c=>c.exec).map(renderExec).join('')}
         ${escHtml}
         <div class="contacts-grid">${internal.filter(c=>!c.exec).map(renderStd).join('')}</div>
@@ -3479,10 +3476,10 @@
     renderProtocols(_lastTerms);
   });
   document.getElementById('res-nav-select').addEventListener('change', function(){
-    if(this.value){ jumpToSection(this.value); this.selectedIndex = 0; }
+    jumpToSection(this.value); this.selectedIndex = 0;
   });
   document.getElementById('contacts-nav-select').addEventListener('change', function(){
-    if(this.value){ jumpToSection(this.value); this.selectedIndex = 0; }
+    jumpToSection(this.value); this.selectedIndex = 0;
   });
   let deb;
   q.addEventListener('input', ()=>{
