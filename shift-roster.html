@@ -3,127 +3,189 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Shift Roster">
+  <meta name="theme-color" content="#0b0d10">
+  <link rel="manifest" href="manifest.json">
   <title>Shift Roster</title>
   <style>
     :root{--bg:#0b0d10;--card:#141820;--card2:#1a1f2a;--muted:#a7b0be;--text:#e6eef8;--accent:#5eead4;--als:#60a5fa;--bls:#4ade80;--warn:#fbbf24;--danger:#f87171;--border:rgba(255,255,255,0.08)}
     *{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+    html,body{height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
     body{display:flex;flex-direction:column;max-width:500px;margin:0 auto}
 
-    /* ── Header ── */
-    .header{background:var(--card);border-bottom:1px solid var(--border);padding:12px 16px 8px;position:sticky;top:0;z-index:100}
-    .header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-    .header-title{font-size:17px;font-weight:700}
-    .header-actions{display:flex;gap:8px}
-    .icon-btn{background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:7px 10px;cursor:pointer;font-size:15px;display:flex;align-items:center;gap:5px;font-family:inherit}
+    /* Header */
+    .header{background:var(--card);border-bottom:1px solid var(--border);padding:10px 14px 8px;position:sticky;top:0;z-index:100}
+    .hrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:6px}
+    .hleft{display:flex;align-items:center;gap:8px;min-width:0}
+    .header-title{font-size:16px;font-weight:700;white-space:nowrap}
+    .date-btn{background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:12px;padding:5px 9px;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0}
+    .date-btn:active{background:rgba(255,255,255,.13)}
+    .hactions{display:flex;gap:6px;flex-shrink:0}
+    .icon-btn{background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:6px 9px;cursor:pointer;font-size:15px;font-family:inherit}
     .icon-btn:active{background:rgba(255,255,255,.14)}
     .icon-btn.active{background:rgba(94,234,212,.15);border-color:var(--accent);color:var(--accent)}
     .search-bar{display:flex;align-items:center;gap:8px;background:#0f131a;border:1px solid var(--border);border-radius:10px;padding:8px 12px}
     .search-bar input{background:none;border:none;color:var(--text);font-size:15px;flex:1;outline:none;font-family:inherit}
     .search-bar input::placeholder{color:var(--muted)}
 
-    /* ── Main ── */
-    .main{flex:1;overflow-y:auto;padding:12px 16px 84px}
+    /* Main */
+    .main{flex:1;overflow-y:auto;padding:10px 14px 88px}
 
-    /* ── Station ── */
-    .station{margin-bottom:12px}
-    .station-header{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--card);border-radius:12px;cursor:pointer;user-select:none;border:1px solid var(--border)}
-    .station-header:active{background:var(--card2)}
-    .station-name{font-size:15px;font-weight:700}
-    .station-meta{display:flex;align-items:center;gap:8px}
-    .unit-count{font-size:12px;color:var(--muted)}
-    .chevron{font-size:11px;color:var(--muted);transition:transform .2s}
-    .station.open .chevron{transform:rotate(180deg)}
-    .station-units{display:none;margin-top:6px;flex-direction:column;gap:6px}
-    .station.open .station-units{display:flex}
+    /* General notes banner */
+    .gnotes{background:rgba(94,234,212,.08);border:1px solid rgba(94,234,212,.2);border-radius:10px;padding:10px 12px;margin-bottom:10px;cursor:pointer}
+    .gnotes-label{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px}
+    .gnotes-text{font-size:13px;line-height:1.5;white-space:pre-wrap}
+    .gnotes-empty{font-size:13px;color:var(--muted);font-style:italic}
 
-    /* ── Unit card ── */
-    .unit-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;cursor:pointer}
-    .unit-card:active{background:var(--card2)}
-    .unit-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-    .unit-number{font-size:13px;font-weight:700}
-    .unit-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;text-transform:uppercase;letter-spacing:.5px}
-    .badge-als{background:rgba(96,165,250,.15);color:var(--als);border:1px solid rgba(96,165,250,.3)}
-    .badge-bls{background:rgba(74,222,128,.15);color:var(--bls);border:1px solid rgba(74,222,128,.3)}
-    .badge-extra{background:rgba(251,191,36,.15);color:var(--warn);border:1px solid rgba(251,191,36,.3)}
-    .unit-people{display:flex;gap:8px;margin-bottom:7px}
-    .person{flex:1;background:rgba(255,255,255,.04);border-radius:8px;padding:7px 9px}
-    .person-role{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
-    .person-name{font-size:13px;font-weight:600;margin-bottom:2px;word-break:break-word}
-    a.person-phone{font-size:12px;color:var(--accent);text-decoration:none;display:block}
-    .no-num{color:var(--muted);font-size:11px}
-    .unit-shift{font-size:11px;color:var(--muted)}
-    .shift-time{color:var(--text);font-weight:600}
+    /* Station */
+    .station{margin-bottom:10px}
+    .shead{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:var(--card);border-radius:12px;cursor:pointer;user-select:none;border:1px solid var(--border)}
+    .shead:active{background:var(--card2)}
+    .sname{font-size:15px;font-weight:700}
+    .smeta{display:flex;align-items:center;gap:8px}
+    .ucount{font-size:12px;color:var(--muted)}
+    .chev{font-size:11px;color:var(--muted);transition:transform .2s}
+    .station.open .chev{transform:rotate(180deg)}
+    .sunits{display:none;margin-top:6px;flex-direction:column;gap:6px}
+    .station.open .sunits{display:flex}
 
-    /* ── Bottom nav ── */
-    .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;background:var(--card);border-top:1px solid var(--border);display:flex;padding:6px 0 max(env(safe-area-inset-bottom,0px),6px)}
-    .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;color:var(--muted);cursor:pointer;padding:4px 0;font-family:inherit;font-size:10px;transition:color .15s}
-    .nav-btn.active{color:var(--accent)}
-    .nav-icon{font-size:20px}
+    /* Unit card */
+    .ucard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 13px}
+    .utop{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:4px;flex-wrap:wrap}
+    .unum{font-size:13px;font-weight:700}
+    .ubadges{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+    .ubadge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;text-transform:uppercase;letter-spacing:.5px}
+    .b-als{background:rgba(96,165,250,.15);color:var(--als);border:1px solid rgba(96,165,250,.3)}
+    .b-bls{background:rgba(74,222,128,.15);color:var(--bls);border:1px solid rgba(74,222,128,.3)}
+    .b-extra{background:rgba(251,191,36,.15);color:var(--warn);border:1px solid rgba(251,191,36,.3)}
+    .sbtn{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;border:1px solid;cursor:pointer;background:none;font-family:inherit;letter-spacing:.3px}
+    .s-av{color:#4ade80;border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.1)}
+    .s-os{color:var(--warn);border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.1)}
+    .s-oo{color:var(--danger);border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.1)}
+    .uppl{display:flex;gap:8px;margin-bottom:7px}
+    .person{flex:1;background:rgba(255,255,255,.04);border-radius:8px;padding:8px 9px}
+    .prole{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+    .pname{font-size:13px;font-weight:600;margin-bottom:5px;word-break:break-word}
+    a.clink{display:flex;align-items:center;gap:4px;background:rgba(94,234,212,.1);border:1px solid rgba(94,234,212,.2);border-radius:7px;padding:5px 8px;color:var(--accent);text-decoration:none;font-size:12px;font-weight:600}
+    a.clink:active{background:rgba(94,234,212,.2)}
+    .nonum{color:var(--muted);font-size:11px}
+    .ufoot{display:flex;align-items:center;justify-content:space-between}
+    .ushift{font-size:11px;color:var(--muted)}
+    .stime{color:var(--text);font-weight:600}
+    .uacts{display:flex;gap:6px;align-items:center}
+    .editico{font-size:13px;color:var(--muted);cursor:pointer;padding:3px 5px;border-radius:6px;border:1px solid transparent}
+    .editico:active{background:rgba(255,255,255,.1);border-color:var(--border)}
+    .unotes{margin-top:7px;background:rgba(94,234,212,.06);border:1px solid rgba(94,234,212,.15);border-radius:8px;padding:7px 9px;font-size:12px;line-height:1.5;white-space:pre-wrap}
 
-    /* ── Dispatch ── */
-    .dispatch-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
-    .dispatch-shift{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:10px}
-    .dispatch-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)}
-    .dispatch-row:last-child{border-bottom:none}
-    .dispatch-label{font-size:12px;color:var(--muted)}
-    .dispatch-value{font-size:13px;font-weight:500}
+    /* Bottom nav */
+    .bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;background:var(--card);border-top:1px solid var(--border);display:flex;padding:6px 0 max(env(safe-area-inset-bottom,0px),6px)}
+    .nbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;color:var(--muted);cursor:pointer;padding:4px 0;font-family:inherit;font-size:10px}
+    .nbtn.active{color:var(--accent)}
+    .nicon{font-size:20px}
 
-    /* ── Edit banner ── */
-    .edit-banner{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:10px;padding:8px 14px;margin-bottom:12px;font-size:12px;color:var(--warn);text-align:center}
+    /* Dispatch */
+    .dcard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px;margin-bottom:10px}
+    .dshift{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+    .drow{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)}
+    .drow:last-child{border-bottom:none}
+    .dlbl{font-size:12px;color:var(--muted)}
+    .dval{font-size:13px;font-weight:500}
 
-    /* ── Overlay / sheet ── */
+    /* Edit banner */
+    .ebanner{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:10px;padding:8px 14px;margin-bottom:10px;font-size:12px;color:var(--warn);text-align:center}
+
+    /* Overlay / sheet */
     .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:flex-end;justify-content:center}
     .overlay.show{display:flex}
-    .sheet{background:var(--card);border-radius:20px 20px 0 0;padding:20px 20px max(env(safe-area-inset-bottom,0px),28px);width:100%;max-width:500px;max-height:88vh;overflow-y:auto}
-    .sheet-handle{width:40px;height:4px;background:rgba(255,255,255,.2);border-radius:2px;margin:0 auto 16px}
-    .sheet-title{font-size:17px;font-weight:700;margin-bottom:16px}
-    .field-group{margin-bottom:13px}
-    .field-label{font-size:11px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
-    .field-input{width:100%;background:#0f131a;border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:15px;padding:10px 12px;outline:none;font-family:inherit;transition:border-color .15s}
-    .field-input:focus{border-color:var(--accent)}
-    .sheet-actions{display:flex;gap:10px;margin-top:18px}
+    .sheet{background:var(--card);border-radius:20px 20px 0 0;padding:20px 18px max(env(safe-area-inset-bottom,0px),24px);width:100%;max-width:500px;max-height:90vh;overflow-y:auto}
+    .shandle{width:40px;height:4px;background:rgba(255,255,255,.2);border-radius:2px;margin:0 auto 16px}
+    .stitle{font-size:17px;font-weight:700;margin-bottom:14px}
+    .fg{margin-bottom:12px}
+    .flbl{font-size:11px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+    .fi{width:100%;background:#0f131a;border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:15px;padding:10px 12px;outline:none;font-family:inherit;transition:border-color .15s}
+    .fi:focus{border-color:var(--accent)}
+    textarea.fi{resize:vertical;min-height:72px}
+    select.fi{cursor:pointer}
+    .sacts{display:flex;gap:10px;margin-top:16px}
     .btn{flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;text-align:center}
-    .btn-primary{background:var(--accent);color:#0b0d10;border-color:transparent}
-    .btn-primary:active{background:#4dd4c0}
-    .btn-secondary{background:rgba(255,255,255,.07);color:var(--text)}
-    .btn-secondary:active{background:rgba(255,255,255,.13)}
-    .btn-danger{background:rgba(248,113,113,.12);color:var(--danger);border-color:rgba(248,113,113,.3)}
-    .btn-danger:active{background:rgba(248,113,113,.2)}
-    .btn-full{width:100%;display:block;margin-bottom:8px}
+    .bpri{background:var(--accent);color:#0b0d10;border-color:transparent}
+    .bpri:active{background:#4dd4c0}
+    .bsec{background:rgba(255,255,255,.07);color:var(--text)}
+    .bsec:active{background:rgba(255,255,255,.13)}
+    .bdng{background:rgba(248,113,113,.12);color:var(--danger);border-color:rgba(248,113,113,.3)}
+    .bfull{width:100%;display:block;margin-bottom:8px;flex:none}
+    .div{border:none;border-top:1px solid var(--border);margin:12px 0}
 
-    /* ── Search results ── */
-    .search-result{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer}
-    .search-result:active{background:var(--card2)}
-    .result-unit{font-size:11px;color:var(--muted);margin-bottom:3px}
-    .result-name{font-size:15px;font-weight:600;margin-bottom:2px}
-    .result-station{font-size:12px;color:var(--accent)}
-
-    /* ── Empty ── */
+    /* Search */
+    .sres{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 13px;margin-bottom:8px;cursor:pointer}
+    .sres:active{background:var(--card2)}
+    .ru{font-size:11px;color:var(--muted);margin-bottom:3px}
+    .rn{font-size:15px;font-weight:600;margin-bottom:2px}
+    .rs{font-size:12px;color:var(--accent)}
     .empty{text-align:center;padding:48px 20px;color:var(--muted);font-size:14px}
-    .empty-icon{font-size:40px;margin-bottom:12px}
 
-    /* ── Detail sheet ── */
-    .detail-badge-row{margin-bottom:12px}
-    .detail-info{background:rgba(255,255,255,.04);border-radius:10px;overflow:hidden;margin-bottom:12px}
-    .detail-row{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-bottom:1px solid var(--border)}
-    .detail-row:last-child{border-bottom:none}
-    .detail-label{font-size:12px;color:var(--muted)}
-    .detail-val{font-size:13px;font-weight:500}
-    .person-block{flex:1;background:rgba(255,255,255,.04);border-radius:10px;padding:10px 12px}
-    .person-block .name{font-size:15px;font-weight:700;margin-bottom:4px}
-    .person-block .role{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
-    .call-btn{display:flex;align-items:center;gap:6px;background:rgba(94,234,212,.1);border:1px solid rgba(94,234,212,.25);border-radius:8px;padding:6px 10px;color:var(--accent);text-decoration:none;font-size:13px;font-weight:600;margin-top:4px}
+    /* ── PRINT ── */
+    .print-only{display:none}
+    @media print{
+      *{box-sizing:border-box}
+      body{background:white!important;color:black!important;font-size:11pt;max-width:100%}
+      .header,.bnav,.overlay,.hactions,.search-bar,.ebanner,.editico,.sbtn,.uacts{display:none!important}
+      .main{padding:0!important;overflow:visible!important}
+      .print-only{display:block!important}
+      .ph{text-align:center;margin-bottom:14pt;padding-bottom:10pt;border-bottom:2pt solid #333}
+      .ph h1{font-size:18pt;font-weight:bold;color:#000}
+      .ph .pd{font-size:11pt;color:#555;margin-top:4pt}
+      .ph .pn{font-size:10pt;color:#444;margin-top:6pt;white-space:pre-wrap;text-align:left;background:#f5f5f5;padding:6pt 8pt;border-radius:4pt;border:1pt solid #ddd}
+      .station{break-inside:avoid;margin-bottom:14pt}
+      .sunits{display:flex!important;flex-direction:column;gap:5pt}
+      .shead{background:#1e293b!important;color:white!important;border-radius:5pt;border:none;padding:6pt 10pt}
+      .sname{color:white!important;font-size:12pt}
+      .chev,.ucount{display:none}
+      .ucard{background:white!important;border:1pt solid #ccc!important;border-radius:5pt;padding:7pt 9pt;break-inside:avoid}
+      .utop{flex-wrap:nowrap}
+      .unum{font-size:11pt;font-weight:bold;color:#000!important}
+      .ubadge{font-size:8pt;border:1pt solid #aaa!important;background:#f5f5f5!important;color:#333!important}
+      .uppl{gap:5pt}
+      .person{background:#f9f9f9!important;border:1pt solid #e0e0e0;padding:5pt 7pt;border-radius:3pt}
+      .prole{color:#666!important;font-size:8pt}
+      .pname{font-size:10pt;color:#000!important;margin-bottom:2pt}
+      a.clink{background:none!important;border:none!important;color:#0066cc!important;font-size:10pt;padding:0!important;font-weight:normal}
+      .nonum{color:#999!important;font-size:9pt}
+      .ushift{color:#444!important;font-size:9pt}
+      .stime{color:#000!important}
+      .unotes{background:#f0f9f8!important;border:1pt solid #a0c8c0!important;color:#000!important;font-size:9pt;margin-top:5pt}
+      .gnotes{background:#f0f9f8!important;border:1pt solid #a0c8c0!important;margin-bottom:10pt}
+      .gnotes-label{color:#006654!important}
+      .gnotes-text{color:#000!important}
+      .dcard{background:white!important;border:1pt solid #ccc!important;border-radius:5pt;break-inside:avoid}
+      .dshift{color:#006654!important;font-size:11pt}
+      .drow{border-bottom:1pt solid #eee!important}
+      .dlbl{color:#666!important}
+      .dval{color:#000!important}
+    }
   </style>
 </head>
 <body>
 
+<!-- Print-only header -->
+<div class="print-only ph" id="printHeader">
+  <h1>Shift Roster</h1>
+  <div class="pd" id="printDate"></div>
+  <div class="pn" id="printNotes" style="display:none"></div>
+</div>
+
 <div class="header">
-  <div class="header-top">
-    <div class="header-title" id="headerTitle">Shift Roster</div>
-    <div class="header-actions">
-      <button class="icon-btn" id="editBtn" onclick="toggleEditMode()" title="Edit mode">✏️</button>
-      <button class="icon-btn" onclick="showExportSheet()" title="Export / update">⬆️</button>
+  <div class="hrow">
+    <div class="hleft">
+      <div class="header-title">Shift Roster</div>
+      <button class="date-btn" id="dateBtn" onclick="openDateSheet()">Set date</button>
+    </div>
+    <div class="hactions">
+      <button class="icon-btn" onclick="openGeneralNotes()" title="Shift notes">📝</button>
+      <button class="icon-btn" id="editBtn" onclick="toggleEdit()" title="Edit mode">✏️</button>
+      <button class="icon-btn" onclick="showExport()" title="Export">⬆️</button>
     </div>
   </div>
   <div class="search-bar">
@@ -132,451 +194,437 @@
   </div>
 </div>
 
-<div class="main" id="mainContent"></div>
+<div class="main" id="main"></div>
 
-<div class="bottom-nav">
-  <button class="nav-btn active" id="navRoster" onclick="showView('roster')">
-    <span class="nav-icon">🚑</span>Roster
-  </button>
-  <button class="nav-btn" id="navDispatch" onclick="showView('dispatch')">
-    <span class="nav-icon">📻</span>Dispatch
-  </button>
+<div class="bnav">
+  <button class="nbtn active" id="navRoster" onclick="showView('roster')"><span class="nicon">🚑</span>Roster</button>
+  <button class="nbtn" id="navDispatch" onclick="showView('dispatch')"><span class="nicon">📻</span>Dispatch</button>
 </div>
 
-<!-- Unit edit / detail sheet -->
-<div class="overlay" id="unitSheet" onclick="closeSheetOutside(event,'unitSheet')">
+<!-- Unit / dispatch edit sheet -->
+<div class="overlay" id="editSheet" onclick="oob(event,'editSheet')">
   <div class="sheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title" id="unitSheetTitle"></div>
-    <div id="unitSheetBody"></div>
+    <div class="shandle"></div>
+    <div class="stitle" id="editTitle"></div>
+    <div id="editBody"></div>
+  </div>
+</div>
+
+<!-- General notes sheet -->
+<div class="overlay" id="notesSheet" onclick="oob(event,'notesSheet')">
+  <div class="sheet">
+    <div class="shandle"></div>
+    <div class="stitle">Shift Notes</div>
+    <div class="fg"><div class="flbl">General notes for this shift</div><textarea class="fi" id="gnInput" rows="6" placeholder="Advisories, special assignments, coverage changes…"></textarea></div>
+    <div class="sacts">
+      <button class="btn bsec" onclick="cs('notesSheet')">Cancel</button>
+      <button class="btn bpri" onclick="saveGeneralNotes()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Date sheet -->
+<div class="overlay" id="dateSheet" onclick="oob(event,'dateSheet')">
+  <div class="sheet">
+    <div class="shandle"></div>
+    <div class="stitle">Shift Date</div>
+    <div class="fg"><div class="flbl">Date</div><input type="date" class="fi" id="dateInput"></div>
+    <div class="sacts">
+      <button class="btn bsec" onclick="cs('dateSheet')">Cancel</button>
+      <button class="btn bpri" onclick="saveDate()">Save</button>
+    </div>
   </div>
 </div>
 
 <!-- Export sheet -->
-<div class="overlay" id="exportSheet" onclick="closeSheetOutside(event,'exportSheet')">
+<div class="overlay" id="exportSheet" onclick="oob(event,'exportSheet')">
   <div class="sheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title">Export &amp; Update</div>
-    <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:16px">
-      <strong style="color:var(--text)">Download Roster HTML</strong> creates a fresh copy of this page with your current data baked in.
-      Commit that file to GitHub to publish changes for everyone.
-    </p>
-    <button class="btn btn-primary btn-full" onclick="exportHTML()">⬇️ Download Roster HTML</button>
-    <div style="border-top:1px solid var(--border);margin:14px 0"></div>
-    <button class="btn btn-secondary btn-full" onclick="exportJSON()">Export data as JSON</button>
-    <button class="btn btn-secondary btn-full" onclick="triggerImportJSON()">Import JSON data</button>
-    <input type="file" id="jsonFileInput" accept=".json" style="display:none" onchange="handleJSONImport(event)">
-    <div style="border-top:1px solid var(--border);margin:14px 0"></div>
-    <button class="btn btn-danger btn-full" onclick="resetToDefault()">Reset to embedded defaults</button>
-    <p style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">Clears local edits and restores the data baked into this file</p>
+    <div class="shandle"></div>
+    <div class="stitle">Export &amp; Update</div>
+    <p style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px"><strong style="color:var(--text)">Download Roster HTML</strong> bakes current data into the file. Commit to GitHub to publish.</p>
+    <button class="btn bpri bfull" onclick="exportHTML()">⬇️ Download Roster HTML</button>
+    <hr class="div">
+    <button class="btn bsec bfull" onclick="printRoster()">🖨️ Print / Save as PDF</button>
+    <button class="btn bsec bfull" onclick="copyText()">📋 Copy Roster as Text</button>
+    <hr class="div">
+    <button class="btn bsec bfull" onclick="exportJSON()">Export JSON data</button>
+    <button class="btn bsec bfull" onclick="document.getElementById('jfile').click()">Import JSON data</button>
+    <input type="file" id="jfile" accept=".json" style="display:none" onchange="importJSON(event)">
+    <hr class="div">
+    <button class="btn bdng bfull" onclick="resetDefault()">Reset to embedded defaults</button>
   </div>
 </div>
 
 <script>
-// ─── EMBEDDED DEFAULT DATA ────────────────────────────────────────────────────
-const DEFAULT_DATA = {"stations":[{"name":"Pine Bluff","units":[{"id":"u1","unitNumber":"279-ALS-PB","lead":"Aaron","leadPhone":"870-316-1165","secondary":"Nikki","secondaryPhone":"501-499-0741","shiftStart":"0600"},{"id":"u2","unitNumber":"185-ALS-PB","lead":"Ricky","leadPhone":"870-316-1165","secondary":"Brandi","secondaryPhone":"501-499-0741","shiftStart":"0700"},{"id":"u3","unitNumber":"SR2-ALS-PB","lead":"Troupe","leadPhone":"870-316-1165","secondary":"Cailey","secondaryPhone":"501-499-0741","shiftStart":"0800"},{"id":"u4","unitNumber":"268-ALS-PB","lead":"Rebekah","leadPhone":"501-286-1661","secondary":"Diamond","secondaryPhone":"501-658-3572","shiftStart":"0900"},{"id":"u5","unitNumber":"193-BLS-PB","lead":"Jamie","leadPhone":"","secondary":"Tim","secondaryPhone":"","shiftStart":"0600"},{"id":"u6","unitNumber":"191-BLS-PB","lead":"Denise","leadPhone":"870-897-8131","secondary":"Kayla","secondaryPhone":"870-461-0037","shiftStart":"0800"},{"id":"u7","unitNumber":"195-BLS-PB (Extra)","lead":"NA","leadPhone":"","secondary":"NA","secondaryPhone":"","shiftStart":"1800"}]},{"name":"England","units":[{"id":"u8","unitNumber":"263-ALS-ENGLAND","lead":"Daniel","leadPhone":"","secondary":"Walker","secondaryPhone":"","shiftStart":"0700"}]},{"name":"Star City","units":[{"id":"u9","unitNumber":"279-ALS-Star City","lead":"Bubba","leadPhone":"","secondary":"Andrea","secondaryPhone":"","shiftStart":"0800"}]},{"name":"Warren","units":[{"id":"u10","unitNumber":"178-ALS-Warren","lead":"Cindy","leadPhone":"","secondary":"Kelly","secondaryPhone":"","shiftStart":"0800"},{"id":"u11","unitNumber":"374-ALS-Warren","lead":"Roland","leadPhone":"870-413-3777","secondary":"Jimmy","secondaryPhone":"","shiftStart":"0900"}]},{"name":"Rison","units":[{"id":"u12","unitNumber":"267-ALS-RISON","lead":"Chris S.","leadPhone":"903-280-4528","secondary":"Shyanne","secondaryPhone":"","shiftStart":"0900"}]},{"name":"DeWitt","units":[{"id":"u13","unitNumber":"181-ALS-DEWITT","lead":"Dennis","leadPhone":"","secondary":"Patrick","secondaryPhone":"","shiftStart":"0900"},{"id":"u14","unitNumber":"184-BLS-DEWITT","lead":"Morgan","leadPhone":"","secondary":"Shawn","secondaryPhone":"","shiftStart":"0900"}]},{"name":"Clarendon","units":[{"id":"u15","unitNumber":"175-BLS-CLARENDON","lead":"Lindy","leadPhone":"","secondary":"Amanda","secondaryPhone":"","shiftStart":"0900"}]}],"dispatch":[{"id":"d1","shiftTime":"0700","supervisor":"Marilyn","dispatcher":"Megan","dispatch2":"Autumn"},{"id":"d2","shiftTime":"1900","supervisor":"Susan","dispatcher":"Lizzie","dispatch2":"Amber"}]};
+// ROSTER_DATA_START
+const DEFAULT_DATA = {"shiftDate":"","shiftNotes":"","stations":[{"name":"Pine Bluff","units":[{"id":"u1","unitNumber":"279-ALS-PB","lead":"Aaron","leadPhone":"870-316-1165","secondary":"Nikki","secondaryPhone":"501-499-0741","shiftStart":"0600","status":"available","notes":""},{"id":"u2","unitNumber":"185-ALS-PB","lead":"Ricky","leadPhone":"870-316-1165","secondary":"Brandi","secondaryPhone":"501-499-0741","shiftStart":"0700","status":"available","notes":""},{"id":"u3","unitNumber":"SR2-ALS-PB","lead":"Troupe","leadPhone":"870-316-1165","secondary":"Cailey","secondaryPhone":"501-499-0741","shiftStart":"0800","status":"available","notes":""},{"id":"u4","unitNumber":"268-ALS-PB","lead":"Rebekah","leadPhone":"501-286-1661","secondary":"Diamond","secondaryPhone":"501-658-3572","shiftStart":"0900","status":"available","notes":""},{"id":"u5","unitNumber":"193-BLS-PB","lead":"Jamie","leadPhone":"","secondary":"Tim","secondaryPhone":"","shiftStart":"0600","status":"available","notes":""},{"id":"u6","unitNumber":"191-BLS-PB","lead":"Denise","leadPhone":"870-897-8131","secondary":"Kayla","secondaryPhone":"870-461-0037","shiftStart":"0800","status":"available","notes":""},{"id":"u7","unitNumber":"195-BLS-PB (Extra)","lead":"NA","leadPhone":"","secondary":"NA","secondaryPhone":"","shiftStart":"1800","status":"available","notes":""}]},{"name":"England","units":[{"id":"u8","unitNumber":"263-ALS-ENGLAND","lead":"Daniel","leadPhone":"","secondary":"Walker","secondaryPhone":"","shiftStart":"0700","status":"available","notes":""}]},{"name":"Star City","units":[{"id":"u9","unitNumber":"279-ALS-Star City","lead":"Bubba","leadPhone":"","secondary":"Andrea","secondaryPhone":"","shiftStart":"0800","status":"available","notes":""}]},{"name":"Warren","units":[{"id":"u10","unitNumber":"178-ALS-Warren","lead":"Cindy","leadPhone":"","secondary":"Kelly","secondaryPhone":"","shiftStart":"0800","status":"available","notes":""},{"id":"u11","unitNumber":"374-ALS-Warren","lead":"Roland","leadPhone":"870-413-3777","secondary":"Jimmy","secondaryPhone":"","shiftStart":"0900","status":"available","notes":""}]},{"name":"Rison","units":[{"id":"u12","unitNumber":"267-ALS-RISON","lead":"Chris S.","leadPhone":"903-280-4528","secondary":"Shyanne","secondaryPhone":"","shiftStart":"0900","status":"available","notes":""}]},{"name":"DeWitt","units":[{"id":"u13","unitNumber":"181-ALS-DEWITT","lead":"Dennis","leadPhone":"","secondary":"Patrick","secondaryPhone":"","shiftStart":"0900","status":"available","notes":""},{"id":"u14","unitNumber":"184-BLS-DEWITT","lead":"Morgan","leadPhone":"","secondary":"Shawn","secondaryPhone":"","shiftStart":"0900","status":"available","notes":""}]},{"name":"Clarendon","units":[{"id":"u15","unitNumber":"175-BLS-CLARENDON","lead":"Lindy","leadPhone":"","secondary":"Amanda","secondaryPhone":"","shiftStart":"0900","status":"available","notes":""}]}],"dispatch":[{"id":"d1","shiftTime":"0700","supervisor":"Marilyn","dispatcher":"Megan","dispatch2":"Autumn","notes":""},{"id":"d2","shiftTime":"1900","supervisor":"Susan","dispatcher":"Lizzie","dispatch2":"Amber","notes":""}]};
+// ROSTER_DATA_END
 
-// ─── STATE ────────────────────────────────────────────────────────────────────
+// ── STATE ──────────────────────────────────────────────────────────────────────
 let roster = JSON.parse(JSON.stringify(DEFAULT_DATA));
 let editMode = false;
-let currentView = 'roster';
+let view = 'roster';
 let expanded = new Set();
 
-function loadData() {
+function load() {
   try {
-    const s = localStorage.getItem('shiftRoster');
-    if (s) roster = JSON.parse(s);
-    const e = localStorage.getItem('shiftRosterExpanded');
-    if (e) expanded = new Set(JSON.parse(e));
-  } catch(_) { roster = JSON.parse(JSON.stringify(DEFAULT_DATA)); }
+    const s = localStorage.getItem('sr'); if (s) roster = JSON.parse(s);
+    const e = localStorage.getItem('sr_exp'); if (e) expanded = new Set(JSON.parse(e));
+  } catch(_) {}
+}
+function save() {
+  localStorage.setItem('sr', JSON.stringify(roster));
+  localStorage.setItem('sr_exp', JSON.stringify([...expanded]));
 }
 
-function saveData() {
-  localStorage.setItem('shiftRoster', JSON.stringify(roster));
-  localStorage.setItem('shiftRosterExpanded', JSON.stringify([...expanded]));
-}
-
-// ─── HELPERS ─────────────────────────────────────────────────────────────────
-function unitType(num) {
-  const u = num.toUpperCase();
+// ── HELPERS ────────────────────────────────────────────────────────────────────
+function utype(n) {
+  const u = n.toUpperCase();
   if (u.includes('(EXTRA)')) return 'extra';
   if (u.includes('ALS')) return 'als';
   if (u.includes('BLS')) return 'bls';
   return 'als';
 }
-
-function badge(num) {
-  const t = unitType(num);
-  const cls = t === 'extra' ? 'badge-extra' : t === 'als' ? 'badge-als' : 'badge-bls';
-  const lbl = t === 'extra' ? 'Extra' : t.toUpperCase();
-  return `<span class="unit-badge ${cls}">${lbl}</span>`;
+function ubadge(n) {
+  const t = utype(n), cls = t==='extra'?'b-extra':t==='als'?'b-als':'b-bls', lbl = t==='extra'?'Extra':t.toUpperCase();
+  return `<span class="ubadge ${cls}">${lbl}</span>`;
+}
+function slbl(s) { return s==='on-scene'?'● On Scene':s==='oos'?'● OOS':'● Available'; }
+function scls(s) { return s==='on-scene'?'s-os':s==='oos'?'s-oo':'s-av'; }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function uid() { return '_'+Math.random().toString(36).slice(2,9); }
+function fmtDate(d) {
+  if (!d) return 'Set date';
+  try { return new Date(d+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}); } catch(_) { return d; }
 }
 
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-
-function uid() { return '_' + Math.random().toString(36).slice(2,9); }
-
-// ─── RENDER ───────────────────────────────────────────────────────────────────
+// ── VIEW ───────────────────────────────────────────────────────────────────────
 function showView(v) {
-  currentView = v;
+  view = v;
   document.getElementById('searchInput').value = '';
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('nav' + v[0].toUpperCase() + v.slice(1)).classList.add('active');
-  document.getElementById('headerTitle').textContent = v === 'dispatch' ? 'Dispatch' : 'Shift Roster';
+  document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('nav'+v[0].toUpperCase()+v.slice(1)).classList.add('active');
   render();
 }
 
 function render() {
+  document.getElementById('dateBtn').textContent = fmtDate(roster.shiftDate);
+  document.getElementById('printDate').textContent = 'Shift Date: ' + fmtDate(roster.shiftDate);
+  const pn = document.getElementById('printNotes');
+  if (roster.shiftNotes && roster.shiftNotes.trim()) { pn.textContent = roster.shiftNotes; pn.style.display='block'; } else { pn.style.display='none'; }
   const q = document.getElementById('searchInput').value.trim().toLowerCase();
   if (q) { renderSearch(q); return; }
-  currentView === 'dispatch' ? renderDispatch() : renderRoster();
+  view === 'dispatch' ? renderDispatch() : renderRoster();
 }
 
 function renderRoster() {
-  let h = editMode ? `<div class="edit-banner">✏️ Edit Mode — tap a unit to edit it</div>` : '';
-
+  let h = editMode ? `<div class="ebanner">✏️ Edit Mode — tap any unit to edit</div>` : '';
+  // General notes
+  h += `<div class="gnotes" onclick="openGeneralNotes()">
+    <div class="gnotes-label">📝 Shift Notes</div>
+    ${roster.shiftNotes && roster.shiftNotes.trim()
+      ? `<div class="gnotes-text">${esc(roster.shiftNotes)}</div>`
+      : `<div class="gnotes-empty">Tap to add shift notes…</div>`}
+  </div>`;
   roster.stations.forEach(st => {
     const open = expanded.has(st.name);
-    const sId = 'st_' + esc(st.name).replace(/\W/g,'_');
-    h += `<div class="station ${open?'open':'closed'}" id="${sId}">
-      <div class="station-header" onclick="toggleStation(${JSON.stringify(st.name)})">
-        <span class="station-name">${esc(st.name)}</span>
-        <div class="station-meta">
-          <span class="unit-count">${st.units.length} unit${st.units.length!==1?'s':''}</span>
-          <span class="chevron">▼</span>
-        </div>
+    h += `<div class="station ${open?'open':'closed'}">
+      <div class="shead" onclick="toggleSt(${JSON.stringify(st.name)})">
+        <span class="sname">${esc(st.name)}</span>
+        <div class="smeta"><span class="ucount">${st.units.length} unit${st.units.length!==1?'s':''}</span><span class="chev">▼</span></div>
       </div>
-      <div class="station-units">
-        ${st.units.map(u => unitCardHTML(u, st.name)).join('')}
-        ${editMode ? `<button class="btn btn-secondary" style="margin-top:2px" onclick="startAddUnit(${JSON.stringify(st.name)})">+ Add Unit</button>` : ''}
+      <div class="sunits">
+        ${st.units.map(u=>ucardHTML(u,st.name)).join('')}
+        ${editMode?`<button class="btn bsec" style="margin-top:2px" onclick="addUnit(${JSON.stringify(st.name)})">+ Add Unit</button>`:''}
       </div>
     </div>`;
   });
-
-  if (editMode) {
-    h += `<button class="btn btn-secondary" style="width:100%;margin-top:4px" onclick="addStation()">+ Add Station</button>`;
-  }
-
-  document.getElementById('mainContent').innerHTML = h;
+  if (editMode) h += `<button class="btn bsec" style="width:100%;margin-top:4px" onclick="addStation()">+ Add Station</button>`;
+  document.getElementById('main').innerHTML = h;
 }
 
-function unitCardHTML(u, stationName) {
-  const click = editMode
-    ? `onclick="openEditUnit(${JSON.stringify(u.id)},${JSON.stringify(stationName)})"`
-    : `onclick="openDetailUnit(${JSON.stringify(u.id)},${JSON.stringify(stationName)})"`;
-  return `<div class="unit-card" ${click}>
-    <div class="unit-top">
-      <span class="unit-number">${esc(u.unitNumber)}</span>
-      ${badge(u.unitNumber)}
-    </div>
-    <div class="unit-people">
-      <div class="person">
-        <div class="person-role">Lead</div>
-        <div class="person-name">${esc(u.lead||'—')}</div>
-        ${u.leadPhone ? `<a class="person-phone" href="tel:${esc(u.leadPhone)}" onclick="event.stopPropagation()">${esc(u.leadPhone)}</a>` : '<span class="no-num">No number</span>'}
-      </div>
-      <div class="person">
-        <div class="person-role">Secondary</div>
-        <div class="person-name">${esc(u.secondary||'—')}</div>
-        ${u.secondaryPhone ? `<a class="person-phone" href="tel:${esc(u.secondaryPhone)}" onclick="event.stopPropagation()">${esc(u.secondaryPhone)}</a>` : '<span class="no-num">No number</span>'}
+function ucardHTML(u, st) {
+  const s = u.status||'available', hasN = u.notes&&u.notes.trim();
+  const cardClick = editMode ? `onclick="openEditUnit(${JSON.stringify(u.id)},${JSON.stringify(st)})"` : '';
+  return `<div class="ucard" ${cardClick} style="${editMode?'cursor:pointer':''}">
+    <div class="utop">
+      <span class="unum">${esc(u.unitNumber)}</span>
+      <div class="ubadges">
+        ${ubadge(u.unitNumber)}
+        <button class="sbtn ${scls(s)}" onclick="event.stopPropagation();cycleStatus(${JSON.stringify(u.id)})" title="Tap to cycle status">${slbl(s)}</button>
       </div>
     </div>
-    <div class="unit-shift">Shift Start: <span class="shift-time">${esc(u.shiftStart||'—')}</span></div>
+    <div class="uppl">
+      <div class="person">
+        <div class="prole">Lead</div>
+        <div class="pname">${esc(u.lead||'—')}</div>
+        ${u.leadPhone?`<a class="clink" href="tel:${esc(u.leadPhone)}" onclick="event.stopPropagation()">📞 ${esc(u.leadPhone)}</a>`:`<span class="nonum">No number</span>`}
+      </div>
+      <div class="person">
+        <div class="prole">Secondary</div>
+        <div class="pname">${esc(u.secondary||'—')}</div>
+        ${u.secondaryPhone?`<a class="clink" href="tel:${esc(u.secondaryPhone)}" onclick="event.stopPropagation()">📞 ${esc(u.secondaryPhone)}</a>`:`<span class="nonum">No number</span>`}
+      </div>
+    </div>
+    <div class="ufoot">
+      <div class="ushift">Shift: <span class="stime">${esc(u.shiftStart||'—')}</span></div>
+      <div class="uacts">
+        ${hasN?'<span title="Has notes">📝</span>':''}
+        <span class="editico" onclick="event.stopPropagation();openEditUnit(${JSON.stringify(u.id)},${JSON.stringify(st)})" title="Edit">✏️</span>
+      </div>
+    </div>
+    ${hasN?`<div class="unotes">${esc(u.notes)}</div>`:''}
   </div>`;
 }
 
 function renderDispatch() {
-  let h = editMode ? `<div class="edit-banner">✏️ Edit Mode — tap a shift to edit it</div>` : '';
-
+  let h = editMode ? `<div class="ebanner">✏️ Edit Mode — tap a shift to edit</div>` : '';
+  h += `<div class="gnotes" onclick="openGeneralNotes()">
+    <div class="gnotes-label">📝 Shift Notes</div>
+    ${roster.shiftNotes&&roster.shiftNotes.trim()?`<div class="gnotes-text">${esc(roster.shiftNotes)}</div>`:`<div class="gnotes-empty">Tap to add shift notes…</div>`}
+  </div>`;
   roster.dispatch.forEach(d => {
-    const click = editMode ? `onclick="openEditDispatch(${JSON.stringify(d.id)})" style="cursor:pointer"` : '';
-    h += `<div class="dispatch-card" ${click}>
-      <div class="dispatch-shift">📻 Dispatch — Shift ${esc(d.shiftTime)}</div>
-      <div class="dispatch-row"><span class="dispatch-label">Supervisor</span><span class="dispatch-value">${esc(d.supervisor||'—')}</span></div>
-      <div class="dispatch-row"><span class="dispatch-label">Dispatcher</span><span class="dispatch-value">${esc(d.dispatcher||'—')}</span></div>
-      <div class="dispatch-row"><span class="dispatch-label">Dispatch</span><span class="dispatch-value">${esc(d.dispatch2||'—')}</span></div>
+    const hasN = d.notes&&d.notes.trim();
+    h += `<div class="dcard">
+      <div class="dshift">
+        <span>📻 Dispatch — Shift ${esc(d.shiftTime)}</span>
+        <span class="editico" onclick="openEditDispatch(${JSON.stringify(d.id)})" title="Edit">✏️</span>
+      </div>
+      <div class="drow"><span class="dlbl">Supervisor</span><span class="dval">${esc(d.supervisor||'—')}</span></div>
+      <div class="drow"><span class="dlbl">Dispatcher</span><span class="dval">${esc(d.dispatcher||'—')}</span></div>
+      <div class="drow"><span class="dlbl">Dispatch</span><span class="dval">${esc(d.dispatch2||'—')}</span></div>
+      ${hasN?`<div class="unotes" style="margin-top:8px">${esc(d.notes)}</div>`:''}
     </div>`;
   });
-
-  if (editMode) {
-    h += `<button class="btn btn-secondary" style="width:100%;margin-top:4px" onclick="startAddDispatch()">+ Add Dispatch Shift</button>`;
-  }
-
-  document.getElementById('mainContent').innerHTML = h;
+  if (editMode) h += `<button class="btn bsec" style="width:100%;margin-top:4px" onclick="addDispatch()">+ Add Dispatch Shift</button>`;
+  document.getElementById('main').innerHTML = h;
 }
 
 function renderSearch(q) {
   let results = [];
-
   roster.stations.forEach(st => {
     st.units.forEach(u => {
-      if ([u.unitNumber, u.lead, u.secondary, st.name].some(s => s.toLowerCase().includes(q))) {
-        results.push({ type:'unit', unit:u, stationName:st.name });
-      }
+      if ([u.unitNumber,u.lead,u.secondary,st.name,u.notes||''].some(s=>s.toLowerCase().includes(q)))
+        results.push({type:'unit',unit:u,stName:st.name});
     });
   });
-
   roster.dispatch.forEach(d => {
-    if ([d.supervisor, d.dispatcher, d.dispatch2||'', d.shiftTime].some(s => s.toLowerCase().includes(q))) {
-      results.push({ type:'dispatch', dispatch:d });
-    }
+    if ([d.supervisor,d.dispatcher,d.dispatch2||'',d.shiftTime].some(s=>s.toLowerCase().includes(q)))
+      results.push({type:'dispatch',d});
   });
-
-  if (!results.length) {
-    document.getElementById('mainContent').innerHTML = `<div class="empty"><div class="empty-icon">🔍</div>No results for "<strong>${esc(q)}</strong>"</div>`;
-    return;
-  }
-
+  if (!results.length) { document.getElementById('main').innerHTML=`<div class="empty"><div style="font-size:36px;margin-bottom:10px">🔍</div>No results for "<strong>${esc(q)}</strong>"</div>`; return; }
   let h = `<div style="font-size:12px;color:var(--muted);margin-bottom:10px">${results.length} result${results.length!==1?'s':''}</div>`;
   results.forEach(r => {
-    if (r.type === 'unit') {
-      const u = r.unit;
-      h += `<div class="search-result" onclick="openDetailUnit(${JSON.stringify(u.id)},${JSON.stringify(r.stationName)})">
-        <div class="result-unit">${esc(u.unitNumber)} · ${esc(r.stationName)}</div>
-        <div class="result-name">${esc(u.lead||'—')}${u.secondary ? ' / ' + esc(u.secondary) : ''}</div>
-        <div class="result-station">Shift ${esc(u.shiftStart)}</div>
+    if (r.type==='unit') {
+      const u=r.unit;
+      h+=`<div class="sres" onclick="openEditUnit(${JSON.stringify(u.id)},${JSON.stringify(r.stName)})">
+        <div class="ru">${esc(u.unitNumber)} · ${esc(r.stName)}</div>
+        <div class="rn">${esc(u.lead||'—')}${u.secondary?' / '+esc(u.secondary):''}</div>
+        <div class="rs">Shift ${esc(u.shiftStart)}</div>
       </div>`;
     } else {
-      const d = r.dispatch;
-      h += `<div class="search-result" onclick="showView('dispatch')">
-        <div class="result-unit">Dispatch — Shift ${esc(d.shiftTime)}</div>
-        <div class="result-name">${[d.supervisor,d.dispatcher,d.dispatch2].filter(Boolean).map(esc).join(', ')}</div>
-        <div class="result-station">Dispatch</div>
+      const d=r.d;
+      h+=`<div class="sres" onclick="showView('dispatch')">
+        <div class="ru">Dispatch — Shift ${esc(d.shiftTime)}</div>
+        <div class="rn">${[d.supervisor,d.dispatcher,d.dispatch2].filter(Boolean).map(esc).join(', ')}</div>
+        <div class="rs">Dispatch</div>
       </div>`;
     }
   });
-
-  document.getElementById('mainContent').innerHTML = h;
+  document.getElementById('main').innerHTML = h;
 }
 
-// ─── INTERACTIONS ─────────────────────────────────────────────────────────────
-function toggleStation(name) {
-  expanded.has(name) ? expanded.delete(name) : expanded.add(name);
-  saveData();
-  render();
+// ── ACTIONS ────────────────────────────────────────────────────────────────────
+function toggleSt(name) { expanded.has(name)?expanded.delete(name):expanded.add(name); save(); render(); }
+function handleSearch() { render(); }
+function toggleEdit() { editMode=!editMode; document.getElementById('editBtn').classList.toggle('active',editMode); render(); }
+
+function cycleStatus(id) {
+  const cyc={'available':'on-scene','on-scene':'oos','oos':'available'};
+  for (const st of roster.stations) { const u=st.units.find(x=>x.id===id); if(u){u.status=cyc[u.status||'available']||'available';save();render();return;} }
 }
 
-function handleSearch(v) { render(); }
+// Date
+function openDateSheet() { document.getElementById('dateInput').value=roster.shiftDate||''; document.getElementById('dateSheet').classList.add('show'); }
+function saveDate() { roster.shiftDate=document.getElementById('dateInput').value; save(); cs('dateSheet'); render(); }
 
-function toggleEditMode() {
-  editMode = !editMode;
-  document.getElementById('editBtn').classList.toggle('active', editMode);
-  render();
-}
+// General notes
+function openGeneralNotes() { document.getElementById('gnInput').value=roster.shiftNotes||''; document.getElementById('notesSheet').classList.add('show'); }
+function saveGeneralNotes() { roster.shiftNotes=document.getElementById('gnInput').value; save(); cs('notesSheet'); render(); }
 
-// ─── UNIT DETAIL (read-only) ──────────────────────────────────────────────────
-function openDetailUnit(unitId, stationName) {
-  const st = roster.stations.find(s => s.name === stationName);
-  const u = st && st.units.find(x => x.id === unitId);
+// Unit edit
+function openEditUnit(id, stName) {
+  let u;
+  for (const st of roster.stations) { u=st.units.find(x=>x.id===id); if(u) break; }
   if (!u) return;
-
-  document.getElementById('unitSheetTitle').textContent = u.unitNumber;
-  document.getElementById('unitSheetBody').innerHTML = `
-    <div class="detail-badge-row">${badge(u.unitNumber)}</div>
-    <div class="detail-info">
-      <div class="detail-row"><span class="detail-label">Station</span><span class="detail-val">${esc(stationName)}</span></div>
-      <div class="detail-row"><span class="detail-label">Shift Start</span><span class="detail-val">${esc(u.shiftStart||'—')}</span></div>
+  document.getElementById('editTitle').textContent = u.unitNumber||'Edit Unit';
+  document.getElementById('editBody').innerHTML = `
+    <div class="fg"><div class="flbl">Unit Number</div><input class="fi" id="f_un" value="${esc(u.unitNumber)}"></div>
+    <div class="fg"><div class="flbl">Lead Provider</div><input class="fi" id="f_ld" value="${esc(u.lead)}"></div>
+    <div class="fg"><div class="flbl">Lead Phone</div><input class="fi" id="f_lp" value="${esc(u.leadPhone)}" type="tel" placeholder="870-000-0000"></div>
+    <div class="fg"><div class="flbl">Secondary Provider</div><input class="fi" id="f_sc" value="${esc(u.secondary)}"></div>
+    <div class="fg"><div class="flbl">Secondary Phone</div><input class="fi" id="f_sp" value="${esc(u.secondaryPhone)}" type="tel" placeholder="501-000-0000"></div>
+    <div class="fg"><div class="flbl">Shift Start</div><input class="fi" id="f_ss" value="${esc(u.shiftStart)}" placeholder="0600"></div>
+    <div class="fg"><div class="flbl">Status</div>
+      <select class="fi" id="f_st">
+        <option value="available" ${u.status==='available'||!u.status?'selected':''}>● Available</option>
+        <option value="on-scene" ${u.status==='on-scene'?'selected':''}>● On Scene</option>
+        <option value="oos" ${u.status==='oos'?'selected':''}>● Out of Service</option>
+      </select>
     </div>
-    <div style="display:flex;gap:10px;margin-bottom:14px">
-      <div class="person-block">
-        <div class="role">Lead Provider</div>
-        <div class="name">${esc(u.lead||'—')}</div>
-        ${u.leadPhone ? `<a class="call-btn" href="tel:${esc(u.leadPhone)}">📞 ${esc(u.leadPhone)}</a>` : '<span class="no-num" style="font-size:12px">No number on file</span>'}
-      </div>
-      <div class="person-block">
-        <div class="role">Secondary</div>
-        <div class="name">${esc(u.secondary||'—')}</div>
-        ${u.secondaryPhone ? `<a class="call-btn" href="tel:${esc(u.secondaryPhone)}">📞 ${esc(u.secondaryPhone)}</a>` : '<span class="no-num" style="font-size:12px">No number on file</span>'}
-      </div>
+    <div class="fg"><div class="flbl">Unit / Crew Notes</div><textarea class="fi" id="f_nt" rows="3" placeholder="Notes specific to this crew or unit…">${esc(u.notes||'')}</textarea></div>
+    <div class="sacts">
+      <button class="btn bsec" onclick="cs('editSheet')">Cancel</button>
+      <button class="btn bpri" onclick="saveUnit(${JSON.stringify(id)})">Save</button>
     </div>
-    <div class="sheet-actions">
-      <button class="btn btn-secondary" onclick="closeSheet('unitSheet')">Close</button>
-      <button class="btn btn-primary" onclick="closeSheet('unitSheet');editMode||(editMode=true,document.getElementById('editBtn').classList.add('active'));openEditUnit(${JSON.stringify(unitId)},${JSON.stringify(stationName)})">Edit</button>
-    </div>`;
-
-  document.getElementById('unitSheet').classList.add('show');
+    <div style="margin-top:10px"><button class="btn bdng" style="width:100%" onclick="delUnit(${JSON.stringify(id)},${JSON.stringify(stName)})">Delete Unit</button></div>`;
+  document.getElementById('editSheet').classList.add('show');
 }
 
-// ─── UNIT EDIT ────────────────────────────────────────────────────────────────
-function openEditUnit(unitId, stationName) {
-  const st = roster.stations.find(s => s.name === stationName);
-  const u = st && st.units.find(x => x.id === unitId);
-  if (!u) return;
-
-  document.getElementById('unitSheetTitle').textContent = 'Edit Unit';
-  document.getElementById('unitSheetBody').innerHTML = `
-    <div class="field-group"><div class="field-label">Unit Number</div><input class="field-input" id="f_un" value="${esc(u.unitNumber)}"></div>
-    <div class="field-group"><div class="field-label">Lead Provider</div><input class="field-input" id="f_lead" value="${esc(u.lead)}"></div>
-    <div class="field-group"><div class="field-label">Lead Phone</div><input class="field-input" id="f_lp" value="${esc(u.leadPhone)}" type="tel" placeholder="e.g. 870-316-1165"></div>
-    <div class="field-group"><div class="field-label">Secondary Provider</div><input class="field-input" id="f_sec" value="${esc(u.secondary)}"></div>
-    <div class="field-group"><div class="field-label">Secondary Phone</div><input class="field-input" id="f_sp" value="${esc(u.secondaryPhone)}" type="tel" placeholder="e.g. 501-499-0741"></div>
-    <div class="field-group"><div class="field-label">Shift Start</div><input class="field-input" id="f_ss" value="${esc(u.shiftStart)}" placeholder="e.g. 0600"></div>
-    <div class="sheet-actions">
-      <button class="btn btn-secondary" onclick="closeSheet('unitSheet')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveUnit(${JSON.stringify(unitId)},${JSON.stringify(stationName)})">Save</button>
-    </div>
-    <div style="margin-top:10px">
-      <button class="btn btn-danger" style="width:100%" onclick="deleteUnit(${JSON.stringify(unitId)},${JSON.stringify(stationName)})">Delete Unit</button>
-    </div>`;
-
-  document.getElementById('unitSheet').classList.add('show');
+function saveUnit(id) {
+  for (const st of roster.stations) {
+    const u=st.units.find(x=>x.id===id);
+    if (u) {
+      u.unitNumber=document.getElementById('f_un').value.trim();
+      u.lead=document.getElementById('f_ld').value.trim();
+      u.leadPhone=document.getElementById('f_lp').value.trim();
+      u.secondary=document.getElementById('f_sc').value.trim();
+      u.secondaryPhone=document.getElementById('f_sp').value.trim();
+      u.shiftStart=document.getElementById('f_ss').value.trim();
+      u.status=document.getElementById('f_st').value;
+      u.notes=document.getElementById('f_nt').value.trim();
+      break;
+    }
+  }
+  save(); cs('editSheet'); render();
 }
 
-function saveUnit(unitId, stationName) {
-  const st = roster.stations.find(s => s.name === stationName);
-  const u = st && st.units.find(x => x.id === unitId);
-  if (!u) return;
-  u.unitNumber = document.getElementById('f_un').value.trim();
-  u.lead = document.getElementById('f_lead').value.trim();
-  u.leadPhone = document.getElementById('f_lp').value.trim();
-  u.secondary = document.getElementById('f_sec').value.trim();
-  u.secondaryPhone = document.getElementById('f_sp').value.trim();
-  u.shiftStart = document.getElementById('f_ss').value.trim();
-  saveData();
-  closeSheet('unitSheet');
-  render();
-}
-
-function deleteUnit(unitId, stationName) {
+function delUnit(id, stName) {
   if (!confirm('Delete this unit?')) return;
-  const st = roster.stations.find(s => s.name === stationName);
-  if (st) st.units = st.units.filter(u => u.id !== unitId);
-  saveData();
-  closeSheet('unitSheet');
-  render();
+  for (const st of roster.stations) { if(st.name===stName){st.units=st.units.filter(u=>u.id!==id);break;} }
+  save(); cs('editSheet'); render();
 }
 
-function startAddUnit(stationName) {
-  const st = roster.stations.find(s => s.name === stationName);
-  if (!st) return;
-  const u = { id: uid(), unitNumber: '', lead: '', leadPhone: '', secondary: '', secondaryPhone: '', shiftStart: '0700' };
-  st.units.push(u);
-  saveData();
-  openEditUnit(u.id, stationName);
-  render();
+function addUnit(stName) {
+  const st=roster.stations.find(s=>s.name===stName); if(!st) return;
+  const u={id:uid(),unitNumber:'',lead:'',leadPhone:'',secondary:'',secondaryPhone:'',shiftStart:'0700',status:'available',notes:''};
+  st.units.push(u); save(); openEditUnit(u.id,stName); render();
 }
 
 function addStation() {
-  const name = prompt('New station name:');
-  if (!name || !name.trim()) return;
-  const n = name.trim();
-  if (roster.stations.some(s => s.name === n)) { alert('Station already exists.'); return; }
-  roster.stations.push({ name: n, units: [] });
-  expanded.add(n);
-  saveData();
-  render();
+  const n=prompt('New station name:'); if(!n||!n.trim()) return;
+  if(roster.stations.some(s=>s.name===n.trim())){alert('Already exists.');return;}
+  roster.stations.push({name:n.trim(),units:[]}); expanded.add(n.trim()); save(); render();
 }
 
-// ─── DISPATCH EDIT ────────────────────────────────────────────────────────────
+// Dispatch edit
 function openEditDispatch(id) {
-  const d = roster.dispatch.find(x => x.id === id);
-  if (!d) return;
-
-  document.getElementById('unitSheetTitle').textContent = 'Edit Dispatch Shift';
-  document.getElementById('unitSheetBody').innerHTML = `
-    <div class="field-group"><div class="field-label">Shift Time</div><input class="field-input" id="f_st" value="${esc(d.shiftTime)}" placeholder="e.g. 0700 or 1900"></div>
-    <div class="field-group"><div class="field-label">Supervisor</div><input class="field-input" id="f_sv" value="${esc(d.supervisor)}"></div>
-    <div class="field-group"><div class="field-label">Dispatcher</div><input class="field-input" id="f_dp" value="${esc(d.dispatcher)}"></div>
-    <div class="field-group"><div class="field-label">Dispatch</div><input class="field-input" id="f_d2" value="${esc(d.dispatch2||'')}"></div>
-    <div class="sheet-actions">
-      <button class="btn btn-secondary" onclick="closeSheet('unitSheet')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveDispatch(${JSON.stringify(id)})">Save</button>
+  const d=roster.dispatch.find(x=>x.id===id); if(!d) return;
+  document.getElementById('editTitle').textContent=`Dispatch — Shift ${d.shiftTime}`;
+  document.getElementById('editBody').innerHTML=`
+    <div class="fg"><div class="flbl">Shift Time</div><input class="fi" id="f_sti" value="${esc(d.shiftTime)}" placeholder="0700"></div>
+    <div class="fg"><div class="flbl">Supervisor</div><input class="fi" id="f_sv" value="${esc(d.supervisor)}"></div>
+    <div class="fg"><div class="flbl">Dispatcher</div><input class="fi" id="f_dp" value="${esc(d.dispatcher)}"></div>
+    <div class="fg"><div class="flbl">Dispatch</div><input class="fi" id="f_d2" value="${esc(d.dispatch2||'')}"></div>
+    <div class="fg"><div class="flbl">Dispatch Notes</div><textarea class="fi" id="f_dn" rows="3" placeholder="Notes for this dispatch shift…">${esc(d.notes||'')}</textarea></div>
+    <div class="sacts">
+      <button class="btn bsec" onclick="cs('editSheet')">Cancel</button>
+      <button class="btn bpri" onclick="saveDispatch(${JSON.stringify(id)})">Save</button>
     </div>
-    <div style="margin-top:10px">
-      <button class="btn btn-danger" style="width:100%" onclick="deleteDispatch(${JSON.stringify(id)})">Delete</button>
-    </div>`;
-
-  document.getElementById('unitSheet').classList.add('show');
+    <div style="margin-top:10px"><button class="btn bdng" style="width:100%" onclick="delDispatch(${JSON.stringify(id)})">Delete</button></div>`;
+  document.getElementById('editSheet').classList.add('show');
 }
 
 function saveDispatch(id) {
-  const d = roster.dispatch.find(x => x.id === id);
-  if (!d) return;
-  d.shiftTime = document.getElementById('f_st').value.trim();
-  d.supervisor = document.getElementById('f_sv').value.trim();
-  d.dispatcher = document.getElementById('f_dp').value.trim();
-  d.dispatch2 = document.getElementById('f_d2').value.trim();
-  saveData();
-  closeSheet('unitSheet');
+  const d=roster.dispatch.find(x=>x.id===id); if(!d) return;
+  d.shiftTime=document.getElementById('f_sti').value.trim();
+  d.supervisor=document.getElementById('f_sv').value.trim();
+  d.dispatcher=document.getElementById('f_dp').value.trim();
+  d.dispatch2=document.getElementById('f_d2').value.trim();
+  d.notes=document.getElementById('f_dn').value.trim();
+  save(); cs('editSheet'); render();
+}
+
+function delDispatch(id) {
+  if(!confirm('Delete this dispatch shift?')) return;
+  roster.dispatch=roster.dispatch.filter(d=>d.id!==id); save(); cs('editSheet'); render();
+}
+
+function addDispatch() {
+  const d={id:uid(),shiftTime:'',supervisor:'',dispatcher:'',dispatch2:'',notes:''};
+  roster.dispatch.push(d); save(); openEditDispatch(d.id);
+}
+
+// Sheets
+function cs(id) { document.getElementById(id).classList.remove('show'); }
+function oob(e,id) { if(e.target.classList.contains('overlay')) cs(id); }
+function showExport() { document.getElementById('exportSheet').classList.add('show'); }
+
+// Export / print / copy
+function printRoster() {
+  cs('exportSheet');
+  const orig = new Set(expanded);
+  roster.stations.forEach(s=>expanded.add(s.name));
   render();
+  setTimeout(()=>{ window.print(); expanded=orig; render(); }, 150);
 }
 
-function deleteDispatch(id) {
-  if (!confirm('Delete this dispatch shift?')) return;
-  roster.dispatch = roster.dispatch.filter(d => d.id !== id);
-  saveData();
-  closeSheet('unitSheet');
-  render();
+function copyText() {
+  let lines = [`SHIFT ROSTER — ${fmtDate(roster.shiftDate)}`];
+  if (roster.shiftNotes) lines.push(`\nSHIFT NOTES:\n${roster.shiftNotes}`);
+  roster.stations.forEach(st => {
+    lines.push(`\n── ${st.name.toUpperCase()} ──`);
+    st.units.forEach(u => {
+      lines.push(`\n${u.unitNumber} [${(u.status||'AVAILABLE').toUpperCase()}]`);
+      lines.push(`  Lead: ${u.lead||'—'}${u.leadPhone?' ('+u.leadPhone+')':''}`);
+      lines.push(`  Secondary: ${u.secondary||'—'}${u.secondaryPhone?' ('+u.secondaryPhone+')':''}`);
+      lines.push(`  Shift Start: ${u.shiftStart||'—'}`);
+      if (u.notes) lines.push(`  Notes: ${u.notes}`);
+    });
+  });
+  lines.push(`\n── DISPATCH ──`);
+  roster.dispatch.forEach(d => {
+    lines.push(`\nShift ${d.shiftTime}: Supervisor: ${d.supervisor||'—'} | Dispatcher: ${d.dispatcher||'—'} | Dispatch: ${d.dispatch2||'—'}`);
+    if (d.notes) lines.push(`  Notes: ${d.notes}`);
+  });
+  const txt = lines.join('\n');
+  (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
+    .then(()=>alert('Roster copied to clipboard.'))
+    .catch(()=>{ const ta=document.createElement('textarea'); ta.value=txt; ta.style.cssText='position:fixed;opacity:0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); alert('Copied to clipboard.'); });
 }
 
-function startAddDispatch() {
-  const d = { id: uid(), shiftTime: '', supervisor: '', dispatcher: '', dispatch2: '' };
-  roster.dispatch.push(d);
-  saveData();
-  openEditDispatch(d.id);
-}
-
-// ─── SHEETS ───────────────────────────────────────────────────────────────────
-function closeSheet(id) { document.getElementById(id).classList.remove('show'); }
-function closeSheetOutside(e, id) { if (e.target.classList.contains('overlay')) closeSheet(id); }
-function showExportSheet() { document.getElementById('exportSheet').classList.add('show'); }
-
-// ─── EXPORT / IMPORT ─────────────────────────────────────────────────────────
 function exportHTML() {
   const src = document.documentElement.outerHTML;
   const updated = src.replace(
-    /const DEFAULT_DATA = \{[\s\S]*?\};(\s*\/\/ ─)/,
-    `const DEFAULT_DATA = ${JSON.stringify(roster)};$1`
+    /\/\/ ROSTER_DATA_START[\s\S]*?\/\/ ROSTER_DATA_END/,
+    `// ROSTER_DATA_START\nconst DEFAULT_DATA = ${JSON.stringify(roster)};\n// ROSTER_DATA_END`
   );
-  download('shift-roster.html', updated, 'text/html');
+  dl('shift-roster.html', updated, 'text/html');
 }
 
-function exportJSON() {
-  download('shift-roster.json', JSON.stringify(roster, null, 2), 'application/json');
+function exportJSON() { dl('shift-roster.json', JSON.stringify(roster,null,2), 'application/json'); }
+
+function importJSON(e) {
+  const file=e.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=ev=>{ try{ const d=JSON.parse(ev.target.result); if(!d.stations||!d.dispatch) throw new Error('Invalid format'); roster=d; save(); cs('exportSheet'); render(); alert('Imported.'); } catch(err){ alert('Failed: '+err.message); } };
+  r.readAsText(file); e.target.value='';
 }
 
-function triggerImportJSON() { document.getElementById('jsonFileInput').click(); }
-
-function handleJSONImport(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const r = new FileReader();
-  r.onload = ev => {
-    try {
-      const d = JSON.parse(ev.target.result);
-      if (!d.stations || !d.dispatch) throw new Error('Missing stations or dispatch');
-      roster = d;
-      saveData();
-      closeSheet('exportSheet');
-      render();
-      alert('Roster imported.');
-    } catch(err) { alert('Import failed: ' + err.message); }
-  };
-  r.readAsText(file);
-  e.target.value = '';
+function resetDefault() {
+  if(!confirm('Reset all data to embedded defaults? Local edits will be lost.')) return;
+  roster=JSON.parse(JSON.stringify(DEFAULT_DATA)); save(); cs('exportSheet'); render();
 }
 
-function resetToDefault() {
-  if (!confirm('Reset all data to the defaults baked into this file? Local changes will be lost.')) return;
-  roster = JSON.parse(JSON.stringify(DEFAULT_DATA));
-  saveData();
-  closeSheet('exportSheet');
-  render();
+function dl(name, content, mime) {
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([content],{type:mime})); a.download=name; a.click();
 }
 
-function download(name, content, mime) {
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([content], { type: mime }));
-  a.download = name;
-  a.click();
-}
-
-// ─── INIT ─────────────────────────────────────────────────────────────────────
-loadData();
-if (!expanded.size) { expanded.add('Pine Bluff'); saveData(); }
+// ── INIT ───────────────────────────────────────────────────────────────────────
+load();
+if (!expanded.size) { expanded.add('Pine Bluff'); save(); }
 render();
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
 </html>
