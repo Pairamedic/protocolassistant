@@ -1,7 +1,7 @@
 {
-  "name": "EMS Protocol Assistant",
-  "short_name": "EMS Protocols",
-  "description": "EASI Medics — EMS Protocol Reference App",
+  "name": "Pairamedic",
+  "short_name": "Pairamedic",
+  "description": "Pairamedic — Protocol Accessibility Tool",
   "start_url": "ProtocolAssistant.html",
   "scope": "./",
   "display": "standalone",

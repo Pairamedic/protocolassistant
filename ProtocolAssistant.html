@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>EMS Protocol Assistant</title>
+  <title>Pairamedic</title>
   <link rel="manifest" href="manifest.json" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -273,7 +273,7 @@
   <header>
     <div class="wrap">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <div id="app-title" class="title" style="display:flex;align-items:center;gap:9px">🚑 EMS Protocol Assistant</div>
+        <div id="app-title" class="title" style="display:flex;align-items:center;gap:9px">🚑 Pairamedic</div>
         <div style="display:flex;align-items:center;gap:6px">
           <button id="btn-admin" class="ui-ctrl-btn hidden" title="Admin Panel">⚙️</button>
           <button id="btn-theme" class="ui-ctrl-btn" title="Toggle light/dark mode">☀</button>
@@ -2585,7 +2585,7 @@
   function updateTitle(){
     const el = $('#app-title');
     const name = SERVICE_DISPLAY[state.currentService];
-    el.innerHTML = name ? `${LOGO_HTML} ${name}` : '🚑 EMS Protocol Assistant';
+    el.innerHTML = name ? `${LOGO_HTML} ${name}` : '🚑 Pairamedic';
   }
 
   function noServiceState(){
