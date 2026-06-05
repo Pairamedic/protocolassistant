@@ -192,7 +192,6 @@
     .age-btn.active{background:rgba(94,234,212,.12);color:var(--accent);border-color:rgba(94,234,212,.4)}
     :root.light .age-btn.active{background:rgba(13,148,136,.1);color:var(--accent);border-color:rgba(13,148,136,.35)}
     /* drug class filter chips — meds panel */
-    .cls-filter-row{display:flex;gap:6px;padding:10px 0 4px;flex-wrap:wrap}
     .cls-chip{background:var(--input-bg);border:1px solid var(--border);border-radius:999px;color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;padding:5px 12px;font-family:inherit;transition:all .15s;white-space:nowrap}
     .cls-chip.active{background:rgba(192,132,252,.12);color:#c084fc;border-color:rgba(192,132,252,.4)}
     :root.light .cls-chip.active{background:rgba(147,51,234,.1);color:#7c3aed;border-color:rgba(147,51,234,.3)}
@@ -292,7 +291,7 @@
             <button id="report-issue" class="btn" style="color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08);font-size:13px;padding:8px 12px">🚩 Report Issue</button>
             <a id="btn-pdf" href="EASI-Protocols-2026.pdf" download class="btn" style="color:#34d399;border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.08);font-size:13px;padding:8px 12px;text-decoration:none;display:inline-flex;align-items:center;gap:5px">📄 Protocols PDF</a>
           </div>
-          <div style="display:flex;gap:8px;align-items:center">
+          <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
             <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Search protocols, meds, keywords…" style="flex:1;width:auto" />
             <button id="fav-filter" class="btn" title="Show favorites only" style="flex:none;padding:10px 14px;font-size:16px;white-space:nowrap">☆</button>
           </div>
@@ -330,7 +329,9 @@
 
     <!-- Meds -->
     <section id="panel-meds" class="panel hidden">
-      <div id="med-class-filter" class="cls-filter-row"></div>
+      <div style="padding:8px 0 4px">
+        <select id="med-class-filter" style="width:100%;max-width:260px;padding:8px 12px;font-size:13px;border-radius:10px"></select>
+      </div>
       <div id="meds" class="grid"></div>
     </section>
 
@@ -3011,22 +3012,17 @@
     return MED_CLASS_MAP.filter(e=>e.match.test(name)).map(e=>e.cls);
   }
   function renderMedClassFilter(){
-    const container = document.getElementById('med-class-filter');
-    if(!container) return;
-    const allMeds = svc().meds||[];
-    if(!allMeds.length){ container.innerHTML=''; return; }
+    const sel = document.getElementById('med-class-filter');
+    if(!sel) return;
+    const allMeds = (svc()?.meds)||[];
+    if(!allMeds.length){ sel.innerHTML = '<option value="">All classes</option>'; return; }
     const usedClasses = new Set();
     allMeds.forEach(m => medClasses(m.name||'').forEach(c => usedClasses.add(c)));
     const ordered = MED_CLASS_MAP.map(e=>e.cls).filter(c=>usedClasses.has(c));
-    container.innerHTML = ordered.map(c =>
-      `<button class="cls-chip${_medClassFilter===c?' active':''}" onclick="setMedClass('${c}')">${c}</button>`
+    sel.innerHTML = '<option value="">All classes</option>' + ordered.map(c =>
+      `<option value="${c}"${_medClassFilter===c?' selected':''}>${c}</option>`
     ).join('');
   }
-  window.setMedClass = function(cls){
-    _medClassFilter = (_medClassFilter === cls) ? null : cls;
-    renderMedClassFilter();
-    renderMeds(_lastTerms);
-  };
 
   function renderMeds(filterTerms=[]){
     if(!state.currentService || !svc()){ medsEl.innerHTML = noServiceState(); return; }
@@ -3445,6 +3441,11 @@
 
   // --- Search ---
   const q = $('#q');
+
+  document.getElementById('med-class-filter').addEventListener('change', function(){
+    _medClassFilter = this.value || null;
+    renderMeds(_lastTerms);
+  });
 
   $('#fav-filter').addEventListener('click', ()=>{
     _favsOnly = !_favsOnly;

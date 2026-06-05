@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Pairamedic – Sign In</title>
+  <style>
+    :root{ --bg:#0b0d10; --card:#141820; --muted:#a7b0be; --text:#e6eef8; --accent:#5eead4; }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    body{display:flex;align-items:center;justify-content:center;padding:16px;min-height:100vh}
+    .card{background:var(--card);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:32px;width:100%;max-width:400px}
+    .logo{text-align:center;margin-bottom:24px}
+    .logo .icon{font-size:38px}
+    .logo h1{margin:10px 0 4px;font-size:22px;font-weight:700}
+    .logo p{margin:0;color:var(--muted);font-size:13px}
+    .fg{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+    label{font-size:13px;font-weight:500;color:var(--muted)}
+    input{background:#0f131a;border:1px solid rgba(255,255,255,.1);border-radius:10px;color:var(--text);font-size:15px;padding:11px 14px;width:100%;outline:none;font-family:inherit;transition:border-color .15s}
+    input:focus{border-color:var(--accent)}
+    .row{display:flex;gap:10px}
+    .btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:var(--text);cursor:pointer;font-family:inherit;font-size:14px;padding:10px 16px;transition:background .15s}
+    .btn:hover{background:rgba(255,255,255,.12)}
+    .btn.primary{background:var(--accent);color:#0b0d10;border-color:transparent;font-weight:600}
+    .btn.primary:hover{background:#4dd4c0}
+    .msg{font-size:13px;min-height:18px;text-align:center;margin-top:8px}
+    .err{color:#f87171}
+    .ok{color:#4ade80}
+    .reset-btn{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline;display:block;margin:14px auto 0;font-family:inherit}
+    .remember-row{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+    .remember-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex:none}
+    .remember-row label{font-size:13px;color:var(--muted);cursor:pointer;user-select:none;margin:0}
+    .spinner{display:none;text-align:center;padding:20px;color:var(--muted);font-size:14px}
+    .spin{display:inline-block;width:22px;height:22px;border:2px solid rgba(255,255,255,.15);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+  <div id="loading" class="spinner card" style="display:flex;align-items:center;justify-content:center;gap:10px">
+    <div class="spin"></div><span>Checking session…</span>
+  </div>
+
+  <div id="form-card" class="card" style="display:none">
+    <div class="logo">
+      <div class="icon">🚑</div>
+      <h1>Pairamedic</h1>
+      <p style="margin:4px 0 2px;color:var(--muted);font-size:11px;letter-spacing:.6px;text-transform:uppercase;font-weight:600">Protocol Accessibility Tool</p>
+      <p style="margin:2px 0 0;color:#f59e0b;font-size:12px">By Aaron Caldwell, NRP</p>
+    </div>
+    <div class="fg">
+      <label>Email</label>
+      <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" />
+    </div>
+    <div class="fg">
+      <label>Password</label>
+      <input id="pass" type="password" autocomplete="current-password" placeholder="Password" />
+    </div>
+    <div class="remember-row">
+      <input type="checkbox" id="remember-me" checked />
+      <label for="remember-me">Remember me</label>
+    </div>
+    <div class="row">
+      <button id="btn-login" class="btn primary" style="flex:2">Sign In</button>
+      <button id="btn-register" class="btn" style="flex:1">Create Account</button>
+    </div>
+    <div id="msg" class="msg"></div>
+    <button id="btn-reset" class="reset-btn">Forgot password?</button>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey: "AIzaSyAcnp4uXeOgzuzIHpO5UL6Eq9fvhVHFs7Y",
+      authDomain: "emsprotocolapp.firebaseapp.com",
+      projectId: "emsprotocolapp",
+      storageBucket: "emsprotocolapp.firebasestorage.app",
+      messagingSenderId: "498482397906",
+      appId: "1:498482397906:web:5517abc5d83cf6cf15e30b"
+    });
+    const fbAuth = firebase.auth();
+    const $ = id => document.getElementById(id);
+
+    fbAuth.onAuthStateChanged(user => {
+      if(user){
+        window.location.replace('ProtocolAssistant.html');
+      } else {
+        $('loading').style.display = 'none';
+        $('form-card').style.display = '';
+        setTimeout(() => $('email').focus(), 50);
+      }
+    });
+
+    function errMsg(code){
+      return ({
+        'auth/user-not-found':      'Incorrect email or password.',
+        'auth/wrong-password':      'Incorrect email or password.',
+        'auth/invalid-credential':  'Incorrect email or password.',
+        'auth/email-already-in-use':'An account with that email already exists.',
+        'auth/invalid-email':       'Please enter a valid email address.',
+        'auth/weak-password':       'Password must be at least 6 characters.',
+        'auth/too-many-requests':   'Too many attempts – try again later.',
+        'auth/network-request-failed':'Network error – check your connection.',
+      })[code] || 'Something went wrong. Try again.';
+    }
+
+    function setMsg(txt, ok){
+      const el = $('msg');
+      el.className = 'msg ' + (ok ? 'ok' : 'err');
+      el.textContent = txt;
+    }
+
+    $('btn-login').addEventListener('click', async () => {
+      const email = $('email').value.trim(), pass = $('pass').value;
+      setMsg('');
+      if(!email || !pass){ setMsg('Enter email and password.'); return; }
+      const persistence = $('remember-me').checked
+        ? firebase.auth.Auth.Persistence.LOCAL
+        : firebase.auth.Auth.Persistence.SESSION;
+      try{
+        await fbAuth.setPersistence(persistence);
+        await fbAuth.signInWithEmailAndPassword(email, pass);
+      }catch(e){ setMsg(errMsg(e.code)); }
+    });
+
+    $('btn-register').addEventListener('click', async () => {
+      const email = $('email').value.trim(), pass = $('pass').value;
+      setMsg('');
+      if(!email || !pass){ setMsg('Enter email and password.'); return; }
+      try{ await fbAuth.createUserWithEmailAndPassword(email, pass); }
+      catch(e){ setMsg(errMsg(e.code)); }
+    });
+
+    $('btn-reset').addEventListener('click', async () => {
+      const email = $('email').value.trim();
+      if(!email){ setMsg('Enter your email above first.'); return; }
+      try{
+        await fbAuth.sendPasswordResetEmail(email);
+        setMsg('Reset email sent – check your inbox.', true);
+      }catch(e){ setMsg(errMsg(e.code)); }
+    });
+
+    $('pass').addEventListener('keydown', e => { if(e.key === 'Enter') $('btn-login').click(); });
+
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keydown', e => {
+      const k = e.key.toLowerCase();
+      if(e.key === 'F12'){ e.preventDefault(); return; }
+      if((e.ctrlKey||e.metaKey) && !e.shiftKey && k === 'u'){ e.preventDefault(); return; }
+      if((e.ctrlKey||e.metaKey) && e.shiftKey && (k==='i'||k==='j'||k==='c')) e.preventDefault();
+    });
+  </script>
+</body>
+</html>

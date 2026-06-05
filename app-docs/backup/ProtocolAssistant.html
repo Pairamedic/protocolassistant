@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>EMS Protocol Assistant V.1</title>
+  <title>Pairamedic</title>
   <link rel="manifest" href="manifest.json" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -192,7 +192,6 @@
     .age-btn.active{background:rgba(94,234,212,.12);color:var(--accent);border-color:rgba(94,234,212,.4)}
     :root.light .age-btn.active{background:rgba(13,148,136,.1);color:var(--accent);border-color:rgba(13,148,136,.35)}
     /* drug class filter chips — meds panel */
-    .cls-filter-row{display:flex;gap:6px;padding:10px 0 4px;flex-wrap:wrap}
     .cls-chip{background:var(--input-bg);border:1px solid var(--border);border-radius:999px;color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;padding:5px 12px;font-family:inherit;transition:all .15s;white-space:nowrap}
     .cls-chip.active{background:rgba(192,132,252,.12);color:#c084fc;border-color:rgba(192,132,252,.4)}
     :root.light .cls-chip.active{background:rgba(147,51,234,.1);color:#7c3aed;border-color:rgba(147,51,234,.3)}
@@ -273,13 +272,14 @@
   <header>
     <div class="wrap">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <div id="app-title" class="title" style="display:flex;align-items:center;gap:9px">🚑 EMS Protocol Assistant V.1</div>
+        <div id="app-title" class="title" style="display:flex;align-items:center;gap:9px">🚑 Pairamedic</div>
         <div style="display:flex;align-items:center;gap:6px">
           <button id="btn-admin" class="ui-ctrl-btn hidden" title="Admin Panel">⚙️</button>
           <button id="btn-theme" class="ui-ctrl-btn" title="Toggle light/dark mode">☀</button>
           <button id="btn-size" class="ui-ctrl-btn" title="Cycle text size">A</button>
           <div id="user-bar">
-            <span id="user-email" style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+            <span id="user-email" style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+            <button id="btn-update-app" class="ui-ctrl-btn" title="Update App" style="flex:none">🔄</button>
             <button id="auth-logout" class="btn" style="padding:5px 10px;font-size:12px;flex:none">Sign out</button>
           </div>
         </div>
@@ -291,7 +291,7 @@
             <button id="report-issue" class="btn" style="color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08);font-size:13px;padding:8px 12px">🚩 Report Issue</button>
             <a id="btn-pdf" href="EASI-Protocols-2026.pdf" download class="btn" style="color:#34d399;border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.08);font-size:13px;padding:8px 12px;text-decoration:none;display:inline-flex;align-items:center;gap:5px">📄 Protocols PDF</a>
           </div>
-          <div style="display:flex;gap:8px;align-items:center">
+          <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
             <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Search protocols, meds, keywords…" style="flex:1;width:auto" />
             <button id="fav-filter" class="btn" title="Show favorites only" style="flex:none;padding:10px 14px;font-size:16px;white-space:nowrap">☆</button>
           </div>
@@ -329,7 +329,9 @@
 
     <!-- Meds -->
     <section id="panel-meds" class="panel hidden">
-      <div id="med-class-filter" class="cls-filter-row"></div>
+      <div style="padding:8px 0 4px">
+        <select id="med-class-filter" style="width:100%;max-width:260px;padding:8px 12px;font-size:13px;border-radius:10px"></select>
+      </div>
       <div id="meds" class="grid"></div>
     </section>
 
@@ -750,34 +752,7 @@
         </div>
       </div>
 
-      <div id="importexport-locked" class="card" style="text-align:center;padding:28px 20px">
-        <div style="font-size:28px;margin-bottom:8px">🔒</div>
-        <p style="margin:0 0 16px;color:var(--muted);font-size:14px">Admin access required to view Import / Export</p>
-        <button id="unlock-importexport" class="btn">Unlock Import / Export</button>
-      </div>
 
-      <div id="importexport-card" class="card hidden">
-        <h3>Import / Export</h3>
-        <p class="hint">Edit JSON for the <b>current service</b> below. Use "Save Service" to commit. You can also Export/Import the current service, or Export/Import <i>All Services</i>.</p>
-        <div class="row" style="margin-bottom:8px">
-          <button id="save-json" class="btn">Save Service</button>
-          <button id="export-json" class="btn">Export Service</button>
-          <input id="import-file" type="file" accept="application/json" class="btn" />
-        </div>
-        <div class="row">
-          <button id="export-all" class="btn">Export All Services</button>
-          <input id="import-all-file" type="file" accept="application/json" class="btn" />
-        </div>
-        <textarea id="json" rows="12" style="width:100%;margin-top:10px;border-radius:12px;padding:12px;background:#0f131a;color:var(--text);border:1px solid rgba(255,255,255,.12)"></textarea>
-      </div>
-
-      <!-- App Update -->
-      <div class="card" style="margin-top:18px">
-        <div style="font-weight:700;font-size:15px;margin-bottom:6px">🔄 Update App</div>
-        <p style="color:var(--muted);font-size:13px;margin:0 0 6px">Clears the cached app files and reloads to fetch the latest version.</p>
-        <p style="color:var(--muted);font-size:13px;margin:0 0 14px"><strong style="color:#fbbf24">⚠ Note:</strong> This clears the app cache. <strong style="color:var(--text)">Your favorited protocols and settings are stored separately and will not be affected.</strong></p>
-        <button id="btn-update-app" class="btn" style="color:#38bdf8;border-color:rgba(56,189,248,.35);background:rgba(56,189,248,.08)">🔄 Clear Cache &amp; Update</button>
-      </div>
     </section>
 
     <!-- Contacts -->
@@ -2513,6 +2488,7 @@
     try{ const r = localStorage.getItem(SVC_CACHE_KEY); if(r) cached = JSON.parse(r); }catch(e){}
 
     if(cached){
+      if(!cached.contacts) cached.contacts = JSON.parse(JSON.stringify(EASI_2026_SERVICE.contacts||[]));
       state.services['EASI Protocols - 2026'] = cached;
       // Refresh in background — no spinner
       fetchSvcFromFirestore().then(fresh => {
@@ -2589,7 +2565,6 @@
   // --- Helpers ---
   const protocolsEl = $('#protocols');
   const medsEl = $('#meds');
-  const jsonEl = $('#json');
   const serviceSelect = $('#service-select');
 
   function svc(){ return state.services[state.currentService] }
@@ -2611,7 +2586,7 @@
   function updateTitle(){
     const el = $('#app-title');
     const name = SERVICE_DISPLAY[state.currentService];
-    el.innerHTML = name ? `${LOGO_HTML} ${name}` : '🚑 EMS Protocol Assistant V.1';
+    el.innerHTML = name ? `${LOGO_HTML} ${name}` : '🚑 Pairamedic';
   }
 
   function noServiceState(){
@@ -3037,22 +3012,17 @@
     return MED_CLASS_MAP.filter(e=>e.match.test(name)).map(e=>e.cls);
   }
   function renderMedClassFilter(){
-    const container = document.getElementById('med-class-filter');
-    if(!container) return;
-    const allMeds = svc().meds||[];
-    if(!allMeds.length){ container.innerHTML=''; return; }
+    const sel = document.getElementById('med-class-filter');
+    if(!sel) return;
+    const allMeds = (svc()?.meds)||[];
+    if(!allMeds.length){ sel.innerHTML = '<option value="">All classes</option>'; return; }
     const usedClasses = new Set();
     allMeds.forEach(m => medClasses(m.name||'').forEach(c => usedClasses.add(c)));
     const ordered = MED_CLASS_MAP.map(e=>e.cls).filter(c=>usedClasses.has(c));
-    container.innerHTML = ordered.map(c =>
-      `<button class="cls-chip${_medClassFilter===c?' active':''}" onclick="setMedClass('${c}')">${c}</button>`
+    sel.innerHTML = '<option value="">All classes</option>' + ordered.map(c =>
+      `<option value="${c}"${_medClassFilter===c?' selected':''}>${c}</option>`
     ).join('');
   }
-  window.setMedClass = function(cls){
-    _medClassFilter = (_medClassFilter === cls) ? null : cls;
-    renderMedClassFilter();
-    renderMeds(_lastTerms);
-  };
 
   function renderMeds(filterTerms=[]){
     if(!state.currentService || !svc()){ medsEl.innerHTML = noServiceState(); return; }
@@ -3467,11 +3437,15 @@
     renderMedClassFilter();
     renderCalcOptions();
     renderContacts();
-    jsonEl.value = svc() ? JSON.stringify(svc(), null, 2) : '';
   }
 
   // --- Search ---
   const q = $('#q');
+
+  document.getElementById('med-class-filter').addEventListener('change', function(){
+    _medClassFilter = this.value || null;
+    renderMeds(_lastTerms);
+  });
 
   $('#fav-filter').addEventListener('click', ()=>{
     _favsOnly = !_favsOnly;
@@ -3638,7 +3612,7 @@
       closePinPrompt(false);
       state.currentService = chosen;
       save(state);
-      if(!svc() || !(svc().protocols||[]).length) await loadServiceData();
+      if(!svc() || !(svc().protocols||[]).length || !(svc().contacts||[]).length) await loadServiceData();
       renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
     } else {
       $('#pin-error').textContent = 'Incorrect PIN — try again.';
@@ -3843,71 +3817,6 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   });
   $('#vent-reset').addEventListener('click', ()=>{ $('#vent-height').value=''; $('#vent-sex').selectedIndex=0; $('#vent-hunit').selectedIndex=0; $('#vent-result').innerHTML=''; });
 
-  // Import/Export — admin unlock
-  $('#unlock-importexport').addEventListener('click', ()=>{
-    $('#importexport-locked').classList.add('hidden');
-    $('#importexport-card').classList.remove('hidden');
-  });
-
-  // Import/Export (per‑service)
-  $('#save-json').addEventListener('click', ()=>{ 
-    try{ 
-      const obj = JSON.parse(jsonEl.value);
-      if(!obj || typeof obj!== 'object') throw new Error('Invalid JSON');
-      state.services[state.currentService] = obj;
-      save(state); 
-      alert('Saved current service.'); 
-      renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean)); 
-    }catch(e){ alert('Invalid JSON') } 
-  });
-
-  $('#export-json').addEventListener('click', ()=>{
-    const name = state.currentService.replace(/[^a-z0-9-_ ]/gi,'_');
-    const blob = new Blob([JSON.stringify(svc(),null,2)], {type:'application/json'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `ems-${name}.json`;
-    a.click();
-  });
-
-  $('#import-file').addEventListener('change', async (e)=>{
-    const file = e.target.files[0]; if(!file) return;
-    const txt = await file.text();
-    try{ 
-      const obj = JSON.parse(txt); 
-      state.services[state.currentService] = obj; 
-      save(state); 
-      jsonEl.value = JSON.stringify(svc(),null,2); 
-      renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean)); 
-      alert('Imported JSON into current service.'); 
-    }
-    catch(err){ alert('Invalid JSON file.'); }
-    finally{ e.target.value=''; }
-  });
-
-  // Import/Export (all services)
-  $('#export-all').addEventListener('click', ()=>{
-    const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'ems-all-services.json';
-    a.click();
-  });
-
-  $('#import-all-file').addEventListener('change', async (e)=>{
-    const file = e.target.files[0]; if(!file) return;
-    const txt = await file.text();
-    try{ 
-      const obj = JSON.parse(txt); 
-      if(!obj.services || !obj.currentService) throw new Error('Not an all-services export');
-      state = obj; 
-      save(state); 
-      renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean)); 
-      alert('Imported all services.'); 
-    }
-    catch(err){ alert('Invalid ALL‑services JSON file.'); }
-    finally{ e.target.value=''; }
-  });
 
   // --- Edit / Add Modal ---
   let editState = { type: null, idx: -1 };
@@ -4190,10 +4099,12 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     const desc   = $('#report-desc').value.trim();
     if(!desc){ $('#report-desc').style.borderColor='#f87171'; $('#report-desc').focus(); return; }
     $('#report-desc').style.borderColor = '';
-    const topic  = (selVal && selVal !== '__other') ? selVal : (other || 'General Issue');
+    const topic   = (selVal && selVal !== '__other') ? selVal : (other || 'General Issue');
     const subject = encodeURIComponent(`Protocol Report: ${topic}`);
     const body    = encodeURIComponent(`Service: ${state.currentService}\nProtocol / Topic: ${topic}\n\nIssue Description:\n${desc}`);
-    window.location.href = `mailto:eliasacaldwellnrp@gmail.com?subject=${subject}&body=${body}`;
+    const mailUrl = `mailto:eliasacaldwellnrp@gmail.com?subject=${subject}&body=${body}`;
+    closeReport();
+    setTimeout(() => { window.location.href = mailUrl; }, 150);
   });
 
   // App shell is hidden until Firebase auth resolves (see onAuthStateChanged below)
