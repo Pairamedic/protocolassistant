@@ -3588,6 +3588,7 @@
     let _sx = null, _sy = null;
     const main = document.querySelector('main');
     main.addEventListener('touchstart', e=>{
+      if(e.target.closest('.filter-pills')) return;
       _sx = e.touches[0].clientX; _sy = e.touches[0].clientY;
     }, {passive:true});
     main.addEventListener('touchend', e=>{
