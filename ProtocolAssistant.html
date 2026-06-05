@@ -4076,7 +4076,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
 
   // --- Report Issue Handlers ---
   $('#report-issue').addEventListener('click', ()=>{
-    const protos = (state.services[state.currentService]?.protocols || []).map(p => p.name);
+    const protos = (state.services[state.currentService]?.protocols || []).map(p => p.title).filter(Boolean);
     const sel = $('#report-protocol');
     sel.innerHTML = '<option value="">— Select a specific protocol —</option>' +
       protos.map(n => `<option value="${n.replace(/"/g,'&quot;')}">${n}</option>`).join('') +
