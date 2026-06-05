@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>EMS Protocol Assistant V.1</title>
+  <title>EMS Protocol Assistant</title>
   <link rel="manifest" href="manifest.json" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -273,14 +273,14 @@
   <header>
     <div class="wrap">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <div id="app-title" class="title" style="display:flex;align-items:center;gap:9px">🚑 EMS Protocol Assistant V.1</div>
+        <div id="app-title" class="title" style="display:flex;align-items:center;gap:9px">🚑 EMS Protocol Assistant</div>
         <div style="display:flex;align-items:center;gap:6px">
           <button id="btn-admin" class="ui-ctrl-btn hidden" title="Admin Panel">⚙️</button>
           <button id="btn-theme" class="ui-ctrl-btn" title="Toggle light/dark mode">☀</button>
           <button id="btn-size" class="ui-ctrl-btn" title="Cycle text size">A</button>
-          <button id="btn-update-app" class="ui-ctrl-btn" title="Update App">🔄</button>
           <div id="user-bar">
-            <span id="user-email" style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+            <span id="user-email" style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+            <button id="btn-update-app" class="ui-ctrl-btn" title="Update App" style="flex:none">🔄</button>
             <button id="auth-logout" class="btn" style="padding:5px 10px;font-size:12px;flex:none">Sign out</button>
           </div>
         </div>
@@ -2605,7 +2605,7 @@
   function updateTitle(){
     const el = $('#app-title');
     const name = SERVICE_DISPLAY[state.currentService];
-    el.innerHTML = name ? `${LOGO_HTML} ${name}` : '🚑 EMS Protocol Assistant V.1';
+    el.innerHTML = name ? `${LOGO_HTML} ${name}` : '🚑 EMS Protocol Assistant';
   }
 
   function noServiceState(){
@@ -4187,11 +4187,9 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     const topic   = (selVal && selVal !== '__other') ? selVal : (other || 'General Issue');
     const subject = encodeURIComponent(`Protocol Report: ${topic}`);
     const body    = encodeURIComponent(`Service: ${state.currentService}\nProtocol / Topic: ${topic}\n\nIssue Description:\n${desc}`);
-    const a = document.createElement('a');
-    a.href = `mailto:eliasacaldwellnrp@gmail.com?subject=${subject}&body=${body}`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    const mailUrl = `mailto:eliasacaldwellnrp@gmail.com?subject=${subject}&body=${body}`;
+    closeReport();
+    setTimeout(() => { window.location.href = mailUrl; }, 150);
   });
 
   // App shell is hidden until Firebase auth resolves (see onAuthStateChanged below)
