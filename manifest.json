@@ -1,0 +1,13 @@
+{
+  "name": "EMS Protocol Assistant",
+  "short_name": "EMS Protocols",
+  "description": "EASI Medics — EMS Protocol Reference App",
+  "start_url": "ProtocolAssistant.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b0d10",
+  "theme_color": "#141820",
+  "icons": [
+    { "src": "easi-logo.jpg", "sizes": "any", "type": "image/jpeg", "purpose": "any" }
+  ]
+}

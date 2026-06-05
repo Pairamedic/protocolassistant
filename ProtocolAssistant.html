@@ -4,6 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>EMS Protocol Assistant V.1</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="EMS Protocols" />
+  <link rel="apple-touch-icon" href="easi-logo.jpg" />
   <style>
     :root { --bg:#0b0d10; --card:#141820; --muted:#a7b0be; --text:#e6eef8; --accent:#5eead4; --accent2:#93c5fd; --border:rgba(255,255,255,.1); --input-bg:#0f131a; }
     :root.light { --bg:#f1f5f9; --card:#ffffff; --muted:#64748b; --text:#0f172a; --accent:#0d9488; --accent2:#2563eb; --border:rgba(0,0,0,.1); --input-bg:#f8fafc; }
@@ -270,6 +275,7 @@
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div id="app-title" class="title" style="display:flex;align-items:center;gap:9px">🚑 EMS Protocol Assistant V.1</div>
         <div style="display:flex;align-items:center;gap:6px">
+          <button id="btn-admin" class="ui-ctrl-btn hidden" title="Admin Panel">⚙️</button>
           <button id="btn-theme" class="ui-ctrl-btn" title="Toggle light/dark mode">☀</button>
           <button id="btn-size" class="ui-ctrl-btn" title="Cycle text size">A</button>
           <div id="user-bar">
@@ -997,6 +1003,32 @@
         <button id="report-send" class="btn primary" style="flex:2">📧 Compose Email</button>
       </div>
       <p class="hint" style="margin:10px 0 0;font-size:12px;text-align:center">Opens your mail app — pre-filled to eliasacaldwellnrp@gmail.com</p>
+    </div>
+  </div>
+
+  <!-- Admin Panel Modal -->
+  <div id="admin-overlay" class="modal-overlay hidden">
+    <div class="modal-box" style="max-width:680px">
+      <div class="modal-head">
+        <h3 style="margin:0">⚙️ Admin Panel</h3>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button id="admin-cloud-save" class="btn primary" style="padding:6px 14px;font-size:13px">☁️ Push to Cloud</button>
+          <button id="admin-close" class="btn" style="padding:4px 10px">✕</button>
+        </div>
+      </div>
+      <p style="color:var(--muted);font-size:12px;margin:0 0 16px;line-height:1.5">Edits save locally immediately. <strong style="color:var(--text)">Push to Cloud</strong> syncs changes to all devices via Firestore.</p>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <h4 style="margin:0;font-size:14px">Protocols <span id="admin-p-count" style="font-weight:400;color:var(--muted)"></span></h4>
+        <button id="admin-add-protocol" class="btn primary" style="padding:5px 12px;font-size:12px">+ Add Protocol</button>
+      </div>
+      <div id="admin-protocols-list" style="border:1px solid var(--border);border-radius:12px;overflow:hidden;max-height:240px;overflow-y:auto;margin-bottom:18px"></div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <h4 style="margin:0;font-size:14px">Medications <span id="admin-m-count" style="font-weight:400;color:var(--muted)"></span></h4>
+        <button id="admin-add-med" class="btn primary" style="padding:5px 12px;font-size:12px">+ Add Med</button>
+      </div>
+      <div id="admin-meds-list" style="border:1px solid var(--border);border-radius:12px;overflow:hidden;max-height:240px;overflow-y:auto"></div>
     </div>
   </div>
 
@@ -3562,8 +3594,15 @@
     if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
   };
 
-  // --- Tabs ---
+  // --- Tabs (with memory) ---
+  const TABS_ORDER = ['protocols','meds','resources','contacts'];
   let _pedsRefInited = false;
+
+  function activateTab(tabName){
+    const btn = document.querySelector(`[data-tab="${tabName}"]`);
+    if(btn) btn.click();
+  }
+
   $$('.tab').forEach(btn=> btn.addEventListener('click', ()=>{
     $$('.tab').forEach(b=> b.classList.remove('active'));
     btn.classList.add('active');
@@ -3571,7 +3610,34 @@
     $$('.panel').forEach(p=> p.classList.add('hidden'));
     $('#panel-'+tab).classList.remove('hidden');
     if(tab === 'resources' && !_pedsRefInited){ initPedsRef(); _pedsRefInited=true; }
+    localStorage.setItem('pref_tab', tab);
   }));
+
+  // Restore last tab (defer so panels are ready)
+  setTimeout(()=>{
+    const saved = localStorage.getItem('pref_tab');
+    if(saved && TABS_ORDER.includes(saved)) activateTab(saved);
+  }, 0);
+
+  // --- Swipe between tabs ---
+  (()=>{
+    let _sx = null, _sy = null;
+    const main = document.querySelector('main');
+    main.addEventListener('touchstart', e=>{
+      _sx = e.touches[0].clientX; _sy = e.touches[0].clientY;
+    }, {passive:true});
+    main.addEventListener('touchend', e=>{
+      if(_sx === null) return;
+      const dx = e.changedTouches[0].clientX - _sx;
+      const dy = e.changedTouches[0].clientY - _sy;
+      _sx = null; _sy = null;
+      if(Math.abs(dx) < 55 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
+      const cur = document.querySelector('.tab.active')?.dataset.tab;
+      const i = TABS_ORDER.indexOf(cur);
+      if(dx < 0 && i < TABS_ORDER.length-1) activateTab(TABS_ORDER[i+1]);
+      else if(dx > 0 && i > 0) activateTab(TABS_ORDER[i-1]);
+    }, {passive:true});
+  })();
 
   // --- PIN Protection ---
   const PINNED_SERVICES = { 'EASI Protocols - 2025': '37819' };
@@ -3970,8 +4036,11 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       if(idx===-1) s.meds.push(obj); else s.meds[idx] = obj;
     }
     save(state);
+    if(_adminMode) fbDb.collection('service_data').doc(SVC_DOC_ID).set(svc())
+      .then(()=> localStorage.setItem(SVC_CACHE_KEY, JSON.stringify(svc()))).catch(()=>{});
     closeModal();
     renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
+    if(_adminMode) renderAdminPanel();
   });
 
   $('#modal-delete').addEventListener('click', ()=>{
@@ -3982,9 +4051,87 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     if(!confirm(`Delete "${label}"? This cannot be undone.`)) return;
     if(type==='protocol') s.protocols.splice(idx,1); else s.meds.splice(idx,1);
     save(state);
+    if(_adminMode) fbDb.collection('service_data').doc(SVC_DOC_ID).set(svc())
+      .then(()=> localStorage.setItem(SVC_CACHE_KEY, JSON.stringify(svc()))).catch(()=>{});
     closeModal();
     renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
+    if(_adminMode) renderAdminPanel();
   });
+
+  // --- Admin Panel ---
+  const ADMIN_EMAILS = new Set(['eliasacaldwellnrp@gmail.com']);
+  let _adminMode = false;
+
+  async function cloudSaveServiceData(){
+    const data = svc();
+    if(!data){ alert('No service loaded.'); return; }
+    const btn = $('#admin-cloud-save');
+    const orig = btn.textContent;
+    btn.textContent = '⏳ Saving…'; btn.disabled = true;
+    try{
+      await fbDb.collection('service_data').doc(SVC_DOC_ID).set(data);
+      localStorage.setItem(SVC_CACHE_KEY, JSON.stringify(data));
+      btn.textContent = '✓ Saved!';
+      setTimeout(()=>{ btn.textContent = orig; btn.disabled = false; }, 1800);
+    }catch(e){
+      alert('Cloud save failed: ' + e.message);
+      btn.textContent = orig; btn.disabled = false;
+    }
+  }
+
+  function renderAdminPanel(){
+    const protos = svc()?.protocols || [];
+    const meds   = svc()?.meds    || [];
+    $('#admin-p-count').textContent = `(${protos.length})`;
+    $('#admin-m-count').textContent = `(${meds.length})`;
+
+    $('#admin-protocols-list').innerHTML = protos.length ? protos.map((p,i)=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--border);gap:8px">
+        <span style="font-size:13px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.title}</span>
+        <div style="display:flex;gap:6px;flex:none">
+          <button class="btn" onclick="openEditProtocol(${i})" style="padding:3px 10px;font-size:12px">Edit</button>
+          <button class="btn danger" onclick="adminDelete('protocol',${i})" style="padding:3px 10px;font-size:12px">✕</button>
+        </div>
+      </div>`).join('')
+      : '<p style="color:var(--muted);font-size:13px;padding:12px 14px;margin:0">No protocols yet.</p>';
+
+    $('#admin-meds-list').innerHTML = meds.length ? meds.map((m,i)=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--border);gap:8px">
+        <span style="font-size:13px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.name}</span>
+        <div style="display:flex;gap:6px;flex:none">
+          <button class="btn" onclick="openEditMed(${i})" style="padding:3px 10px;font-size:12px">Edit</button>
+          <button class="btn danger" onclick="adminDelete('med',${i})" style="padding:3px 10px;font-size:12px">✕</button>
+        </div>
+      </div>`).join('')
+      : '<p style="color:var(--muted);font-size:13px;padding:12px 14px;margin:0">No medications yet.</p>';
+  }
+
+  window.adminDelete = function(type, idx){
+    const s = svc();
+    const label = type==='protocol' ? s.protocols[idx].title : s.meds[idx].name;
+    if(!confirm(`Delete "${label}"? This cannot be undone.`)) return;
+    if(type==='protocol') s.protocols.splice(idx,1); else s.meds.splice(idx,1);
+    save(state);
+    renderAdminPanel();
+    renderAll(_lastTerms);
+  };
+
+  function openAdminPanel(){
+    renderAdminPanel();
+    $('#admin-overlay').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeAdminPanel(){
+    $('#admin-overlay').classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  $('#btn-admin').addEventListener('click', openAdminPanel);
+  $('#admin-close').addEventListener('click', closeAdminPanel);
+  $('#admin-overlay').addEventListener('click', e=>{ if(e.target===$('#admin-overlay')) closeAdminPanel(); });
+  $('#admin-cloud-save').addEventListener('click', cloudSaveServiceData);
+  $('#admin-add-protocol').addEventListener('click', ()=>{ closeAdminPanel(); openEditProtocol(-1); });
+  $('#admin-add-med').addEventListener('click', ()=>{ closeAdminPanel(); openEditMed(-1); });
 
   // --- Report Issue Handlers ---
   $('#report-issue').addEventListener('click', ()=>{
@@ -4038,6 +4185,8 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       $('#app-shell').style.display = '';
       $('#user-email').textContent = user.email;
       $('#user-bar').style.display = 'flex';
+      _adminMode = ADMIN_EMAILS.has(user.email);
+      if(_adminMode) $('#btn-admin').classList.remove('hidden');
       // Load user preferences (currentService, favs) — NOT service protocol data
       try{
         const doc = await fbDb.collection('users').doc(user.uid)
@@ -4138,6 +4287,13 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     if((e.ctrlKey||e.metaKey) && !e.shiftKey && k === 's'){ e.preventDefault(); return; }
     if((e.ctrlKey||e.metaKey) && e.shiftKey && (k==='i'||k==='j'||k==='c'||k==='k')) e.preventDefault();
   });
+  </script>
+  <script>
+    if('serviceWorker' in navigator){
+      window.addEventListener('load', ()=>{
+        navigator.serviceWorker.register('./sw.js').catch(()=>{});
+      });
+    }
   </script>
 </body>
 </html>
