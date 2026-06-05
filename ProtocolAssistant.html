@@ -194,6 +194,7 @@
     :root.light .pt-adult{background:rgba(99,102,241,.1);color:#4338ca;border-color:rgba(99,102,241,.3)}
     /* age filter toggle — protocols panel */
     .tab-filter{padding:8px 0 4px}
+    .tab-filter select{text-align:center;font-size:16px;font-weight:600}
     /* drug class filter chips — meds panel */
     /* resources panel */
     .res-section{margin-bottom:22px}
@@ -4136,7 +4137,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     if(user){
       $('#app-shell').style.display = '';
       $('#user-email').textContent = user.email;
-      $('#btn-settings').style.display = '';
+      $('#btn-settings').style.display = 'block';
       _adminMode = ADMIN_EMAILS.has(user.email);
       if(_adminMode) $('#btn-admin').classList.remove('hidden');
       // Load user preferences (currentService, favs) — NOT service protocol data
