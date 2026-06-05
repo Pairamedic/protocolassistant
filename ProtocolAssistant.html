@@ -2517,6 +2517,7 @@
       // Refresh in background — no spinner
       fetchSvcFromFirestore().then(fresh => {
         if(!fresh) return;
+        if(!fresh.contacts) fresh.contacts = JSON.parse(JSON.stringify(EASI_2026_SERVICE.contacts||[]));
         localStorage.setItem(SVC_CACHE_KEY, JSON.stringify(fresh));
         state.services['EASI Protocols - 2026'] = fresh;
         renderAll(_lastTerms);
@@ -2529,6 +2530,7 @@
     try{
       const fresh = await fetchSvcFromFirestore();
       if(fresh){
+        if(!fresh.contacts) fresh.contacts = JSON.parse(JSON.stringify(EASI_2026_SERVICE.contacts||[]));
         localStorage.setItem(SVC_CACHE_KEY, JSON.stringify(fresh));
         state.services['EASI Protocols - 2026'] = fresh;
       } else {
@@ -3386,6 +3388,76 @@
     showPedsZone(zone, null);
   };
 
+  // --- Contacts rendering ---
+  function fmtPhone(digits){
+    if(!digits) return '';
+    const d = String(digits).replace(/\D/g,'');
+    if(d.length===10) return `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}`;
+    if(d.length===11) return `${d[0]} (${d.slice(1,4)}) ${d.slice(4,7)}-${d.slice(7)}`;
+    return digits;
+  }
+  function renderContacts(){
+    const el = $('#contacts-render');
+    if(!el) return;
+    if(!state.currentService){ el.innerHTML = noServiceState(); return; }
+    const contacts = svc()?.contacts || [];
+    if(!contacts.length){ el.innerHTML = '<div class="card" style="text-align:center;padding:24px;color:var(--muted)">No contacts configured for this service.</div>'; return; }
+    const internal = contacts.filter(c=>c.group!=='clinical');
+    const clinical = contacts.filter(c=>c.group==='clinical');
+    const BADGE_STYLES = {
+      accent:'rgba(94,234,212,.12)|var(--accent)|rgba(94,234,212,.3)',
+      danger:'rgba(248,113,113,.1)|#f87171|rgba(248,113,113,.3)',
+      warning:'rgba(251,191,36,.12)|#fbbf24|rgba(251,191,36,.3)'
+    };
+    function badgeParts(color){ return (BADGE_STYLES[color]||BADGE_STYLES.accent).split('|'); }
+    function renderExec(c){
+      return `<div class="contact-card-ceo">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <div style="font-weight:800;font-size:18px">${c.name}</div>
+          <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:rgba(99,102,241,.15);color:#a5b4fc;border:1px solid rgba(99,102,241,.3);letter-spacing:.4px;text-transform:uppercase">${c.role}</span>
+        </div>
+        ${c.desc?`<div style="font-size:12px;color:var(--muted);font-style:italic;line-height:1.4">${c.desc}</div>`:''}
+        ${c.email?`<div style="margin-top:4px"><a class="contact-btn contact-btn-mail" href="mailto:${c.email}">✉ ${c.email}</a></div>`:''}
+      </div>`;
+    }
+    function renderStd(c){
+      const [bg,clr,bdr] = badgeParts(c.badge_color);
+      return `<div class="contact-card"${c.wide?' style="grid-column:1/-1"':''}>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <div class="contact-name">${c.name}</div>
+          ${c.badge?`<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:${bg};color:${clr};border:1px solid ${bdr};letter-spacing:.3px;text-transform:uppercase;white-space:nowrap">${c.badge}</span>`:''}
+        </div>
+        <div class="contact-title">${c.role}</div>
+        ${c.hours_restricted?'<span class="contact-hours">📵 Phone: Business Hours Only</span>':''}
+        ${c.desc?`<div class="contact-desc">${c.desc}</div>`:''}
+        <div class="contact-actions">
+          ${c.phone?`<a class="contact-btn contact-btn-call" href="tel:+1${String(c.phone).replace(/\D/g,'')}">📞 ${fmtPhone(c.phone)}</a>`:''}
+          ${c.email?`<a class="contact-btn contact-btn-mail" href="mailto:${c.email}">✉ ${c.email}</a>`:''}
+        </div>
+      </div>`;
+    }
+    const escalation = internal.filter(c=>!c.exec&&c.badge).slice(0,3);
+    const escHtml = escalation.length>=2?`
+      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;background:rgba(94,234,212,.07);border:1px solid rgba(94,234,212,.18);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:12px;font-weight:600;color:var(--muted)">
+        <span style="color:var(--accent);font-size:11px;letter-spacing:.5px;text-transform:uppercase;font-weight:700;flex:none">Escalation order for operational concerns</span>
+        <span style="flex:none;color:var(--border)">|</span>
+        ${escalation.map((c,i)=>`<span style="color:var(--text)">${c.name}</span>${i<escalation.length-1?'<span style="flex:none">→</span>':''}`).join('')}
+      </div>`:'';
+    const internalHtml = internal.length?`
+      <div id="contacts-internal" class="res-section">
+        <div class="res-section-head"><span class="res-section-title">👥 Internal — EASI Medics</span></div>
+        ${internal.filter(c=>c.exec).map(renderExec).join('')}
+        ${escHtml}
+        <div class="contacts-grid">${internal.filter(c=>!c.exec).map(renderStd).join('')}</div>
+      </div>`:'';
+    const clinicalHtml = clinical.length?`
+      <div id="contacts-clinical" class="res-section" style="margin-top:8px">
+        <div class="res-section-head"><span class="res-section-title">🏥 Clinical</span></div>
+        <div class="contacts-grid">${clinical.map(renderStd).join('')}</div>
+      </div>`:'';
+    el.innerHTML = internalHtml + clinicalHtml;
+  }
+
   function renderAll(terms){
     _lastTerms = terms;
     updateTitle();
@@ -3394,6 +3466,7 @@
     renderMeds(terms);
     renderMedClassFilter();
     renderCalcOptions();
+    renderContacts();
     jsonEl.value = svc() ? JSON.stringify(svc(), null, 2) : '';
   }
 
@@ -3527,9 +3600,17 @@
   })();
 
   // --- PIN Protection ---
-  const PINNED_SERVICES = { 'EASI Protocols - 2025': '37819' };
+  // PINs stored as SHA-256 hashes — plain values are not in source
+  const PINNED_SERVICES = {
+    'EASI Protocols - 2025': '6386eb0fd5157494733ff6a2a5b195444f4fc658837239249ee4f7ab61a7f17a'
+  };
   let _pinPendingService = null;
   let _pinPrevService = null;
+
+  async function _hashPin(pin){
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pin));
+    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  }
 
   function openPinPrompt(pendingService, prevService){
     _pinPendingService = pendingService;
@@ -3549,8 +3630,9 @@
   }
   async function submitPin(){
     const entered = $('#pin-input').value.trim();
-    const correct = PINNED_SERVICES[_pinPendingService];
-    if(entered === correct){
+    const correctHash = PINNED_SERVICES[_pinPendingService];
+    const enteredHash = await _hashPin(entered);
+    if(enteredHash === correctHash){
       sessionStorage.setItem('pin_unlocked_' + _pinPendingService, '1');
       const chosen = _pinPendingService;
       closePinPrompt(false);
@@ -3834,9 +3916,10 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   function openModal(type, idx){
     editState = { type, idx };
     const isNew = idx === -1;
-    $('#modal-title').textContent = (isNew ? 'Add ' : 'Edit ') + (type === 'protocol' ? 'Protocol' : 'Medication');
+    $('#modal-title').textContent = (isNew ? 'Add ' : 'Edit ') + (type === 'protocol' ? 'Protocol' : type === 'med' ? 'Medication' : 'Contact');
     $('#proto-fields').classList.toggle('hidden', type !== 'protocol');
     $('#med-fields').classList.toggle('hidden', type !== 'med');
+    $('#contact-fields').classList.toggle('hidden', type !== 'contact');
     $('#modal-delete').classList.toggle('hidden', isNew);
 
     if(type === 'protocol'){
@@ -3845,7 +3928,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       $('#pf-summary').value = p.summary||'';
       $('#pf-tags').value = (p.tags||[]).join(', ');
       renderStepsList(p.steps||[]);
-    } else {
+    } else if(type === 'med') {
       const m = isNew ? {name:'',route:'',notes:'',contra:'',se:''} : {...(svc().meds||[])[idx]};
       $('#mf-name').value = m.name||'';
       $('#mf-route').value = m.route||'';
@@ -3854,6 +3937,19 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       $('#mf-se').value = m.se||'';
       $('#mf-mgkg').value = (m.default_mgkg != null && m.default_mgkg !== undefined) ? m.default_mgkg : '';
       $('#mf-maxmg').value = (m.max_mg != null && m.max_mg !== undefined) ? m.max_mg : '';
+    } else {
+      const c = isNew ? {name:'',role:'',group:'internal',desc:'',phone:'',email:'',hours_restricted:false,exec:false,wide:false,badge:'',badge_color:'accent'} : {...(svc().contacts||[])[idx]};
+      $('#cf-name').value = c.name||'';
+      $('#cf-role').value = c.role||'';
+      $('#cf-group').value = c.group||'internal';
+      $('#cf-desc').value = c.desc||'';
+      $('#cf-phone').value = c.phone||'';
+      $('#cf-email').value = c.email||'';
+      $('#cf-badge').value = c.badge||'';
+      $('#cf-badge-color').value = c.badge_color||'accent';
+      $('#cf-hours').checked = !!c.hours_restricted;
+      $('#cf-exec').checked = !!c.exec;
+      $('#cf-wide').checked = !!c.wide;
     }
     editModal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
@@ -3879,6 +3975,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
 
   window.openEditProtocol = (idx) => openModal('protocol', idx);
   window.openEditMed      = (idx) => openModal('med', idx);
+  window.openEditContact  = (idx) => { closeAdminPanel(); openModal('contact', idx); };
   window.removeStep = (i) => { const s = collectSteps(); s.splice(i,1); renderStepsList(s); };
   window.moveStep   = (i, dir) => { const s = collectSteps(); const j = i+dir; if(j<0||j>=s.length) return; [s[i],s[j]]=[s[j],s[i]]; renderStepsList(s); };
 
@@ -3926,6 +4023,24 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       };
       if(!obj.name){ alert('Name is required.'); return; }
       if(idx===-1) s.meds.push(obj); else s.meds[idx] = obj;
+    } else {
+      const obj = {
+        id: idx===-1 ? 'c-'+Date.now() : ((svc().contacts||[])[idx].id||'c-'+Date.now()),
+        group: $('#cf-group').value,
+        name: $('#cf-name').value.trim(),
+        role: $('#cf-role').value.trim(),
+        desc: $('#cf-desc').value.trim(),
+        phone: $('#cf-phone').value.trim(),
+        email: $('#cf-email').value.trim(),
+        badge: $('#cf-badge').value.trim(),
+        badge_color: $('#cf-badge-color').value,
+        hours_restricted: $('#cf-hours').checked,
+        exec: $('#cf-exec').checked,
+        wide: $('#cf-wide').checked
+      };
+      if(!obj.name){ alert('Name is required.'); return; }
+      if(!svc().contacts) svc().contacts = [];
+      if(idx===-1) svc().contacts.push(obj); else svc().contacts[idx] = obj;
     }
     save(state);
     if(_adminMode) fbDb.collection('service_data').doc(SVC_DOC_ID).set(svc())
@@ -3948,9 +4063,9 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     const { type, idx } = editState;
     if(idx===-1) return;
     const s = svc();
-    const label = type==='protocol' ? s.protocols[idx].title : s.meds[idx].name;
+    const label = type==='protocol' ? s.protocols[idx].title : type==='med' ? s.meds[idx].name : s.contacts[idx].name;
     if(!confirm(`Delete "${label}"? This cannot be undone.`)) return;
-    if(type==='protocol') s.protocols.splice(idx,1); else s.meds.splice(idx,1);
+    if(type==='protocol') s.protocols.splice(idx,1); else if(type==='med') s.meds.splice(idx,1); else s.contacts.splice(idx,1);
     save(state);
     if(_adminMode) fbDb.collection('service_data').doc(SVC_DOC_ID).set(svc())
       .then(()=> localStorage.setItem(SVC_CACHE_KEY, JSON.stringify(svc()))).catch(()=>{});
@@ -3981,10 +4096,12 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   }
 
   function renderAdminPanel(){
-    const protos = svc()?.protocols || [];
-    const meds   = svc()?.meds    || [];
+    const protos    = svc()?.protocols || [];
+    const meds      = svc()?.meds      || [];
+    const contacts  = svc()?.contacts  || [];
     $('#admin-p-count').textContent = `(${protos.length})`;
     $('#admin-m-count').textContent = `(${meds.length})`;
+    $('#admin-c-count').textContent = `(${contacts.length})`;
 
     $('#admin-protocols-list').innerHTML = protos.length ? protos.map((p,i)=>`
       <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--border);gap:8px">
@@ -4005,13 +4122,26 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
         </div>
       </div>`).join('')
       : '<p style="color:var(--muted);font-size:13px;padding:12px 14px;margin:0">No medications yet.</p>';
+
+    $('#admin-contacts-list').innerHTML = contacts.length ? contacts.map((c,i)=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--border);gap:8px">
+        <div style="min-width:0;flex:1">
+          <span style="font-size:13px;font-weight:600">${c.name}</span>
+          <span style="font-size:11px;color:var(--muted);margin-left:6px">${c.role}</span>
+        </div>
+        <div style="display:flex;gap:6px;flex:none">
+          <button class="btn" onclick="openEditContact(${i})" style="padding:3px 10px;font-size:12px">Edit</button>
+          <button class="btn danger" onclick="adminDelete('contact',${i})" style="padding:3px 10px;font-size:12px">✕</button>
+        </div>
+      </div>`).join('')
+      : '<p style="color:var(--muted);font-size:13px;padding:12px 14px;margin:0">No contacts yet.</p>';
   }
 
   window.adminDelete = function(type, idx){
     const s = svc();
-    const label = type==='protocol' ? s.protocols[idx].title : s.meds[idx].name;
+    const label = type==='protocol' ? s.protocols[idx].title : type==='med' ? s.meds[idx].name : s.contacts[idx].name;
     if(!confirm(`Delete "${label}"? This cannot be undone.`)) return;
-    if(type==='protocol') s.protocols.splice(idx,1); else s.meds.splice(idx,1);
+    if(type==='protocol') s.protocols.splice(idx,1); else if(type==='med') s.meds.splice(idx,1); else s.contacts.splice(idx,1);
     save(state);
     renderAdminPanel();
     renderAll(_lastTerms);
@@ -4033,6 +4163,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   $('#admin-cloud-save').addEventListener('click', cloudSaveServiceData);
   $('#admin-add-protocol').addEventListener('click', ()=>{ closeAdminPanel(); openEditProtocol(-1); });
   $('#admin-add-med').addEventListener('click', ()=>{ closeAdminPanel(); openEditMed(-1); });
+  $('#admin-add-contact').addEventListener('click', ()=>{ closeAdminPanel(); openModal('contact',-1); });
 
   // --- Report Issue Handlers ---
   $('#report-issue').addEventListener('click', ()=>{
