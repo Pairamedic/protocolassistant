@@ -751,26 +751,6 @@
         </div>
       </div>
 
-      <div id="importexport-locked" class="card" style="text-align:center;padding:28px 20px">
-        <div style="font-size:28px;margin-bottom:8px">🔒</div>
-        <p style="margin:0 0 16px;color:var(--muted);font-size:14px">Admin access required to view Import / Export</p>
-        <button id="unlock-importexport" class="btn">Unlock Import / Export</button>
-      </div>
-
-      <div id="importexport-card" class="card hidden">
-        <h3>Import / Export</h3>
-        <p class="hint">Edit JSON for the <b>current service</b> below. Use "Save Service" to commit. You can also Export/Import the current service, or Export/Import <i>All Services</i>.</p>
-        <div class="row" style="margin-bottom:8px">
-          <button id="save-json" class="btn">Save Service</button>
-          <button id="export-json" class="btn">Export Service</button>
-          <input id="import-file" type="file" accept="application/json" class="btn" />
-        </div>
-        <div class="row">
-          <button id="export-all" class="btn">Export All Services</button>
-          <input id="import-all-file" type="file" accept="application/json" class="btn" />
-        </div>
-        <textarea id="json" rows="12" style="width:100%;margin-top:10px;border-radius:12px;padding:12px;background:#0f131a;color:var(--text);border:1px solid rgba(255,255,255,.12)"></textarea>
-      </div>
 
     </section>
 
@@ -2584,7 +2564,6 @@
   // --- Helpers ---
   const protocolsEl = $('#protocols');
   const medsEl = $('#meds');
-  const jsonEl = $('#json');
   const serviceSelect = $('#service-select');
 
   function svc(){ return state.services[state.currentService] }
@@ -3462,7 +3441,6 @@
     renderMedClassFilter();
     renderCalcOptions();
     renderContacts();
-    jsonEl.value = svc() ? JSON.stringify(svc(), null, 2) : '';
   }
 
   // --- Search ---
@@ -3838,71 +3816,6 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   });
   $('#vent-reset').addEventListener('click', ()=>{ $('#vent-height').value=''; $('#vent-sex').selectedIndex=0; $('#vent-hunit').selectedIndex=0; $('#vent-result').innerHTML=''; });
 
-  // Import/Export — admin unlock
-  $('#unlock-importexport').addEventListener('click', ()=>{
-    $('#importexport-locked').classList.add('hidden');
-    $('#importexport-card').classList.remove('hidden');
-  });
-
-  // Import/Export (per‑service)
-  $('#save-json').addEventListener('click', ()=>{ 
-    try{ 
-      const obj = JSON.parse(jsonEl.value);
-      if(!obj || typeof obj!== 'object') throw new Error('Invalid JSON');
-      state.services[state.currentService] = obj;
-      save(state); 
-      alert('Saved current service.'); 
-      renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean)); 
-    }catch(e){ alert('Invalid JSON') } 
-  });
-
-  $('#export-json').addEventListener('click', ()=>{
-    const name = state.currentService.replace(/[^a-z0-9-_ ]/gi,'_');
-    const blob = new Blob([JSON.stringify(svc(),null,2)], {type:'application/json'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `ems-${name}.json`;
-    a.click();
-  });
-
-  $('#import-file').addEventListener('change', async (e)=>{
-    const file = e.target.files[0]; if(!file) return;
-    const txt = await file.text();
-    try{ 
-      const obj = JSON.parse(txt); 
-      state.services[state.currentService] = obj; 
-      save(state); 
-      jsonEl.value = JSON.stringify(svc(),null,2); 
-      renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean)); 
-      alert('Imported JSON into current service.'); 
-    }
-    catch(err){ alert('Invalid JSON file.'); }
-    finally{ e.target.value=''; }
-  });
-
-  // Import/Export (all services)
-  $('#export-all').addEventListener('click', ()=>{
-    const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'ems-all-services.json';
-    a.click();
-  });
-
-  $('#import-all-file').addEventListener('change', async (e)=>{
-    const file = e.target.files[0]; if(!file) return;
-    const txt = await file.text();
-    try{ 
-      const obj = JSON.parse(txt); 
-      if(!obj.services || !obj.currentService) throw new Error('Not an all-services export');
-      state = obj; 
-      save(state); 
-      renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean)); 
-      alert('Imported all services.'); 
-    }
-    catch(err){ alert('Invalid ALL‑services JSON file.'); }
-    finally{ e.target.value=''; }
-  });
 
   // --- Edit / Add Modal ---
   let editState = { type: null, idx: -1 };
