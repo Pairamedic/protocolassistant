@@ -336,6 +336,15 @@
     <!-- Resources (Calculators + Peds Ref) -->
     <section id="panel-resources" class="panel hidden">
 
+      <!-- App Update -->
+      <div class="card" style="margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:14px 16px">
+        <div>
+          <div style="font-weight:700;font-size:14px;margin-bottom:2px">🔄 Update App</div>
+          <div style="color:var(--muted);font-size:12px">Clear cache &amp; reload the latest version. Favorites are safe.</div>
+        </div>
+        <button id="btn-update-app" class="btn" style="flex:none;color:#38bdf8;border-color:rgba(56,189,248,.35);background:rgba(56,189,248,.08);white-space:nowrap">🔄 Update</button>
+      </div>
+
       <!-- Quick-jump nav -->
       <div class="res-nav">
         <button class="res-nav-chip" onclick="jumpToSection('peds-ref-section')">🧒 Peds Ref</button>
@@ -771,13 +780,6 @@
         <textarea id="json" rows="12" style="width:100%;margin-top:10px;border-radius:12px;padding:12px;background:#0f131a;color:var(--text);border:1px solid rgba(255,255,255,.12)"></textarea>
       </div>
 
-      <!-- App Update -->
-      <div class="card" style="margin-top:18px">
-        <div style="font-weight:700;font-size:15px;margin-bottom:6px">🔄 Update App</div>
-        <p style="color:var(--muted);font-size:13px;margin:0 0 6px">Clears the cached app files and reloads to fetch the latest version.</p>
-        <p style="color:var(--muted);font-size:13px;margin:0 0 14px"><strong style="color:#fbbf24">⚠ Note:</strong> This clears the app cache. <strong style="color:var(--text)">Your favorited protocols and settings are stored separately and will not be affected.</strong></p>
-        <button id="btn-update-app" class="btn" style="color:#38bdf8;border-color:rgba(56,189,248,.35);background:rgba(56,189,248,.08)">🔄 Clear Cache &amp; Update</button>
-      </div>
     </section>
 
     <!-- Contacts -->
