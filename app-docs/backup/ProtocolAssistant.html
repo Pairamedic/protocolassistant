@@ -43,15 +43,18 @@
     :root.light .dose-tab{background:#fff;border-color:rgba(0,0,0,.15);color:#64748b}
     :root.light .dose-tab.active{background:rgba(20,184,166,.1);border-color:#0d9488;color:#0d9488}
     /* Repeat timing highlight */
-    .repeat-time{background:rgba(251,191,36,.18);color:#fbbf24;border-radius:4px;padding:1px 4px;font-weight:700}
+    .repeat-time{background:rgba(251,191,36,.18);color:#fbbf24;border-radius:5px;padding:2px 6px;font-weight:700;white-space:nowrap}
+    .repeat-time::before{content:"↻ ";font-size:.85em;opacity:.9}
     :root.light .repeat-time{background:rgba(217,119,6,.12);color:#b45309}
     /* Indication-specific dose blocks */
-    .ind-blocks{display:flex;flex-direction:column;gap:7px;margin-top:4px}
-    .ind-block{padding:8px 10px;border-radius:10px;border-left:3px solid var(--accent);background:rgba(94,234,212,.05)}
-    .ind-label{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
-    .ind-unlabeled{color:var(--muted);font-size:13px;padding:2px 0}
-    :root.light .ind-block{background:rgba(13,148,136,.05);border-left-color:#0d9488}
-    :root.light .ind-label{color:#0d9488}
+    .ind-blocks{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+    .ind-block{border-radius:12px;border:1px solid rgba(94,234,212,.22);overflow:hidden}
+    .ind-label{font-size:11px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:var(--accent);padding:7px 12px 6px;background:rgba(94,234,212,.10);border-bottom:1px solid rgba(94,234,212,.18);display:flex;align-items:center;gap:5px}
+    .ind-label::before{content:"▸";font-size:10px;opacity:.7;flex:none}
+    .ind-content{padding:9px 12px;font-size:14px;line-height:1.55}
+    .ind-unlabeled{color:var(--muted);font-size:13px;padding:4px 0;line-height:1.5}
+    :root.light .ind-block{border-color:rgba(13,148,136,.25)}
+    :root.light .ind-label{background:rgba(13,148,136,.09);border-bottom-color:rgba(13,148,136,.2);color:#0d9488}
     .grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px}
     @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
     .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px}
@@ -2999,7 +3002,7 @@
     const blocks = parseIndicationBlocks(text);
     if(blocks){
       return `<div class="ind-blocks">${blocks.map(b => b.label
-        ? `<div class="ind-block"><div class="ind-label">${sanitizeText(b.label)}</div><div class="ind-content hint">${proc(b.content)}</div></div>`
+        ? `<div class="ind-block"><div class="ind-label">${sanitizeText(b.label)}</div><div class="ind-content">${proc(b.content)}</div></div>`
         : `<div class="ind-unlabeled">${proc(b.content)}</div>`
       ).join('')}</div>`;
     }
