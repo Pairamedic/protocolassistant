@@ -535,8 +535,8 @@
       <div class="calc-card">
         <div class="calc-card-hd calc-toggle" data-target="calc-body-std">
           <div class="calc-card-title">
-            <div class="calc-icon" style="background:rgba(147,197,253,.12)">💊</div>
-            Standard Dose → Volume
+            <div class="calc-icon" style="background:rgba(125,211,252,.12)">💊</div>
+            IV &amp; Fluids
           </div>
           <span class="calc-chev">▾</span>
         </div>
@@ -546,6 +546,7 @@
             <div class="calc-field">
               <label>Dose ordered</label>
               <input id="std-dose-ordered" type="number" inputmode="decimal" placeholder="e.g. 5" />
+              <div id="std-prefill-note" style="font-size:11px;color:var(--accent);margin-top:3px;min-height:14px"></div>
             </div>
             <div class="calc-field">
               <label>Dose on hand</label>
@@ -568,10 +569,10 @@
         </div>
       </div>
 
-      <!-- ── IV & FLUIDS ── -->
+      <!-- ── IV INFUSION & DRIP ── -->
       <div class="calc-section-hd">
         <span class="calc-section-dot" style="background:#7dd3fc"></span>
-        <span class="calc-section-title" style="color:#7dd3fc">IV &amp; Fluids</span>
+        <span class="calc-section-title" style="color:#7dd3fc">IV Infusion &amp; Drip</span>
       </div>
 
       <div class="calc-card">
@@ -588,6 +589,7 @@
             <div class="calc-field">
               <label>Ordered (mcg/kg/min)</label>
               <input id="iv-ordered" type="number" inputmode="decimal" placeholder="e.g. 5" />
+              <div id="iv-prefill-note" style="font-size:11px;color:var(--accent);margin-top:3px;min-height:14px"></div>
             </div>
             <div class="calc-field">
               <label>Weight</label>
@@ -1787,6 +1789,7 @@
   };
 
   const EASI_2026_SERVICE = {
+    _version: 20260608,
     protocols: [
       // ── GENERAL ──────────────────────────────────────────────────────────
       {
@@ -2555,43 +2558,43 @@
       }
     ],
     meds: [
-      { name: 'Acetaminophen (Tylenol) IV', route: 'IV', notes: '1000 mg IV over 10 min for adults. For pain, fever, and febrile transfusion reaction. NOTE: does NOT relieve environmentally caused hyperthermia.', contra: 'Severe liver disease, hypersensitivity', se: 'Nausea, rash, rare hepatotoxicity' },
-      { name: 'Adenosine', route: 'IV FIVP', notes: 'Adult: 6 mg IV FIVP; escalate to 12 mg IV FIVP after 2 min if no conversion. Peds: 0.1 mg/kg Fast IVP; repeat at 0.2 mg/kg after 5 min if no conversion.', contra: '2°/3° AV block (without pacemaker), sick sinus syndrome, asthma caution', se: 'Transient asystole, flushing, chest pressure, dyspnea' },
-      { name: 'Albuterol', route: 'Neb / IM', notes: 'Adult: 2.5 mg nebulized (may repeat). Hyperkalemia: 5 mg + 2 mL NS neb over 5 min (may repeat ×1). Peds: 2.5 mg or Broselow dose. If poor tidal volume: Epi 1:1,000 0.3 mg IM instead.', contra: 'Hypersensitivity', se: 'Tremor, tachycardia, hypokalemia' },
+      { name: 'Acetaminophen (Tylenol) IV', route: 'IV', notes: 'Pain / Fever: 1000 mg IV over 10 min. Febrile Transfusion Reaction: 1000 mg IV over 10 min. NOTE: does NOT relieve environmentally caused hyperthermia.', contra: 'Severe liver disease, hypersensitivity', se: 'Nausea, rash, rare hepatotoxicity' },
+      { name: 'Adenosine', route: 'IV FIVP', notes: 'SVT (adult): 6 mg IV FIVP; escalate to 12 mg IV FIVP after 2 min if no conversion. SVT (peds): 0.1 mg/kg Fast IVP; repeat at 0.2 mg/kg after 5 min if no conversion.', contra: '2°/3° AV block (without pacemaker), sick sinus syndrome, asthma caution', se: 'Transient asystole, flushing, chest pressure, dyspnea' },
+      { name: 'Albuterol', route: 'Neb / IM', notes: 'Respiratory Distress / COPD (adult): 2.5 mg nebulized (may repeat). Respiratory Distress / COPD (peds): 2.5 mg or Broselow dose. Hyperkalemia: 5 mg + 2 mL NS neb over 5 min (may repeat ×1). Poor Tidal Volume: Use Epi 1:1,000 0.3 mg IM instead.', contra: 'Hypersensitivity', se: 'Tremor, tachycardia, hypokalemia' },
       { name: 'Amiodarone', route: 'IVP / IV infusion', notes: 'Arrest (adult): 300 mg IVP; may repeat 150 mg IVP every 5 min ×3. Arrest (peds): 5 mg/kg IV or IO. V-Ectopy/Stable wide complex: 150 mg SIVP; repeat ×1 in 10 min. Torsades: 150 mg Slow IVP; repeat ×1 in 10 min. Post-ROSC Infusion: 1 mg/min IV (mix 150 mg in 100 mL NS). DO NOT use if bradycardic.', contra: 'Bradycardia, 2°/3° AV block', se: 'Hypotension, bradycardia, pulmonary toxicity (long-term)' },
-      { name: 'Ancef (Cefazolin)', route: 'IVP', notes: 'Sepsis: 2 G IVP over 10 min. Moderate-severe open trauma injury (avulsion, compound Fx): 2 G IV.', contra: 'Cephalosporin/penicillin allergy', se: 'Allergic reaction, GI upset' },
-      { name: 'Aspirin', route: 'PO', notes: '324 mg PO (4×81 mg chewable) for ACS. Consider for CHF.', contra: 'Active GI bleed, allergy, bleeding disorder', se: 'GI upset, tinnitus' },
-      { name: 'Atropine', route: 'IVP', notes: '0.5 mg IVP for symptomatic bradycardia; may repeat to achieve HR >60. DO NOT give for AMS, SBP >180 mmHg, or Cheyne-Stokes respirations (Cushing\'s Triad/brain bleed risk).', contra: 'AMS + bradycardia with SBP >180 or abnormal respirations; brain bleed', se: 'Tachycardia, dry mouth, urinary retention, blurred vision' },
-      { name: 'Benadryl (Diphenhydramine)', route: 'IV / IM', notes: 'Adult allergic reaction: 50 mg IV (or IM if no IV). Antiemetic: 25 mg IVP or 50 mg IM. KSI hyperlactation: 50 mg IV. Psych EPS control: 0.5–1 mcg/kg IV. Peds allergic: 1 mg/kg IVP or Broselow (max 25 mg).', contra: 'Newborns; angle-closure glaucoma; urinary retention', se: 'Sedation, hypotension, anticholinergic effects' },
-      { name: 'Calcium Chloride', route: 'IV', notes: 'Hyperkalemia: 20 mg/kg SIVP over 5 min (cardioprotective). CCB OD: 20 mg/kg slow IV over 5–10 min. Arrest reversible cause: 1 G IV/IO. Crush injury adult: 1 G in 100 mL D10%. Peds crush: 1 G in 100 mL D5%.', contra: 'VF, digoxin toxicity; avoid infiltration (causes tissue necrosis)', se: 'Bradycardia, hypotension; severe extravasation necrosis' },
-      { name: 'Dextrose 10% (D10%)', route: 'IV / IO', notes: 'Adult hypoglycemia: 250 mL IV or IO over 10 min; repeat as needed. Peds hypoglycemia: 3–5 mL/kg (0.3–0.5 G/kg) IV over 10 min; repeat as needed. Arrest (hypoglycemia cause): 250 mL (12.5 g) IV or IO.', contra: 'Hyperglycemia', se: 'Phlebitis, tissue injury if extravasated, hyperglycemia' },
-      { name: 'Diltiazem (Cardizem)', route: 'Slow IVP', notes: 'Stable AFib/AFlutter without significant HF: 0.25 mg/kg Slow IVP; may repeat after 10 min at 0.35 mg/kg.', contra: 'Hypotension, wide-complex VT, WPW with AF, significant CHF', se: 'Hypotension, bradycardia, AV block' },
-      { name: 'Epinephrine 1:10,000 (0.1 mg/mL)', route: 'IV / IO', notes: 'Adult arrest: 1 mg IV/IO every 3–5 min. Peds arrest: 0.01 mg/kg IV/IO every 3–5 min. Life-threatening adult anaphylaxis: 0.1 mg SIVP. Peds life-threatening anaphylaxis: 0.01 mg SIVP or Broselow.', contra: 'None absolute in arrest/anaphylaxis', se: 'Tachycardia, hypertension, arrhythmias, anxiety' },
-      { name: 'Epinephrine 1:1,000 (1 mg/mL)', route: 'IM / IV infusion', notes: 'Anaphylaxis adult: 0.3 mg IM; repeat in 15 min if no improvement. Anaphylaxis peds: 0.01 mg/kg IM or Broselow; repeat in 5 min. Asthma (poor tidal volume): 0.3 mg IM. Infusion: mix 1 mg in 250 mL NS → 2–10 mcg/min for bradycardia or sepsis refractory hypotension.', contra: 'Tachydysrhythmias (relative), severe HTN (relative)', se: 'Palpitations, tremor, anxiety, hypertension' },
-      { name: 'Epinephrine Push Dose (1:100,000)', route: 'IVP', notes: '5–20 mcg IVP for non-traumatic hypotension; may repeat every 2–5 min. Mix: 1 mg (1:1,000) in 100 mL NS = 10 mcg/mL.', contra: 'Tachyarrhythmias', se: 'Tachycardia, hypertension' },
-      { name: 'Fentanyl', route: 'IV / IN', notes: 'Adult pain: 1 mcg/kg SIVP; may repeat every 10 min, max 200 mcg. ACS: 0.5–1 mcg/kg IV, max 200 mcg (preferred over morphine — no vasodilation, no antiplatelet interaction). Post-cric pain: 1 mcg/kg IVP; repeat every 10 min. Peds pain: 1 mcg/kg IV; max 200 mcg. Post-cric peds: 0.5–1 mcg/kg/dose IVP; repeat every 5 min. Psych: 1 mcg/kg IV (for PTSD/schizoaffective).', contra: 'Hypotension, respiratory depression', se: 'Respiratory depression, chest wall rigidity (rapid large dose), nausea' },
-      { name: 'Furosemide (Lasix)', route: 'IVP', notes: 'CHF/Pulmonary Edema: 40–80 mg IVP.', contra: 'Hypovolemia, sulfa allergy (caution)', se: 'Hypotension, hypokalemia, ototoxicity' },
-      { name: 'Glucose (Oral)', route: 'PO / SB', notes: 'Adult hypoglycemia (awake, alert): 15–80 g PO or sublingually; repeat if still hypoglycemic. Peds: same dosing.', contra: 'Decreased LOC/inability to protect airway', se: 'Nausea; aspiration risk if not alert' },
-      { name: 'Haloperidol (Haldol)', route: 'IV / IM / IN', notes: 'Psych chemical restraint: 5–10 mg IV/IM/IN; follow with Midazolam 2–5 mg IVP. Antiemetic (especially cannabis hyperemesis): 5 mg IV.', contra: 'Parkinson\'s disease, seizure disorder, prolonged QT', se: 'EPS, QT prolongation, hypotension, NMS' },
-      { name: 'Hydralazine', route: 'IVP', notes: 'Hypertensive emergency: 10 mg IVP; may repeat once. DO NOT use for stroke/CVA-related HTN (decreases cerebral perfusion, increases ICP). DO NOT use if patient has angina or Levine\'s sign.', contra: 'Angina, Levine\'s sign, stroke-related HTN, hypotension', se: 'Reflex tachycardia, headache, hypotension' },
-      { name: 'Ketamine (Anesthetic / KSI)', route: 'IV / IM', notes: 'KSI/pre-intubation sedation: 1–3 mg/kg IV. Combative with no IV: 5 mg/kg IM (max 500 mg). Post-cric sedation: 1–3 mg/kg IVP + Ketamine Infusion 0.1–1.5 mg/min. Peds narrow-complex sedation: 1 mg/kg.', contra: 'Severe uncontrolled HTN (relative); use caution in aortic dissection', se: 'Increased BP/HR, emergence delirium, hyperlacrimation, laryngospasm (rare)' },
-      { name: 'Ketamine (Analgesic)', route: 'IV / IN / IM', notes: 'Adult Low Dose: 0.1–1 mg/kg IV, or 0.5–1 mg/kg IN, or 50 mg IM. Repeat every 20 min (no emergence) or every 10 min (if emergence noted); max 3 doses. Peds: 1 mg/kg IV or 0.5–1 mg/kg IN or 50 mg IM; every 20 min max 3 doses. Back pain: 0.1–1 mg/kg IVP — rule out aortic dissection first. NOTE: Geriatrics metabolize slowly; Peds metabolize quickly.', contra: 'Aortic dissection (due to BP increase), severe uncontrolled HTN', se: 'Emergence delirium, increased secretions, nausea' },
-      { name: 'Ketamine Infusion', route: 'IV infusion', notes: 'Post-intubation sedation: 0.1–1.5 mg/min IV (mix 100 mg in 250 mL NS or D5W). Per Dial-A-Flo: 0.1 mg/min = 15 gtts/min; 1.0 mg/min = 150 gtts/min; 1.5 mg/min = 225 gtts/min.', contra: 'Aortic dissection, severe uncontrolled HTN', se: 'Emergence delirium, increased secretions, increased BP/HR' },
-      { name: 'Labetalol', route: 'IVP', notes: 'Hypertensive emergency: 20 mg IVP over 2 min; may repeat ONCE at 20 mg IVP. Avoid if bradycardic.', contra: 'Bradycardia, asthma/COPD, decompensated CHF, hypotension', se: 'Hypotension, bradycardia, bronchospasm' },
-      { name: 'Lactated Ringers (LR)', route: 'IV', notes: 'Burns (adult): 500 mL/hr until Parkland formula. Burns (peds <5yo): 125 mL/hr; 6–13yo: 250 mL/hr; >17yo: 500 mL/hr. Sepsis: initial bolus. GI Bleed: large-bore. Eye irrigation (preferred fluid). Crush injury: alternative to NS.', contra: 'Severe hyperkalemia (contains potassium)', se: 'Fluid overload, electrolyte shifts' },
+      { name: 'Ancef (Cefazolin)', route: 'IVP', notes: 'Sepsis: 2 G IVP over 10 min. Open Trauma / Avulsion / Compound Fx: 2 G IV.', contra: 'Cephalosporin/penicillin allergy', se: 'Allergic reaction, GI upset' },
+      { name: 'Aspirin', route: 'PO', notes: 'ACS: 324 mg PO (4×81 mg chewable). CHF: 324 mg PO — consider.', contra: 'Active GI bleed, allergy, bleeding disorder', se: 'GI upset, tinnitus' },
+      { name: 'Atropine', route: 'IVP', notes: 'Symptomatic Bradycardia: 0.5 mg IVP; may repeat to achieve HR >60. DO NOT give for AMS, SBP >180 mmHg, or Cheyne-Stokes respirations (Cushing\'s Triad / brain bleed risk).', contra: 'AMS + bradycardia with SBP >180 or abnormal respirations; brain bleed', se: 'Tachycardia, dry mouth, urinary retention, blurred vision' },
+      { name: 'Benadryl (Diphenhydramine)', route: 'IV / IM', notes: 'Allergic Reaction (adult): 50 mg IV or IM. Antiemetic: 25 mg IVP or 50 mg IM. KSI / Hyperlactation: 50 mg IV. EPS / Psych: 0.5–1 mg/kg IV. Allergic Reaction (peds): 1 mg/kg IVP or Broselow (max 25 mg).', contra: 'Newborns; angle-closure glaucoma; urinary retention', se: 'Sedation, hypotension, anticholinergic effects' },
+      { name: 'Calcium Chloride', route: 'IV', notes: 'Hyperkalemia: 20 mg/kg SIVP over 5 min (cardioprotective). CCB Overdose: 20 mg/kg slow IV over 5–10 min. Cardiac Arrest (reversible cause): 1 G IV/IO. Crush Injury (adult): 1 G in 100 mL D10%. Crush Injury (peds): 1 G in 100 mL D5%.', contra: 'VF, digoxin toxicity; avoid infiltration (causes tissue necrosis)', se: 'Bradycardia, hypotension; severe extravasation necrosis' },
+      { name: 'Dextrose 10% (D10%)', route: 'IV / IO', notes: 'Hypoglycemia (adult): 250 mL IV or IO over 10 min; repeat as needed. Hypoglycemia (peds): 3–5 mL/kg (0.3–0.5 G/kg) IV over 10 min; repeat as needed. Cardiac Arrest (hypoglycemic cause): 250 mL (12.5 g) IV or IO.', contra: 'Hyperglycemia', se: 'Phlebitis, tissue injury if extravasated, hyperglycemia' },
+      { name: 'Diltiazem (Cardizem)', route: 'Slow IVP', notes: 'Stable AFib / AFlutter: 0.25 mg/kg Slow IVP; may repeat after 10 min at 0.35 mg/kg. (No significant HF.)', contra: 'Hypotension, wide-complex VT, WPW with AF, significant CHF', se: 'Hypotension, bradycardia, AV block' },
+      { name: 'Epinephrine 1:10,000 (0.1 mg/mL)', route: 'IV / IO', notes: 'Cardiac Arrest (adult): 1 mg IV/IO every 3–5 min. Cardiac Arrest (peds): 0.01 mg/kg IV/IO every 3–5 min. Anaphylaxis — Life-Threatening (adult): 0.1 mg SIVP. Anaphylaxis — Life-Threatening (peds): 0.01 mg SIVP or Broselow.', contra: 'None absolute in arrest/anaphylaxis', se: 'Tachycardia, hypertension, arrhythmias, anxiety' },
+      { name: 'Epinephrine 1:1,000 (1 mg/mL)', route: 'IM / IV infusion', notes: 'Anaphylaxis (adult): 0.3 mg IM; repeat in 15 min if no improvement. Anaphylaxis (peds): 0.01 mg/kg IM or Broselow; repeat in 5 min. Asthma / Poor Tidal Volume: 0.3 mg IM. Refractory Bradycardia / Septic Shock: mix 1 mg in 250 mL NS → 2–10 mcg/min IV infusion.', contra: 'Tachydysrhythmias (relative), severe HTN (relative)', se: 'Palpitations, tremor, anxiety, hypertension' },
+      { name: 'Epinephrine Push Dose (1:100,000)', route: 'IVP', notes: 'Non-Traumatic Hypotension: 5–20 mcg IVP; may repeat every 2–5 min. Mix: 1 mg (1:1,000) in 100 mL NS = 10 mcg/mL.', contra: 'Tachyarrhythmias', se: 'Tachycardia, hypertension' },
+      { name: 'Fentanyl', route: 'IV / IN', notes: 'Pain (adult): 1 mcg/kg SIVP; may repeat every 10 min, max 200 mcg. ACS (adult): 0.5–1 mcg/kg IV, max 200 mcg — preferred over morphine. Post-Intubation Pain (adult): 1 mcg/kg IVP; repeat every 10 min. Pain (peds): 1 mcg/kg IV; max 200 mcg. Post-Intubation Pain (peds): 0.5–1 mcg/kg/dose IVP; repeat every 5 min. Psych / PTSD: 1 mcg/kg IV.', contra: 'Hypotension, respiratory depression', se: 'Respiratory depression, chest wall rigidity (rapid large dose), nausea' },
+      { name: 'Furosemide (Lasix)', route: 'IVP', notes: 'CHF / Pulmonary Edema: 40–80 mg IVP.', contra: 'Hypovolemia, sulfa allergy (caution)', se: 'Hypotension, hypokalemia, ototoxicity' },
+      { name: 'Glucose (Oral)', route: 'PO / SB', notes: 'Hypoglycemia (awake, alert): 15–80 g PO or sublingually; repeat PRN. Same dosing for adult and peds.', contra: 'Decreased LOC/inability to protect airway', se: 'Nausea; aspiration risk if not alert' },
+      { name: 'Haloperidol (Haldol)', route: 'IV / IM / IN', notes: 'Chemical Restraint / Excited Delirium: 5–10 mg IV/IM/IN; follow with Midazolam 2–5 mg IVP. Antiemetic / Cannabis Hyperemesis: 5 mg IV.', contra: 'Parkinson\'s disease, seizure disorder, prolonged QT', se: 'EPS, QT prolongation, hypotension, NMS' },
+      { name: 'Hydralazine', route: 'IVP', notes: 'Hypertensive Emergency: 10 mg IVP; may repeat once. DO NOT use for stroke/CVA-related HTN (decreases cerebral perfusion). DO NOT use if angina or Levine\'s sign present.', contra: 'Angina, Levine\'s sign, stroke-related HTN, hypotension', se: 'Reflex tachycardia, headache, hypotension' },
+      { name: 'Ketamine (Anesthetic / KSI)', route: 'IV / IM', notes: 'KSI / Pre-Intubation Sedation: 1–3 mg/kg IV. Combative (no IV access): 5 mg/kg IM (max 500 mg). Post-Intubation Sedation: 1–3 mg/kg IVP + Ketamine Infusion 0.1–1.5 mg/min. Peds Narrow-Complex Sedation: 1 mg/kg IV.', contra: 'Severe uncontrolled HTN (relative); use caution in aortic dissection', se: 'Increased BP/HR, emergence delirium, hyperlacrimation, laryngospasm (rare)' },
+      { name: 'Ketamine (Analgesic)', route: 'IV / IN / IM', notes: 'Pain Management (adult): 0.1–1 mg/kg IV, 0.5–1 mg/kg IN, or 50 mg IM; repeat every 20 min (or 10 min if emergence), max 3 doses. Pain Management (peds): 1 mg/kg IV, 0.5–1 mg/kg IN, or 50 mg IM; every 20 min, max 3 doses. Back Pain: 0.1–1 mg/kg IVP — rule out aortic dissection. NOTE: Geriatrics metabolize slowly; peds metabolize quickly.', contra: 'Aortic dissection (due to BP increase), severe uncontrolled HTN', se: 'Emergence delirium, increased secretions, nausea' },
+      { name: 'Ketamine Infusion', route: 'IV infusion', notes: 'Post-Intubation Sedation: 0.1–1.5 mg/min IV (mix 100 mg in 250 mL NS or D5W). Dial-A-Flo rates: 0.1 mg/min = 15 gtts/min; 1.0 mg/min = 150 gtts/min; 1.5 mg/min = 225 gtts/min.', contra: 'Aortic dissection, severe uncontrolled HTN', se: 'Emergence delirium, increased secretions, increased BP/HR' },
+      { name: 'Labetalol', route: 'IVP', notes: 'Hypertensive Emergency: 20 mg IVP over 2 min; may repeat ONCE at 20 mg IVP. Avoid if bradycardic.', contra: 'Bradycardia, asthma/COPD, decompensated CHF, hypotension', se: 'Hypotension, bradycardia, bronchospasm' },
+      { name: 'Lactated Ringers (LR)', route: 'IV', notes: 'Burns (adult): 500 mL/hr until Parkland formula. Burns (peds): <5yo 125 mL/hr; 6–13yo 250 mL/hr; >17yo 500 mL/hr. Sepsis: initial IV bolus. GI Bleed: large-bore IV access. Eye Irrigation: preferred fluid. Crush Injury: alternative to NS.', contra: 'Severe hyperkalemia (contains potassium)', se: 'Fluid overload, electrolyte shifts' },
       { name: 'Lidocaine 2%', route: 'Neb', notes: 'Cough Variant Asthma: 40–60 mg (2–3 mL of 2%) mixed with 2.5 mg Albuterol via nebulizer.', contra: 'Hypersensitivity to amide anesthetics', se: 'Bronchospasm (rare), CNS effects with systemic absorption' },
       { name: 'Magnesium Sulfate', route: 'IV / IV infusion', notes: 'Torsades (unstable): 2 G SIVP + Infusion 1 G/hr (1 G in 100 mL NS, 60gtts, Dial-A-Flo 100 gtts/hr). Torsades (stable): 2 G SIVP + Infusion 1 G/hr. Severe Asthma: 2 G over 10 min. Eclampsia: 2 G IV + Infusion 2–4 G/hr IV.', contra: 'Heart block, severe renal failure', se: 'Flushing, hypotension, respiratory depression (high doses), loss of deep tendon reflexes' },
-      { name: 'Midazolam (Versed)', route: 'IV / IM / IN', notes: 'Sedation for cardioversion: 2–5 mg IVP (stable) or 5–10 mg IVP (unstable narrow/wide). Seizure adult: 2–5 mg IVP, repeat ×1. TCP sedation: 2–5 mg. Emergent delirium: 2–5 mg. Peds seizure: 0.35 mg/kg IVP or 0.3 mg/kg IN or 1–3 mg IM. Peds cardioversion sedation: 0.1 mg/kg IVP or 0.2 mg/kg IN.', contra: 'Hypotension, respiratory depression, acute narrow-angle glaucoma', se: 'Apnea, hypotension, amnesia' },
-      { name: 'Morphine Sulfate', route: 'IV / IM', notes: 'Adult pain: 5–10 mg IV every 5 min; max 20 mg. Preferred in burns (promotes fluid movement). Back pain: 2 mg IVP, max 10 mg. ACS (without right-side ST elevation): 5–10 mg IV, max 20 mg. Peds: 0.1 mg/kg SIVP or IM; max 20 mg. Burns peds: 2 mg IV every 5 min.', contra: 'Hypotension, respiratory depression, abdominal pain (relative)', se: 'Hypotension, respiratory depression, nausea, histamine release' },
-      { name: 'Naloxone (Narcan)', route: 'IV / IM / IN / IO', notes: 'Adult narcotic OD with respiratory depression Basic: 0.04–2 mg IN (total 2 mg); repeat. Advanced: 0.4–8 mg SIVP titrated to response (or IM, MAD, IO). Unconscious/unknown: 2 mg IN via MAD or 0.4–8 mg IVP. Peds Basic: 0.1 mg/kg IN. Peds Advanced: 0.1 mg/kg SIVP (or IM or IO).', contra: 'Hypersensitivity (rare); use with caution to avoid acute withdrawal in opioid-dependent patients', se: 'Acute withdrawal, agitation, pulmonary edema (rare)' },
+      { name: 'Midazolam (Versed)', route: 'IV / IM / IN', notes: 'Cardioversion Sedation (stable): 2–5 mg IVP. Cardioversion Sedation (unstable): 5–10 mg IVP. Active Seizure (adult): 2–5 mg IVP; repeat ×1. TCP Sedation: 2–5 mg IVP. Excited Delirium: 2–5 mg IVP/IM. Active Seizure (peds): 0.35 mg/kg IVP, 0.3 mg/kg IN, or 1–3 mg IM. Cardioversion Sedation (peds): 0.1 mg/kg IVP or 0.2 mg/kg IN.', contra: 'Hypotension, respiratory depression, acute narrow-angle glaucoma', se: 'Apnea, hypotension, amnesia' },
+      { name: 'Morphine Sulfate', route: 'IV / IM', notes: 'Pain Management (adult): 5–10 mg IV every 5 min; max 20 mg. Back Pain: 2 mg IVP; max 10 mg. Burns (adult): preferred — 5–10 mg IV every 5 min (promotes fluid movement). ACS (no right-side ST elevation): 5–10 mg IV; max 20 mg. Pain Management (peds): 0.1 mg/kg SIVP or IM; max 20 mg. Burns (peds): 2 mg IV every 5 min.', contra: 'Hypotension, respiratory depression, abdominal pain (relative)', se: 'Hypotension, respiratory depression, nausea, histamine release' },
+      { name: 'Naloxone (Narcan)', route: 'IV / IM / IN / IO', notes: 'Opioid OD (adult, Basic): 0.04–2 mg IN; repeat. Opioid OD (adult, Advanced): 0.4–8 mg SIVP, IM, or IO; titrate to response. Unconscious / Unknown: 2 mg IN via MAD or 0.4–8 mg IVP. Opioid OD (peds, Basic): 0.1 mg/kg IN. Opioid OD (peds, Advanced): 0.1 mg/kg SIVP, IM, or IO.', contra: 'Hypersensitivity (rare); use with caution to avoid acute withdrawal in opioid-dependent patients', se: 'Acute withdrawal, agitation, pulmonary edema (rare)' },
       { name: 'Nitroglycerin', route: 'SL', notes: 'ACS (adults, SBP >105 mmHg): 0.4 mg SL; may repeat ×2. CHF (SBP >100 mmHg): 0.4 mg SL. HTN (SBP >90 mmHg): 0.4 mg SL; may repeat ×2. Withhold for inferior ST elevation. Once CPAP is placed, do NOT remove mask for further SL doses.', contra: 'Hypotension (SBP <90–105 mmHg), RV infarct, PDE-5 inhibitor use in past 24 h, trauma with suspected internal bleeding', se: 'Headache, hypotension, reflex tachycardia' },
-      { name: 'Normal Saline 0.9% (NS)', route: 'IV / IO', notes: 'Standard fluid for IV access and boluses. Adult bolus: 200 cc (10 gtts), TKO thereafter unless shock. Fluid resuscitation: 500–1000 cc. Burns (with Bicarb): 1000 mL wide open. Peds max: 20 mL/kg per protocol. IO site: NS at rate appropriate for condition.', contra: 'Hyperchloremic acidosis risk with massive infusion; use LR for sepsis and burns', se: 'Fluid overload, hyperchloremia' },
-      { name: 'Ondansetron (Zofran)', route: 'IV / IM', notes: 'Adult: 4 mg SIVP or IM; may repeat once (ACS nausea, abdominal pain, general antiemetic). Peds: 0.1 mg/kg SIVP over 2 min; max 4 mg (adult) or 2 mg (per EASI peds protocol). Contact medical control for repeat peds dosing.', contra: 'Hypersensitivity; prolonged QT caution', se: 'Headache, constipation, QT prolongation (rare)' },
+      { name: 'Normal Saline 0.9% (NS)', route: 'IV / IO', notes: 'IV Access / Maintenance: 200 cc (10 gtts), TKO unless shock. Fluid Resuscitation / Shock: 500–1000 cc bolus. Burns (with Bicarb): 1000 mL wide open. Peds Fluid Resuscitation: 20 mL/kg per protocol. IO Access: NS at rate appropriate for condition.', contra: 'Hyperchloremic acidosis risk with massive infusion; use LR for sepsis and burns', se: 'Fluid overload, hyperchloremia' },
+      { name: 'Ondansetron (Zofran)', route: 'IV / IM', notes: 'Antiemetic (adult): 4 mg SIVP or IM; may repeat once. Antiemetic (peds): 0.1 mg/kg SIVP over 2 min; max 4 mg or 2 mg per EASI peds protocol. Contact medical control for repeat peds dosing.', contra: 'Hypersensitivity; prolonged QT caution', se: 'Headache, constipation, QT prolongation (rare)' },
       { name: 'Sodium Bicarbonate', route: 'IVP / IV', notes: 'Adult arrest (acidosis): 1 mEq IV/IO; may repeat once. TCA OD adult: 1 mEq/kg IVP (min 50 mEq). Crush injury adult: 1 mEq into affected appendage (max 50 mEq). Burns (electrical): 1 mEq/kg (max 100 mEq) in 1000 mL NS or LR wide open. Peds arrest (acidosis): 1 mEq IV/IO. Peds TCA OD: 1 mEq/kg IVP. Peds crush: 1 mEq (max 50 mEq). Peds burns (electrical): 1 mEq/kg (max 100 mEq).', contra: 'Metabolic alkalosis, hypokalemia', se: 'Alkalosis, hypernatremia, paradoxical intracellular acidosis' },
       { name: 'Solu-Medrol (Methylprednisolone)', route: 'IV / IM', notes: 'Anaphylaxis: 125 mg IV or IM. Anaphylactic transfusion reaction: 125 mg IVP.', contra: 'Systemic fungal infection (relative); no absolute contraindication in emergency', se: 'Hyperglycemia, immunosuppression' },
-      { name: 'Thiamine', route: 'IV', notes: 'General medical illness (alcohol use): 100 mg IV.', contra: 'None in emergency', se: 'Rare hypotension with rapid push; local irritation' },
+      { name: 'Thiamine', route: 'IV', notes: 'Alcohol Use / Wernicke\'s Encephalopathy: 100 mg IV.', contra: 'None in emergency', se: 'Rare hypotension with rapid push; local irritation' },
       { name: 'Tranexamic Acid (TXA)', route: 'IV infusion', notes: 'Upper GI bleed with decompensated shock: 2 G IV over 10 min. Trauma significant bleeding: 2 G IV over 10 min.', contra: 'Active intravascular clotting, subarachnoid hemorrhage, allergy', se: 'Nausea, vomiting, hypotension if pushed too fast' },
-      { name: 'Verapamil', route: 'SIVP', notes: 'Stable AFib/AFlutter without significant HF: 5 mg IV; if no change after 5 min → 10 mg IV.', contra: 'Hypotension, WPW with AF, wide-complex VT/VF, significant CHF', se: 'Hypotension, bradycardia, AV block' }
+      { name: 'Verapamil', route: 'SIVP', notes: 'Stable AFib / AFlutter: 5 mg IV; if no change after 5 min → 10 mg IV. (No significant HF.)', contra: 'Hypotension, WPW with AF, wide-complex VT/VF, significant CHF', se: 'Hypotension, bradycardia, AV block' }
     ],
     contacts: [
       { id:'c-kenneth-starnes', group:'internal', name:'Kenneth Starnes', role:'President', exec:true, desc:'Executive leadership — not a day-to-day contact.', phone:'', email:'' },
@@ -2691,6 +2694,8 @@
   }
 
   async function loadServiceData(){
+    const BUILTIN_VER = EASI_2026_SERVICE._version || 0;
+
     // Layer 1: localStorage (instant)
     let cached = null;
     try{ const r = localStorage.getItem(SVC_CACHE_KEY); if(r) cached = JSON.parse(r); }catch(e){}
@@ -2698,14 +2703,23 @@
     // Layer 2: Cache API (survives iOS localStorage eviction)
     if(!cached) cached = await loadSvcFromCache();
 
+    // Version gate: if built-in is newer than anything cached, force-upgrade immediately
+    if(cached && (cached._version || 0) < BUILTIN_VER){
+      cached = EASI_2026_SERVICE;
+      try{ localStorage.setItem(SVC_CACHE_KEY, JSON.stringify(EASI_2026_SERVICE)); }catch(e){}
+      saveSvcToCache(EASI_2026_SERVICE).catch(()=>{});
+    }
+
     if(cached){
       _seedContacts(cached);
       state.services['EASI Protocols - 2026'] = cached;
-      // Re-sync localStorage in case it was the one that was cleared
-      try{ localStorage.setItem(SVC_CACHE_KEY, JSON.stringify(cached)); }catch(e){}
-      // Refresh from Firestore in background
+      // Refresh from Firestore in background; push built-in if Firestore is also stale
       fetchSvcFromFirestore().then(async fresh => {
-        if(!fresh) return;
+        if(!fresh || (fresh._version || 0) < BUILTIN_VER){
+          // Firestore is missing or outdated — push built-in silently
+          fbDb.collection('service_data').doc(SVC_DOC_ID).set(EASI_2026_SERVICE).catch(()=>{});
+          return; // already showing built-in
+        }
         _seedContacts(fresh);
         localStorage.setItem(SVC_CACHE_KEY, JSON.stringify(fresh));
         await saveSvcToCache(fresh);
@@ -2718,7 +2732,12 @@
     // Layer 3: Firestore (first run / both caches empty)
     showSvcLoading(true);
     try{
-      const fresh = await fetchSvcFromFirestore();
+      let fresh = await fetchSvcFromFirestore();
+      if(fresh && (fresh._version || 0) < BUILTIN_VER){
+        // Stale Firestore doc — overwrite with built-in
+        fbDb.collection('service_data').doc(SVC_DOC_ID).set(EASI_2026_SERVICE).catch(()=>{});
+        fresh = EASI_2026_SERVICE;
+      }
       if(fresh){
         _seedContacts(fresh);
         localStorage.setItem(SVC_CACHE_KEY, JSON.stringify(fresh));
@@ -2732,7 +2751,8 @@
         state.services['EASI Protocols - 2026'] = EASI_2026_SERVICE;
       }
     }catch(e){
-      // Fully offline, both caches empty — built-in fallback already set above
+      // Fully offline, no cache — fall back to built-in
+      state.services['EASI Protocols - 2026'] = EASI_2026_SERVICE;
     }finally{
       showSvcLoading(false);
     }
@@ -3325,7 +3345,7 @@
   const _RES_SECTIONS = [
     {label:'🧒 Pediatric Quick Reference', id:'peds-ref-section'},
     {label:'⚖️ Weight-Based Dose Calc',    id:'calc-body-weight'},
-    {label:'💊 Standard Dose Calc',         id:'calc-body-std'},
+    {label:'💊 IV & Fluids',                 id:'calc-body-std'},
     {label:'💉 IV Infusion Calc',           id:'calc-body-iv'},
     {label:'⏱ Drip Timing Calc',           id:'calc-body-md'},
     {label:'💧 Fluid Over Time Calc',       id:'calc-body-fo'},
@@ -3461,7 +3481,7 @@
         ${renderMedNotes(m.notes||'', filterTerms)}
         ${m.contra?`<div class="hint" style="margin-top:4px"><span style="color:#f87171">✕</span> ${highlight(sanitizeText(m.contra||''), filterTerms)}</div>`:''}
         <div style="margin-top:8px" class="row">
-          <button class="btn" onclick="loadIntoCalc('${(m.name||'').replace(/'/g, "&#39;")}')">Send to Calculator</button>
+          <button class="btn" style="font-size:13px" onclick="loadIntoCalc('${(m.name||'').replace(/'/g, "&#39;")}')">→ IV &amp; Fluids</button>
           ${typeof m.default_mgkg!=='undefined' && m.default_mgkg!==null ? `<span class="pill"><span class="k">mg/kg</span>${m.default_mgkg}</span>`:''}
         </div>
       </div>`}).join('') || emptyState(_favsOnly ? 'No favorited meds yet — tap ☆ on any med to save it here.' : 'No medication matches');
@@ -4077,7 +4097,9 @@
   function loadIntoCalc(name){
     const m = (svc().meds||[]).find(x=>x.name===name);
     if(!m) return;
-    const isWeightBased = !!(m.default_mgkg != null || /\bmg\/kg\b|\bmcg\/kg\b|\bml\/kg\b/i.test(m.notes||''));
+    const notes = m.notes || '';
+    const isWeightBased = !!(m.default_mgkg != null || /\bmg\/kg\b|\bmcg\/kg\b|\bml\/kg\b/i.test(notes));
+    const isInfusion = !isWeightBased && /\bmcg\/kg\/min\b|\binfusion\b/i.test(notes);
     document.querySelector('[data-tab="resources"]').click();
     setTimeout(()=>{
       if(isWeightBased){
@@ -4086,7 +4108,19 @@
         $('#maxmg').value = m.max_mg ?? '';
         $('#route').value = m.route || '';
         jumpToSection('calc-body-weight');
+      } else if(isInfusion){
+        const dm = notes.match(/(\d+(?:\.\d+)?)\s*mcg\/kg\/min/i);
+        if(dm) $('#iv-ordered').value = dm[1];
+        const note = document.getElementById('iv-prefill-note');
+        if(note) note.textContent = dm ? `${m.name} — ${dm[1]} mcg/kg/min` : m.name;
+        jumpToSection('calc-body-iv');
       } else {
+        const dm = notes.match(/(\d+(?:\.\d+)?)\s*(mg|mcg|g|mEq|units?)\b/i);
+        if(dm){
+          $('#std-dose-ordered').value = dm[1];
+          const note = document.getElementById('std-prefill-note');
+          if(note) note.textContent = `${m.name} — ${dm[1]} ${dm[2]}`;
+        }
         jumpToSection('calc-body-std');
       }
     }, 50);
@@ -4156,7 +4190,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     const txt = isFinite(mL) ? `Draw: <b>${fmt(mL,2)} mL</b>` : 'Enter ordered + on‑hand + volume, or ordered + concentration.';
     $('#std-result').innerHTML = txt;
   });
-  $('#std-reset').addEventListener('click', ()=>{ ['std-dose-ordered','std-dose-onhand','std-vol-onhand','std-conc'].forEach(id=> $('#'+id).value=''); $('#std-result').innerHTML=''; });
+  $('#std-reset').addEventListener('click', ()=>{ ['std-dose-ordered','std-dose-onhand','std-vol-onhand','std-conc'].forEach(id=> $('#'+id).value=''); $('#std-result').innerHTML=''; const n=document.getElementById('std-prefill-note'); if(n) n.textContent=''; });
 
   // IV Infusion gtts/min
   $('#iv-calc').addEventListener('click', ()=>{
@@ -4173,7 +4207,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     const gttsMin = (mLhr * drip) / 60;
     $('#iv-result').innerHTML = `mL/hr: <b>${fmt(mLhr,1)}</b> • gtts/min: <b>${Math.round(gttsMin)}</b>`;
   });
-  $('#iv-reset').addEventListener('click', ()=>{ ['iv-ordered','iv-wt','iv-bagmg','iv-bagvol','iv-dripset'].forEach(id=> $('#'+id).value=''); $('#iv-result').innerHTML=''; });
+  $('#iv-reset').addEventListener('click', ()=>{ ['iv-ordered','iv-wt','iv-bagmg','iv-bagvol','iv-dripset'].forEach(id=> $('#'+id).value=''); $('#iv-result').innerHTML=''; const n=document.getElementById('iv-prefill-note'); if(n) n.textContent=''; });
 
   // Manual Drip Timing
   $('#md-calc').addEventListener('click', ()=>{
