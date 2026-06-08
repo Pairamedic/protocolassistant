@@ -7,8 +7,8 @@
   <link rel="manifest" href="manifest.json" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="EMS Protocols" />
-  <link rel="apple-touch-icon" href="easi-logo.jpg" />
+  <meta name="apple-mobile-web-app-title" content="Pairamedic" />
+  <link rel="apple-touch-icon" href="star-of-life.svg" />
   <style>
     :root { --bg:#0b0d10; --card:#141820; --muted:#a7b0be; --text:#e6eef8; --accent:#5eead4; --accent2:#93c5fd; --border:rgba(255,255,255,.1); --input-bg:#0f131a; }
     :root.light { --bg:#f1f5f9; --card:#ffffff; --muted:#64748b; --text:#0f172a; --accent:#0d9488; --accent2:#2563eb; --border:rgba(0,0,0,.1); --input-bg:#f8fafc; }
@@ -278,7 +278,7 @@
   <header>
     <div class="wrap">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <div id="app-title" class="title" style="display:flex;align-items:center;gap:9px">🚑 Pairamedic</div>
+        <div id="app-title" class="title" style="display:flex;align-items:center;gap:9px"><img src="star-of-life.svg" alt="" style="width:28px;height:28px;flex:none"/> Pairamedic</div>
         <div style="display:flex;align-items:center;gap:6px">
           <button id="btn-admin" class="ui-ctrl-btn hidden" title="Admin Panel">⚙️</button>
           <div style="position:relative">
@@ -2596,12 +2596,12 @@
     'EASI Protocols - 2026': 'Emergency Medical Ambulance Service INC',
     'EASI Protocols - 2025': 'Emergency Medical Ambulance Service INC',
   };
-  const LOGO_HTML = `<div style="width:30px;height:30px;border-radius:7px;background:#fff;overflow:hidden;flex:none;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.35)"><img src="easi-logo.jpg" alt="EASI" style="width:100%;height:100%;object-fit:contain"/></div>`;
+  const LOGO_HTML = `<img src="star-of-life.svg" alt="" style="width:28px;height:28px;flex:none" />`;
 
   function updateTitle(){
     const el = $('#app-title');
     const name = SERVICE_DISPLAY[state.currentService];
-    el.innerHTML = name ? `${LOGO_HTML} ${name}` : '🚑 Pairamedic';
+    el.innerHTML = `${LOGO_HTML} ${name || 'Pairamedic'}`;
   }
 
   function noServiceState(){
@@ -3983,8 +3983,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       if(idx===-1) svc().contacts.push(obj); else svc().contacts[idx] = obj;
     }
     save(state);
-    if(_adminMode) fbDb.collection('service_data').doc(SVC_DOC_ID).set(svc())
-      .then(()=> localStorage.setItem(SVC_CACHE_KEY, JSON.stringify(svc()))).catch(()=>{});
+    if(_adminMode){ const _c=JSON.parse(JSON.stringify(svc())); fbDb.collection('service_data').doc(SVC_DOC_ID).set(_c).then(()=>localStorage.setItem(SVC_CACHE_KEY,JSON.stringify(_c))).catch(e=>console.error('Auto cloud save failed:',e)); }
     closeModal();
     renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
     if(_adminMode) renderAdminPanel();
@@ -4007,8 +4006,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     if(!confirm(`Delete "${label}"? This cannot be undone.`)) return;
     if(type==='protocol') s.protocols.splice(idx,1); else if(type==='med') s.meds.splice(idx,1); else s.contacts.splice(idx,1);
     save(state);
-    if(_adminMode) fbDb.collection('service_data').doc(SVC_DOC_ID).set(svc())
-      .then(()=> localStorage.setItem(SVC_CACHE_KEY, JSON.stringify(svc()))).catch(()=>{});
+    if(_adminMode){ const _c=JSON.parse(JSON.stringify(svc())); fbDb.collection('service_data').doc(SVC_DOC_ID).set(_c).then(()=>localStorage.setItem(SVC_CACHE_KEY,JSON.stringify(_c))).catch(e=>console.error('Auto cloud save failed:',e)); }
     closeModal();
     renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
     if(_adminMode) renderAdminPanel();
@@ -4025,12 +4023,15 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     const orig = btn.textContent;
     btn.textContent = '⏳ Saving…'; btn.disabled = true;
     try{
-      await fbDb.collection('service_data').doc(SVC_DOC_ID).set(data);
-      localStorage.setItem(SVC_CACHE_KEY, JSON.stringify(data));
+      // JSON round-trip strips undefined values that Firestore rejects
+      const clean = JSON.parse(JSON.stringify(data));
+      await fbDb.collection('service_data').doc(SVC_DOC_ID).set(clean);
+      localStorage.setItem(SVC_CACHE_KEY, JSON.stringify(clean));
       btn.textContent = '✓ Saved!';
       setTimeout(()=>{ btn.textContent = orig; btn.disabled = false; }, 1800);
     }catch(e){
-      alert('Cloud save failed: ' + e.message);
+      console.error('Cloud save failed:', e);
+      alert('Cloud save failed:\n' + e.message + '\n\nCheck that Firestore rules allow admin writes to service_data.');
       btn.textContent = orig; btn.disabled = false;
     }
   }

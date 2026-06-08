@@ -1,5 +1,5 @@
-const CACHE = 'easi-protocols-v3';
-const CORE = ['./ProtocolAssistant.html', './easi-logo.jpg', './manifest.json'];
+const CACHE = 'pairamedic-v1';
+const CORE = ['./ProtocolAssistant.html', './star-of-life.svg', './manifest.json'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));

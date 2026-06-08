@@ -1,0 +1,18 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users can read/write their own app state (favorites, current service)
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Service data (protocols, meds, contacts) — all authenticated users can read,
+    // only the admin account can write
+    match /service_data/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null &&
+                      request.auth.token.email == 'eliasacaldwellnrp@gmail.com';
+    }
+  }
+}
