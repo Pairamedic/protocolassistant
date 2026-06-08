@@ -1789,6 +1789,7 @@
   };
 
   const EASI_2026_SERVICE = {
+    _version: 20260608,
     protocols: [
       // ── GENERAL ──────────────────────────────────────────────────────────
       {
@@ -2693,6 +2694,8 @@
   }
 
   async function loadServiceData(){
+    const BUILTIN_VER = EASI_2026_SERVICE._version || 0;
+
     // Layer 1: localStorage (instant)
     let cached = null;
     try{ const r = localStorage.getItem(SVC_CACHE_KEY); if(r) cached = JSON.parse(r); }catch(e){}
@@ -2700,14 +2703,23 @@
     // Layer 2: Cache API (survives iOS localStorage eviction)
     if(!cached) cached = await loadSvcFromCache();
 
+    // Version gate: if built-in is newer than anything cached, force-upgrade immediately
+    if(cached && (cached._version || 0) < BUILTIN_VER){
+      cached = EASI_2026_SERVICE;
+      try{ localStorage.setItem(SVC_CACHE_KEY, JSON.stringify(EASI_2026_SERVICE)); }catch(e){}
+      saveSvcToCache(EASI_2026_SERVICE).catch(()=>{});
+    }
+
     if(cached){
       _seedContacts(cached);
       state.services['EASI Protocols - 2026'] = cached;
-      // Re-sync localStorage in case it was the one that was cleared
-      try{ localStorage.setItem(SVC_CACHE_KEY, JSON.stringify(cached)); }catch(e){}
-      // Refresh from Firestore in background
+      // Refresh from Firestore in background; push built-in if Firestore is also stale
       fetchSvcFromFirestore().then(async fresh => {
-        if(!fresh) return;
+        if(!fresh || (fresh._version || 0) < BUILTIN_VER){
+          // Firestore is missing or outdated — push built-in silently
+          fbDb.collection('service_data').doc(SVC_DOC_ID).set(EASI_2026_SERVICE).catch(()=>{});
+          return; // already showing built-in
+        }
         _seedContacts(fresh);
         localStorage.setItem(SVC_CACHE_KEY, JSON.stringify(fresh));
         await saveSvcToCache(fresh);
@@ -2720,7 +2732,12 @@
     // Layer 3: Firestore (first run / both caches empty)
     showSvcLoading(true);
     try{
-      const fresh = await fetchSvcFromFirestore();
+      let fresh = await fetchSvcFromFirestore();
+      if(fresh && (fresh._version || 0) < BUILTIN_VER){
+        // Stale Firestore doc — overwrite with built-in
+        fbDb.collection('service_data').doc(SVC_DOC_ID).set(EASI_2026_SERVICE).catch(()=>{});
+        fresh = EASI_2026_SERVICE;
+      }
       if(fresh){
         _seedContacts(fresh);
         localStorage.setItem(SVC_CACHE_KEY, JSON.stringify(fresh));
@@ -2734,7 +2751,8 @@
         state.services['EASI Protocols - 2026'] = EASI_2026_SERVICE;
       }
     }catch(e){
-      // Fully offline, both caches empty — built-in fallback already set above
+      // Fully offline, no cache — fall back to built-in
+      state.services['EASI Protocols - 2026'] = EASI_2026_SERVICE;
     }finally{
       showSvcLoading(false);
     }
