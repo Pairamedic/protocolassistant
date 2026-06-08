@@ -45,6 +45,13 @@
     /* Repeat timing highlight */
     .repeat-time{background:rgba(251,191,36,.18);color:#fbbf24;border-radius:4px;padding:1px 4px;font-weight:700}
     :root.light .repeat-time{background:rgba(217,119,6,.12);color:#b45309}
+    /* Indication-specific dose blocks */
+    .ind-blocks{display:flex;flex-direction:column;gap:7px;margin-top:4px}
+    .ind-block{padding:8px 10px;border-radius:10px;border-left:3px solid var(--accent);background:rgba(94,234,212,.05)}
+    .ind-label{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+    .ind-unlabeled{color:var(--muted);font-size:13px;padding:2px 0}
+    :root.light .ind-block{background:rgba(13,148,136,.05);border-left-color:#0d9488}
+    :root.light .ind-label{color:#0d9488}
     .grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px}
     @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
     .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px}
@@ -215,7 +222,67 @@
     .pill-btn.active{background:rgba(94,234,212,.13);border-color:var(--accent);color:var(--accent)}
     :root.light .pill-btn{background:#fff;border-color:rgba(0,0,0,.15);color:#64748b}
     :root.light .pill-btn.active{background:rgba(20,184,166,.1);border-color:#0d9488;color:#0d9488}
-    /* drug class filter chips — meds panel */
+    /* meds & resources search bars */
+    .meds-search-wrap{position:relative}
+    .meds-search-bar{display:flex;align-items:center;gap:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:14px;padding:10px 14px;transition:border-color .15s}
+    .meds-search-bar:focus-within{border-color:var(--accent)}
+    .meds-search-icon{font-size:16px;flex:none;color:var(--muted)}
+    .meds-search-bar input{background:none;border:none;color:var(--text);font-size:15px;flex:1;outline:none;font-family:inherit;min-width:0}
+    .meds-search-bar input::placeholder{color:var(--muted)}
+    .meds-filter-clear{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:0 2px;line-height:1;flex:none}
+    .meds-sugg-list{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:12px;z-index:50;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+    .meds-sugg-item{padding:11px 16px;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
+    .meds-sugg-item:last-child{border-bottom:none}
+    .meds-sugg-item:active,.meds-sugg-item:hover{background:rgba(255,255,255,.06)}
+    .meds-sugg-tag{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:2px 7px;border-radius:6px;background:rgba(94,234,212,.12);color:var(--accent);flex:none}
+    :root.light .meds-sugg-item:hover{background:rgba(0,0,0,.04)}
+    :root.light .meds-sugg-tag{background:rgba(13,148,136,.1);color:#0d9488}
+    /* shift check-off */
+    .shift-clockin-banner{display:flex;align-items:center;gap:12px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:12px;padding:12px 14px}
+    .shift-section{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden}
+    .shift-section-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+    .shift-section-header:active{background:rgba(255,255,255,.04)}
+    .shift-section-title{font-size:15px;font-weight:700;color:var(--accent)}
+    .shift-section-progress{font-size:12px;color:var(--muted);flex:none}
+    .shift-section-chev{font-size:11px;color:var(--muted);transition:transform .2s;flex:none}
+    .shift-section.open .shift-section-chev{transform:rotate(180deg)}
+    .shift-section-body{display:none;padding:4px 16px 14px}
+    .shift-section.open .shift-section-body{display:block}
+    .shift-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+    .shift-item:last-child{border-bottom:none}
+    .shift-item input[type=checkbox]{width:22px;height:22px;accent-color:var(--accent);flex:none;margin-top:1px;cursor:pointer}
+    .shift-item-label{font-size:14px;line-height:1.4;flex:1}
+    .shift-item-label.done{text-decoration:line-through;color:var(--muted)}
+    .shift-item-time{font-size:11px;color:#4ade80;margin-top:3px}
+    /* unit check off / stock sheet shared */
+    .uco-header-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .uco-field{display:flex;flex-direction:column;gap:4px}
+    .uco-field label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+    .uco-field input{background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;padding:9px 12px;outline:none;font-family:inherit;transition:border-color .15s}
+    .uco-field input:focus{border-color:var(--accent)}
+    .uco-section{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden}
+    .uco-section-head{background:rgba(94,234,212,.07);padding:10px 14px;font-size:13px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+    .uco-table{width:100%;border-collapse:collapse}
+    .uco-table th{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+    .uco-table td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:14px}
+    .uco-table tr:last-child td{border-bottom:none}
+    .uco-table .ok-cell{text-align:center;width:44px}
+    .uco-table input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);cursor:pointer}
+    .uco-table input[type=text],.uco-table input[type=number]{background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:6px 8px;outline:none;font-family:inherit;width:100%;min-width:60px;transition:border-color .15s}
+    .uco-table input[type=text]:focus,.uco-table input[type=number]:focus{border-color:var(--accent)}
+    .uco-table .prob-cell{width:38%}
+    .uco-table .qty-cell{width:50px;text-align:center}
+    .uco-table .act-cell{width:60px}
+    .uco-table .exp-cell{width:90px}
+    .uco-footer-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px}
+    .uco-footer-field{display:flex;flex-direction:column;gap:4px}
+    .uco-footer-field label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+    .uco-footer-field input{background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:8px 10px;outline:none;font-family:inherit;transition:border-color .15s}
+    .uco-footer-field input:focus{border-color:var(--accent)}
+    .uco-sig-row{padding:12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .uco-maint-row{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--muted)}
+    .uco-maint-row button{padding:6px 16px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);color:var(--muted);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:background .12s,border-color .12s,color .12s}
+    .uco-maint-row button.active{background:rgba(94,234,212,.13);border-color:var(--accent);color:var(--accent)}
     /* resources panel */
     .res-section{margin-bottom:22px}
     .res-section-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:10px}
@@ -328,6 +395,7 @@
           <button class="tab" data-tab="meds">Meds <span class="tab-cnt" id="tc-m"></span></button>
           <button class="tab" data-tab="resources">Resources</button>
           <button class="tab" data-tab="contacts">Contacts</button>
+          <button class="tab" data-tab="shift">📋 Shift</button>
         </div>
         <div class="hint">Select an Ambulance Service. Data is saved automatically.</div>
       </div>
@@ -342,9 +410,8 @@
     <section id="panel-protocols" class="panel">
       <div class="tab-filter">
         <div class="filter-pills" id="age-filter-pills">
-          <button class="pill-btn active" data-age="all">👥 All Ages</button>
-          <button class="pill-btn" data-age="adult">🧑 Adult</button>
-          <button class="pill-btn" data-age="peds">🧒 Pediatric</button>
+          <button class="pill-btn active" data-age="adult">🧑 Adult</button>
+          <button class="pill-btn active" data-age="peds">🧒 Pediatric</button>
         </div>
       </div>
       <div id="protocols"></div>
@@ -353,7 +420,14 @@
     <!-- Meds -->
     <section id="panel-meds" class="panel hidden">
       <div class="tab-filter">
-        <div class="filter-pills" id="med-class-pills"></div>
+        <div class="meds-search-wrap">
+          <div class="meds-search-bar">
+            <span class="meds-search-icon">🔍</span>
+            <input type="search" id="meds-filter-input" placeholder="Drug name or class (e.g. analgesic)…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+            <button id="meds-filter-clear" class="meds-filter-clear" style="display:none">✕</button>
+          </div>
+          <div id="meds-suggestions" class="meds-sugg-list" style="display:none"></div>
+        </div>
       </div>
       <div id="meds" class="grid"></div>
     </section>
@@ -363,18 +437,13 @@
 
       <!-- Quick-jump nav -->
       <div class="tab-filter">
-        <div class="filter-pills" id="res-nav-pills">
-          <button class="pill-btn" data-section="peds-ref-section">🧒 Peds Ref</button>
-          <button class="pill-btn" data-section="calc-body-weight">⚖️ Weight Dose</button>
-          <button class="pill-btn" data-section="calc-body-std">💊 Std Dose</button>
-          <button class="pill-btn" data-section="calc-body-iv">💉 IV Infusion</button>
-          <button class="pill-btn" data-section="calc-body-md">⏱ Drip Timing</button>
-          <button class="pill-btn" data-section="calc-body-fo">💧 Fluid Over Time</button>
-          <button class="pill-btn" data-section="calc-body-pump">🔄 Pump Rate</button>
-          <button class="pill-btn" data-section="calc-body-apgar">👶 Apgar</button>
-          <button class="pill-btn" data-section="calc-body-gcs">🧠 GCS</button>
-          <button class="pill-btn" data-section="calc-body-o2">🫁 O₂ Duration</button>
-          <button class="pill-btn" data-section="vent-section">📏 Vent Settings</button>
+        <div class="meds-search-wrap">
+          <div class="meds-search-bar">
+            <span class="meds-search-icon">🔍</span>
+            <input type="search" id="res-filter-input" placeholder="Jump to section (e.g. Peds, Apgar)…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+            <button id="res-filter-clear" class="meds-filter-clear" style="display:none">✕</button>
+          </div>
+          <div id="res-suggestions" class="meds-sugg-list" style="display:none"></div>
         </div>
       </div>
 
@@ -789,6 +858,90 @@
         </div>
       </div>
       <div id="contacts-render"></div>
+    </section>
+
+    <!-- Shift Check-Off / EASI Forms -->
+    <section id="panel-shift" class="panel hidden">
+      <!-- Sub-navigation -->
+      <div class="tab-filter">
+        <div class="filter-pills" id="shift-subnav-pills">
+          <button class="pill-btn active" data-sform="checklist">📋 My Checklist</button>
+          <button class="pill-btn" data-sform="unit-checkoff">🚐 Unit Check Off</button>
+          <button class="pill-btn" data-sform="stock-sheet">📦 Stock Sheet</button>
+        </div>
+      </div>
+
+      <!-- My Personal Checklist -->
+      <div id="sform-checklist">
+        <div class="card" style="margin-bottom:12px">
+          <div class="shift-clockin-banner" style="margin-bottom:12px">
+            <span style="font-size:18px">⏰</span>
+            <label style="display:flex;align-items:center;gap:10px;flex:1;cursor:pointer">
+              <input type="checkbox" id="shift-clockin-cb" style="width:20px;height:20px;accent-color:var(--accent);flex:none" />
+              <span style="font-weight:700;font-size:14px">CLOCKED IN (or alarm set)?</span>
+            </label>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+            <label style="font-size:13px;color:var(--muted);white-space:nowrap">Unit #</label>
+            <input id="shift-unit" type="text" placeholder="e.g. 279-ALS-PB" autocomplete="off"
+              style="flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:15px;padding:10px 12px;outline:none;font-family:inherit;transition:border-color .15s" />
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn" onclick="exportShiftChecklist()" style="flex:1;font-size:13px;padding:10px">📤 Export</button>
+            <button class="btn" onclick="resetShiftChecklist()" style="flex:1;font-size:13px;padding:10px;color:#f87171;border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.06)">🗑 Reset</button>
+          </div>
+        </div>
+        <div id="shift-sections"></div>
+        <div class="card" style="margin-top:12px;margin-bottom:20px">
+          <div style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:8px">📝 Notes</div>
+          <textarea id="shift-notes" rows="4" placeholder="Shift notes…"
+            style="width:100%;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;padding:10px 12px;outline:none;font-family:inherit;resize:vertical;transition:border-color .15s"></textarea>
+        </div>
+      </div>
+
+      <!-- Unit Check Off (Official EASI Form) -->
+      <div id="sform-unit-checkoff" class="hidden">
+        <div class="card" style="margin-bottom:12px">
+          <div style="text-align:center;margin-bottom:14px">
+            <div style="font-size:13px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;font-weight:600">Emergency Ambulance Service, Inc.</div>
+            <div style="font-size:17px;font-weight:700;margin-top:4px">EMT Check Off</div>
+          </div>
+          <div class="uco-header-grid">
+            <div class="uco-field"><label>Unit</label><input id="uco-unit" type="text" placeholder="Unit #" /></div>
+            <div class="uco-field"><label>Mileage</label><input id="uco-mileage" type="text" placeholder="Miles" /></div>
+            <div class="uco-field"><label>Date</label><input id="uco-date" type="date" /></div>
+            <div class="uco-field"><label>EMT</label><input id="uco-emt" type="text" placeholder="Name" /></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button class="btn" onclick="exportUCO()" style="flex:1;font-size:13px;padding:10px">📤 Export</button>
+            <button class="btn" onclick="resetUCO()" style="flex:1;font-size:13px;padding:10px;color:#f87171;border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.06)">🗑 Reset</button>
+          </div>
+        </div>
+        <div id="uco-sections"></div>
+      </div>
+
+      <!-- ALS Unit Stock Sheet -->
+      <div id="sform-stock-sheet" class="hidden">
+        <div class="card" style="margin-bottom:12px">
+          <div style="text-align:center;margin-bottom:14px">
+            <div style="font-size:17px;font-weight:700">ALS Unit Stock Sheet</div>
+          </div>
+          <div class="uco-header-grid">
+            <div class="uco-field"><label>Date</label><input id="ss-date" type="date" /></div>
+            <div class="uco-field"><label>Unit</label><input id="ss-unit" type="text" placeholder="Unit #" /></div>
+            <div class="uco-field"><label>Narc Lock #</label><input id="ss-narc" type="text" placeholder="#" /></div>
+            <div class="uco-field"><label>Main O₂ PSI</label><input id="ss-o2main" type="text" placeholder="PSI" /></div>
+            <div class="uco-field"><label>Port O₂ PSI</label><input id="ss-o2port" type="text" placeholder="PSI" /></div>
+            <div class="uco-field"><label>Paramedic</label><input id="ss-para" type="text" placeholder="Name" /></div>
+            <div class="uco-field"><label>EMT</label><input id="ss-emt" type="text" placeholder="Name" /></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button class="btn" onclick="exportStockSheet()" style="flex:1;font-size:13px;padding:10px">📤 Export</button>
+            <button class="btn" onclick="resetStockSheet()" style="flex:1;font-size:13px;padding:10px;color:#f87171;border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.06)">🗑 Reset</button>
+          </div>
+        </div>
+        <div id="ss-sections"></div>
+      </div>
     </section>
 
     <div class="footer">Offline‑friendly reference. Always follow your service’s latest approved protocols.</div>
@@ -2603,8 +2756,9 @@
   let _favsOnly    = false;
   const _hiddenRoles = new Set();
   let _lastTerms = [];
-  let _ageFilter = 'all';
+  let _ageFilter = new Set(['adult','peds']);
   let _medClassFilter = null;
+  let _medTextFilter = '';
 
   function _favKey(svc){ return svc || state.currentService; }
   function _favArr(type, svc){
@@ -2817,9 +2971,43 @@
     };
   }
 
-  // Render med notes — shows adult/peds tabs when both are present, plain hint otherwise
+  // Split text into labeled indication blocks: "LABEL: dose. LABEL2: dose2."
+  // Only activates when at least one LABEL: pattern is found at a sentence boundary.
+  const _IND_SKIP = new Set(['if','do','may','consider','administer','give','start','when',
+    'while','after','before','note','caution','use','avoid','for','and','or','but','in',
+    'on','at','repeat','escalate','contact','apply','perform','transport','monitor','check',
+    'not','ensure','obtain','begin','continue','manage','the','a','an']);
+  function parseIndicationBlocks(text){
+    if(!text) return null;
+    // Split on ". " before uppercase — avoids lookbehind for iOS compat
+    const segs = text.replace(/\.\s+(?=[A-Z("'])/g, '').split('').map(s => s.trim());
+    const blocks = segs.map(seg => {
+      const ci = seg.indexOf(':');
+      if(ci < 1 || ci > 45) return {label:null, content:seg.replace(/\.$/, '').trim()};
+      const label = seg.slice(0, ci).trim();
+      const content = seg.slice(ci + 1).trim().replace(/\.$/, '');
+      const firstWord = label.split(/[\s(]/)[0].toLowerCase().replace(/[^a-z]/g,'');
+      if(_IND_SKIP.has(firstWord) || label.length < 2) return {label:null, content:seg.replace(/\.$/, '').trim()};
+      return {label, content};
+    }).filter(b => b.content);
+    return blocks.some(b => b.label) ? blocks : null;
+  }
+
+  // Render one section of notes (adult, peds, or full) with indication blocks if present
+  function renderMedSection(text, filterTerms){
+    const proc = t => enhance(repeatHL(doseHL(highlight(sanitizeText(t), filterTerms))));
+    const blocks = parseIndicationBlocks(text);
+    if(blocks){
+      return `<div class="ind-blocks">${blocks.map(b => b.label
+        ? `<div class="ind-block"><div class="ind-label">${sanitizeText(b.label)}</div><div class="ind-content hint">${proc(b.content)}</div></div>`
+        : `<div class="ind-unlabeled">${proc(b.content)}</div>`
+      ).join('')}</div>`;
+    }
+    return `<div class="hint">${proc(text)}</div>`;
+  }
+
+  // Render med notes — adult/peds tabs first, then indication blocks within each section
   function renderMedNotes(notes, filterTerms){
-    const process = t => enhance(repeatHL(doseHL(highlight(sanitizeText(t), filterTerms))));
     const split = splitAdultPeds(notes);
     if(split){
       return `<div class="dose-split">
@@ -2827,11 +3015,11 @@
           <button class="dose-tab active" onclick="switchDoseTab(this,'adult')">🧑 Adult</button>
           <button class="dose-tab" onclick="switchDoseTab(this,'peds')">🧒 Peds</button>
         </div>
-        <div class="dose-panel hint" data-dose="adult">${process(split.adult)}</div>
-        <div class="dose-panel hint hidden" data-dose="peds">${process(split.peds)}</div>
+        <div class="dose-panel" data-dose="adult">${renderMedSection(split.adult, filterTerms)}</div>
+        <div class="dose-panel hidden" data-dose="peds">${renderMedSection(split.peds, filterTerms)}</div>
       </div>`;
     }
-    return `<div class="hint">${process(notes)}</div>`;
+    return renderMedSection(notes, filterTerms);
   }
 
   window.switchDoseTab = function(btn, tab){
@@ -2948,10 +3136,10 @@
       if(!steps.length) return true;
       return steps.some(s=>{ const r=stepRole(normalizeRoles(s)); return !r||!_hiddenRoles.has(r); });
     });
-    if(_ageFilter !== 'all') items = items.filter(({p})=>{
+    if(_ageFilter.size < 2) items = items.filter(({p})=>{
       const cat = protocolCategory(p);
-      if(_ageFilter === 'adult') return !cat.startsWith('Pediatric');
-      if(_ageFilter === 'peds')  return !cat.startsWith('Adult');
+      if(!_ageFilter.has('adult') && cat.startsWith('Adult')) return false;
+      if(!_ageFilter.has('peds')  && cat.startsWith('Pediatric')) return false;
       return true;
     });
 
@@ -3128,24 +3316,122 @@
     return MED_CLASS_MAP.filter(e=>e.match.test(name)).map(e=>e.cls);
   }
   function renderMedClassFilter(){
-    const container = document.getElementById('med-class-pills');
-    if(!container) return;
-    const allMeds = (svc()?.meds)||[];
-    const usedClasses = new Set();
-    allMeds.forEach(m => medClasses(m.name||'').forEach(c => usedClasses.add(c)));
-    const ordered = MED_CLASS_MAP.map(e=>e.cls).filter(c=>usedClasses.has(c));
-    const pills = [['','All Classes'], ...ordered.map(c=>[c,c])];
-    container.innerHTML = pills.map(([val,label]) =>
-      `<button class="pill-btn${(!_medClassFilter&&val==='')||_medClassFilter===val?' active':''}" data-class="${val}">${label}</button>`
-    ).join('');
-    container.querySelectorAll('.pill-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        container.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        _medClassFilter = btn.dataset.class || null;
-        renderMeds(_lastTerms);
+    // No-op: filter is now a search bar (see initMedsSearch)
+  }
+
+  const _RES_SECTIONS = [
+    {label:'🧒 Pediatric Quick Reference', id:'peds-ref-section'},
+    {label:'⚖️ Weight-Based Dose Calc',    id:'calc-body-weight'},
+    {label:'💊 Standard Dose Calc',         id:'calc-body-std'},
+    {label:'💉 IV Infusion Calc',           id:'calc-body-iv'},
+    {label:'⏱ Drip Timing Calc',           id:'calc-body-md'},
+    {label:'💧 Fluid Over Time Calc',       id:'calc-body-fo'},
+    {label:'🔄 Pump Rate Calc',             id:'calc-body-pump'},
+    {label:'👶 Apgar Score',                id:'calc-body-apgar'},
+    {label:'🧠 GCS Calculator',             id:'calc-body-gcs'},
+    {label:'🫁 O₂ Duration Calc',           id:'calc-body-o2'},
+    {label:'📏 Vent Settings',              id:'vent-section'},
+  ];
+
+  function initMedsSearch(){
+    const inp = document.getElementById('meds-filter-input');
+    const clr = document.getElementById('meds-filter-clear');
+    const sug = document.getElementById('meds-suggestions');
+    if(!inp) return;
+
+    function getClasses(){
+      const allMeds = svc()?.meds||[];
+      const used = new Set();
+      allMeds.forEach(m => medClasses(m.name||'').forEach(c => used.add(c)));
+      return MED_CLASS_MAP.map(e=>e.cls).filter(c=>used.has(c));
+    }
+    function getMedNames(){
+      return (svc()?.meds||[]).map(m=>m.name).filter(Boolean);
+    }
+    function showSuggestions(val){
+      const q = val.toLowerCase().trim();
+      if(!q){ sug.style.display='none'; return; }
+      const classes = getClasses().filter(c=>c.toLowerCase().includes(q));
+      const drugs = getMedNames().filter(n=>n.toLowerCase().includes(q)).slice(0,6);
+      const items = [
+        ...classes.map(c=>`<div class="meds-sugg-item" data-type="class" data-val="${c}"><span class="meds-sugg-tag">class</span>${c}</div>`),
+        ...drugs.map(n=>`<div class="meds-sugg-item" data-type="drug" data-val="${n}"><span class="meds-sugg-tag">drug</span>${n}</div>`)
+      ];
+      if(!items.length){ sug.style.display='none'; return; }
+      sug.innerHTML = items.join('');
+      sug.style.display='';
+      sug.querySelectorAll('.meds-sugg-item').forEach(el=>{
+        el.addEventListener('mousedown', e=>{ e.preventDefault(); applyMedsFilter(el.dataset.val, el.dataset.type); });
+        el.addEventListener('touchend', e=>{ e.preventDefault(); applyMedsFilter(el.dataset.val, el.dataset.type); });
       });
+    }
+    function applyMedsFilter(val, type){
+      inp.value = val;
+      clr.style.display='';
+      sug.style.display='none';
+      if(type==='class'){ _medClassFilter = val; _medTextFilter = ''; }
+      else { _medTextFilter = val.toLowerCase(); _medClassFilter = null; }
+      renderMeds(_lastTerms);
+    }
+    inp.addEventListener('input', ()=>{
+      const v = inp.value;
+      clr.style.display = v ? '' : 'none';
+      if(!v){ _medClassFilter=null; _medTextFilter=''; renderMeds(_lastTerms); sug.style.display='none'; return; }
+      showSuggestions(v);
     });
+    inp.addEventListener('keydown', e=>{
+      if(e.key==='Enter'){
+        const v = inp.value.trim().toLowerCase();
+        sug.style.display='none';
+        const cls = getClasses().find(c=>c.toLowerCase()===v||c.toLowerCase().startsWith(v));
+        if(cls){ _medClassFilter=cls; _medTextFilter=''; }
+        else { _medTextFilter=v; _medClassFilter=null; }
+        renderMeds(_lastTerms);
+        inp.blur();
+      }
+      if(e.key==='Escape'){ sug.style.display='none'; }
+    });
+    inp.addEventListener('blur', ()=>{ setTimeout(()=>{ sug.style.display='none'; },150); });
+    clr.addEventListener('click', ()=>{ inp.value=''; clr.style.display='none'; sug.style.display='none'; _medClassFilter=null; _medTextFilter=''; renderMeds(_lastTerms); inp.focus(); });
+  }
+
+  function initResSearch(){
+    const inp = document.getElementById('res-filter-input');
+    const clr = document.getElementById('res-filter-clear');
+    const sug = document.getElementById('res-suggestions');
+    if(!inp) return;
+    function showSuggestions(val){
+      const q = val.toLowerCase().trim();
+      if(!q){ sug.style.display='none'; return; }
+      const matches = _RES_SECTIONS.filter(s=>s.label.toLowerCase().includes(q));
+      if(!matches.length){ sug.style.display='none'; return; }
+      sug.innerHTML = matches.map(s=>`<div class="meds-sugg-item" data-id="${s.id}">${s.label}</div>`).join('');
+      sug.style.display='';
+      sug.querySelectorAll('.meds-sugg-item').forEach(el=>{
+        el.addEventListener('mousedown', e=>{ e.preventDefault(); jumpToSection(el.dataset.id); inp.value=''; clr.style.display='none'; sug.style.display='none'; });
+        el.addEventListener('touchend', e=>{ e.preventDefault(); jumpToSection(el.dataset.id); inp.value=''; clr.style.display='none'; sug.style.display='none'; });
+      });
+    }
+    inp.addEventListener('input', ()=>{ clr.style.display=inp.value?'':'none'; showSuggestions(inp.value); });
+    inp.addEventListener('keydown', e=>{
+      if(e.key==='Enter'){
+        const q=inp.value.toLowerCase().trim();
+        const m=_RES_SECTIONS.find(s=>s.label.toLowerCase().includes(q));
+        if(m){ jumpToSection(m.id); inp.value=''; clr.style.display='none'; sug.style.display='none'; }
+      }
+      if(e.key==='Escape') sug.style.display='none';
+    });
+    inp.addEventListener('focus', ()=>{ if(inp.value) showSuggestions(inp.value); else {
+      // show all sections on focus when empty
+      sug.innerHTML = _RES_SECTIONS.map(s=>`<div class="meds-sugg-item" data-id="${s.id}">${s.label}</div>`).join('');
+      sug.style.display='';
+      sug.querySelectorAll('.meds-sugg-item').forEach(el=>{
+        el.addEventListener('mousedown', e=>{ e.preventDefault(); jumpToSection(el.dataset.id); inp.value=''; clr.style.display='none'; sug.style.display='none'; });
+        el.addEventListener('touchend', e=>{ e.preventDefault(); jumpToSection(el.dataset.id); inp.value=''; clr.style.display='none'; sug.style.display='none'; });
+      });
+    }});
+    inp.addEventListener('blur', ()=>{ setTimeout(()=>{ sug.style.display='none'; },150); });
+    clr.addEventListener('click', ()=>{ inp.value=''; clr.style.display='none'; sug.style.display='none'; inp.focus(); });
   }
 
   function renderMeds(filterTerms=[]){
@@ -3154,6 +3440,7 @@
     let items = all.map((m,i)=>({m,i})).filter(({m})=> matchItem(m, filterTerms));
     if(_favsOnly) items = items.filter(({m})=> isFav('m', m.name));
     if(_medClassFilter) items = items.filter(({m})=> medClasses(m.name||'').includes(_medClassFilter));
+    if(_medTextFilter) items = items.filter(({m})=> (m.name||'').toLowerCase().includes(_medTextFilter) || medClasses(m.name||'').some(c=>c.toLowerCase().includes(_medTextFilter)));
     const tcM = $('#tc-m'); if(tcM) tcM.textContent = items.length < all.length ? `(${items.length}/${all.length})` : `(${items.length})`;
     medsEl.innerHTML = items.map(({m,i})=>{
       const on = isFav('m', m.name);
@@ -3588,14 +3875,14 @@
 
   document.querySelectorAll('#age-filter-pills .pill-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('#age-filter-pills .pill-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      _ageFilter = btn.dataset.age;
+      const age = btn.dataset.age;
+      if(_ageFilter.has(age)){
+        if(_ageFilter.size > 1){ _ageFilter.delete(age); btn.classList.remove('active'); }
+      } else {
+        _ageFilter.add(age); btn.classList.add('active');
+      }
       renderProtocols(_lastTerms);
     });
-  });
-  document.querySelectorAll('#res-nav-pills .pill-btn').forEach(btn => {
-    btn.addEventListener('click', () => jumpToSection(btn.dataset.section));
   });
   document.querySelectorAll('#contacts-nav-pills .pill-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -3660,7 +3947,7 @@
   };
 
   // --- Tabs (with memory) ---
-  const TABS_ORDER = ['protocols','meds','resources','contacts'];
+  const TABS_ORDER = ['protocols','meds','resources','contacts','shift'];
   let _pedsRefInited = false;
 
   function activateTab(tabName){
@@ -3689,7 +3976,7 @@
     let _sx = null, _sy = null;
     const main = document.querySelector('main');
     main.addEventListener('touchstart', e=>{
-      if(e.target.closest('.filter-pills')) return;
+      if(e.target.closest('.filter-pills,.meds-search-wrap,.uco-table')) return;
       _sx = e.touches[0].clientX; _sy = e.touches[0].clientY;
     }, {passive:true});
     main.addEventListener('touchend', e=>{
@@ -4382,6 +4669,489 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       if (reg) await reg.update();
     }
     window.location.reload(true);
+  });
+
+  // --- Meds & Resources search bar init ---
+  initMedsSearch();
+  initResSearch();
+
+  // --- Shift tab sub-navigation ---
+  document.querySelectorAll('#shift-subnav-pills .pill-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#shift-subnav-pills .pill-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('[id^="sform-"]').forEach(el=>el.classList.add('hidden'));
+      document.getElementById('sform-'+btn.dataset.sform).classList.remove('hidden');
+    });
+  });
+
+  // ─── PERSONAL SHIFT CHECKLIST ───────────────────────────────────────────────
+  const SHIFT_SECTIONS = [
+    { title:'Personal Items & Pre-Shift', items:['BlueBag with Eko Stethoscope (Charged)','BackPack w/ Chargers, Padfolio (iPad), Shower Towels, High-Vis Vest','Medications (Propranolol, Namenda, Glycopyrrolate)','Apple Watch & Open Shockz (Charged) — bring charger for 24hr+','High-Vis Rain Jacket','Radio','Narcotic Keys','Wallet'] },
+    { title:'Soft Supplies & Equipment', items:['4×4 Pads','ABD Pads','Trauma Dressing','Isolation Kits','Roller Gauze','Triangular Bandages','OB Kit w/ Bulb Syringe','Sterile Saline','Betadine','Shears','Stethoscope','Hemostat','Scalpel','BP Cuffs (LA, A, C, I)','Alcohol Prep Pads','Band Aids','Antiseptic Hand Cleaner','Exam Gloves (various sizes)','Emesis Basin/Bag','Commercial Tourniquet','Linens','Tape','Occlusive Dressing','Thermometer','Sharps Container','Glucometer w/ strips','Time Critical Bands (Trauma/Stroke)','Triage Tag/Tape','Protocols','Biohazard Bags','N95 Respirator','Pediatric Dosage Guide','Disinfectant Solution'] },
+    { title:'Airway, Oxygen & Suction', items:['Main O₂','Portable O₂','OPA Set','NPA Set','Lubricating Jelly','Nasal Cannula — Adult','Nasal Cannula — Pediatric','NRB — Adult','NRB — Pediatric','NRB — Infant','BVM — Adult','BVM — Pediatric','BVM — Infant','Nebulizer Kit','Suction — On-Board','Suction — Portable','Suction Tubing','Rigid Suction Tip','Suction Catheters (8/10fr, 12fr, 14fr, 14/18fr)','Magill Forceps — Adult','Magill Forceps — Pediatric','EtCO₂ Detector','Cric Kit or 10/12ga Needle','Laryngoscope Handle — Adult','Laryngoscope Handle — Pediatric','Laryngoscope Blades (1–4 or 0–3)','ET Tubes 2.5–7.5mm','ET Tube Holder — Adult','ET Tube Holder — Pediatric','Stylette — Adult','Stylette — Pediatric','Secondary Advanced Airway — Adult','Secondary Advanced Airway — Pediatric'] },
+    { title:'Monitor', items:['Cardiac Monitor','Cardiac Monitor Cables/Charger','4-Lead','12-Lead','Defibrillator (Defib Test)','Pacer','ECG Paper','Defibrillator Pads — Adult','Defibrillator Pads — Pediatric','Electrodes — Adult','Electrodes — Pediatric','Pulse Oximetry — Adult','Pulse Oximetry — Pediatric'] },
+    { title:'IV Supplies', items:['Micro (60) Drip Set','Macro (10) Drip Set','Adjustable Drip Set','IV Start Sets / Tourniquet','IV Catheters 14–24ga','Syringes 1cc–60cc','Needles 18–25','10/12 or 14g Cath or Chest Decomp Needle','IO Access Device','IO Needle — Adult','IO Needle — Pediatric'] },
+    { title:'Medications', items:['Atropine','Adenosine','Antiarrhythmic (Bolus & Infusion)','Antiemetic','Aspirin','IV Dextrose','Pressor','Epi 1:1','Epi 1:10','Crystalloid Solution','H1 Antagonist','Inhaled Beta Agonist','Magnesium Sulfate','Narcotic Antagonist','Nitroglycerin','Sodium Bicarbonate','Narcotic Analgesic','Benzodiazepine'] },
+    { title:'Readiness Checklist', items:['ER Bag (BVM, Laryngoscope Handle & Blade Mac 3–4, iGel Adult, EtCO₂, Bougie, ET 7.5, IO)','Glucometer on/in Cardiac Monitor','Adult Defib pads connected','12-Lead/4-Lead EKG pre-loaded','C-Collar behind head of stretcher','Nasal Cannula in Cardiac Monitor','IV/Med/Syringe Box on bench seat','Portable fan on action desk','Emesis Bags at head of stretcher'] },
+    { title:'Mechanical & Transport', items:['Fire Extinguisher','Haz-Mat Reference Guide','Reflective Safety Wear','Flashlight','KED','Pediatric Restraint System','Spine Board w/ straps','Window Punch','Traction Splint','Various Adjustable Splints','Elevating Stretcher','Folding Stretcher / Scoop Stretcher','Cervical Collars — Adult','Cervical Collars — Pediatric','Functioning Radios'] },
+    { title:'Vehicle Check', items:['Current DMV Registration (check expiration)','Current DMV Inspection (check expiration)','Current Red Light Permit','Current Insurance Coverage (check expiration)','Ambulance starts & drives in forward and reverse','Tires in good condition','No visible physical damage to body or fenders','All cab and patient compartment doors function properly','Exterior compartment doors secure and functional','Interior cabinet doors secure and functional','Clean and organized patient compartment and cab','Emergency lights operational (front, rear, side panels)','Scene lights functional','Corner lights functional','Grill lights functional','Headlight wig-wags functional (if present)','Headlights, tail lights, brake lights functional','Directional signals operational','Hazard lights operational','Siren and horn functional','Mounted and portable radios functional','Ventilation, A/C and heat operational','Windshield wipers operational','Fuel card, two truck keys, hotspot, phone present','All items >5 lbs properly secured'] },
+  ];
+
+  const SHIFT_KEY = 'shift_checklist_v1';
+
+  function _shiftState(){
+    try{ const s=localStorage.getItem(SHIFT_KEY); if(s) return JSON.parse(s); }catch(e){}
+    return {};
+  }
+  function _saveShift(state){ try{ localStorage.setItem(SHIFT_KEY, JSON.stringify(state)); }catch(e){} }
+
+  function renderShiftChecklist(){
+    const state = _shiftState();
+    const container = document.getElementById('shift-sections');
+    if(!container) return;
+
+    // Restore unit & clock-in
+    const unitInp = document.getElementById('shift-unit');
+    if(unitInp && state.unit) unitInp.value = state.unit;
+    const clockCb = document.getElementById('shift-clockin-cb');
+    if(clockCb) clockCb.checked = !!state.clockin;
+    const notesEl = document.getElementById('shift-notes');
+    if(notesEl && state.notes) notesEl.value = state.notes;
+
+    container.innerHTML = SHIFT_SECTIONS.map((sec, si) => {
+      const checked = SHIFT_SECTIONS[si].items.filter((_,ii)=> state[`${si}_${ii}`]?.checked).length;
+      const total = sec.items.length;
+      return `<div class="shift-section${checked===total?' shift-done':''}" id="shift-sec-${si}">
+        <div class="shift-section-header" onclick="toggleShiftSec(${si})">
+          <span class="shift-section-title">${sec.title}</span>
+          <span class="shift-section-progress" id="shift-prog-${si}">${checked}/${total}</span>
+          <span class="shift-section-chev">▼</span>
+        </div>
+        <div class="shift-section-body">
+          ${sec.items.map((item, ii) => {
+            const entry = state[`${si}_${ii}`]||{};
+            return `<div class="shift-item" id="shift-item-${si}-${ii}">
+              <input type="checkbox" ${entry.checked?'checked':''} onchange="shiftCheck(${si},${ii},this)" />
+              <div>
+                <div class="shift-item-label${entry.checked?' done':''}">${item}</div>
+                ${entry.checked&&entry.time?`<div class="shift-item-time">✓ ${entry.time}</div>`:''}
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    }).join('');
+
+    // Wire header save events
+    const ui = document.getElementById('shift-unit');
+    if(ui) ui.addEventListener('input', ()=>{ const s=_shiftState(); s.unit=ui.value; _saveShift(s); });
+    const cc = document.getElementById('shift-clockin-cb');
+    if(cc) cc.addEventListener('change', ()=>{ const s=_shiftState(); s.clockin=cc.checked; _saveShift(s); });
+    const no = document.getElementById('shift-notes');
+    if(no) no.addEventListener('input', ()=>{ const s=_shiftState(); s.notes=no.value; _saveShift(s); });
+  }
+
+  window.toggleShiftSec = function(si){
+    document.getElementById('shift-sec-'+si).classList.toggle('open');
+  };
+  window.shiftCheck = function(si, ii, cb){
+    const s = _shiftState();
+    const time = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    s[`${si}_${ii}`] = {checked:cb.checked, time: cb.checked ? time : null};
+    _saveShift(s);
+    const label = cb.parentNode.querySelector('.shift-item-label');
+    const timeEl = cb.parentNode.querySelector('.shift-item-time');
+    if(label) label.classList.toggle('done', cb.checked);
+    if(timeEl){ if(cb.checked) timeEl.textContent='✓ '+time; else timeEl.textContent=''; }
+    // Update progress
+    const sec = SHIFT_SECTIONS[si];
+    const total = sec.items.length;
+    const checked = sec.items.filter((_,i)=> _shiftState()[`${si}_${i}`]?.checked).length;
+    const progEl = document.getElementById('shift-prog-'+si);
+    if(progEl) progEl.textContent = `${checked}/${total}`;
+    document.getElementById('shift-sec-'+si).classList.toggle('shift-done', checked===total);
+  };
+
+  window.exportShiftChecklist = function(){
+    const s = _shiftState();
+    const unit = document.getElementById('shift-unit')?.value || s.unit || '';
+    const date = new Date().toLocaleDateString();
+    let out = `EASI EMS — SHIFT CHECK-OFF\nUnit: ${unit}  Date: ${date}\nClocked In: ${s.clockin?'YES':'NO'}\n${'='.repeat(45)}\n\n`;
+    SHIFT_SECTIONS.forEach((sec, si) => {
+      const checked = sec.items.filter((_,ii)=>s[`${si}_${ii}`]?.checked).length;
+      out += `${sec.title.toUpperCase()} (${checked}/${sec.items.length})\n`;
+      sec.items.forEach((item, ii) => {
+        const entry = s[`${si}_${ii}`]||{};
+        out += `  [${entry.checked?'✓':' '}] ${item}${entry.checked&&entry.time?' — '+entry.time:''}\n`;
+      });
+      out += '\n';
+    });
+    if(s.notes) out += `NOTES:\n${s.notes}\n`;
+    const blob = new Blob([out], {type:'text/plain'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `shift-checklist-${unit||'export'}-${new Date().toISOString().slice(0,10)}.txt`;
+    a.click();
+  };
+  window.resetShiftChecklist = function(){
+    if(!confirm('Clear all checkmarks, unit number, and notes for this checklist?')) return;
+    localStorage.removeItem(SHIFT_KEY);
+    renderShiftChecklist();
+  };
+
+  // ─── UNIT CHECK OFF (OFFICIAL EASI FORM) ────────────────────────────────────
+  const UCO_KEY = 'uco_form_v1';
+
+  const UCO_SECTIONS = [
+    { title:'Vehicle Systems', items:[
+      'Fuel Level','Oil Level','Radiator Water Level','P/S Fluid Level',
+      'Windshield Fluid Level','Trans Fluid Level','Brake Fluid Level',
+      'Vehicle Horn','Belts/Hoses/Wires','Batteries — Left','Batteries — Right',
+      'Wipers','Windshield','Front Dome Light',
+      'F-3 Radio (EASI Net)','F-2 (High Band)','Hospital Radio','Sirens'] },
+    { title:'Lights & Signals', items:[
+      'Head Lights — Low Beam','Head Lights — High Beam',
+      'Tail Lights','Brake Lights','Backup Lights',
+      'Scene Lights — Left','Scene Lights — Right','Scene Lights — Rear',
+      'Turn Signals — Left','Turn Signals — Right',
+      'Brakes','Patient Compartment Lights','Parking Lights',
+      'High Idle','Air Horn','Clearance Lights','Test Emergency Brake','Bottle of Cleaner'] },
+    { title:'Emergency Lighting', items:['Lightbar','Wig Wags','Strobes'] },
+    { title:'Tire Inspection', items:['Pressure','Wear and Cuts','Rims / Simulators'] },
+  ];
+
+  const UCO_FOOTER_FIELDS = [
+    {id:'uco-repairs', label:'Repairs Needed / New Body Damage', full:true},
+    {id:'uco-mapbook', label:'Map Book', half:true},
+    {id:'uco-map-pbjc', label:'Maps: PB/JC', half:true},
+    {id:'uco-map-sclc', label:'Maps: SC/LC', half:true},
+    {id:'uco-map-eng', label:'Maps: England/LC', half:true},
+    {id:'uco-map-warren', label:'Maps: Warren/BC', half:true},
+    {id:'uco-map-rison', label:'Maps: Rison/CC', half:true},
+    {id:'uco-fuelcard', label:'Fuel Card', half:true},
+    {id:'uco-jrmc', label:'JRMC Card', half:true},
+    {id:'uco-extinguisher', label:'Fire Extinguisher', half:true},
+    {id:'uco-chains', label:'Tire Chains', half:true},
+    {id:'uco-sig', label:'Signature', full:true},
+  ];
+
+  function _ucoState(){ try{ const s=localStorage.getItem(UCO_KEY); if(s) return JSON.parse(s); }catch(e){} return {}; }
+  function _saveUCO(s){ try{ localStorage.setItem(UCO_KEY,JSON.stringify(s)); }catch(e){} }
+
+  function renderUCO(){
+    const state = _ucoState();
+    const container = document.getElementById('uco-sections');
+    if(!container) return;
+    // Restore header fields
+    ['uco-unit','uco-mileage','uco-date','uco-emt'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el&&state[id]) el.value=state[id];
+      if(el) el.addEventListener('input',()=>{ const s=_ucoState(); s[id]=el.value; _saveUCO(s); });
+    });
+    container.innerHTML = UCO_SECTIONS.map((sec,si) => `
+      <div class="uco-section">
+        <div class="uco-section-head">${sec.title}</div>
+        <table class="uco-table">
+          <tr><th>Item</th><th class="ok-cell">OK</th><th class="prob-cell">Noted Problems</th></tr>
+          ${sec.items.map((item,ii)=>{
+            const key=`uco_${si}_${ii}`;
+            const s=state[key]||{};
+            return `<tr>
+              <td>${item}</td>
+              <td class="ok-cell"><input type="checkbox" ${s.ok?'checked':''} data-key="${key}" class="uco-ok" /></td>
+              <td class="prob-cell"><input type="text" value="${(s.prob||'').replace(/"/g,'&quot;')}" placeholder="—" data-key="${key}" class="uco-prob" /></td>
+            </tr>`;
+          }).join('')}
+        </table>
+      </div>`).join('') + `
+      <div class="uco-section" style="margin-bottom:12px">
+        <div class="uco-section-head">Additional Information</div>
+        <div class="uco-footer-grid">
+          ${UCO_FOOTER_FIELDS.filter(f=>!f.full).map(f=>`
+            <div class="uco-footer-field">
+              <label>${f.label}</label>
+              <input type="text" id="${f.id}" value="${(state[f.id]||'').replace(/"/g,'&quot;')}" placeholder="—" />
+            </div>`).join('')}
+        </div>
+        <div style="padding:8px 12px 0">
+          ${UCO_FOOTER_FIELDS.filter(f=>f.full&&f.id!=='uco-sig').map(f=>`
+            <div class="uco-footer-field" style="margin-bottom:8px">
+              <label>${f.label}</label>
+              <input type="text" id="${f.id}" value="${(state[f.id]||'').replace(/"/g,'&quot;')}" placeholder="—" style="width:100%" />
+            </div>`).join('')}
+        </div>
+        <div class="uco-sig-row">
+          <div style="flex:1">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Signature</div>
+            <input type="text" id="uco-sig" value="${(state['uco-sig']||'').replace(/"/g,'&quot;')}" placeholder="Name / Signature" style="width:100%;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;padding:9px 12px;outline:none;font-family:inherit" />
+          </div>
+          <div class="uco-maint-row" style="margin-left:16px;flex:none">
+            <span>Maintenance Request:</span>
+            <button id="uco-maint-yes" class="${state.maintReq==='YES'?'active':''}" onclick="ucoMaint('YES')">YES</button>
+            <button id="uco-maint-no" class="${state.maintReq==='NO'?'active':''}" onclick="ucoMaint('NO')">NO</button>
+          </div>
+        </div>
+      </div>`;
+
+    // Wire events
+    container.querySelectorAll('.uco-ok').forEach(cb=>{
+      cb.addEventListener('change',()=>{ const s=_ucoState(); if(!s[cb.dataset.key]) s[cb.dataset.key]={}; s[cb.dataset.key].ok=cb.checked; _saveUCO(s); });
+    });
+    container.querySelectorAll('.uco-prob').forEach(inp=>{
+      inp.addEventListener('input',()=>{ const s=_ucoState(); if(!s[inp.dataset.key]) s[inp.dataset.key]={}; s[inp.dataset.key].prob=inp.value; _saveUCO(s); });
+    });
+    UCO_FOOTER_FIELDS.forEach(f=>{
+      const el=document.getElementById(f.id);
+      if(el) el.addEventListener('input',()=>{ const s=_ucoState(); s[f.id]=el.value; _saveUCO(s); });
+    });
+    const sigEl=document.getElementById('uco-sig');
+    if(sigEl) sigEl.addEventListener('input',()=>{ const s=_ucoState(); s['uco-sig']=sigEl.value; _saveUCO(s); });
+  }
+
+  window.ucoMaint = function(val){
+    const s=_ucoState(); s.maintReq=val; _saveUCO(s);
+    document.getElementById('uco-maint-yes').classList.toggle('active',val==='YES');
+    document.getElementById('uco-maint-no').classList.toggle('active',val==='NO');
+  };
+  window.exportUCO = function(){
+    const s=_ucoState();
+    const get=id=>document.getElementById(id)?.value||s[id]||'';
+    const line=(l,v)=>`${l.padEnd(22)}: ${v||'—'}`;
+    let out = `EMERGENCY AMBULANCE SERVICE, INC.\nEMT CHECK OFF\n${'='.repeat(50)}\n`;
+    out += `${line('Unit',get('uco-unit'))}   ${line('Mileage',get('uco-mileage'))}\n`;
+    out += `${line('Date',get('uco-date'))}   ${line('EMT',get('uco-emt'))}\n\n`;
+    UCO_SECTIONS.forEach(sec=>{
+      out += `${sec.title.toUpperCase()}\n${'-'.repeat(40)}\n`;
+      out += `${'ITEM'.padEnd(35)} OK  NOTED PROBLEMS\n`;
+      sec.items.forEach((item,ii)=>{
+        const si=UCO_SECTIONS.indexOf(sec);
+        const e=s[`uco_${si}_${ii}`]||{};
+        out += `${item.padEnd(35)} ${e.ok?'[✓]':'[ ]'}  ${e.prob||''}\n`;
+      });
+      out += '\n';
+    });
+    out += `\nADDITIONAL INFORMATION\n${'-'.repeat(40)}\n`;
+    out += `${line('Repairs/Body Damage',get('uco-repairs'))}\n`;
+    out += `${line('Map Book',get('uco-mapbook'))}  ${line('PB/JC Maps',get('uco-map-pbjc'))}\n`;
+    out += `${line('SC/LC Maps',get('uco-map-sclc'))}  ${line('England/LC',get('uco-map-eng'))}\n`;
+    out += `${line('Warren/BC',get('uco-map-warren'))}  ${line('Rison/CC',get('uco-map-rison'))}\n`;
+    out += `${line('Fuel Card',get('uco-fuelcard'))}  ${line('JRMC Card',get('uco-jrmc'))}\n`;
+    out += `${line('Fire Extinguisher',get('uco-extinguisher'))}  ${line('Tire Chains',get('uco-chains'))}\n\n`;
+    out += `${line('Signature',get('uco-sig'))}   Maintenance Request: ${s.maintReq||'—'}\n`;
+    const blob=new Blob([out],{type:'text/plain'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=`uco-${get('uco-unit')||'export'}-${get('uco-date')||new Date().toISOString().slice(0,10)}.txt`;
+    a.click();
+  };
+  window.resetUCO = function(){
+    if(!confirm('Clear all Unit Check Off entries?')) return;
+    localStorage.removeItem(UCO_KEY);
+    renderUCO();
+  };
+
+  // ─── ALS UNIT STOCK SHEET ────────────────────────────────────────────────────
+  const SS_KEY = 'stock_sheet_v1';
+
+  const SS_SECTIONS = [
+    { title:'Miscellaneous Items', items:[
+      {n:'Glucometer',q:1},{n:'Glucometer strips (bottle)',q:1},{n:'Lancets',q:20},
+      {n:'Manual Infant BP Cuff',q:1},{n:'Manual Child BP Cuff',q:1},{n:'Manual Adult Bc Cuff',q:1},
+      {n:'Manual Large Adult Bp Cuff',q:1},{n:'Manual Thigh BP Cuff',q:1},
+      {n:'OB Kit',q:1},{n:'Linens, Blankets, Towels, etc.',q:6},
+      {n:'Disinfectant Spray/Wipes',q:1},{n:'Mega-Mover',q:1},
+      {n:'Heater or Ice Chest (seasonal)',q:1},{n:'Heating Pad (seasonal)',q:1},
+      {n:'Stage Triage Bag',q:1},{n:'Bio Hazard Bags',q:3},{n:'EMT Shears',q:1},
+      {n:'Fire Extinguisher',q:1},{n:'Hazmat Book',q:1},{n:'Catneer or Pediatric',q:1},
+      {n:'Small Gloves Box',q:1},{n:'Medium Gloves Box',q:1},{n:'Large Gloves Box',q:1},
+      {n:'XL Gloves Box',q:1},{n:'Thermometer w/ covers',q:1},{n:'Stethoscope',q:1},
+      {n:'Flashlight',q:1},{n:'Reflective Vests',q:2},
+    ]},
+    { title:'IV Supplies', items:[
+      {n:'NS 500mL',q:20},{n:'NS 1000mL',q:4},{n:'LR 1000mL',q:2},{n:'D5W',q:2},
+      {n:'Blood Tubing',q:2},{n:'Tourniquets',q:4},{n:'24g Catheter',q:4},
+      {n:'22g Catheter',q:4},{n:'20g Catheter',q:4},{n:'18g Catheter',q:4},
+      {n:'16g Catheter',q:4},{n:'14g Catheter',q:4},{n:'Huber Needle',q:2},
+      {n:'1" Clear Tape',q:1},{n:'Saline Flushes',q:10},
+    ]},
+    { title:'IO Bag', items:[
+      {n:'EZ-IO Driver',q:1},{n:'Yellow IO Needle',q:2},{n:'Blue IO Needle',q:2},
+      {n:'Pink IO Needle',q:2},{n:'IO Stabilizer',q:2},{n:'Pressure Bag',q:2},
+    ]},
+    { title:'Suction Supplies', items:[
+      {n:'Suction Canisters w/ lids',q:2},{n:'8 French Suction Cath',q:2},
+      {n:'12 French Suction Cath',q:2},{n:'18 French Suction Cath',q:2},
+      {n:'Yankauer',q:1},{n:'Suction Tubing',q:1},{n:'V-Vac',q:1},{n:'Emesis Bags',q:2},
+    ]},
+    { title:'Portable O₂', items:[
+      {n:'O₂ Bottle (Cot) PSI',q:1},{n:'Adult NRB Rebreather',q:1},
+      {n:'Adult Nasal Canula',q:1},{n:'Pediatric Mask',q:1},{n:'Nebulizer w/ meds',q:1},
+    ]},
+    { title:'BLS Supplies', items:[
+      {n:'Antiseptic Hand Cleaner',q:1},{n:'Isolation Kits',q:2},{n:'Sterile Gloves',q:2},
+      {n:'Goggles',q:1},{n:'HEPA Masks',q:4},
+    ]},
+    { title:'Cardiac Monitor Supplies', items:[
+      {n:'Electrodes Adult (Packs)',q:2},{n:'Electrodes Peds (Packs of 3)',q:2},
+      {n:'EKG Paper Roll',q:1},{n:'Razor',q:2},{n:'Adult Pads',q:2},{n:'Pedi Pads',q:1},
+      {n:'Child BP Cuff (Green)',q:1},{n:'Small Adult BP Cuff (Royal Blue)',q:1},
+      {n:'Adult BP Cuff (Navy)',q:1},{n:'Large Adult BP Cuff (Burgundy)',q:1},
+      {n:'Thigh BP Cuff (Black)',q:1},{n:'Adult Pulse Ox',q:1},{n:'ETT ETCO2',q:1},
+      {n:'NC ETCO2',q:1},{n:'4-lead and 12-lead cables',q:1},
+    ]},
+    { title:'O₂ Supplies', items:[
+      {n:'Pediatric Nasal Cannulas',q:2},{n:'Infant Masks',q:1},{n:'Pediatric Masks',q:2},
+      {n:'Pediatric Pulse Ox',q:1},{n:'Nasal Cannulas',q:6},{n:'CO2 Nasal Cannulas',q:2},
+      {n:'CPAP',q:1},{n:'Adult SFM',q:1},{n:'Adult NRB',q:4},{n:'Nebulizers',q:2},
+      {n:'O2 Connection Tubing',q:2},{n:'BVM Adult',q:2},{n:'BVM Pediatric',q:1},{n:'BVM Infant',q:1},
+    ]},
+    { title:'Airway Supplies', items:[
+      {n:'Air Q 1.5',q:1},{n:'Air Q 2.0',q:1},{n:'Air Q 3.0',q:1},{n:'Air Q 5 or Combitube',q:1},
+      {n:'Mac 00 Blade',q:2},{n:'Mac 0 Blade',q:2},{n:'Mac 1 Blade',q:2},{n:'Mac 2 Blade',q:2},
+      {n:'Mac 3 Blade',q:2},{n:'Mac 4 Blade',q:2},{n:'Miller 0 Blade',q:1},{n:'Miller 1 Blade',q:1},
+      {n:'Miller 2 Blade',q:2},{n:'Miller 3 Blade',q:2},{n:'Adult Laryngoscope Handle',q:1},
+      {n:'Pediatric Laryngoscope Handle',q:1},{n:'2.5 ETT',q:1},{n:'3.0 ETT',q:1},
+      {n:'3.5 ETT',q:2},{n:'4.0 ETT',q:2},{n:'4.5 ETT',q:2},{n:'5.0 ETT',q:2},
+      {n:'5.5 ETT',q:2},{n:'6.0 ETT',q:2},{n:'6.5 ETT',q:2},{n:'7.0 ETT',q:4},
+      {n:'7.5 ETT',q:4},{n:'8.0 ETT',q:2},{n:'Tube holder - Adult',q:1},{n:'Tube holder - Pedi',q:1},
+      {n:'NPAs Assorted Sizes',q:1},{n:'OPAs Assorted Sizes',q:1},{n:'Bougie',q:1},
+    ]},
+    { title:'Immobilization', items:[
+      {n:'Pedi Immobilizer',q:1},{n:'KED',q:1},{n:'Traction Splint',q:1},
+      {n:'Board Splint — Small',q:2},{n:'Board Splint — Medium',q:2},{n:'Board Splint — Large',q:2},
+      {n:'LSB w/ straps',q:1},{n:'Soft or Hard Breakdown',q:1},{n:'Sked',q:1},
+      {n:'Pedi C-Collars',q:1},{n:'Adult C-Collars',q:1},
+    ]},
+    { title:'Medications & Supplies', exp:true, items:[
+      {n:'10g Needles',q:8},{n:'21g Needles',q:8},{n:'25g Needles',q:8},
+      {n:'1mL Syringe',q:4},{n:'3mL Syringe',q:6},{n:'5mL Syringe',q:4},
+      {n:'10mL Syringe',q:8},{n:'20mL Syringe',q:4},{n:'60mL Syringe',q:2},
+      {n:'Atrovent Exp.',q:2},{n:'Albuterol Exp.',q:2},{n:'Atropine Exp.',q:2},
+      {n:'Epi 1:1,000 Exp.',q:2},{n:'Epi 1:10,000 Exp.',q:2},{n:'Lidocaine Drip Exp.',q:1},
+      {n:'Dopamine Drip Exp.',q:1},{n:'Narcan Exp.',q:2},{n:'Magnesium Exp.',q:2},
+      {n:'Calcium Exp.',q:2},{n:'Hydralazine Exp.',q:2},{n:'Sodium Bicarb Exp.',q:2},
+      {n:'D10 Exp.',q:2},{n:'Lasix Exp.',q:2},{n:'Adenosine Exp.',q:2},{n:'Zofran Exp.',q:2},
+      {n:'Labetalol Exp.',q:2},{n:'Nitro Exp.',q:2},{n:'Benadryl Exp.',q:2},
+      {n:'Aspirin Bottle Exp.',q:1},{n:'Roll of Med Labels',q:1},{n:'Broselow Tape',q:1},
+      {n:'Oral Glucose Exp.',q:2},{n:'Verapamil Exp.',q:2},{n:'Bacteriostatic Water Exp.',q:2},
+      {n:'Amiodarone Exp.',q:2},{n:'TXA Exp.',q:2},{n:'Glucagon Exp.',q:1},{n:'Diltiazem Exp.',q:2},
+    ]},
+    { title:'IV Pouch 1', items:[
+      {n:'NS 1000mL',q:1},{n:'10gtt set',q:1},{n:'Tourniquet',q:1},{n:'Saline Lock',q:1},
+      {n:'Saline flush',q:1},{n:'14G IV Cath',q:1},{n:'16G IV Cath',q:1},
+      {n:'18G IV Cath',q:2},{n:'20G IV Cath',q:2},{n:'22G IV Cath',q:2},
+      {n:'24G IV Cath',q:2},{n:'Alcohol preps',q:4},{n:'Non-sterile 4x4',q:4},
+      {n:'1" clear tape',q:1},
+    ]},
+    { title:'IV Pouch 2', items:[
+      {n:'NS 500mL',q:1},{n:'10gtt set',q:1},{n:'Tourniquet',q:1},{n:'Saline Lock',q:1},
+      {n:'Saline flush',q:1},{n:'14G IV Cath',q:1},{n:'16G IV Cath',q:1},
+      {n:'18G IV Cath',q:2},{n:'20G IV Cath',q:2},{n:'22G IV Cath',q:2},
+      {n:'24G IV Cath',q:2},{n:'Alcohol preps',q:4},{n:'Non-sterile 4x4',q:2},
+      {n:'1" clear tape',q:1},
+    ]},
+    { title:'Center Pouch (Thomas Pack)', items:[
+      {n:'Nitro',q:1},{n:'Epi 1:1',q:1},{n:'Epi 1:10',q:1},{n:'Atropine',q:1},
+      {n:'D10 w/ 10gtt set',q:1},{n:'Amiodarone',q:1},{n:'Portable Sharps Container',q:1},
+    ]},
+    { title:'Thomas Pack — Top Outside Pocket', items:[
+      {n:'Trauma Dressing',q:2},{n:'Adult BP Cuff',q:1},{n:'Stethoscope',q:1},
+    ]},
+    { title:'Thomas Pack — Inside Upper Pouch', items:[
+      {n:'Adult BVM',q:1},{n:'Adult tube turner',q:1},{n:'10mL syringe',q:1},
+      {n:'Magill Forceps Adult',q:1},{n:'Magill Forceps Pediatric',q:1},
+      {n:'6.0 ETT',q:1},{n:'7.0 ETT',q:1},{n:'8.0 ETT',q:1},
+    ]},
+    { title:'Thomas Pack — Right Outside Pocket', items:[
+      {n:'Laryngoscope Handle',q:1},{n:'Mac 2 Blade',q:1},{n:'Mac 4 Blade',q:1},
+      {n:'Miller 1 Blade',q:1},{n:'Miller 2 Blade',q:1},{n:'Miller 3 Blade',q:1},{n:'Miller 4 Blade',q:1},
+    ]},
+    { title:'Thomas Pack — Front Outside Pocket', items:[
+      {n:'Non-sterile 4x4',q:20},{n:'1" silk tape',q:1},{n:'2" silk tape',q:1},
+      {n:'ABD Pads',q:4},{n:'Vaseline Gauze',q:2},{n:'Shears',q:1},
+      {n:'Kling',q:4},{n:'Hemostat',q:2},{n:'CAT Tourniquet',q:1},
+    ]},
+    { title:'Time Critical Dx Bands', items:[
+      {n:'Trauma Bands',q:10},{n:'Stroke Bands',q:10},
+    ]},
+  ];
+
+  function _ssState(){ try{ const s=localStorage.getItem(SS_KEY); if(s) return JSON.parse(s); }catch(e){} return {}; }
+  function _saveSS(s){ try{ localStorage.setItem(SS_KEY,JSON.stringify(s)); }catch(e){} }
+
+  function renderStockSheet(){
+    const state = _ssState();
+    const container = document.getElementById('ss-sections');
+    if(!container) return;
+    // Restore header fields
+    ['ss-date','ss-unit','ss-narc','ss-o2main','ss-o2port','ss-para','ss-emt'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el&&state[id]) el.value=state[id];
+      if(el) el.addEventListener('input',()=>{ const s=_ssState(); s[id]=el.value; _saveSS(s); });
+    });
+    container.innerHTML = SS_SECTIONS.map((sec,si)=>`
+      <div class="uco-section">
+        <div class="uco-section-head">${sec.title}</div>
+        <table class="uco-table">
+          <tr><th>Item</th><th class="qty-cell">Req</th><th class="act-cell">Actual${sec.exp?'/<br>Exp':''}</th></tr>
+          ${sec.items.map((item,ii)=>{
+            const key=`ss_${si}_${ii}`;
+            const e=state[key]||{};
+            return `<tr>
+              <td>${item.n}</td>
+              <td class="qty-cell" style="color:var(--muted);font-size:13px">${item.q}</td>
+              <td class="act-cell"><input type="${sec.exp?'text':'number'}" value="${e.act||''}" placeholder="${sec.exp?'Exp date':'#'}" data-key="${key}" class="ss-act" style="width:100%" /></td>
+            </tr>`;
+          }).join('')}
+        </table>
+      </div>`).join('');
+    container.querySelectorAll('.ss-act').forEach(inp=>{
+      inp.addEventListener('input',()=>{ const s=_ssState(); if(!s[inp.dataset.key]) s[inp.dataset.key]={}; s[inp.dataset.key].act=inp.value; _saveSS(s); });
+    });
+  }
+
+  window.exportStockSheet = function(){
+    const s=_ssState();
+    const get=id=>document.getElementById(id)?.value||s[id]||'';
+    let out=`ALS UNIT STOCK SHEET\n${'='.repeat(50)}\n`;
+    out+=`Date: ${get('ss-date')}  Unit: ${get('ss-unit')}  Narc Lock: ${get('ss-narc')}\n`;
+    out+=`Main O2: ${get('ss-o2main')} PSI  Port O2: ${get('ss-o2port')} PSI\n`;
+    out+=`Paramedic: ${get('ss-para')}  EMT: ${get('ss-emt')}\n\n`;
+    SS_SECTIONS.forEach((sec,si)=>{
+      out+=`${sec.title.toUpperCase()}\n${'-'.repeat(40)}\n`;
+      out+=`${'ITEM'.padEnd(38)} REQ  ACTUAL${sec.exp?'/EXP':''}\n`;
+      sec.items.forEach((item,ii)=>{
+        const e=s[`ss_${si}_${ii}`]||{};
+        out+=`${item.n.padEnd(38)} ${String(item.q).padEnd(4)} ${e.act||''}\n`;
+      });
+      out+='\n';
+    });
+    const blob=new Blob([out],{type:'text/plain'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=`stock-sheet-${get('ss-unit')||'export'}-${get('ss-date')||new Date().toISOString().slice(0,10)}.txt`;
+    a.click();
+  };
+  window.resetStockSheet = function(){
+    if(!confirm('Clear all Stock Sheet entries?')) return;
+    localStorage.removeItem(SS_KEY);
+    renderStockSheet();
+  };
+
+  // --- Init shift tab on first open ---
+  let _shiftInited = false;
+  document.querySelectorAll('.tab[data-tab="shift"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(!_shiftInited){
+      _shiftInited=true;
+      renderShiftChecklist();
+      renderUCO();
+      renderStockSheet();
+      const today = new Date().toISOString().slice(0,10);
+      ['uco-date','ss-date'].forEach(id=>{ const el=document.getElementById(id); if(el&&!el.value) el.value=today; });
+    }
+    });
   });
 
   // --- Source protection (deterrents) ---
