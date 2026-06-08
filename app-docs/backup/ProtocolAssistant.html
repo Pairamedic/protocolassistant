@@ -385,6 +385,7 @@
           <div id="header-toolbar" class="toolbar">
             <button id="report-issue" class="btn" style="color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08);font-size:13px;padding:8px 12px">🚩 Report Issue</button>
             <a id="btn-pdf" href="EASI-Protocols-2026.pdf" download class="btn" style="color:#34d399;border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.08);font-size:13px;padding:8px 12px;text-decoration:none;display:inline-flex;align-items:center;gap:5px">📄 Protocols PDF</a>
+            <button id="btn-forms" class="btn" style="color:#c4b5fd;border-color:rgba(196,181,253,.35);background:rgba(196,181,253,.08);font-size:13px;padding:8px 12px">📋 Forms</button>
           </div>
           <div id="role-row" style="display:flex;gap:6px;align-items:center;margin-top:6px">
             <span style="font-size:11px;color:var(--muted);flex:none">Show roles:</span>
@@ -398,7 +399,6 @@
           <button class="tab" data-tab="meds">Meds <span class="tab-cnt" id="tc-m"></span></button>
           <button class="tab" data-tab="resources">Resources</button>
           <button class="tab" data-tab="contacts">Contacts</button>
-          <button class="tab" data-tab="shift">📋 Shift</button>
         </div>
         <div class="hint">Select an Ambulance Service. Data is saved automatically.</div>
       </div>
@@ -3950,7 +3950,7 @@
   };
 
   // --- Tabs (with memory) ---
-  const TABS_ORDER = ['protocols','meds','resources','contacts','shift'];
+  const TABS_ORDER = ['protocols','meds','resources','contacts'];
   let _pedsRefInited = false;
 
   function activateTab(tabName){
@@ -3971,7 +3971,8 @@
   // Restore last tab (defer so panels are ready)
   setTimeout(()=>{
     const saved = localStorage.getItem('pref_tab');
-    if(saved && TABS_ORDER.includes(saved)) activateTab(saved);
+    if(saved === 'shift'){ openForms(); }
+    else if(saved && TABS_ORDER.includes(saved)) activateTab(saved);
   }, 0);
 
   // --- Swipe between tabs ---
@@ -5142,20 +5143,45 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     renderStockSheet();
   };
 
-  // --- Init shift tab on first open ---
+  // --- Forms button (opens Shift / EASI forms panel) ---
   let _shiftInited = false;
-  document.querySelectorAll('.tab[data-tab="shift"]').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      if(!_shiftInited){
-      _shiftInited=true;
+  let _lastMainTab = 'protocols';
+  const _btnForms = $('#btn-forms');
+
+  function openForms(){
+    if(!_shiftInited){
+      _shiftInited = true;
       renderShiftChecklist();
       renderUCO();
       renderStockSheet();
       const today = new Date().toISOString().slice(0,10);
       ['uco-date','ss-date'].forEach(id=>{ const el=document.getElementById(id); if(el&&!el.value) el.value=today; });
     }
-    });
+    $$('.tab').forEach(b=>b.classList.remove('active'));
+    $$('.panel').forEach(p=>p.classList.add('hidden'));
+    $('#panel-shift').classList.remove('hidden');
+    _btnForms.style.background = 'rgba(196,181,253,.22)';
+    _btnForms.style.borderColor = 'rgba(196,181,253,.6)';
+    localStorage.setItem('pref_tab','shift');
+  }
+
+  function closeForms(){
+    _btnForms.style.background = '';
+    _btnForms.style.borderColor = '';
+    activateTab(_lastMainTab);
+  }
+
+  _btnForms.addEventListener('click', ()=>{
+    if(!$('#panel-shift').classList.contains('hidden')){ closeForms(); }
+    else { openForms(); }
   });
+
+  // Track last main tab so Forms "back" returns to it
+  $$('.tab').forEach(btn=> btn.addEventListener('click', ()=>{
+    _lastMainTab = btn.dataset.tab;
+    _btnForms.style.background = '';
+    _btnForms.style.borderColor = '';
+  }));
 
   // --- Source protection (deterrents) ---
   document.addEventListener('contextmenu', e => e.preventDefault());
