@@ -34,6 +34,17 @@
 
     :root.light .tab.active{box-shadow:0 0 0 2px rgba(13,148,136,.2)}
     .hint{color:var(--muted);font-size:13px;margin-top:6px}
+    /* Med card adult/peds dose toggle */
+    .dose-split{margin-top:6px}
+    .dose-split-tabs{display:flex;gap:6px;margin-bottom:8px}
+    .dose-tab{flex:none;padding:6px 14px;border-radius:16px;border:1.5px solid var(--border);background:var(--card);color:var(--muted);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .12s,border-color .12s,color .12s}
+    .dose-tab:active{opacity:.75}
+    .dose-tab.active{background:rgba(94,234,212,.13);border-color:var(--accent);color:var(--accent)}
+    :root.light .dose-tab{background:#fff;border-color:rgba(0,0,0,.15);color:#64748b}
+    :root.light .dose-tab.active{background:rgba(20,184,166,.1);border-color:#0d9488;color:#0d9488}
+    /* Repeat timing highlight */
+    .repeat-time{background:rgba(251,191,36,.18);color:#fbbf24;border-radius:4px;padding:1px 4px;font-weight:700}
+    :root.light .repeat-time{background:rgba(217,119,6,.12);color:#b45309}
     .grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px}
     @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
     .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px}
@@ -2774,6 +2785,62 @@
     return html.replace(/(<[^>]*>)|([^<]+)/g, (m, tag, text) => tag ? tag : fn(text));
   }
 
+  // Highlight repeat/interval timing cues (e.g. "after 2 min", "every 5 min")
+  function repeatHL(html){
+    return replaceTextOnly(html, text =>
+      text.replace(
+        /\b((?:after|every|in)\s+\d+(?:[–\-]\d+)?\s*min(?:utes?)?(?:\s*[×x]\d+)?)\b/gi,
+        m => `<span class="repeat-time">${m}</span>`
+      )
+    );
+  }
+
+  // Detect "Adult: ... Peds: ..." sentence-boundary structure and split into two sections
+  function splitAdultPeds(notes){
+    if(!notes) return null;
+    const aRe = /((?:^|[.!?]\s+))(Adult):\s*/i;
+    const pRe = /((?:^|[.!?]\s+))(Peds):\s*/i;
+    const aM  = notes.match(aRe);
+    const pM  = notes.match(pRe);
+    if(!aM || !pM) return null;
+    const aContent = aM.index + aM[0].length;
+    const pContent = pM.index + pM[0].length;
+    if(aM.index < pM.index){
+      return {
+        adult: notes.slice(aContent, pM.index).trim().replace(/[.;]\s*$/, ''),
+        peds:  notes.slice(pContent).trim().replace(/[.;]\s*$/, '')
+      };
+    }
+    return {
+      peds:  notes.slice(pContent, aM.index).trim().replace(/[.;]\s*$/, ''),
+      adult: notes.slice(aContent).trim().replace(/[.;]\s*$/, '')
+    };
+  }
+
+  // Render med notes — shows adult/peds tabs when both are present, plain hint otherwise
+  function renderMedNotes(notes, filterTerms){
+    const process = t => enhance(repeatHL(doseHL(highlight(sanitizeText(t), filterTerms))));
+    const split = splitAdultPeds(notes);
+    if(split){
+      return `<div class="dose-split">
+        <div class="dose-split-tabs">
+          <button class="dose-tab active" onclick="switchDoseTab(this,'adult')">🧑 Adult</button>
+          <button class="dose-tab" onclick="switchDoseTab(this,'peds')">🧒 Peds</button>
+        </div>
+        <div class="dose-panel hint" data-dose="adult">${process(split.adult)}</div>
+        <div class="dose-panel hint hidden" data-dose="peds">${process(split.peds)}</div>
+      </div>`;
+    }
+    return `<div class="hint">${process(notes)}</div>`;
+  }
+
+  window.switchDoseTab = function(btn, tab){
+    const wrap = btn.closest('.dose-split');
+    wrap.querySelectorAll('.dose-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    wrap.querySelectorAll('.dose-panel').forEach(p => p.classList.toggle('hidden', p.dataset.dose !== tab));
+  };
+
   // Format infusion rate tables (runs via replaceTextOnly to avoid corrupting existing HTML)
   // Converts: "1 mcg/min = 15 gtts/min; 2 = 30; ..." → pill badges
   function fmtRateTable(html){
@@ -3101,7 +3168,7 @@
           </div>
           <button class="fav-btn${on?' on':''}" onclick="toggleFav('m','${(m.name||'').replace(/'/g,"&#39;")}')" title="${on?'Remove from favorites':'Add to favorites'}">${on?'★':'☆'}</button>
         </div>
-        <div class="hint">${enhance(doseHL(highlight(sanitizeText(m.notes||''), filterTerms)))}</div>
+        ${renderMedNotes(m.notes||'', filterTerms)}
         ${m.contra?`<div class="hint" style="margin-top:4px"><span style="color:#f87171">✕</span> ${highlight(sanitizeText(m.contra||''), filterTerms)}</div>`:''}
         <div style="margin-top:8px" class="row">
           <button class="btn" onclick="loadIntoCalc('${(m.name||'').replace(/'/g, "&#39;")}')">Send to Calculator</button>
