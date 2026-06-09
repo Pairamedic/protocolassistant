@@ -3489,8 +3489,7 @@
 
   function updateTitle(){
     const el = $('#app-title');
-    const name = SERVICE_DISPLAY[state.currentService];
-    el.innerHTML = `${LOGO_HTML} ${name || 'PAT'}`;
+    el.innerHTML = `${LOGO_HTML} PAT`;
   }
 
   function updatePdfBtn(){
@@ -3825,7 +3824,13 @@
     });
   }
 
+  function _seedBuiltin(name){
+    const BUILTIN = {'EASI Protocols - 2026': EASI_2026_SERVICE, 'AHA Algorithms 2026': AHA_2026_SERVICE, 'EMS National Guidelines - 2022': NMEMS_SERVICE};
+    if(BUILTIN[name]) state.services[name] = JSON.parse(JSON.stringify(BUILTIN[name]));
+  }
+
   function renderProtocols(filterTerms=[]){
+    if(state.currentService && !svc()) _seedBuiltin(state.currentService);
     if(!state.currentService || !svc()){ protocolsEl.innerHTML = noServiceState(); return; }
     const all = svc().protocols||[];
     let items = all.map((p,i)=>({p,i})).filter(({p})=> matchItem(p, filterTerms));
@@ -4190,6 +4195,7 @@
   }
 
   function renderMeds(filterTerms=[]){
+    if(state.currentService && !svc()) _seedBuiltin(state.currentService);
     if(!state.currentService || !svc()){ medsEl.innerHTML = noServiceState(); return; }
     const all = svc().meds||[];
     let items = all.map((m,i)=>({m,i})).filter(({m})=> matchItem(m, filterTerms));
@@ -5350,8 +5356,12 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
           .collection('appdata').doc('state').get();
         if(doc.exists){
           const d = doc.data();
-          if(d.currentService) state.currentService = d.currentService;
-          if(d.favs)           state.favs = d.favs;
+          if(d.currentService){
+            // Normalize stale service key names from old versions
+            const _SVC_RENAMES = {'NMEMS 2022': 'EMS National Guidelines - 2022', 'EASI AMBULANCE': 'EASI Protocols - 2026', 'EASI Protocols - 2025': 'EASI Protocols - 2026'};
+            state.currentService = _SVC_RENAMES[d.currentService] || d.currentService;
+          }
+          if(d.favs) state.favs = d.favs;
           localStorage.setItem(KEY, JSON.stringify(state));
         } else {
           cloudSave(state);
