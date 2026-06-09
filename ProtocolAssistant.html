@@ -4886,7 +4886,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     const target = parseFloat($('#md-target').value||'0');
     if(!target){ $('#md-result').innerHTML='Enter a target gtts/min.'; return }
     const per10 = target/6;
-    $('#md-result').innerHTML = `<div style="color:var(--accent);font-weight:600">Count <b>${Math.round(per10)}</b> drops every 10 seconds to confirm your rate.</div><div style="color:var(--muted);font-size:12px;margin-top:4px">Exact: ${fmt(per10,1)} drops/10 sec</div>`;`;
+    $('#md-result').innerHTML = `<div style="color:var(--accent);font-weight:600">Count <b>${Math.round(per10)}</b> drops every 10 seconds to confirm your rate.</div><div style="color:var(--muted);font-size:12px;margin-top:4px">Exact: ${fmt(per10,1)} drops/10 sec</div>`;
   });
   $('#md-reset').addEventListener('click', ()=>{ $('#md-target').value=''; $('#md-result').innerHTML=''; });
 
