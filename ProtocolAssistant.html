@@ -880,11 +880,10 @@
             <span class="meds-search-icon">🔍</span>
             <input type="search" id="contact-filter-input" placeholder="Name, role, or number…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
             <button id="contact-filter-clear" class="meds-filter-clear" style="display:none">✕</button>
+            <div style="width:1px;height:18px;background:var(--border);flex:none;margin:0 4px"></div>
+            <button class="pill-btn active contact-nav-btn" data-section="contacts-internal" style="padding:4px 10px;font-size:12px;white-space:nowrap;flex:none">👥 Internal</button>
+            <button class="pill-btn contact-nav-btn" data-section="contacts-clinical" style="padding:4px 10px;font-size:12px;white-space:nowrap;flex:none">🏥 Clinical</button>
           </div>
-        </div>
-        <div class="filter-pills" id="contacts-nav-pills" style="margin-top:8px">
-          <button class="pill-btn active" data-section="contacts-internal">👥 Internal</button>
-          <button class="pill-btn" data-section="contacts-clinical">🏥 Clinical</button>
         </div>
       </div>
       <div id="contacts-render"></div>
@@ -3900,7 +3899,7 @@
       let _sn = 0;
 
       // ── Phase 1: group steps into label-blocks, treatment-blocks, or plain steps ──
-      const _SEC_RE  = /^(Assessment|Reversible\s+causes?|Note|NOTE|Signs?|Symptoms?|All\s+Providers?|Scene\s+Safety|Considerations?|Warning|Caution)\s*:/i;
+      const _SEC_RE  = /^(Required\s+Assessment|Assessment|Indications?|Contraindications?|Reversible\s+[Cc]auses?|Note|NOTE|Signs?|Symptoms?|All\s+Providers?|Scene\s+Safety|Considerations?|Warning|Caution)\s*:/i;
       const _ROLE_RE = /^\s*(?:Paramedic|AEMT|Advanced\s+EMT|Basic\s+EMT|EMT-I\b|EMT-Intermediate\b|EMT\b|ALL)\s*[:–\-]/i;
       const _blocks = []; let _tBlock = null;
       for(const s of (p.steps||[])){
@@ -3925,16 +3924,18 @@
 
       // ── Phase 2: style maps ────────────────────────────────────────────────
       const _PSTY = {
-        assessment:   {c:'rgba(94,234,212,1)',  bg:'rgba(94,234,212,.07)',  bd:'rgba(94,234,212,.25)'},
-        reversible:   {c:'rgba(251,146,60,1)',  bg:'rgba(251,146,60,.07)',  bd:'rgba(251,146,60,.28)'},
-        note:         {c:'rgba(148,163,184,1)', bg:'rgba(148,163,184,.06)', bd:'rgba(148,163,184,.2)'},
-        sign:         {c:'rgba(96,165,250,1)',  bg:'rgba(96,165,250,.06)',  bd:'rgba(96,165,250,.2)'},
-        symptom:      {c:'rgba(96,165,250,1)',  bg:'rgba(96,165,250,.06)',  bd:'rgba(96,165,250,.2)'},
-        warning:      {c:'rgba(248,113,113,1)', bg:'rgba(248,113,113,.06)', bd:'rgba(248,113,113,.25)'},
-        caution:      {c:'rgba(251,191,36,1)',  bg:'rgba(251,191,36,.07)',  bd:'rgba(251,191,36,.25)'},
-        consideration:{c:'rgba(167,139,250,1)', bg:'rgba(167,139,250,.06)', bd:'rgba(167,139,250,.2)'},
-        all:          {c:'rgba(94,234,212,1)',  bg:'rgba(94,234,212,.07)',  bd:'rgba(94,234,212,.25)'},
-        scene:        {c:'rgba(94,234,212,1)',  bg:'rgba(94,234,212,.07)',  bd:'rgba(94,234,212,.25)'},
+        assessment:       {c:'rgba(94,234,212,1)',  bg:'rgba(94,234,212,.07)',  bd:'rgba(94,234,212,.25)'},
+        indication:       {c:'rgba(167,139,250,1)', bg:'rgba(167,139,250,.07)', bd:'rgba(167,139,250,.25)'},
+        contraindication: {c:'rgba(248,113,113,1)', bg:'rgba(248,113,113,.06)', bd:'rgba(248,113,113,.25)'},
+        reversible:       {c:'rgba(251,146,60,1)',  bg:'rgba(251,146,60,.07)',  bd:'rgba(251,146,60,.28)'},
+        note:             {c:'rgba(148,163,184,1)', bg:'rgba(148,163,184,.06)', bd:'rgba(148,163,184,.2)'},
+        sign:             {c:'rgba(96,165,250,1)',  bg:'rgba(96,165,250,.06)',  bd:'rgba(96,165,250,.2)'},
+        symptom:          {c:'rgba(96,165,250,1)',  bg:'rgba(96,165,250,.06)',  bd:'rgba(96,165,250,.2)'},
+        warning:          {c:'rgba(248,113,113,1)', bg:'rgba(248,113,113,.06)', bd:'rgba(248,113,113,.25)'},
+        caution:          {c:'rgba(251,191,36,1)',  bg:'rgba(251,191,36,.07)',  bd:'rgba(251,191,36,.25)'},
+        consideration:    {c:'rgba(167,139,250,1)', bg:'rgba(167,139,250,.06)', bd:'rgba(167,139,250,.2)'},
+        all:              {c:'rgba(94,234,212,1)',  bg:'rgba(94,234,212,.07)',  bd:'rgba(94,234,212,.25)'},
+        scene:            {c:'rgba(94,234,212,1)',  bg:'rgba(94,234,212,.07)',  bd:'rgba(94,234,212,.25)'},
       };
       const _TSTY = {c:'rgba(74,222,128,1)', bg:'rgba(74,222,128,.06)', bd:'rgba(74,222,128,.22)'};
 
@@ -3974,13 +3975,19 @@
           const m = b.dc.match(_SEC_RE); if(!m) return _rs(b);
           const lbl = m[1].charAt(0).toUpperCase() + m[1].slice(1).replace(/\s+causes?$/i,' Causes');
           const body = b.dc.slice(m[0].length).trim();
-          const sk = m[1].toLowerCase().split(/\s/)[0].replace(/s$/,'');
+          const rawLabel = m[1].toLowerCase();
+          const sk = rawLabel.startsWith('required') ? 'assessment'
+                   : rawLabel.startsWith('contra')   ? 'contraindication'
+                   : rawLabel.startsWith('indic')    ? 'indication'
+                   : rawLabel.startsWith('reversi')  ? 'reversible'
+                   : rawLabel.split(/\s/)[0].replace(/s$/,'');
           const st = _PSTY[sk] || _PSTY.note;
+          const rl = b.role ? `<span class="step-role-tag" style="color:${ROLE_COLORS[b.role]};border-color:${ROLE_COLORS[b.role]};margin-left:4px;font-size:9px">${ROLE_LABELS[b.role]}</span>` : '';
           const pb = /^(Pediatric|Peds)$/i.test(b.descriptor)?`<span class="pt-badge pt-peds">Peds</span> `:/^Adult$/i.test(b.descriptor)?`<span class="pt-badge pt-adult">Adult</span> `:'';
           const si = splitInlineList(body); let bh;
           if(si && si.length>1){ bh=si.map(x=>{const h=enhance(fmtRateTable(linkMeds(doseHL(highlight(sanitizeText(x.text),filterTerms)))));return x.num?`<div class="sub-step"><span class="sub-k">${x.num}</span><span>${h}</span></div>`:`<span style="display:block;margin-bottom:2px">${h}</span>`;}).join(''); }
           else { bh=enhance(fmtRateTable(linkMeds(doseHL(highlight(sanitizeText(body),filterTerms))))); }
-          return `<div class="proto-sec" style="border-color:${st.bd};margin-bottom:8px"><div class="proto-sec-label" style="color:${st.c};background:${st.bg};border-bottom-color:${st.bd}">${sanitizeText(lbl)}</div><div class="proto-sec-body">${pb}${bh}</div></div>`;
+          return `<div class="proto-sec" style="border-color:${st.bd};margin-bottom:8px"><div class="proto-sec-label" style="color:${st.c};background:${st.bg};border-bottom-color:${st.bd}">${sanitizeText(lbl)}${rl}</div><div class="proto-sec-body">${pb}${bh}</div></div>`;
         }
         if(b.type === 'treat'){
           return `<div class="proto-sec" style="border-color:${_TSTY.bd};margin-bottom:8px"><div class="proto-sec-label" style="color:${_TSTY.c};background:${_TSTY.bg};border-bottom-color:${_TSTY.bd}">Treatment</div><div class="proto-sec-body" style="padding:6px 4px 4px">${b.steps.map(_rs).join('')}</div></div>`;
@@ -4711,9 +4718,9 @@
       renderProtocols(_lastTerms);
     });
   });
-  document.querySelectorAll('#contacts-nav-pills .pill-btn').forEach(btn => {
+  document.querySelectorAll('.contact-nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('#contacts-nav-pills .pill-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.contact-nav-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       jumpToSection(btn.dataset.section);
     });
