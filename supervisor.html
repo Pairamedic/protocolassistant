@@ -3,7 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>EASI Supervisor Tools</title>
+  <title>PAT — Supervisor Tools</title>
+  <link rel="icon" type="image/svg+xml" href="star-of-life.svg" />
+  <link rel="apple-touch-icon" href="star-of-life.svg" />
   <style>
     /* ── CSS Variables ── */
     :root {
@@ -589,6 +591,14 @@
         <button class="pill" data-station="Rison">Rison</button>
         <button class="pill" data-station="DeWitt">DeWitt</button>
         <button class="pill" data-station="Clarendon">Clarendon</button>
+      </div>
+      <div class="filter-pills" id="role-pills" style="margin-top:6px">
+        <button class="pill active" data-role="All">All Roles</button>
+        <button class="pill" data-role="Paramedic">Paramedic</button>
+        <button class="pill" data-role="AEMT">A-EMT</button>
+        <button class="pill" data-role="EMT">EMT</button>
+        <button class="pill" data-role="EMR">EMR</button>
+        <button class="pill" data-role="EVO">EVO</button>
       </div>
       <div id="dir-results" class="dir-results"></div>
     </div>
@@ -1226,17 +1236,32 @@ function exportRoster() {
    DIRECTORY
    ════════════════════════════════════════ */
 let dirStation = 'All';
+let dirRole = 'All';
 let dirQuery = '';
+
+/** Check if employee role matches a role filter key */
+function roleMatches(empRole, filter) {
+  if (filter === 'All') return true;
+  const r = (empRole || '').toUpperCase();
+  switch (filter) {
+    case 'Paramedic': return r === 'PARAMEDIC';
+    case 'AEMT':      return r === 'A-EMT' || r === 'AEMT';
+    case 'EMT':       return r === 'EMT' || r.startsWith('EMT/') || r.startsWith('EMT ') || r.endsWith('/EMT') || r.endsWith(' EMT');
+    case 'EMR':       return r === 'EMR' || r.startsWith('EMR/') || r.endsWith('/EMR');
+    case 'EVO':       return r === 'EVO';
+    default:          return true;
+  }
+}
 
 function renderDirectory() {
   const results = document.getElementById('dir-results');
   let filtered = EMPLOYEES.filter(emp => {
     if (dirStation !== 'All') {
-      // Normalize Dewitt <-> DeWitt
       const empStation = emp.station.toLowerCase().replace(/\s/g, '');
       const filterStation = dirStation.toLowerCase().replace(/\s/g, '');
       if (empStation !== filterStation) return false;
     }
+    if (!roleMatches(emp.role, dirRole)) return false;
     if (dirQuery.length >= 1) {
       const q = dirQuery.toLowerCase();
       const { raw, nick } = empTokens(emp);
@@ -1533,12 +1558,22 @@ function initApp() {
     renderDirectory();
   });
 
-  // Filter pills
+  // Station filter pills
   document.getElementById('filter-pills').addEventListener('click', e => {
     const pill = e.target.closest('.pill');
     if (!pill) return;
     dirStation = pill.dataset.station;
-    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('#filter-pills .pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    renderDirectory();
+  });
+
+  // Role filter pills
+  document.getElementById('role-pills').addEventListener('click', e => {
+    const pill = e.target.closest('.pill');
+    if (!pill) return;
+    dirRole = pill.dataset.role;
+    document.querySelectorAll('#role-pills .pill').forEach(p => p.classList.remove('active'));
     pill.classList.add('active');
     renderDirectory();
   });
