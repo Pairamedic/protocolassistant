@@ -363,7 +363,7 @@
   <header>
     <div class="wrap">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <div id="app-title" class="title" style="display:flex;align-items:center;gap:9px"><img src="star-of-life.svg" alt="" style="width:28px;height:28px;flex:none"/> PAT</div>
+        <div id="app-title" class="title" style="display:flex;align-items:center;gap:9px"><img src="star-of-life.svg" alt="" style="width:28px;height:28px;flex:none"/> Protocol Accessibility Tool</div>
         <div style="display:flex;align-items:center;gap:6px">
           <button id="btn-admin" class="ui-ctrl-btn hidden" title="Admin Panel">⚙️</button>
           <div style="position:relative">
@@ -423,11 +423,10 @@
             <span class="meds-search-icon">🔍</span>
             <input type="search" id="proto-filter-input" placeholder="Protocol name or keyword…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
             <button id="proto-filter-clear" class="meds-filter-clear" style="display:none">✕</button>
+            <div style="width:1px;height:18px;background:var(--border);flex:none;margin:0 4px"></div>
+            <button id="age-btn-adult" class="pill-btn active" data-age="adult" style="padding:4px 10px;font-size:12px;white-space:nowrap;flex:none">🧑 Adult</button>
+            <button id="age-btn-peds" class="pill-btn active" data-age="peds" style="padding:4px 10px;font-size:12px;white-space:nowrap;flex:none">🧒 Peds</button>
           </div>
-        </div>
-        <div class="filter-pills" id="age-filter-pills" style="margin-top:8px">
-          <button class="pill-btn active" data-age="adult">🧑 Adult</button>
-          <button class="pill-btn active" data-age="peds">🧒 Pediatric</button>
         </div>
       </div>
       <div id="protocols"></div>
@@ -3505,7 +3504,7 @@
 
   function updateTitle(){
     const el = $('#app-title');
-    el.innerHTML = `${LOGO_HTML} PAT`;
+    el.innerHTML = `${LOGO_HTML} Protocol Accessibility Tool`;
   }
 
   function updatePdfBtn(){
@@ -3899,85 +3898,94 @@
       const badges = cardRoles.map(r=>`<span class="role-badge rb-${r}">${r==='paramedic'?'Paramedic':r==='aemt'?'AEMT':'EMT'}</span>`).join('');
       const visibleStepCount = (p.steps||[]).filter(s=>{ const r=stepRole(normalizeRoles(s)); return !r||!_hiddenRoles.has(r); }).length;
       let _sn = 0;
-      const stepsHtml = (p.steps||[]).map((s,si)=>{
-        const ns   = normalizeRoles(s);
+
+      // ── Phase 1: group steps into label-blocks, treatment-blocks, or plain steps ──
+      const _SEC_RE  = /^(Assessment|Reversible\s+causes?|Note|NOTE|Signs?|Symptoms?|All\s+Providers?|Scene\s+Safety|Considerations?|Warning|Caution)\s*:/i;
+      const _ROLE_RE = /^\s*(?:Paramedic|AEMT|Advanced\s+EMT|Basic\s+EMT|EMT-I\b|EMT-Intermediate\b|EMT\b|ALL)\s*[:–\-]/i;
+      const _blocks = []; let _tBlock = null;
+      for(const s of (p.steps||[])){
+        const ns = normalizeRoles(s);
         const role = stepRole(ns);
-        if(role && _hiddenRoles.has(role)) return '';
-        const { clean, descriptor } = stripRolePrefix(ns);
-        const roleLabel = role ? `<span class="step-role-tag" style="color:${ROLE_COLORS[role]};border-color:${ROLE_COLORS[role]}">${ROLE_LABELS[role]}</span>` : '';
-        const ptBadge = /^(Pediatric|Peds)$/i.test(descriptor) ? `<span class="pt-badge pt-peds">Peds</span> `
-                      : /^Adult$/i.test(descriptor)            ? `<span class="pt-badge pt-adult">Adult</span> ` : '';
-        // Branch/sub-step lines (━━, bullets, arrows, warnings, 3+ space indent) don't get a step number badge
+        if(role && _hiddenRoles.has(role)) continue;
+        const {clean, descriptor} = stripRolePrefix(ns);
         const isBranch = /^(?:━━|•|→|⚠|──)/.test(clean.trimStart()) || /^ {3,}/.test(clean);
-        // Strip leading manual step numbers (e.g. "1. ") from main steps to prevent double-numbering
         const dc = isBranch ? clean : clean.replace(/^\s*\d+\.\s+/, '');
-        // Section-label blocks: Assessment:, Reversible causes:, NOTE:, etc.
-        if(!isBranch){
-          const _slm = dc.match(/^(Assessment|Reversible\s+causes?|Note|NOTE|Signs?|Symptoms?|Treatment|All\s+Providers?|Scene\s+Safety|Considerations?|Warning|Caution)\s*:/i);
-          if(_slm){
-            const slLabel = _slm[1].charAt(0).toUpperCase() + _slm[1].slice(1).replace(/\s+causes?$/i,' Causes');
-            const slBody  = dc.slice(_slm[0].length).trim();
-            const PSTY = {
-              assessment:   {c:'rgba(94,234,212,1)',  bg:'rgba(94,234,212,.07)',  bd:'rgba(94,234,212,.25)'},
-              reversible:   {c:'rgba(251,146,60,1)',   bg:'rgba(251,146,60,.07)',  bd:'rgba(251,146,60,.28)'},
-              note:         {c:'rgba(148,163,184,1)',  bg:'rgba(148,163,184,.06)', bd:'rgba(148,163,184,.2)'},
-              sign:         {c:'rgba(96,165,250,1)',   bg:'rgba(96,165,250,.06)',  bd:'rgba(96,165,250,.2)'},
-              symptom:      {c:'rgba(96,165,250,1)',   bg:'rgba(96,165,250,.06)',  bd:'rgba(96,165,250,.2)'},
-              treatment:    {c:'rgba(74,222,128,1)',   bg:'rgba(74,222,128,.07)',  bd:'rgba(74,222,128,.25)'},
-              warning:      {c:'rgba(248,113,113,1)',  bg:'rgba(248,113,113,.06)', bd:'rgba(248,113,113,.25)'},
-              caution:      {c:'rgba(251,191,36,1)',   bg:'rgba(251,191,36,.07)',  bd:'rgba(251,191,36,.25)'},
-              consideration:{c:'rgba(167,139,250,1)',  bg:'rgba(167,139,250,.06)', bd:'rgba(167,139,250,.2)'},
-              all:          {c:'rgba(94,234,212,1)',   bg:'rgba(94,234,212,.07)',  bd:'rgba(94,234,212,.25)'},
-              scene:        {c:'rgba(251,191,36,1)',   bg:'rgba(251,191,36,.07)',  bd:'rgba(251,191,36,.25)'},
-            };
-            const sk = _slm[1].toLowerCase().split(/\s/)[0].replace(/s$/, '');
-            const st = PSTY[sk] || PSTY.note;
-            const slSubItems = splitInlineList(slBody);
-            let slHtml;
-            if(slSubItems && slSubItems.length > 1){
-              slHtml = slSubItems.map(item => {
-                const h = enhance(fmtRateTable(linkMeds(doseHL(highlight(sanitizeText(item.text), filterTerms)))));
-                return item.num ? `<div class="sub-step"><span class="sub-k">${item.num}</span><span>${h}</span></div>`
-                                : `<span style="display:block;margin-bottom:2px">${h}</span>`;
-              }).join('');
-            } else {
-              slHtml = enhance(fmtRateTable(linkMeds(doseHL(highlight(sanitizeText(slBody), filterTerms)))));
-            }
-            return `<div class="proto-sec" style="border-color:${st.bd};margin-bottom:8px"><div class="proto-sec-label" style="color:${st.c};background:${st.bg};border-bottom-color:${st.bd}">${sanitizeText(slLabel)}</div><div class="proto-sec-body">${ptBadge}${slHtml}</div></div>`;
-          }
-        }
-        const subItems = splitInlineList(dc);
-        let stepContent;
-        if (subItems && subItems.length > 1) {
-          stepContent = subItems.map(item => {
-            const html = enhance(fmtRateTable(linkMeds(doseHL(highlight(sanitizeText(item.text), filterTerms)))));
-            return item.num
-              ? `<div class="sub-step"><span class="sub-k">${item.num}</span><span>${html}</span></div>`
-              : `<span style="display:block;margin-bottom:2px">${html}</span>`;
-          }).join('');
+        const it = {ns, role, clean, dc, descriptor, isBranch};
+        if(!isBranch && _SEC_RE.test(dc)){
+          _tBlock = null; _blocks.push({type:'label', ...it});
+        } else if(!isBranch && _ROLE_RE.test(ns)){
+          if(!_tBlock){ _tBlock = {type:'treat', steps:[]}; _blocks.push(_tBlock); }
+          _tBlock.steps.push(it);
+        } else if(isBranch && _tBlock){
+          _tBlock.steps.push(it);
         } else {
-          stepContent = enhance(fmtRateTable(linkMeds(doseHL(highlight(sanitizeText(dc), filterTerms)))));
+          _tBlock = null; _blocks.push({type:'plain', ...it});
         }
-        const stepHtml = ptBadge + stepContent;
-        if (isBranch) {
-          const tr = clean.trimStart();
-          const isWarn = /^⚠/.test(tr);
-          const isYes  = /^━━\s*YES\b/i.test(tr);
-          const isNo   = /^━━\s*NO\b/i.test(tr);
-          const isDeep = /^ {3,}/.test(clean) || /^•/.test(tr) || /^→/.test(tr);
-          let ml, bl, bg;
-          if (isWarn)       { ml='0';    bl='3px solid rgba(251,191,36,.6)';  bg='rgba(251,191,36,.06)'; }
-          else if (isYes)   { ml='14px'; bl='3px solid rgba(74,222,128,.5)';  bg='rgba(74,222,128,.04)'; }
-          else if (isNo)    { ml='14px'; bl='3px solid rgba(248,113,113,.5)'; bg='rgba(248,113,113,.04)'; }
-          else if (isDeep)  { ml='28px'; bl='2px solid rgba(255,255,255,.08)';bg=''; }
-          else              { ml='14px'; bl='2px solid rgba(255,255,255,.13)';bg=''; }
+      }
+
+      // ── Phase 2: style maps ────────────────────────────────────────────────
+      const _PSTY = {
+        assessment:   {c:'rgba(94,234,212,1)',  bg:'rgba(94,234,212,.07)',  bd:'rgba(94,234,212,.25)'},
+        reversible:   {c:'rgba(251,146,60,1)',  bg:'rgba(251,146,60,.07)',  bd:'rgba(251,146,60,.28)'},
+        note:         {c:'rgba(148,163,184,1)', bg:'rgba(148,163,184,.06)', bd:'rgba(148,163,184,.2)'},
+        sign:         {c:'rgba(96,165,250,1)',  bg:'rgba(96,165,250,.06)',  bd:'rgba(96,165,250,.2)'},
+        symptom:      {c:'rgba(96,165,250,1)',  bg:'rgba(96,165,250,.06)',  bd:'rgba(96,165,250,.2)'},
+        warning:      {c:'rgba(248,113,113,1)', bg:'rgba(248,113,113,.06)', bd:'rgba(248,113,113,.25)'},
+        caution:      {c:'rgba(251,191,36,1)',  bg:'rgba(251,191,36,.07)',  bd:'rgba(251,191,36,.25)'},
+        consideration:{c:'rgba(167,139,250,1)', bg:'rgba(167,139,250,.06)', bd:'rgba(167,139,250,.2)'},
+        all:          {c:'rgba(94,234,212,1)',  bg:'rgba(94,234,212,.07)',  bd:'rgba(94,234,212,.25)'},
+        scene:        {c:'rgba(94,234,212,1)',  bg:'rgba(94,234,212,.07)',  bd:'rgba(94,234,212,.25)'},
+      };
+      const _TSTY = {c:'rgba(74,222,128,1)', bg:'rgba(74,222,128,.06)', bd:'rgba(74,222,128,.22)'};
+
+      // ── Phase 2: per-step renderer (shared by plain and inside treatment) ──
+      function _rs(it){
+        const {role, clean, dc, descriptor, isBranch} = it;
+        const rl = role ? `<span class="step-role-tag" style="color:${ROLE_COLORS[role]};border-color:${ROLE_COLORS[role]}">${ROLE_LABELS[role]}</span>` : '';
+        const pb = /^(Pediatric|Peds)$/i.test(descriptor) ? `<span class="pt-badge pt-peds">Peds</span> `
+                 : /^Adult$/i.test(descriptor) ? `<span class="pt-badge pt-adult">Adult</span> ` : '';
+        const si = splitInlineList(dc);
+        let sc;
+        if(si && si.length > 1){
+          sc = si.map(x=>{ const h=enhance(fmtRateTable(linkMeds(doseHL(highlight(sanitizeText(x.text),filterTerms))))); return x.num?`<div class="sub-step"><span class="sub-k">${x.num}</span><span>${h}</span></div>`:`<span style="display:block;margin-bottom:2px">${h}</span>`; }).join('');
+        } else {
+          sc = enhance(fmtRateTable(linkMeds(doseHL(highlight(sanitizeText(dc),filterTerms)))));
+        }
+        const sh = pb + sc;
+        if(isBranch){
+          const tr=clean.trimStart();
+          const isW=/^⚠/.test(tr), isY=/^━━\s*YES\b/i.test(tr), isN=/^━━\s*NO\b/i.test(tr), isD=/^ {3,}/.test(clean)||/^[•→]/.test(tr);
+          let ml,bl,bg;
+          if(isW){ml='0';bl='3px solid rgba(251,191,36,.6)';bg='rgba(251,191,36,.06)';}
+          else if(isY){ml='14px';bl='3px solid rgba(74,222,128,.5)';bg='rgba(74,222,128,.04)';}
+          else if(isN){ml='14px';bl='3px solid rgba(248,113,113,.5)';bg='rgba(248,113,113,.04)';}
+          else if(isD){ml='28px';bl='2px solid rgba(255,255,255,.08)';bg='';}
+          else{ml='14px';bl='2px solid rgba(255,255,255,.13)';bg='';}
           return `<div class="step-row-wrap" style="margin-bottom:4px;margin-left:${ml};padding-left:10px;border-left:${bl};border-radius:0 4px 4px 0${bg?`;background:${bg}`:''}">
-            ${roleLabel}<div class="step-content">${stepHtml}</div>
-          </div>`;
+            ${rl}<div class="step-content">${sh}</div></div>`;
         }
         return `<div class="step-row-wrap" style="margin-bottom:6px">
-          ${roleLabel}<div class="step-content"><span class="k">${++_sn}</span> ${stepHtml}</div>
-        </div>`;
+          ${rl}<div class="step-content"><span class="k">${++_sn}</span> ${sh}</div></div>`;
+      }
+
+      // ── Phase 2: render blocks ─────────────────────────────────────────────
+      const stepsHtml = _blocks.map(b => {
+        if(b.type === 'label'){
+          const m = b.dc.match(_SEC_RE); if(!m) return _rs(b);
+          const lbl = m[1].charAt(0).toUpperCase() + m[1].slice(1).replace(/\s+causes?$/i,' Causes');
+          const body = b.dc.slice(m[0].length).trim();
+          const sk = m[1].toLowerCase().split(/\s/)[0].replace(/s$/,'');
+          const st = _PSTY[sk] || _PSTY.note;
+          const pb = /^(Pediatric|Peds)$/i.test(b.descriptor)?`<span class="pt-badge pt-peds">Peds</span> `:/^Adult$/i.test(b.descriptor)?`<span class="pt-badge pt-adult">Adult</span> `:'';
+          const si = splitInlineList(body); let bh;
+          if(si && si.length>1){ bh=si.map(x=>{const h=enhance(fmtRateTable(linkMeds(doseHL(highlight(sanitizeText(x.text),filterTerms)))));return x.num?`<div class="sub-step"><span class="sub-k">${x.num}</span><span>${h}</span></div>`:`<span style="display:block;margin-bottom:2px">${h}</span>`;}).join(''); }
+          else { bh=enhance(fmtRateTable(linkMeds(doseHL(highlight(sanitizeText(body),filterTerms))))); }
+          return `<div class="proto-sec" style="border-color:${st.bd};margin-bottom:8px"><div class="proto-sec-label" style="color:${st.c};background:${st.bg};border-bottom-color:${st.bd}">${sanitizeText(lbl)}</div><div class="proto-sec-body">${pb}${bh}</div></div>`;
+        }
+        if(b.type === 'treat'){
+          return `<div class="proto-sec" style="border-color:${_TSTY.bd};margin-bottom:8px"><div class="proto-sec-label" style="color:${_TSTY.c};background:${_TSTY.bg};border-bottom-color:${_TSTY.bd}">Treatment</div><div class="proto-sec-body" style="padding:6px 4px 4px">${b.steps.map(_rs).join('')}</div></div>`;
+        }
+        return _rs(b);
       }).join('');
       return `
       <div class="card${on?' fav-on':''}" id="pcard-${eid}">
@@ -4692,7 +4700,7 @@
     });
   });
 
-  document.querySelectorAll('#age-filter-pills .pill-btn').forEach(btn => {
+  document.querySelectorAll('[data-age]').forEach(btn => {
     btn.addEventListener('click', () => {
       const age = btn.dataset.age;
       if(_ageFilter.has(age)){
