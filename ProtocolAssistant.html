@@ -3898,7 +3898,7 @@
       const visibleStepCount = (p.steps||[]).filter(s=>{ const r=stepRole(normalizeRoles(s)); return !r||!_hiddenRoles.has(r); }).length;
       let _sn = 0;
 
-      // ── Phase 1: group steps into label-blocks, treatment-blocks, or plain steps ──
+      // ── Phase 1: group steps into label-blocks, treatment-blocks, or all-providers-blocks ──
       const _SEC_RE  = /^(Required\s+Assessment|GCS\s+Assessment|Assessment|Primary\s+Survey|Secondary\s+Survey|Vital\s+Signs?|History|Indications?|Contraindications?|Reversible\s+[Cc]auses?|Note|NOTE|Signs?|Symptoms?|All\s+Providers?|Scene\s+Safety|Considerations?|Warning|Caution)\s*:/i;
       const _ROLE_RE = /^\s*(?:Paramedic|AEMT|Advanced\s+EMT|Basic\s+EMT|EMT-I\b|EMT-Intermediate\b|EMT\b|ALL)\s*[:–\-]/i;
       const _blocks = []; let _tBlock = null;
@@ -3914,14 +3914,29 @@
         if(!isBranch && _SEC_RE.test(dc)){
           _tBlock = null; _blocks.push({type:'label', ...it});
         } else if(!isBranch && _ROLE_RE.test(ns)){
-          if(!_tBlock){ _tBlock = {type:'treat', steps:[]}; _blocks.push(_tBlock); }
+          // Role-prefixed treatment step — continue or start a treat block
+          if(!_tBlock || _tBlock.type !== 'treat'){ _tBlock = {type:'treat', steps:[]}; _blocks.push(_tBlock); }
           _tBlock.steps.push(it);
         } else if(isBranch && _tBlock){
           _tBlock.steps.push(it);
         } else {
-          _tBlock = null; _blocks.push({type:'plain', ...it});
+          // Plain or orphan-branch step — group into "All Providers" block
+          if(_tBlock && _tBlock.type === 'allprov'){
+            _tBlock.steps.push(it);
+          } else {
+            _tBlock = {type:'allprov', steps:[it]};
+            _blocks.push(_tBlock);
+          }
         }
       }
+      // Step count for card header (non-branch items across all blocks)
+      const _stepCount = _blocks.reduce((n, b) => {
+        if(b.steps) return n + b.steps.filter(it => !it.isBranch).length;
+        if(b.isBranch) return n;
+        // label block — count body if non-empty
+        if(b.type === 'label'){ const m2 = b.dc.match(_SEC_RE); return n + (m2 && b.dc.slice(m2[0].length).trim() ? 1 : 0); }
+        return n + 1;
+      }, 0);
 
       // ── Phase 2: style maps ────────────────────────────────────────────────
       const _PSTY = {
@@ -3940,8 +3955,8 @@
       };
       const _TSTY = {c:'rgba(74,222,128,1)', bg:'rgba(74,222,128,.06)', bd:'rgba(74,222,128,.22)'};
 
-      // ── Phase 2: per-step renderer (shared by plain and inside treatment) ──
-      function _rs(it){
+      // ── Phase 2: per-step renderer — numFn provides a local counter, falls back to global _sn ──
+      function _rs(it, numFn){
         const {role, clean, dc, descriptor, isBranch} = it;
         const rl = role ? `<span class="step-role-tag" style="color:${ROLE_COLORS[role]};border-color:${ROLE_COLORS[role]}">${ROLE_LABELS[role]}</span>` : '';
         const pb = /^(Pediatric|Peds)$/i.test(descriptor) ? `<span class="pt-badge pt-peds">Peds</span> `
@@ -3966,33 +3981,41 @@
           return `<div class="step-row-wrap" style="margin-bottom:4px;margin-left:${ml};padding-left:10px;border-left:${bl};border-radius:0 4px 4px 0${bg?`;background:${bg}`:''}">
             ${rl}<div class="step-content">${sh}</div></div>`;
         }
+        const num = numFn ? numFn() : ++_sn;
         return `<div class="step-row-wrap" style="margin-bottom:6px">
-          ${rl}<div class="step-content"><span class="k">${++_sn}</span> ${sh}</div></div>`;
+          ${rl}<div class="step-content"><span class="k">${num}</span> ${sh}</div></div>`;
       }
 
-      // ── Phase 2: render blocks ─────────────────────────────────────────────
+      // ── Phase 2: render blocks (all use local per-container numbering) ─────
       const stepsHtml = _blocks.map(b => {
         if(b.type === 'label'){
-          const m = b.dc.match(_SEC_RE); if(!m) return _rs(b);
-          const lbl = m[1].charAt(0).toUpperCase() + m[1].slice(1).replace(/\s+causes?$/i,' Causes');
-          const body = b.dc.slice(m[0].length).trim();
+          const m = b.dc.match(_SEC_RE); if(!m){ let _fn=()=>++_sn; return _rs(b,_fn); }
           const rawLabel = m[1].toLowerCase();
+          // Rename Note/NOTE → "Special Considerations"
+          const lbl = /^note$/i.test(m[1]) ? 'Special Considerations'
+                    : m[1].charAt(0).toUpperCase() + m[1].slice(1).replace(/\s+causes?$/i,' Causes');
+          const body = b.dc.slice(m[0].length).trim();
           const sk = (rawLabel.startsWith('required') || rawLabel.startsWith('primary') || rawLabel.startsWith('secondary') || rawLabel.startsWith('vital') || rawLabel.startsWith('history') || rawLabel.startsWith('gcs')) ? 'assessment'
                    : rawLabel.startsWith('contra')   ? 'contraindication'
                    : rawLabel.startsWith('indic')    ? 'indication'
                    : rawLabel.startsWith('reversi')  ? 'reversible'
                    : rawLabel.split(/\s/)[0].replace(/s$/,'');
           const st = _PSTY[sk] || _PSTY.note;
-          // Only show role in body if step had an explicit role prefix (not the stepRole() default)
           const bodyRole = b.explicitRole ? b.role : null;
-          // Render body as a numbered step so it gets a step number
-          const bodyHtml = body ? _rs({role:bodyRole, clean:body, dc:body, descriptor:b.descriptor, isBranch:false, explicitRole:b.explicitRole}) : '';
+          // Local 1-based numbering within this section container
+          let _csn = 0; const _numFn = () => ++_csn;
+          const bodyHtml = body ? _rs({role:bodyRole, clean:body, dc:body, descriptor:b.descriptor, isBranch:false}, _numFn) : '';
           return `<div class="proto-sec" style="border-color:${st.bd};margin-bottom:8px"><div class="proto-sec-label" style="color:${st.c};background:${st.bg};border-bottom-color:${st.bd}">${sanitizeText(lbl)}</div><div class="proto-sec-body" style="padding:4px 4px 4px">${bodyHtml}</div></div>`;
         }
         if(b.type === 'treat'){
-          return `<div class="proto-sec" style="border-color:${_TSTY.bd};margin-bottom:8px"><div class="proto-sec-label" style="color:${_TSTY.c};background:${_TSTY.bg};border-bottom-color:${_TSTY.bd}">Treatment</div><div class="proto-sec-body" style="padding:6px 4px 4px">${b.steps.map(_rs).join('')}</div></div>`;
+          let _csn = 0; const _numFn = () => ++_csn;
+          return `<div class="proto-sec" style="border-color:${_TSTY.bd};margin-bottom:8px"><div class="proto-sec-label" style="color:${_TSTY.c};background:${_TSTY.bg};border-bottom-color:${_TSTY.bd}">Treatment</div><div class="proto-sec-body" style="padding:6px 4px 4px">${b.steps.map(it=>_rs(it,_numFn)).join('')}</div></div>`;
         }
-        return _rs(b);
+        if(b.type === 'allprov'){
+          let _csn = 0; const _numFn = () => ++_csn;
+          return `<div class="proto-sec" style="border-color:${_TSTY.bd};margin-bottom:8px"><div class="proto-sec-label" style="color:${_TSTY.c};background:${_TSTY.bg};border-bottom-color:${_TSTY.bd}">All Providers</div><div class="proto-sec-body" style="padding:6px 4px 4px">${b.steps.map(it=>_rs(it,_numFn)).join('')}</div></div>`;
+        }
+        let _fn = () => ++_sn; return _rs(b, _fn); // fallback (should not occur)
       }).join('');
       return `
       <div class="card${on?' fav-on':''}" id="pcard-${eid}">
@@ -4007,7 +4030,7 @@
               <button class="fav-btn${on?' on':''}" onclick="event.stopPropagation();toggleFav('p','${fid}')" title="${on?'Remove from favorites':'Add to favorites'}">${on?'★':'☆'}</button>
             </div>
           </div>
-          <div class="card-step-count">${_sn} step${_sn!==1?'s':''}</div>
+          <div class="card-step-count">${_stepCount} step${_stepCount!==1?'s':''}</div>
         </div>
         <div class="card-body">
           <div class="hint" style="margin-bottom:6px">${highlight(normalizeRoles(p.summary||''), filterTerms)}</div>
