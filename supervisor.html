@@ -472,6 +472,40 @@
     @media screen {
       #print-view { display: none; }
     }
+
+    /* ── Shift Report ── */
+    .rpt-section { background: var(--card); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 12px; overflow: hidden; }
+    .rpt-section-hd { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: rgba(94,234,212,.06); border-bottom: 1px solid var(--border); }
+    .rpt-section-title { font-size: 13px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--accent); }
+    .rpt-section-body { padding: 10px 14px 14px; }
+    .rpt-add-btn { background: rgba(94,234,212,.1); border: 1px solid rgba(94,234,212,.3); color: var(--accent); border-radius: 8px; padding: 5px 12px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .rpt-entry { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; position: relative; }
+    .rpt-entry:last-child { margin-bottom: 0; }
+    .rpt-entry-grid { display: grid; gap: 8px; }
+    .rpt-entry-grid.g2 { grid-template-columns: 1fr 1fr; }
+    .rpt-entry-grid.g3 { grid-template-columns: 1fr 1fr 1fr; }
+    @media(max-width:500px) { .rpt-entry-grid.g3 { grid-template-columns: 1fr 1fr; } }
+    .rpt-field { display: flex; flex-direction: column; gap: 3px; }
+    .rpt-field label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); }
+    .rpt-field input, .rpt-field select, .rpt-field textarea { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; padding: 7px 10px; width: 100%; font-family: inherit; outline: none; }
+    .rpt-field input:focus, .rpt-field select:focus, .rpt-field textarea:focus { border-color: var(--accent); }
+    .rpt-field select option { background: var(--card); }
+    .rpt-del-btn { position: absolute; top: 8px; right: 10px; background: none; border: none; color: var(--muted); font-size: 17px; cursor: pointer; line-height: 1; padding: 0; }
+    .rpt-del-btn:hover { color: #f87171; }
+    .rpt-empty { color: var(--muted); font-size: 13px; padding: 8px 0; text-align: center; }
+    .rpt-notes textarea { width: 100%; background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 14px; padding: 10px 12px; font-family: inherit; resize: vertical; outline: none; }
+    .rpt-notes textarea:focus { border-color: var(--accent); }
+    .rpt-totals-row { display: flex; align-items: center; gap: 8px; padding: 10px 0 0; font-size: 13px; color: var(--muted); border-top: 1px solid var(--border); margin-top: 8px; }
+    .rpt-totals-row b { color: var(--accent); font-size: 16px; }
+    .status-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
+    .status-ok   { background: rgba(74,222,128,.12); color: #4ade80; }
+    .status-warn { background: rgba(251,191,36,.12); color: #fbbf24; }
+    .status-err  { background: rgba(248,113,113,.12); color: #f87171; }
+    .rpt-topbar { display: flex; align-items: center; gap: 8px; padding: 10px 0 14px; flex-wrap: wrap; }
+    .rpt-topbar select { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; padding: 7px 10px; font-family: inherit; }
+    .rpt-email-btn { background: rgba(196,181,253,.1); border: 1px solid rgba(196,181,253,.35); color: #c4b5fd; border-radius: 10px; padding: 9px 16px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .rpt-email-btn:hover { background: rgba(196,181,253,.2); }
+    .rpt-copy-area { background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px; font-size: 12px; color: var(--muted); font-family: monospace; white-space: pre-wrap; max-height: 200px; overflow-y: auto; margin-top: 10px; display: none; }
   </style>
 </head>
 <body>
@@ -498,6 +532,7 @@
     <div class="tab-bar">
       <button class="tab-btn active" data-tab="roster">📋 Roster</button>
       <button class="tab-btn" data-tab="directory">📞 Directory</button>
+      <button class="tab-btn" data-tab="report">📝 Report</button>
     </div>
   </div>
 
@@ -529,6 +564,87 @@
         <button class="pill" data-station="Clarendon">Clarendon</button>
       </div>
       <div id="dir-results" class="dir-results"></div>
+    </div>
+  </div>
+</div>
+
+    <!-- ── TAB: SHIFT REPORT ── -->
+    <div id="tab-report" class="tab-panel">
+      <div class="rpt-topbar">
+        <select id="rpt-shift-type">
+          <option value="day">Day Shift (0600–1800)</option>
+          <option value="night">Night Shift (1800–0600)</option>
+        </select>
+        <button class="action-btn save-btn" id="btn-rpt-save">💾 Save</button>
+        <button class="rpt-email-btn" id="btn-rpt-email">✉️ Email Report</button>
+      </div>
+
+      <!-- Call-Outs -->
+      <div class="rpt-section">
+        <div class="rpt-section-hd">
+          <span class="rpt-section-title">📵 Call-Outs</span>
+          <button class="rpt-add-btn" id="btn-add-callout">+ Add</button>
+        </div>
+        <div class="rpt-section-body">
+          <div id="callouts-list"><div class="rpt-empty">No call-outs recorded.</div></div>
+        </div>
+      </div>
+
+      <!-- Significant Events -->
+      <div class="rpt-section">
+        <div class="rpt-section-hd">
+          <span class="rpt-section-title">⚡ Significant Events</span>
+          <button class="rpt-add-btn" id="btn-add-event">+ Add</button>
+        </div>
+        <div class="rpt-section-body">
+          <div id="events-list"><div class="rpt-empty">No significant events recorded.</div></div>
+        </div>
+      </div>
+
+      <!-- Admin Actions -->
+      <div class="rpt-section">
+        <div class="rpt-section-hd">
+          <span class="rpt-section-title">📋 Administrative Actions</span>
+          <button class="rpt-add-btn" id="btn-add-admin">+ Add</button>
+        </div>
+        <div class="rpt-section-body">
+          <div id="admin-list"><div class="rpt-empty">No administrative actions recorded.</div></div>
+        </div>
+      </div>
+
+      <!-- Narcotic Changes -->
+      <div class="rpt-section">
+        <div class="rpt-section-hd">
+          <span class="rpt-section-title">💊 Narcotic Changes</span>
+          <button class="rpt-add-btn" id="btn-add-narc">+ Add</button>
+        </div>
+        <div class="rpt-section-body">
+          <div id="narcotics-list"><div class="rpt-empty">No narcotic changes recorded.</div></div>
+        </div>
+      </div>
+
+      <!-- Call Totals & Verification -->
+      <div class="rpt-section">
+        <div class="rpt-section-hd">
+          <span class="rpt-section-title">📊 Call Totals &amp; Assessment Verification</span>
+          <button class="rpt-add-btn" id="btn-add-total">+ Add Unit</button>
+        </div>
+        <div class="rpt-section-body">
+          <div id="totals-list"><div class="rpt-empty">No units entered yet.</div></div>
+          <div class="rpt-totals-row">Total calls this shift: <b id="total-calls-count">0</b></div>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="rpt-section">
+        <div class="rpt-section-hd"><span class="rpt-section-title">📝 Additional Notes</span></div>
+        <div class="rpt-section-body rpt-notes">
+          <textarea id="rpt-notes-text" rows="4" placeholder="Any additional notes, follow-ups, or observations…"></textarea>
+        </div>
+      </div>
+
+      <!-- Copy area (shown after email attempt) -->
+      <div id="rpt-copy-area" class="rpt-copy-area"></div>
     </div>
   </div>
 </div>
@@ -1162,6 +1278,364 @@ function initApp() {
 
   // Global AC dismiss
   initGlobalDismiss();
+
+  // Shift report
+  initShiftReport();
+}
+
+/* ════════════════════════════════════════
+   SHIFT REPORT
+   ════════════════════════════════════════ */
+const RPT_CALLOUT_REASONS  = ['Sick','Personal','No-Show','Late','FMLA','Other'];
+const RPT_EVENT_CATS       = ['Equipment Issue','Patient Complaint','Accident / Incident','Use of Force','Behavioral','EMS Run — Notable','Administrative','Other'];
+const RPT_ADMIN_TYPES      = ['Verbal Counseling','Written Warning','Final Warning','Termination','Commendation','Incident Report Filed','Narcotic Discrepancy Report','Other'];
+const RPT_DRUGS            = ['Fentanyl','Morphine','Midazolam (Versed)','Ketamine','Etomidate','Epinephrine','Other'];
+const RPT_NARC_CHANGE      = ['Administered / Used','Wasted','Discrepancy','Breakage','Addition / Restock','Transfer','Other'];
+
+let rptData = { shiftType:'day', callouts:[], events:[], admin:[], narcotics:[], totals:[], notes:'' };
+
+function rptKey(date){ return 'shift_report_v1_' + date; }
+
+function loadRptData(date){
+  try {
+    const s = localStorage.getItem(rptKey(date));
+    if(s) rptData = JSON.parse(s);
+    else   rptData = { shiftType:'day', callouts:[], events:[], admin:[], narcotics:[], totals:[], notes:'' };
+  } catch(e) {
+    rptData = { shiftType:'day', callouts:[], events:[], admin:[], narcotics:[], totals:[], notes:'' };
+  }
+  renderRpt();
+}
+
+function saveRptData(){
+  const date = document.getElementById('roster-date').value || todayStr();
+  collectRptFromDOM();
+  localStorage.setItem(rptKey(date), JSON.stringify(rptData));
+  showToast('Report saved ✓');
+}
+
+function collectRptFromDOM(){
+  rptData.shiftType = document.getElementById('rpt-shift-type').value;
+  rptData.notes     = document.getElementById('rpt-notes-text').value;
+  rptData.callouts  = collectEntries('callouts-list',  ['co-name','co-pos','co-time','co-reason','co-covered']);
+  rptData.events    = collectEntries('events-list',    ['ev-time','ev-cat','ev-desc']);
+  rptData.admin     = collectEntries('admin-list',     ['ad-name','ad-type','ad-desc']);
+  rptData.narcotics = collectEntries('narcotics-list', ['nc-unit','nc-prov','nc-drug','nc-change','nc-amt','nc-reason','nc-witness']);
+  rptData.totals    = collectEntries('totals-list',    ['tot-provider','tot-unit','tot-calls','tot-pcr','tot-assess']);
+}
+
+function collectEntries(listId, fields){
+  const list = document.getElementById(listId);
+  const entries = list.querySelectorAll('.rpt-entry');
+  return Array.from(entries).map(entry => {
+    const obj = {};
+    fields.forEach(f => {
+      const el = entry.querySelector('[data-f="'+f+'"]');
+      obj[f] = el ? el.value : '';
+    });
+    return obj;
+  });
+}
+
+function renderRpt(){
+  document.getElementById('rpt-shift-type').value = rptData.shiftType || 'day';
+  document.getElementById('rpt-notes-text').value  = rptData.notes || '';
+  renderCallouts();
+  renderEvents();
+  renderAdminActions();
+  renderNarcotics();
+  renderTotals();
+}
+
+/* ── helpers ── */
+function sel(options, dataF, val=''){
+  return '<select data-f="'+dataF+'" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:7px 10px;width:100%;font-family:inherit">'
+    + options.map(o=>`<option value="${o}"${val===o?' selected':''}>${o}</option>`).join('')+'</select>';
+}
+function inp(dataF, placeholder='', val='', type='text'){
+  return `<input type="${type}" data-f="${dataF}" placeholder="${placeholder}" value="${val.replace(/"/g,'&quot;')}" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:7px 10px;width:100%;font-family:inherit;outline:none" />`;
+}
+function delBtn(){ return '<button class="rpt-del-btn" onclick="this.closest(\'.rpt-entry\').remove();updateTotalsCount()">✕</button>'; }
+function rptField(label, content){ return `<div class="rpt-field"><label>${label}</label>${content}</div>`; }
+function noEntries(list, msg){ if(!list.querySelector('.rpt-entry')) list.innerHTML=`<div class="rpt-empty">${msg}</div>`; }
+
+/* ── Callouts ── */
+function renderCallouts(){
+  const list = document.getElementById('callouts-list');
+  list.innerHTML = '';
+  (rptData.callouts||[]).forEach(c => list.appendChild(buildCalloutEntry(c)));
+  noEntries(list,'No call-outs recorded.');
+}
+function buildCalloutEntry(c={}){
+  const div = document.createElement('div'); div.className = 'rpt-entry';
+  div.innerHTML = delBtn() + `
+    <div class="rpt-entry-grid g2" style="margin-bottom:6px">
+      ${rptField('Employee Name', inp('co-name','Name…',c['co-name']||''))}
+      ${rptField('Position / Unit', inp('co-pos','BLS 6AM / 193-BLS-PB…',c['co-pos']||''))}
+    </div>
+    <div class="rpt-entry-grid g3">
+      ${rptField('Time Called', inp('co-time','',c['co-time']||'','time'))}
+      ${rptField('Reason', sel(RPT_CALLOUT_REASONS,'co-reason',c['co-reason']||''))}
+      ${rptField('Covered By', inp('co-covered','Name or N/A',c['co-covered']||''))}
+    </div>`;
+  return div;
+}
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.getElementById('btn-add-callout').addEventListener('click', ()=>{
+    const list = document.getElementById('callouts-list');
+    const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
+    list.appendChild(buildCalloutEntry());
+  });
+});
+
+/* ── Significant Events ── */
+function renderEvents(){
+  const list = document.getElementById('events-list');
+  list.innerHTML = '';
+  (rptData.events||[]).forEach(e => list.appendChild(buildEventEntry(e)));
+  noEntries(list,'No significant events recorded.');
+}
+function buildEventEntry(e={}){
+  const now = new Date().toTimeString().slice(0,5);
+  const div = document.createElement('div'); div.className = 'rpt-entry';
+  div.innerHTML = delBtn() + `
+    <div class="rpt-entry-grid g2" style="margin-bottom:6px">
+      ${rptField('Time', inp('ev-time','',e['ev-time']||now,'time'))}
+      ${rptField('Category', sel(RPT_EVENT_CATS,'ev-cat',e['ev-cat']||''))}
+    </div>
+    <div class="rpt-field">
+      <label>Description</label>
+      <textarea data-f="ev-desc" rows="2" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:7px 10px;width:100%;font-family:inherit;resize:vertical;outline:none" placeholder="Describe what happened…">${e['ev-desc']||''}</textarea>
+    </div>`;
+  return div;
+}
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.getElementById('btn-add-event').addEventListener('click', ()=>{
+    const list = document.getElementById('events-list');
+    const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
+    list.appendChild(buildEventEntry());
+  });
+});
+
+/* ── Admin Actions ── */
+function renderAdminActions(){
+  const list = document.getElementById('admin-list');
+  list.innerHTML = '';
+  (rptData.admin||[]).forEach(a => list.appendChild(buildAdminEntry(a)));
+  noEntries(list,'No administrative actions recorded.');
+}
+function buildAdminEntry(a={}){
+  const div = document.createElement('div'); div.className = 'rpt-entry';
+  div.innerHTML = delBtn() + `
+    <div class="rpt-entry-grid g2" style="margin-bottom:6px">
+      ${rptField('Employee Name', inp('ad-name','Name…',a['ad-name']||''))}
+      ${rptField('Action Type', sel(RPT_ADMIN_TYPES,'ad-type',a['ad-type']||''))}
+    </div>
+    <div class="rpt-field">
+      <label>Description / Details</label>
+      <textarea data-f="ad-desc" rows="2" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:7px 10px;width:100%;font-family:inherit;resize:vertical;outline:none" placeholder="Describe the action taken…">${a['ad-desc']||''}</textarea>
+    </div>`;
+  return div;
+}
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.getElementById('btn-add-admin').addEventListener('click', ()=>{
+    const list = document.getElementById('admin-list');
+    const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
+    list.appendChild(buildAdminEntry());
+  });
+});
+
+/* ── Narcotics ── */
+function renderNarcotics(){
+  const list = document.getElementById('narcotics-list');
+  list.innerHTML = '';
+  (rptData.narcotics||[]).forEach(n => list.appendChild(buildNarcEntry(n)));
+  noEntries(list,'No narcotic changes recorded.');
+}
+function buildNarcEntry(n={}){
+  const div = document.createElement('div'); div.className = 'rpt-entry';
+  div.innerHTML = delBtn() + `
+    <div class="rpt-entry-grid g3" style="margin-bottom:6px">
+      ${rptField('Unit #', inp('nc-unit','279-ALS-PB',n['nc-unit']||''))}
+      ${rptField('Provider', inp('nc-prov','Name…',n['nc-prov']||''))}
+      ${rptField('Drug', sel(RPT_DRUGS,'nc-drug',n['nc-drug']||''))}
+    </div>
+    <div class="rpt-entry-grid g3">
+      ${rptField('Change Type', sel(RPT_NARC_CHANGE,'nc-change',n['nc-change']||''))}
+      ${rptField('Amount', inp('nc-amt','e.g. 200 mcg',n['nc-amt']||''))}
+      ${rptField('Witnessed By', inp('nc-witness','Name…',n['nc-witness']||''))}
+    </div>
+    <div class="rpt-field" style="margin-top:6px">
+      <label>Reason / Notes</label>
+      ${inp('nc-reason','Patient admin, breakage, etc.',n['nc-reason']||'')}
+    </div>`;
+  return div;
+}
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.getElementById('btn-add-narc').addEventListener('click', ()=>{
+    const list = document.getElementById('narcotics-list');
+    const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
+    list.appendChild(buildNarcEntry());
+  });
+});
+
+/* ── Call Totals ── */
+function renderTotals(){
+  const list = document.getElementById('totals-list');
+  list.innerHTML = '';
+  (rptData.totals||[]).forEach(t => list.appendChild(buildTotalEntry(t)));
+  noEntries(list,'No units entered yet.');
+  updateTotalsCount();
+}
+function calcStatus(calls, pcr, assess){
+  const c=parseInt(calls)||0, p=parseInt(pcr)||0, a=parseInt(assess)||0;
+  if(!c) return '';
+  if(p===c && a===c) return '<span class="status-badge status-ok">✓ Complete</span>';
+  if(p<c || a<c) return '<span class="status-badge status-warn">⚠ Incomplete</span>';
+  return '<span class="status-badge status-err">✗ Discrepancy</span>';
+}
+function buildTotalEntry(t={}){
+  const div = document.createElement('div'); div.className = 'rpt-entry';
+  div.innerHTML = delBtn() + `
+    <div class="rpt-entry-grid g2" style="margin-bottom:6px">
+      ${rptField('Provider Name', inp('tot-provider','Name…',t['tot-provider']||''))}
+      ${rptField('Unit #', inp('tot-unit','279-ALS-PB',t['tot-unit']||''))}
+    </div>
+    <div class="rpt-entry-grid g3">
+      ${rptField('Calls Ran', `<input type="number" inputmode="numeric" data-f="tot-calls" placeholder="0" value="${t['tot-calls']||''}" min="0" oninput="updateTotalsCount()" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:7px 10px;width:100%;font-family:inherit;outline:none" />`)}
+      ${rptField('PCR Completed', `<input type="number" inputmode="numeric" data-f="tot-pcr" placeholder="0" value="${t['tot-pcr']||''}" min="0" oninput="updateTotalsCount()" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:7px 10px;width:100%;font-family:inherit;outline:none" />`)}
+      ${rptField('Assessments Verified', `<input type="number" inputmode="numeric" data-f="tot-assess" placeholder="0" value="${t['tot-assess']||''}" min="0" oninput="updateTotalsCount()" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:7px 10px;width:100%;font-family:inherit;outline:none" />`)}
+    </div>
+    <div class="status-line" style="margin-top:6px;min-height:20px">${calcStatus(t['tot-calls'],t['tot-pcr'],t['tot-assess'])}</div>`;
+  div.querySelectorAll('[data-f^="tot-"]').forEach(inp => {
+    inp.addEventListener('input', () => {
+      const calls  = div.querySelector('[data-f="tot-calls"]').value;
+      const pcr    = div.querySelector('[data-f="tot-pcr"]').value;
+      const assess = div.querySelector('[data-f="tot-assess"]').value;
+      div.querySelector('.status-line').innerHTML = calcStatus(calls,pcr,assess);
+    });
+  });
+  return div;
+}
+function updateTotalsCount(){
+  let total = 0;
+  document.querySelectorAll('[data-f="tot-calls"]').forEach(el => total += parseInt(el.value)||0);
+  document.getElementById('total-calls-count').textContent = total;
+}
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.getElementById('btn-add-total').addEventListener('click', ()=>{
+    const list = document.getElementById('totals-list');
+    const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
+    list.appendChild(buildTotalEntry());
+  });
+});
+
+/* ── Email Report ── */
+function generateReportText(){
+  collectRptFromDOM();
+  const date  = document.getElementById('roster-date').value || todayStr();
+  const shift = rptData.shiftType === 'night' ? 'Night Shift (1800–0600)' : 'Day Shift (0600–1800)';
+  const d     = new Date(date + 'T12:00:00');
+  const dateStr = d.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const user  = (typeof firebase !== 'undefined' && firebase.auth().currentUser) ? (firebase.auth().currentUser.displayName || firebase.auth().currentUser.email) : '';
+  let r = '';
+  r += '════════════════════════════════════\n';
+  r += '       EASI — DAILY SHIFT REPORT\n';
+  r += '════════════════════════════════════\n';
+  r += `Date:       ${dateStr}\n`;
+  r += `Shift:      ${shift}\n`;
+  if(user) r += `Supervisor: ${user}\n`;
+  r += '\n';
+
+  // Call-outs
+  r += '── CALL-OUTS (' + (rptData.callouts.length||'0') + ') ─────────────────\n';
+  if(!rptData.callouts.length){ r += '  None\n'; }
+  else rptData.callouts.forEach(c => {
+    r += `  • ${c['co-name']||'—'} | ${c['co-pos']||'—'} | ${c['co-time']||''} | ${c['co-reason']||''} | Covered: ${c['co-covered']||'N/A'}\n`;
+  });
+  r += '\n';
+
+  // Events
+  r += '── SIGNIFICANT EVENTS (' + (rptData.events.length||'0') + ') ─────────\n';
+  if(!rptData.events.length){ r += '  None\n'; }
+  else rptData.events.forEach(e => {
+    r += `  [${e['ev-time']||'??:??'}] ${e['ev-cat']||''}\n`;
+    if(e['ev-desc']) r += `    ${e['ev-desc']}\n`;
+  });
+  r += '\n';
+
+  // Admin
+  r += '── ADMINISTRATIVE ACTIONS (' + (rptData.admin.length||'0') + ') ──────\n';
+  if(!rptData.admin.length){ r += '  None\n'; }
+  else rptData.admin.forEach(a => {
+    r += `  • ${a['ad-name']||'—'} — ${a['ad-type']||''}\n`;
+    if(a['ad-desc']) r += `    ${a['ad-desc']}\n`;
+  });
+  r += '\n';
+
+  // Narcotics
+  r += '── NARCOTIC CHANGES (' + (rptData.narcotics.length||'0') + ') ────────\n';
+  if(!rptData.narcotics.length){ r += '  None\n'; }
+  else rptData.narcotics.forEach(n => {
+    r += `  • Unit ${n['nc-unit']||'—'} | ${n['nc-prov']||'—'} | ${n['nc-drug']||'—'} | ${n['nc-change']||''} | ${n['nc-amt']||''}\n`;
+    r += `    Reason: ${n['nc-reason']||'—'} | Witnessed by: ${n['nc-witness']||'—'}\n`;
+  });
+  r += '\n';
+
+  // Call totals
+  let totalCalls = 0;
+  rptData.totals.forEach(t => totalCalls += parseInt(t['tot-calls'])||0);
+  r += `── CALL TOTALS & ASSESSMENT VERIFICATION ─\n`;
+  r += `  TOTAL CALLS THIS SHIFT: ${totalCalls}\n\n`;
+  if(!rptData.totals.length){ r += '  No units entered.\n'; }
+  else {
+    r += '  Provider            Unit              Calls  PCR   Assess  Status\n';
+    r += '  ─────────────────────────────────────────────────────────────────\n';
+    rptData.totals.forEach(t => {
+      const c=parseInt(t['tot-calls'])||0, p=parseInt(t['tot-pcr'])||0, a=parseInt(t['tot-assess'])||0;
+      let status = c===0 ? '' : (p===c && a===c ? '✓ Complete' : (p<c||a<c ? '⚠ Incomplete' : '✗ Discrepancy'));
+      r += `  ${(t['tot-provider']||'—').padEnd(20)} ${(t['tot-unit']||'—').padEnd(18)} ${String(c).padEnd(7)} ${String(p).padEnd(6)} ${String(a).padEnd(8)} ${status}\n`;
+    });
+  }
+  r += '\n';
+
+  // Notes
+  if(rptData.notes && rptData.notes.trim()){
+    r += '── ADDITIONAL NOTES ──────────────────────\n';
+    r += rptData.notes.trim().split('\n').map(l=>'  '+l).join('\n') + '\n\n';
+  }
+
+  r += '══════════════════════════════════════════\n';
+  r += 'Generated by EASI Supervisor App\n';
+  return r;
+}
+
+function emailReport(){
+  const text = generateReportText();
+  const date = document.getElementById('roster-date').value || todayStr();
+  const subject = encodeURIComponent('EASI Daily Shift Report — ' + date);
+  const body    = encodeURIComponent(text);
+  const mailto  = `mailto:?subject=${subject}&body=${body}`;
+  if(mailto.length < 8000){
+    window.location.href = mailto;
+  } else {
+    // Too long for mailto — show copy area
+    const area = document.getElementById('rpt-copy-area');
+    area.textContent = text;
+    area.style.display = 'block';
+    area.scrollIntoView({behavior:'smooth'});
+    if(navigator.clipboard){ navigator.clipboard.writeText(text).then(()=>showToast('Report copied to clipboard ✓')); }
+    showToast('Report too long for email — copied to clipboard, paste manually.');
+  }
+}
+
+function initShiftReport(){
+  // Load report when date changes (roster-date is shared)
+  const dateInput = document.getElementById('roster-date');
+  loadRptData(dateInput.value || todayStr());
+  dateInput.addEventListener('change', () => loadRptData(dateInput.value));
+  document.getElementById('btn-rpt-save').addEventListener('click', saveRptData);
+  document.getElementById('btn-rpt-email').addEventListener('click', emailReport);
 }
 </script>
 </body>
