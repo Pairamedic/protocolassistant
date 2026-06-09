@@ -369,7 +369,6 @@
               <button id="btn-theme" class="sett-item">☀ Light Mode</button>
               <button id="btn-size" class="sett-item">🔡 Text: Small</button>
               <button id="btn-update-app" class="sett-item">🔄 Update App</button>
-              <button id="btn-supervisor" class="sett-item" onclick="window.location.href='supervisor.html'">🗂 Supervisor Tools</button>
               <div class="sett-divider"></div>
               <button id="auth-logout" class="sett-item sett-danger">↩ Sign Out</button>
             </div>
@@ -2664,7 +2663,7 @@
       {
         id: 'aha26-peds-brady',
         title: 'Pediatric Bradycardia With a Pulse',
-        summary: '2025 AHA/AAP. Epinephrine: 0.01 mg/kg IV/IO (max 1 mg). Atropine: 0.02 mg/kg IV/IO (min 0.1 mg, max single dose 0.5 mg, may repeat once).',
+        summary: '2025 AHA/AAP. Pediatric bradycardia with a pulse. Identify and treat underlying causes. Start CPR if HR <60 with poor perfusion despite oxygenation and ventilation, then vasopressors or pacing.',
         steps: [
           '1. Child with bradycardia and a pulse.',
           '2. Cardiopulmonary compromise? (Acutely altered mental status | Signs of shock | Hypotension)',
@@ -2688,7 +2687,7 @@
       {
         id: 'aha26-peds-tachy',
         title: 'Pediatric Tachyarrhythmia With a Pulse',
-        summary: '2025 AHA/AAP. Adenosine: 0.1 mg/kg IV/IO rapid push + flush (max 6 mg); repeat 0.2 mg/kg (max 12 mg). Sync cardioversion: 0.5–1 J/kg; increase to 2 J/kg if ineffective.',
+        summary: '2025 AHA/AAP. Pediatric tachyarrhythmia with a pulse. Identify rhythm: sinus tach vs. SVT vs. VT. Unstable → cardioversion. Stable narrow-QRS → adenosine. Stable wide-QRS → expert consult.',
         steps: [
           '1. Child with suspected tachyarrhythmia.',
           '2. Initial assessment and support: Maintain patent airway. Assist breathing with PPV and O2 as necessary. Attach cardiorespiratory monitor. Establish IV/IO access. 12-lead ECG if available.',
@@ -2710,7 +2709,7 @@
       {
         id: 'aha26-neonatal',
         title: 'Neonatal Resuscitation Algorithm',
-        summary: '2025 AHA/AAP NRP. Target SpO2: 2 min 65–70% | 3 min 70–75% | 4 min 75–80% | 5 min 80–85% | 10 min 85–95%.',
+        summary: '2025 AHA/AAP NRP. Neonatal resuscitation at birth. SpO2 targets: 2 min 65–70% • 5 min 80–85% • 10 min 85–95%.',
         steps: [
           '1. Antenatal counseling. Team briefing. Equipment check.',
           '2. Birth → Initiate cord management plan.',
@@ -2738,7 +2737,7 @@
       {
         id: 'aha26-peds-arrest',
         title: 'Pediatric Cardiac Arrest Algorithm',
-        summary: '2025 AHA/AAP. Shock: 2 J/kg → 4 J/kg → ≥4 J/kg (max 10 J/kg or adult dose). Epinephrine: 0.01 mg/kg IV/IO (max 1 mg) q3–5 min. Amiodarone: 5 mg/kg IV/IO (max 300 mg, repeat up to 3 doses). Lidocaine alt: 1 mg/kg IV/IO.',
+        summary: '2025 AHA/AAP. Pediatric cardiac arrest (VF/pVT/Asystole/PEA). Shock energies: 2 J/kg → 4 J/kg → ≥4 J/kg (max 10 J/kg). High-quality CPR throughout.',
         steps: [
           'Start CPR — Bag-mask ventilation with oxygen. Attach monitor/defibrillator.',
           'Check rhythm — Shockable (VF/pVT)?',
@@ -2762,7 +2761,7 @@
       {
         id: 'aha26-adult-brady',
         title: 'Adult Bradycardia With a Pulse',
-        summary: '2025 AHA. Heart rate typically <50/min if bradyarrhythmia. Atropine: 1 mg IV bolus, repeat q3–5 min (max 3 mg). Dopamine infusion: 5–20 mcg/kg/min IV. Epinephrine infusion: 2–10 mcg/min IV.',
+        summary: '2025 AHA. Adult bradycardia with a pulse (typically HR <50/min). Assess for cardiopulmonary compromise. First-line: Atropine. Escalate to transcutaneous pacing or vasopressor infusion if refractory.',
         steps: [
           '1. Assess appropriateness for clinical condition. Heart rate typically <50/min if bradyarrhythmia.',
           '2. Cardiopulmonary compromise? (Hypotension | Acutely altered mental status | Signs of shock | Ischemic chest discomfort | Acute heart failure?)',
@@ -3172,6 +3171,7 @@
   const SERVICE_DISPLAY = {
     'EASI Protocols - 2026': 'Emergency Medical Ambulance Service INC',
     'EASI Protocols - 2025': 'Emergency Medical Ambulance Service INC',
+    'AHA Algorithms 2026':   'AHA Algorithms 2026',
   };
   const LOGO_HTML = `<img src="star-of-life.svg" alt="" style="width:28px;height:28px;flex:none" />`;
 
