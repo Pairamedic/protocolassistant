@@ -726,7 +726,7 @@ const fbAuth = firebase.auth();
 
 fbAuth.onAuthStateChanged(user => {
   if (!user) {
-    window.location.replace('index.html');
+    window.location.replace('index.html?returnTo=supervisor.html');
   } else {
     document.getElementById('auth-loading').style.display = 'none';
     document.getElementById('app').style.display = 'flex';

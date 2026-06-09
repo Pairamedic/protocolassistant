@@ -85,9 +85,15 @@
     const fbAuth = firebase.auth();
     const $ = id => document.getElementById(id);
 
+    function destAfterLogin(){
+      const p = new URLSearchParams(window.location.search).get('returnTo');
+      const allowed = ['supervisor.html','ProtocolAssistant.html'];
+      return (p && allowed.includes(p)) ? p : 'ProtocolAssistant.html';
+    }
+
     fbAuth.onAuthStateChanged(user => {
       if(user){
-        window.location.replace('ProtocolAssistant.html');
+        window.location.replace(destAfterLogin());
       } else {
         $('loading').style.display = 'none';
         $('form-card').style.display = '';
