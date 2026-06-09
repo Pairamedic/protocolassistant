@@ -418,7 +418,14 @@
     <!-- Protocols -->
     <section id="panel-protocols" class="panel">
       <div class="tab-filter">
-        <div class="filter-pills" id="age-filter-pills">
+        <div class="meds-search-wrap">
+          <div class="meds-search-bar">
+            <span class="meds-search-icon">🔍</span>
+            <input type="search" id="proto-filter-input" placeholder="Protocol name or keyword…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+            <button id="proto-filter-clear" class="meds-filter-clear" style="display:none">✕</button>
+          </div>
+        </div>
+        <div class="filter-pills" id="age-filter-pills" style="margin-top:8px">
           <button class="pill-btn active" data-age="adult">🧑 Adult</button>
           <button class="pill-btn active" data-age="peds">🧒 Pediatric</button>
         </div>
@@ -869,7 +876,14 @@
     <!-- Contacts -->
     <section id="panel-contacts" class="panel hidden">
       <div class="tab-filter">
-        <div class="filter-pills" id="contacts-nav-pills">
+        <div class="meds-search-wrap">
+          <div class="meds-search-bar">
+            <span class="meds-search-icon">🔍</span>
+            <input type="search" id="contact-filter-input" placeholder="Name, role, or number…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+            <button id="contact-filter-clear" class="meds-filter-clear" style="display:none">✕</button>
+          </div>
+        </div>
+        <div class="filter-pills" id="contacts-nav-pills" style="margin-top:8px">
           <button class="pill-btn active" data-section="contacts-internal">👥 Internal</button>
           <button class="pill-btn" data-section="contacts-clinical">🏥 Clinical</button>
         </div>
@@ -3442,6 +3456,8 @@
   let _ageFilter = new Set(['adult','peds']);
   let _medClassFilter = null;
   let _medTextFilter = '';
+  let _protoTextFilter = '';
+  let _contactTextFilter = '';
 
   function _favKey(svc){ return svc || state.currentService; }
   function _favArr(type, svc){
@@ -3846,6 +3862,13 @@
       if(!_ageFilter.has('peds')  && cat.startsWith('Pediatric')) return false;
       return true;
     });
+    if(_protoTextFilter){
+      const terms = _protoTextFilter.toLowerCase().split(/\s+/).filter(Boolean);
+      items = items.filter(({p})=>{
+        const hay = [p.title, p.summary||'', ...(p.steps||[]), ...(p.tags||[])].join(' ').toLowerCase();
+        return terms.every(t => hay.includes(t));
+      });
+    }
 
     const TAG_HIDE = new Set(['emt','aemt','paramedic','adult','pediatric','peds','basic']);
     const totalProtocols = all.length;
@@ -4192,6 +4215,32 @@
     }});
     inp.addEventListener('blur', ()=>{ setTimeout(()=>{ sug.style.display='none'; },150); });
     clr.addEventListener('click', ()=>{ inp.value=''; clr.style.display='none'; sug.style.display='none'; inp.focus(); });
+  }
+
+  function initProtoSearch(){
+    const inp = document.getElementById('proto-filter-input');
+    const clr = document.getElementById('proto-filter-clear');
+    if(!inp) return;
+    inp.addEventListener('input', ()=>{
+      clr.style.display = inp.value ? '' : 'none';
+      _protoTextFilter = inp.value.trim();
+      renderProtocols(_lastTerms);
+    });
+    inp.addEventListener('keydown', e=>{ if(e.key==='Escape'){ inp.value=''; clr.style.display='none'; _protoTextFilter=''; renderProtocols(_lastTerms); inp.blur(); } });
+    clr.addEventListener('click', ()=>{ inp.value=''; clr.style.display='none'; _protoTextFilter=''; renderProtocols(_lastTerms); inp.focus(); });
+  }
+
+  function initContactSearch(){
+    const inp = document.getElementById('contact-filter-input');
+    const clr = document.getElementById('contact-filter-clear');
+    if(!inp) return;
+    inp.addEventListener('input', ()=>{
+      clr.style.display = inp.value ? '' : 'none';
+      _contactTextFilter = inp.value.trim();
+      renderContacts();
+    });
+    inp.addEventListener('keydown', e=>{ if(e.key==='Escape'){ inp.value=''; clr.style.display='none'; _contactTextFilter=''; renderContacts(); inp.blur(); } });
+    clr.addEventListener('click', ()=>{ inp.value=''; clr.style.display='none'; _contactTextFilter=''; renderContacts(); inp.focus(); });
   }
 
   function renderMeds(filterTerms=[]){
@@ -4544,8 +4593,16 @@
     if(!state.currentService){ el.innerHTML = noServiceState(); return; }
     const contacts = svc()?.contacts || [];
     if(!contacts.length){ el.innerHTML = '<div class="card" style="text-align:center;padding:24px;color:var(--muted)">No contacts configured for this service.</div>'; return; }
-    const internal = contacts.filter(c=>c.group!=='clinical');
-    const clinical = contacts.filter(c=>c.group==='clinical');
+    let filtered = contacts;
+    if(_contactTextFilter){
+      const terms = _contactTextFilter.toLowerCase().split(/\s+/).filter(Boolean);
+      filtered = contacts.filter(c => {
+        const hay = [c.name, c.role, c.desc||'', c.phone||'', c.email||''].join(' ').toLowerCase();
+        return terms.every(t => hay.includes(t));
+      });
+    }
+    const internal = filtered.filter(c=>c.group!=='clinical');
+    const clinical = filtered.filter(c=>c.group==='clinical');
     const BADGE_STYLES = {
       accent:'rgba(94,234,212,.12)|var(--accent)|rgba(94,234,212,.3)',
       danger:'rgba(248,113,113,.1)|#f87171|rgba(248,113,113,.3)',
@@ -4596,7 +4653,7 @@
         <div class="res-section-head"><span class="res-section-title">🏥 Clinical</span></div>
         <div class="contacts-grid">${clinical.map(renderStd).join('')}</div>
       </div>`:'';
-    el.innerHTML = internalHtml + clinicalHtml;
+    el.innerHTML = (internalHtml + clinicalHtml) || '<div class="card" style="text-align:center;padding:24px;color:var(--muted)">No contacts match your search.</div>';
   }
 
   function renderAll(terms){
@@ -4821,6 +4878,8 @@
     }
     state.currentService = chosen;
     save(state);
+    _protoTextFilter = ''; const _pi = $('#proto-filter-input'); if(_pi){ _pi.value=''; $('#proto-filter-clear').style.display='none'; }
+    _contactTextFilter = ''; const _ci = $('#contact-filter-input'); if(_ci){ _ci.value=''; $('#contact-filter-clear').style.display='none'; }
     if(!svc() || !(svc().protocols||[]).length) await loadServiceData();
     renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
   });
@@ -5478,6 +5537,8 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   // --- Meds & Resources search bar init ---
   initMedsSearch();
   initResSearch();
+  initProtoSearch();
+  initContactSearch();
 
   // --- Shift tab sub-navigation ---
   document.querySelectorAll('#shift-subnav-pills .pill-btn').forEach(btn => {
