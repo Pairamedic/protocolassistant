@@ -1043,7 +1043,7 @@
     <div class="modal-box" style="max-width:340px;text-align:center">
       <div style="font-size:36px;margin-bottom:10px">🔐</div>
       <h3 style="margin:0 0 6px">Access Required</h3>
-      <p style="color:var(--muted);font-size:13px;margin:0 0 18px">Enter PIN to access <strong style="color:var(--text)">EASI Protocols - 2025</strong></p>
+      <p id="pin-service-label" style="color:var(--muted);font-size:13px;margin:0 0 18px">Enter PIN to access this service.</p>
       <input id="pin-input" type="password" inputmode="numeric" maxlength="10" placeholder="Enter PIN"
         style="text-align:center;letter-spacing:6px;font-size:20px;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);width:100%;font-family:inherit" />
       <p id="pin-error" style="color:#f87171;font-size:12px;margin:8px 0 0;min-height:16px"></p>
@@ -1141,658 +1141,6 @@
   const KEY = 'ems-protocols-multi-v1';
   const $ = sel => document.querySelector(sel);
   const $$ = sel => Array.from(document.querySelectorAll(sel));
-
-  const SAMPLE_SERVICE = {
-    protocols: [
-  {
-      id: 'adult-airway',
-      title: 'Adult Airway (Intubation First Pass, Facilitated if needed)',
-      summary: 'Oro/Nasotracheal; if failed first attempt → consider ketamine-assisted intubation; confirm with EtCO₂ + second method; fallback SGA → needle cric/BVM.',
-      steps: [
-        'Assess: unresponsive/apneic, gag, predicted difficulty; preoxygenate; suction as needed.',
-        'Prepare: equipment check (laryngoscope/video, ET sizes, SGA backup, suction, BVM, capnography).',
-        'Attempt orotracheal or nasotracheal intubation (1st pass).',
-        'If unsuccessful: consider facilitated intubation (ketamine 2 mg/kg IV/IO).',
-        'If still unsuccessful: place supraglottic airway; if failure → needle cricothyrotomy and/or BVM.',
-        'If intubated: confirm placement with EtCO₂ and an additional method (auscultation), secure tube.',
-        'Reassess ventilation/oxygenation and document time, size, depth, confirmation method.'
-      ],
-      tags: ['airway','adult','intubation','ketamine','etco2','sga','cric']
-    },
-
-    {
-      id: 'asystole-pea',
-      title: 'Asystole / PEA',
-      summary: 'Immediate CPR and epinephrine every 3–5 min; confirm rhythm; consider advanced airway.',
-      steps: [
-        'Immediate CPR.',
-        'Cardiac Monitoring / Confirm Asystole or PEA.',
-        'Establish IV/IO access.',
-        'Administer Epinephrine 1:10,000 1 mg IV/IO every 3–5 minutes.',
-        'Monitor for rhythm change every 2 minutes.',
-        'Consider placement of an advanced airway.'
-      ],
-      tags: ['asystole','pea','cpr','epi','cardiac-arrest','adult']
-    },
-    {
-      id: 'bradycardia',
-      title: 'Bradycardia',
-      summary: 'Treat symptomatic bradycardia; atropine first, then pacing or infusions as indicated.',
-      steps: [
-        'Cardiac monitoring.',
-        'Establish IV/IO access.',
-        'Administer Atropine 0.5–1 mg IV/IO every 5 minutes as needed.',
-        'Apply defibrillator pads.',
-        'Consider sedation with Versed (Midazolam) 1–5 mg IVP if pacing required.',
-        'Begin transcutaneous pacing (TCP) at 70–80 BPM, 30 mA, increase output as needed.',
-        'Consider Dopamine infusion 5–10 mcg/kg/min.',
-        'Consider Epinephrine drip 2–10 mcg/min.'
-      ],
-      tags: ['bradycardia','atropine','pacing','dopamine','epi','versed']
-    },
-{
-  id: 'vfib-pulseless-vtach',
-  title: 'Ventricular Fibrillation / Pulseless Ventricular Tachycardia',
-  summary: 'Defibrillate early; give epinephrine every 3–5 min; amiodarone for refractory VF/VT.',
-  steps: [
-    'Attach ECG / Cardiac monitor.',
-    'Begin CPR for 2 minutes.',
-    'Establish advanced airway as needed.',
-    'Defibrillate at 150 Joules, resume CPR immediately for 2 minutes.',
-    'Establish IV/IO access.',
-    'Administer Epinephrine 1:10,000 1 mg IV/IO every 3–5 minutes.',
-    'Shock again at 150 Joules followed by 2 minutes of CPR.',
-    'Administer Amiodarone 300 mg IVP, resume CPR for 2 minutes.',
-    'Shock again at 150 Joules followed by 2 minutes of CPR.',
-    'Administer second Amiodarone dose 150 mg IVP.',
-    'Consider consulting OLMC for further management.',
-    'Compress, Airway (BVM), Shock, Epi, Shock, Drugs.'
-  ],
-  tags: ['vfib','vtach','arrest','amiodarone','epi','defib','adult']
-},
-    {
-      id: 'stable-narrow-tachycardia',
-      title: 'Stable Narrow Complex Tachycardia (>150 BPM)',
-      summary: 'Manage stable SVT with adenosine or diltiazem per protocol.',
-      steps: [
-        'Continuous ECG monitoring.',
-        'Administer Adenosine 6 mg rapid IVP.',
-        'If unresolved, administer Adenosine 12 mg rapid IVP.',
-        'Consider Diltiazem (Cardizem) 20 mg slow IVP over 2 minutes for irregular AFib with RVR.'
-      ],
-      tags: ['svt','narrow-complex','adenosine','cardizem','afib','adult']
-    },
-    {
-      id: 'unstable-narrow-tachycardia',
-      title: 'Unstable Narrow Complex Tachycardia (>150 BPM)',
-      summary: 'For unstable SVT or AFib, sedate if able and cardiovert.',
-      steps: [
-        'Consider sedation with Versed (Midazolam) 1–5 mg IVP.',
-        'Synchronized cardioversion at 100–250 Joules.'
-      ],
-      tags: ['unstable','narrow-complex','svt','cardioversion','versed','adult']
-    },
-
-{
-  id: 'stable-wide-tachycardia',
-  title: 'Stable Adult Wide Complex Tachycardia',
-  summary: 'Treat stable wide-complex tachycardia (VT) with antiarrhythmics and synchronized cardioversion if refractory.',
-  steps: [
-    'Administer Adenosine 12 mg rapid IVP.',
-    'Administer Amiodarone 150 mg over 10 minutes.',
-    'Consider sedation with Versed (Midazolam) 2–10 mg IVP.',
-    'Perform synchronized cardioversion at 100 Joules if needed.',
-    'If successfully converted, begin Amiodarone drip 150 mg over 10 minutes.'
-  ],
-  tags: ['wide-complex','tachycardia','amiodarone','adenosine','versed','cardioversion','adult']
-},
-{
-  id: 'unstable-wide-tachycardia',
-  title: 'Unstable Adult Wide Complex Tachycardia',
-  summary: 'For unstable VT with pulse, prioritize synchronized cardioversion; consider Amiodarone drip after conversion.',
-  steps: [
-    'If critical, perform synchronized cardioversion at 200 Joules immediately.',
-    'Otherwise, perform cardioversion at 100–200 Joules as indicated.',
-    'Administer Amiodarone drip 150 mg over 10 minutes.',
-    'If still unstable, repeat synchronized cardioversion at 200 Joules.'
-  ],
-  tags: ['unstable','wide-complex','vtach','cardioversion','amiodarone','adult']
-},
-{
-  id: 'post-resuscitation',
-  title: 'Post-Resuscitation Care',
-  summary: 'Support airway, breathing, and circulation after ROSC; consider antiarrhythmic infusion and monitoring.',
-  steps: [
-    'Continue ventilatory support with 100% oxygen.',
-    'Consider establishing a second IV line.',
-    'Initiate continuous cardiac monitoring.',
-    'Monitor and record vital signs frequently.',
-    'If converted with defibrillation or medication, start Amiodarone drip 150 mg over 10 minutes.'
-  ],
-  tags: ['rosc','post-resuscitation','amiodarone','monitoring','oxygen','adult']
-},
-{
-  id: 'acute-abdominal-pain-nausea',
-  title: 'Acute Abdominal Pain & Nausea/Vomiting',
-  summary: 'Assess and manage abdominal pain with monitoring and supportive care; treat nausea and pain per protocol.',
-  steps: [
-    'Initiate cardiac monitoring.',
-    'Obtain a 12-lead EKG.',
-    'Establish IV/IO access.',
-    'Administer Zofran (Ondansetron) 4 mg for nausea.',
-    'For pain, administer Morphine 2–10 mg IV or Dilaudid 0.25–1 mg IV.'
-  ],
-  tags: ['abdominal-pain','nausea','vomiting','zofran','morphine','dilaudid','adult']
-},
-{
-  id: 'acute-coronary-syndrome',
-  title: 'Acute Coronary Syndrome (ACS)',
-  summary: 'Rapid recognition and treatment of suspected ACS including ASA, nitro, and pain management.',
-  steps: [
-    'Initiate cardiac monitoring.',
-    'Obtain a 12-lead EKG.',
-    'Administer Aspirin 324 mg PO (4×81 mg).',
-    'Establish IV/IO access.',
-    'If pain and SBP >100 mmHg, give Nitroglycerin 0.4 mg SL every 5 min (max 3 doses).',
-    'Consider Morphine 2–10 mg IV for persistent pain.',
-    'If STEMI identified, consider aeromedical or transport to PCI-capable facility.'
-  ],
-  tags: ['acs','chest-pain','stemi','nitro','asa','morphine','cardiac','adult']
-},
-{
-  id: 'mild-allergic-reaction',
-  title: 'Allergic Reaction (Mild)',
-  summary: 'Treat allergic reactions with fluids and antihistamines; escalate to anaphylaxis protocol if needed.',
-  steps: [
-    'Establish IV access.',
-    'Administer Normal Saline 1 L bolus as needed.',
-    'Administer Diphenhydramine (Benadryl) 25–50 mg IV/IM.'
-  ],
-  tags: ['allergic-reaction','benadryl','fluids','adult']
-},
-{
-  id: 'severe-allergic-reaction',
-  title: 'Allergic Reaction (Severe)',
-  summary: 'Treat allergic reactions with fluids and antihistamines; escalate to anaphylaxis protocol if needed.',
-  steps: [
-    'Epinephrine 1:1 0.3-0.5 mg IM.',
-    'Cardiac Monitoring.',
-    'IV Procedure NS 1 L',
-    'Benadryl 25-50 mg',
-    'Inhaled Beta Agonist',
-    'Solu-Medrol 125 mg'
-  ],
-  tags: ['allergic-reaction','benadryl','fluids','adult','solu-medrol']
-},
-{
-  id: 'moderate-allergic-reaction',
-  title: 'Allergic Reaction (Moderate)',
-  summary: 'Treat allergic reactions with fluids and antihistamines; escalate to anaphylaxis protocol if needed.',
-  steps: [
-    'IV Procedure NS 1 L.',
-    'Benadryl 25-50 mg',
-    'Albuterol 2.5 mg nebulized',
-    'Atrovent 0.5 mg nebulized',
-    'Solu-Medrol 125 mg'
-  ],
-  tags: ['allergic-reaction','benadryl','fluids','adult','benadryl','albuterol','atrovent', 'solu-medrol']
-},
-
-{
-  id: 'altered-mental-status',
-  title: 'Altered Mental Status (Adult)',
-  summary: 'Monitor, check ECG and glucose, secure access, consider Narcan.',
-  steps: [
-    'Initiate cardiac monitoring.',
-    'Obtain a 12-lead EKG.',
-    'Establish IV/IO access.',
-    'Consider Narcan (Naloxone) 0.25–2 mg.'
-  ],
-  tags: ['ams','altered','naloxone','cardiac-monitoring','ivio','adult']
-},
-{
-  id: 'behavioral-emergency',
-  title: 'Behavioral Emergency',
-  summary: 'Sedation as indicated for safety and care.',
-  steps: [
-    'Administer Versed (Midazolam) 1–5 mg.',
-    'And/or administer Haldol (Haloperidol) 5 mg.'
-  ],
-  tags: ['behavioral','agitation','versed','haldol','adult']
-},
-{
-  id: 'pulmonary-edema',
-  title: 'Pulmonary Edema',
-  summary: 'Treat afterload/preload; consider pressors if hypotensive; support ventilation.',
-  steps: [
-    'If SBP < 100 mmHg, consider Dopamine 5–10 mcg/kg/min.',
-    'Administer Nitroglycerin 0.4 mg SL every 3–5 minutes (max 3) unless SBP < 100 mmHg.',
-    'Establish IV/IO access.',
-    'Consider CPAP.',
-    'Administer Lasix (Furosemide) 20–80 mg.'
-  ],
-  tags: ['pulmonary-edema','nitro','dopamine','cpap','lasix','adult']
-},
-{
-  id: 'diabetic-emergency',
-  title: 'Diabetic Emergency',
-  summary: 'Check glucose, give oral glucose if able; IV dextrose or D10W; fluids if DKA suspected.',
-  steps: [
-    'Initiate cardiac monitoring.',
-    'Check blood glucose.',
-    'If alert, give Oral Glucose.',
-    'Establish IV/IO access.',
-    'Administer D50W 25 g IV/IO.',
-    'Administer D10W 250 mL.',
-    'NS wide open if signs & symptoms of DKA.',
-    'Obtain a 12-lead ECG.'
-  ],
-  tags: ['diabetic','hypoglycemia','dextrose','oral-glucose','dka','adult']
-},
-{
-  id: 'drug-overdose-intoxication',
-  title: 'Drug Overdose / Acute Intoxication',
-  summary: 'Monitor, check glucose, support ABCs; targeted antidotes/therapies per suspected agent.',
-  steps: [
-    'Initiate cardiac monitoring.',
-    'Establish IV/IO access.',
-    'Perform blood glucose procedure.',
-    'Administer Narcan 0.4 mg if opiate overdose suspected.',
-    'Administer Normal Saline 1 L bolus if alcohol intoxication suspected.',
-    'Administer Atropine 2–4 mg if organophosphate poisoning suspected.',
-    'Begin Sodium Bicarbonate: 1 amp in 1 L NS infusion if TCA/Phenobarbital poisoning suspected.'
-  ],
-  tags: ['overdose','intoxication','naloxone','atropine','sodium-bicarb','adult']
-},
-{
-  id: 'hypertensive-emergency',
-  title: 'Hypertensive Emergency',
-  summary: 'Confirm pressures bilaterally; initiate IV access; treat with antihypertensives per protocol.',
-  steps: [
-    'Initiate cardiac monitoring.',
-    'Obtain a 12-lead EKG.',
-    'Manual blood pressure in both arms.',
-    'Establish IV/IO access.',
-    'Administer Labetalol 20 mg or HCTZ 20 mg.',
-    'Consider Nitroglycerin 0.4 mg SL.'
-  ],
-  tags: ['hypertension','labetalol','hctz','nitro','cardiac-monitoring','adult']
-},
-{
-  id: 'heat-related-emergency',
-  title: 'Heat Related Emergency',
-  summary: 'Cool, monitor, hydrate; treat seizures with benzodiazepine.',
-  steps: [
-    'Assess patient temperature.',
-    'Remove patient from heat source.',
-    'Apply cold packs to pulse-point areas.',
-    'Initiate cardiac monitoring.',
-    'Establish IV/IO access.',
-    'Normal Saline infusion 1–2 liters.',
-    'Consider Versed (Midazolam) 1–5 mg for seizures.'
-  ],
-  tags: ['heat','hyperthermia','cooling','fluids','versed','adult']
-},
-{
-  id: 'labor-delivery',
-  title: 'Labor / Delivery',
-  summary: 'Position, assess for crowning, avoid internal exams; follow newborn protocol when indicated.',
-  steps: [
-    'Place patient in left lateral recumbent (LLR) position.',
-    'Inspect perineum; no digital exam.',
-    'Initiate cardiac monitoring.',
-    'Establish IV/IO access.',
-    'If no crowning: monitor, reassess, document contractions.',
-    'If crowning and ≥ 36 weeks gestation: follow Newborn Protocol.',
-    'If abnormal presentation: immediate transport.'
-  ],
-  tags: ['ob','labor','delivery','newborn','obstetrics','adult']
-},
-{
-  id: 'adult-pain-management',
-  title: 'Adult Pain Management',
-  summary: 'Analgesia and antiemetic as indicated.',
-  steps: [
-    'Initiate cardiac monitoring.',
-    'Establish IV/IO access.',
-    '>50 kg: Acetaminophen 1,000 mg IV over 15 minutes.',
-    'Administer Morphine 2–10 mg IV or Dilaudid 0.25–1 mg IV.',
-    'Consider Zofran (Ondansetron) 4 mg.'
-  ],
-  tags: ['pain','analgesia','tylenol','morphine','dilaudid','zofran','adult']
-},
-{
-  id: 'pediatric-pain-management',
-  title: 'Pediatric Pain Management',
-  summary: 'Weight-based analgesia; antiemetic dosing by age/weight.',
-  steps: [
-    'Initiate cardiac monitoring.',
-    'Establish IV/IO access.',
-    'Acetaminophen <50 kg: 15 mg/kg IV over 15 minutes.',
-    'Morphine 0.1 mg/kg.',
-    'Consider Zofran (Ondansetron) 0.1 mg/kg if under 12 years.'
-  ],
-  tags: ['pediatric','pain','analgesia','tylenol','morphine','zofran']
-},
-{
-  id: 'reactive-airway-disease',
-  title: 'Reactive Airway Disease',
-  summary: 'Bronchodilators, consider CPAP and IM epi; mag sulfate for severe cases.',
-  steps: [
-    'Cardiac Monitoring.',
-    'IV/IO Procedure.',
-    'Consider CPAP.',
-    'Albuterol 2.5 mg nebulized.',
-    'Atrovent 0.5 mg nebulized.',
-    'Consider Epinephrine 1:1,000 0.3–0.5 mg IM.',
-    'Magnesium Sulfate 2 g IV in 250 mL NS slowly over 10 minutes.'
-  ],
-  tags: ['asthma','copd','bronchospasm','albuterol','atrovent','epi','mag','adult']
-},
-{
-  id: 'shock-general',
-  title: 'Shock (General)',
-  summary: 'Monitor, dual access, cautious fluids, consider vasopressor.',
-  steps: [
-    'Cardiac Monitoring.',
-    'IV/IO Procedure ×2.',
-    'Normal Saline 250–500 mL; confirm clear lung sounds.',
-    'Repeat NS (max 3 L) if hypotension persists.',
-    'Dopamine 2–20 mcg/kg/min as indicated.'
-  ],
-  tags: ['shock','fluids','dopamine','hypotension','adult']
-},
-{
-  id: 'adult-seizure',
-  title: 'Adult Seizure',
-  summary: 'Monitor, access; benzodiazepine for status; magnesium for eclampsia.',
-  steps: [
-    'Cardiac Monitoring.',
-    'IV/IO Procedure.',
-    'If Status Epilepticus: Versed (Midazolam) 1–5 mg.',
-    'If Eclamptic: Magnesium Sulfate 4–6 g IV over 10 minutes.'
-  ],
-  tags: ['seizure','status','versed','magnesium','adult']
-},
-{
-  id: 'shock-hypovolemic',
-  title: 'Shock – Hypovolemic',
-  summary: 'Fluids first; consider TXA when indicated.',
-  steps: [
-    'ECG / Cardiac Monitoring.',
-    'IV/IO Procedure.',
-    'Fluid resuscitation.',
-    'Tranexamic Acid (TXA) 2 g infusion / IVP as indicated.'
-  ],
-  tags: ['shock','hypovolemic','fluids','txa','adult']
-},
-{
-  id: 'cva-stroke',
-  title: 'CVA / Stroke',
-  summary: 'Rapid recognition and transport after glucose and BEFAST screen.',
-  steps: [
-    'Cardiac Monitoring.',
-    'IV/IO Procedure.',
-    'Blood Glucose.',
-    'Assess using BEFAST Stroke Scale.',
-    'Rapid Transport.'
-  ],
-  tags: ['stroke','cva','befast','neuro','adult']
-},
-{
-  id: 'syncope',
-  title: 'Syncope',
-  summary: 'Monitor, IV/IO, fluids if appropriate, check glucose and ECG.',
-  steps: [
-    'Cardiac Monitoring.',
-    '12-Lead EKG.',
-    'IV/IO Procedure.',
-    'Systolic BP > 90: consider NS 1 L bolus.',
-    'Blood Glucose.'
-  ],
-  tags: ['syncope','fainting','fluids','glucose','adult']
-},
-{
-  id: 'pediatric-airway',
-  title: 'Pediatric Airway',
-  summary: 'Age-appropriate airway maneuvers; consider advanced airway or cric if required.',
-  steps: [
-    '< 1 year: back slaps.',
-    '> 1 year: chest thrusts.',
-    'Foreign body procedure.',
-    'Consider advanced airway or needle/surgical cricothyrotomy.'
-  ],
-  tags: ['pediatric','airway','foreign-body','cric']
-},
-{
-  id: 'pediatric-respiratory-distress',
-  title: 'Pediatric Respiratory Distress',
-  summary: 'Bronchodilator; monitor; consider fluid bolus for dehydration.',
-  steps: [
-    'Albuterol 2.5 mg.',
-    'Cardiac Monitoring.',
-    'IV/IO Procedure.',
-    'If dehydrated, consider bolus: 20 mL/kg for children or 10 mL/kg for neonates.'
-  ],
-  tags: ['pediatric','respiratory','albuterol','fluids']
-},
-{
-  id: 'pediatric-allergic-reaction',
-  title: 'Pediatric Allergic Reaction',
-  summary: 'Antihistamine, bronchodilator, consider IM epinephrine.',
-  steps: [
-    'Diphenhydramine (Benadryl) 1 mg/kg IV/IM/IN.',
-    'Albuterol as needed.',
-    'Consider Epinephrine 1:1,000 0.01 mg/kg IM.'
-  ],
-  tags: ['pediatric','allergic','anaphylaxis','benadryl','albuterol','epi']
-},
-{
-  id: 'pediatric-bradycardia',
-  title: 'Pediatric Bradycardia',
-  summary: 'If HR < 60 despite oxygenation, start CPR; meds per protocol.',
-  steps: [
-    'Cardiac Monitoring.',
-    'IV/IO Procedure.',
-    'If HR < 60 despite oxygenation: start CPR.',
-    'Epinephrine 1:10,000 0.01 mg/kg IV every 5 minutes.',
-    'Consider Atropine 0.02 mg/kg (max 0.5 mg).'
-  ],
-  tags: ['pediatric','bradycardia','cpr','epi','atropine']
-},
-{
-  id: 'pediatric-arrest-shockable',
-  title: 'Pediatric Pulseless Arrest (V-Tach / V-Fib)',
-  summary: 'Defibrillate and perform high-quality CPR; epi and antiarrhythmic per dosing.',
-  steps: [
-    'Defibrillation 2 J/kg.',
-    'CPR for 2 minutes.',
-    'IV/IO Procedure.',
-    'Defibrillate 4 J/kg.',
-    'CPR for 2 minutes.',
-    'Epinephrine 1:1 0.01 mg/kg IV/IO every 3–5 minutes.',
-    'Consider Advanced Airway.',
-    'Defibrillate 4–10 J/kg (max 200 J).',
-    'Lidocaine 1–1.5 mg/kg (max 3.0 mg/kg).'
-  ],
-  tags: ['pediatric','arrest','vfib','vtach','defibrillation','epi','lidocaine']
-},
-{
-  id: 'pediatric-arrest-nonshockable',
-  title: 'Pediatric Pulseless Arrest (Asystole / PEA)',
-  summary: 'IV/IO access, epi, airway as indicated.',
-  steps: [
-    'IV/IO Procedure.',
-    'Epinephrine 1:1,000 0.01 mg/kg IV/IO every 3–5 minutes.',
-    'Consider Advanced Airway.'
-  ],
-  tags: ['pediatric','arrest','pea','asystole','epi']
-},
-{
-  id: 'pediatric-tachycardia-narrow',
-  title: 'Pediatric Tachycardia – Narrow Complex',
-  summary: 'Vagal maneuvers and adenosine if stable; cardioversion if unstable.',
-  steps: [
-    'Cardiac Monitoring.',
-    '12-Lead EKG.',
-    'IV/IO Procedure.',
-    'If stable: consider Vagal Maneuvers and Adenosine 0.1 mg/kg (max 6 mg).',
-    'If unstable: consider Versed 1–5 mg for sedation and synchronized cardioversion 0.5 J/kg (max 200 J).'
-  ],
-  tags: ['pediatric','tachycardia','narrow-complex','adenosine','cardioversion']
-},
-{
-  id: 'pediatric-tachycardia-wide',
-  title: 'Pediatric Tachycardia – Wide Complex',
-  summary: 'Sedation and synchronized cardioversion; consider lidocaine.',
-  steps: [
-    'Cardiac Monitoring.',
-    '12-Lead EKG.',
-    'IV/IO Procedure.',
-    'Consider Versed 1–5 mg.',
-    'Synchronized cardioversion 0.5 J/kg (max 200 J).',
-    'Lidocaine 0.5 mg/kg (max 1.5 mg/kg).'
-  ],
-  tags: ['pediatric','tachycardia','wide-complex','cardioversion','lidocaine']
-},
-{
-  id: 'pediatric-ams',
-  title: 'Pediatric Altered Mental Status',
-  summary: 'Monitor, access, glucose; treat hypoglycemia and suspected opioid ingestion.',
-  steps: [
-    'Cardiac Monitoring.',
-    '12-Lead EKG.',
-    'IV/IO Procedure.',
-    'Blood Glucose.',
-    'BG < 60: Glucagon 0.5 mg.',
-    'Consider Narcan if opiate ingestion suspected.'
-  ],
-  tags: ['pediatric','ams','glucose','glucagon','naloxone']
-},
-{
-  id: 'newborn',
-  title: 'Newborn',
-  summary: 'Warm, dry, stimulate; assess; initiate CPR if indicated.',
-  steps: [
-    'Suction and stimulate infant.',
-    'Dry infant and keep warm.',
-    'Note APGAR score and vitals.',
-    'If HR < 60 BPM, start CPR.'
-  ],
-  tags: ['newborn','neonatal','apgar','cpr']
-},
-{
-  id: 'pediatric-nausea-vomiting',
-  title: 'Pediatric Nausea / Vomiting',
-  summary: 'Monitor, access, fluids for hypotension, antiemetic, glucose check.',
-  steps: [
-    'ECG / Cardiac Monitoring.',
-    'IV/IO Procedure.',
-    'Normal Saline 20 mL/kg for hypotension.',
-    'Blood Glucose.',
-    'Zofran (Ondansetron) 0.1 mg/kg.'
-  ],
-  tags: ['pediatric','nausea','vomiting','zofran','fluids']
-},
-{
-  id: 'pediatric-seizures',
-  title: 'Pediatric Seizures',
-  summary: 'Check temp and glucose; benzodiazepine; repeat if needed.',
-  steps: [
-    'Check Temperature.',
-    'IV/IO Procedure.',
-    'Blood Glucose.',
-    'Versed (Midazolam) 1–5 mg.',
-    'ECG / Cardiac Monitoring.',
-    'If seizure reoccurs: repeat Versed 1–5 mg.'
-  ],
-  tags: ['pediatric','seizure','fever','versed','glucose']
-},
-{
-  id: 'burns',
-  title: 'Burns',
-  summary: 'Cover appropriately by %BSA; fluids (LR) for thermal; decon/flush for chemical; analgesia.',
-  steps: [
-    'Check Temperature.',
-    '<10% BSA: cover with wet burn sheet.',
-    '>10% BSA: cover with dry burn sheet.',
-    'If thermal: IV/IO Procedure; Lactated Ringers; ECG/Cardiac Monitoring; Pain Control.',
-    'For chemical burns with eye involvement: continuous saline flush.',
-    'Remove clothing/expose area; flush area with water for 20 minutes.',
-    'Parkland Formula: 4 mL × weight (kg) × %BSA burned; 50% of volume infused in first 8 hours.'
-  ],
-  tags: ['burns','thermal','chemical','lr','parkland','pain']
-},
-{
-  id: 'electrical-injuries',
-  title: 'Electrical Injuries',
-  summary: 'Monitor for arrhythmia, IV/IO, wound care, analgesia.',
-  steps: [
-    'ECG / Cardiac Monitor.',
-    'IV/IO Procedure.',
-    'Wound Care Procedure.',
-    'Pain Control.'
-  ],
-  tags: ['electrical','injury','arrhythmia','wound-care','pain']
-},
-{
-  id: 'dead-on-arrival',
-  title: 'Dead On Arrival (DOA)',
-  summary: 'Field determination of death; resuscitation not initiated when specific irreversible signs are present.',
-  steps: [
-    'Presumption of death in the field without initiation of resuscitation allowed for the following:',
-    '• Decapitation or gross dismemberment.',
-    '• Rigor mortis in a warm environment.',
-    '• Lividity (dark purple discoloration of the body’s lowest areas).',
-    '• Documented absence of vital signs by a competent observer for >10 minutes.',
-    '• Pulseless, apneic patient in a mass casualty incident where EMS resources are required for stabilization of other patients.'
-  ],
-  tags: ['doa','termination','death','field','rigor','lividity','mci','adult']
-}
-  
-  ],
- meds: [
-  { name: "Aspirin", route: "PO", notes: "324 mg PO (4×81 mg) for ACS.", contra: "Allergy, active GI bleed", se: "GI upset, tinnitus" },
-  { name: "Adenosine", route: "IV", notes: "6–12 mg IV; may repeat 12 mg if no response.", contra: "2°/3° AV block, sick sinus (no pacer), asthma caution", se: "Transient asystole, flushing, chest pressure" },
-  { name: "Amiodarone (VF/VT arrest)", route: "IV", notes: "300 mg IV; may repeat 150 mg ×1 for VFib/Pulseless VT.", contra: "Bradycardia, 2°/3° AV block", se: "Hypotension, bradycardia" },
-  { name: "Amiodarone Infusion", route: "IV infusion", notes: "150 mg in 50–100 mL NS for VT with pulse; post-ROSC if amio given.", contra: "Bradycardia, 2°/3° AV block", se: "Hypotension, bradycardia" },
-  { name: "Atropine", route: "IV", notes: "0.5–1 mg IV for bradycardia; may repeat once.", contra: "None in emergency; glaucoma caution", se: "Tachycardia, dry mouth" },
-  { name: "Albuterol", route: "Neb", notes: "2.5 mg nebulized.", contra: "Hypersensitivity", se: "Tremor, tachycardia" },
-  { name: "Ipratropium (Atrovent)", route: "Neb", notes: "0.5 mg nebulized.", contra: "Allergy to med; soy/peanut (older prep) caution", se: "Dry mouth, tachycardia" },
-  { name: "Diphenhydramine (Benadryl)", route: "IM/slow IVP", notes: "25–50 mg for allergic reaction.", contra: "Newborns, glaucoma", se: "Drowsiness, hypotension" },
-  { name: "Calcium Chloride", route: "IV", notes: "1 g IV for suspected hyperkalemia arrest; 500 mg for CCB overdose.", contra: "VF, digoxin toxicity", se: "Extravasation necrosis, bradycardia" },
-  { name: "Diltiazem (Cardizem)", route: "SIVP", notes: "10–20 mg slow IVP for AFib w/ RVR; may repeat 25 mg after 15 min if BP stable.", contra: "Hypotension, wide-complex/VT, WPW w/ AF", se: "Hypotension, bradycardia" },
-  { name: "Dextrose 5%", route: "IV", notes: "250 mL bag to mix medication (carrier).", contra: "None", se: "Irritation if extravasated" },
-  { name: "Dextrose 10%", route: "IV", notes: "25 g (in 250 mL) IV for hypoglycemia.", contra: "Hyperglycemia", se: "Phlebitis, tissue injury if extravasated" },
-  { name: "Hydromorphone (Dilaudid)", route: "IM/IV", notes: "0.25–1 mg for pain control.", contra: "Resp depression, hypotension", se: "Resp depression, nausea" },
-  { name: "Dopamine", route: "IV infusion", notes: "2–20 mcg/kg/min for cardiogenic or septic shock with hypotension.", contra: "Uncorrected hypovolemia", se: "Tachycardia, hypertension, arrhythmias" },
-  { name: "DuoNeb (Albuterol/Ipratropium)", route: "Neb", notes: "3 mg nebulized.", contra: "Hypersensitivity", se: "Tremor, dry mouth" },
-  { name: "Epinephrine 1:1 (verify conc/route)", route: "IV", notes: "Listed: 1 mg IV q3–5 min for cardiac arrest (verify against local protocol).", contra: "None in arrest", se: "Tachycardia, anxiety, tremor" },
-  { name: "Epinephrine 1:10 (verify conc/route)", route: "IM/Neb/IV infusion", notes: "0.3–0.5 mg IM anaphylaxis; 3–5 mg neb refractory airway; 2–10 mcg/min shock (verify).", contra: "Tachydysrhythmias, severe HTN (relative)", se: "Palpitations, tremor" },
-  { name: "Furosemide", route: "IV", notes: "20–80 mg IV for CHF.", contra: "Hypovolemia, sulfa allergy caution", se: "Hypotension, hypokalemia" },
-  { name: "Glucagon", route: "IM", notes: "1 mg IM for hypoglycemia.", contra: "Pheochromocytoma", se: "Nausea, vomiting" },
-  { name: "Haloperidol (Haldol)", route: "IM", notes: "5 mg IM for moderate agitation.", contra: "Parkinson disease, seizure disorder", se: "EPS, hypotension" },
-  { name: "Hydralazine", route: "Slow IVP", notes: "10–20 mg slow IVP for hypertension.", contra: "Hypotension, CAD", se: "Reflex tachycardia, headache" },
-  { name: "Ketamine (intubation)", route: "IV/IO", default_mgkg: 2, notes: "2 mg/kg for facilitated intubation.", contra: "Severe HTN (relative), conditions worsened by ↑ICP (controversial)", se: "↑HR/BP, emergence" },
-  { name: "Ketamine (analgesia per med control)", route: "IV/IO", default_mgkg: 0.25, notes: "0.25 mg/kg for pain per medical control.", contra: "Severe HTN (relative)", se: "Dysphoria, nausea" },
-  { name: "Labetalol", route: "Slow IVP", notes: "10–20 mg slow IVP for hypertension.", contra: "Bradycardia, asthma/COPD, CHF", se: "Hypotension, bradycardia" },
-  { name: "Lidocaine (IO pain)", route: "IO", notes: "20–40 mg IO to reduce pain during IO infusion.", contra: "2°/3° AV block, severe SA dysfunction", se: "Drowsiness, confusion" },
-  { name: "Magnesium Sulfate", route: "IV/IV infusion", notes: "1–2 g IV for torsades; 2–4 g/hr infusion for eclampsia.", contra: "Heart block, renal failure", se: "Flushing, hypotension" },
-  { name: "Morphine", route: "IV", notes: "2–10 mg for pain control or inferior STEMI; Pediatric 0.1 mg/kg.", contra: "Hypotension, resp depression", se: "Hypotension, N/V" },
-  { name: "Naloxone (Narcan)", route: "IV/IM/IN", notes: "0.4–2 mg; Pediatric 0.1 mg/kg.", contra: "Hypersensitivity", se: "Withdrawal, agitation" },
-
-  { name: "Nitroglycerin", route: "SL", notes: "0.4 mg SL for ACS; repeat as needed. May use in CHF; hypertension per MC.", contra: "Hypotension, RV infarct, PDE-5 use", se: "Headache, hypotension" },
-  { name: "Oral Glucose", route: "PO", notes: "15 g PO for hypoglycemia (if able to protect airway).", contra: "↓LOC without gag", se: "Nausea" },
-  { name: "Sodium Bicarbonate", route: "IV", notes: "50 mEq for cardiac arrest and crush injury (per protocol).", contra: "Alkalosis", se: "Alkalosis, hypernatremia" },
-  { name: "Methylprednisolone (Solu-Medrol)", route: "IV/IM", notes: "125 mg IV/IM.", contra: "None in emergency", se: "Hyperglycemia" },
-  { name: "Thiamine", route: "Slow IVP", notes: "25–100 mg SIVP for alcohol use/withdrawal.", contra: "None in emergency", se: "Rare hypotension" },
-  { name: "Tranexamic Acid (TXA)", route: "Slow IVP/Infusion", notes: "2 g slow IVP or in 50–100 mL NS for suspected internal bleeding.", contra: "Active intravascular clotting, SAH", se: "Nausea, hypotension if pushed fast" },
-  { name: "Midazolam (Versed)", route: "IV/IM/IN", notes: "1–5 mg; may repeat ×1 for seizures, facilitated intubation, psychosis.", contra: "Hypotension, resp depression", se: "Apnea, hypotension" },
-  { name: "Verapamil", route: "SIVP", notes: "2.5–10 mg SIVP for AFib with RVR.", contra: "Hypotension, WPW w/ AF, wide-complex/VT", se: "Hypotension, bradycardia" },
-  { name: "Ondansetron (Zofran)", route: "IV/IM/PO", notes: "4–8 mg for nausea.", contra: "Hypersensitivity; QT prolongation caution", se: "Headache, constipation" },
-  { name: "Acetaminophen (Tylenol)", route: "IV", notes: ">50 kg: 1,000 mg IV over 15 min; <50 kg: 15 mg/kg IV over 15 min.", contra: "Severe liver disease", se: "Nausea, rash" }
-]
-  };
 
   const EASI_2026_SERVICE = {
     _version: 20260608,
@@ -3897,7 +3245,6 @@
   const SAMPLE = {
     currentService: '',
     services: {
-      'EASI Protocols - 2025': JSON.parse(JSON.stringify(SAMPLE_SERVICE)),
       'EASI Protocols - 2026': JSON.parse(JSON.stringify(EASI_2026_SERVICE)),
       'AHA Algorithms 2026':   JSON.parse(JSON.stringify(AHA_2026_SERVICE)),
       'NMEMS 2022':             JSON.parse(JSON.stringify(NMEMS_SERVICE))
@@ -3907,11 +3254,16 @@
   function load(){
     let data;
     try{ data = JSON.parse(localStorage.getItem(KEY)) || SAMPLE; }catch(e){ data = SAMPLE; }
-    // Migrate legacy service name
-    if(data.services['EASI AMBULANCE'] && !data.services['EASI Protocols - 2025']){
-      data.services['EASI Protocols - 2025'] = data.services['EASI AMBULANCE'];
+    // Migrate legacy service names
+    if(data.services['EASI AMBULANCE']){
+      data.services['EASI Protocols - 2026'] = data.services['EASI Protocols - 2026'] || data.services['EASI AMBULANCE'];
       delete data.services['EASI AMBULANCE'];
-      if(data.currentService === 'EASI AMBULANCE') data.currentService = 'EASI Protocols - 2025';
+      if(data.currentService === 'EASI AMBULANCE') data.currentService = 'EASI Protocols - 2026';
+    }
+    if(data.services['EASI Protocols - 2025']){
+      delete data.services['EASI Protocols - 2025'];
+      if(data.currentService === 'EASI Protocols - 2025') data.currentService = 'EASI Protocols - 2026';
+      save(data);
     }
     if(!data.services['EASI Protocols - 2026']){
       data.services['EASI Protocols - 2026'] = JSON.parse(JSON.stringify(EASI_2026_SERVICE));
@@ -4108,7 +3460,6 @@
 
   const SERVICE_DISPLAY = {
     'EASI Protocols - 2026': 'Emergency Medical Ambulance Service INC',
-    'EASI Protocols - 2025': 'Emergency Medical Ambulance Service INC',
     'AHA Algorithms 2026':   'AHA Algorithms 2026',
     'NMEMS 2022':             'National Model EMS Clinical Guidelines',
   };
@@ -4133,10 +3484,7 @@
     const noSel = !state.currentService;
     const placeholder = `<option value="" ${noSel?'selected ':''} disabled>— Select a service —</option>`;
     serviceSelect.innerHTML = placeholder + names.map(n=>{
-      const outdated = n.includes('2025');
-      const style = outdated ? ' style="text-decoration:line-through;opacity:0.55"' : '';
-      const label = outdated ? n + ' [outdated]' : n;
-      return `<option ${n===state.currentService?'selected':''}${style} value="${n}">${label}</option>`;
+      return `<option ${n===state.currentService?'selected':''} value="${n}">${n}</option>`;
     }).join('');
     serviceSelect.style.color = noSel ? 'var(--accent)' : '';
     serviceSelect.style.borderColor = noSel ? 'rgba(94,234,212,.45)' : '';
@@ -5336,9 +4684,7 @@
 
   // --- PIN Protection ---
   // PINs stored as SHA-256 hashes — plain values are not in source
-  const PINNED_SERVICES = {
-    'EASI Protocols - 2025': '6386eb0fd5157494733ff6a2a5b195444f4fc658837239249ee4f7ab61a7f17a'
-  };
+  const PINNED_SERVICES = {};
   let _pinPendingService = null;
   let _pinPrevService = null;
 
@@ -5352,6 +4698,8 @@
     _pinPrevService = prevService;
     $('#pin-input').value = '';
     $('#pin-error').textContent = '';
+    const _lbl = $('#pin-service-label');
+    if(_lbl) _lbl.innerHTML = `Enter PIN to access <strong style="color:var(--text)">${pendingService}</strong>.`;
     $('#pin-overlay').classList.remove('hidden');
     setTimeout(() => $('#pin-input').focus(), 80);
   }
@@ -5895,10 +5243,14 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   // --- Firebase Auth & Cloud Sync ---
   function applyMigrations(data){
     if(!data.services) data.services = {};
-    if(data.services['EASI AMBULANCE'] && !data.services['EASI Protocols - 2025']){
-      data.services['EASI Protocols - 2025'] = data.services['EASI AMBULANCE'];
+    if(data.services['EASI AMBULANCE']){
+      data.services['EASI Protocols - 2026'] = data.services['EASI Protocols - 2026'] || data.services['EASI AMBULANCE'];
       delete data.services['EASI AMBULANCE'];
-      if(data.currentService==='EASI AMBULANCE') data.currentService='EASI Protocols - 2025';
+      if(data.currentService==='EASI AMBULANCE') data.currentService='EASI Protocols - 2026';
+    }
+    if(data.services['EASI Protocols - 2025']){
+      delete data.services['EASI Protocols - 2025'];
+      if(data.currentService==='EASI Protocols - 2025') data.currentService='EASI Protocols - 2026';
     }
     if(!data.services['EASI Protocols - 2026'])
       data.services['EASI Protocols - 2026'] = JSON.parse(JSON.stringify(EASI_2026_SERVICE));
