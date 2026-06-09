@@ -506,6 +506,23 @@
     .rpt-email-btn { background: rgba(196,181,253,.1); border: 1px solid rgba(196,181,253,.35); color: #c4b5fd; border-radius: 10px; padding: 9px 16px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
     .rpt-email-btn:hover { background: rgba(196,181,253,.2); }
     .rpt-copy-area { background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px; font-size: 12px; color: var(--muted); font-family: monospace; white-space: pre-wrap; max-height: 200px; overflow-y: auto; margin-top: 10px; display: none; }
+    /* Narcotic modal */
+    .narc-step-title { font-size: 15px; font-weight: 800; color: var(--accent); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .narc-check-row  { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .narc-check-row:last-child { border-bottom: none; }
+    .narc-check-row input[type=checkbox] { width: 22px; height: 22px; accent-color: var(--accent); flex: none; margin-top: 1px; cursor: pointer; }
+    .narc-check-row label { font-size: 14px; line-height: 1.45; cursor: pointer; }
+    .narc-check-row label b { color: var(--text); }
+    .narc-check-row label span { color: var(--muted); font-size: 12px; display: block; margin-top: 2px; }
+    .narc-inp { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 14px; padding: 9px 12px; width: 100%; font-family: inherit; outline: none; margin-top: 4px; }
+    .narc-inp:focus { border-color: var(--accent); }
+    .narc-inp-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-top: 10px; display: block; }
+    .narc-match-ok   { color: #4ade80; font-size: 13px; font-weight: 700; }
+    .narc-match-warn { color: #f87171; font-size: 13px; font-weight: 700; }
+    .narc-summary-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .narc-summary-row:last-child { border-bottom: none; }
+    .narc-summary-row .k { color: var(--muted); }
+    .narc-summary-row .v { color: var(--text); font-weight: 600; text-align: right; }
   </style>
 </head>
 <body>
@@ -616,7 +633,8 @@
       <div class="rpt-section">
         <div class="rpt-section-hd">
           <span class="rpt-section-title">💊 Narcotic Changes</span>
-          <button class="rpt-add-btn" id="btn-add-narc">+ Add</button>
+          <button class="rpt-add-btn" id="btn-restock" style="margin-right:6px">🔄 Restock</button>
+          <button class="rpt-add-btn" id="btn-add-narc">+ Manual</button>
         </div>
         <div class="rpt-section-body">
           <div id="narcotics-list"><div class="rpt-empty">No narcotic changes recorded.</div></div>
@@ -645,6 +663,28 @@
 
       <!-- Copy area (shown after email attempt) -->
       <div id="rpt-copy-area" class="rpt-copy-area"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Narcotic Restock Modal -->
+<div id="narc-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;padding:20px 20px 32px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div>
+        <div style="font-size:16px;font-weight:800;color:var(--text)">Narcotic Restock</div>
+        <div id="narc-step-label" style="font-size:12px;color:var(--muted);margin-top:2px"></div>
+      </div>
+      <button onclick="closeNarcModal()" style="background:rgba(255,255,255,.08);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:18px;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+    </div>
+    <!-- Progress bar -->
+    <div style="background:rgba(255,255,255,.07);border-radius:4px;height:4px;margin-bottom:18px">
+      <div id="narc-progress-bar" style="background:var(--accent);height:4px;border-radius:4px;transition:width .3s"></div>
+    </div>
+    <div id="narc-step-content"></div>
+    <div style="display:flex;gap:10px;margin-top:18px">
+      <button id="narc-btn-back" onclick="narcStep(-1)" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">← Back</button>
+      <button id="narc-btn-next" onclick="narcStep(1)"  style="flex:2;padding:12px;border-radius:10px;border:none;background:var(--accent);color:#0b0d10;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Next →</button>
     </div>
   </div>
 </div>
@@ -1629,6 +1669,276 @@ function emailReport(){
   }
 }
 
+/* ════════════════════════════════════════
+   NARCOTIC RESTOCK MODAL
+   ════════════════════════════════════════ */
+const NARC_TOTAL_STEPS = 7;
+let narcCurrentStep = 1;
+let narcTx = {}; // transaction data
+
+const NARC_STEP_LABELS = [
+  'Step 1 of 7 — Receive Used Bag',
+  'Step 2 of 7 — Safe Access',
+  'Step 3 of 7 — Book Verification',
+  'Step 4 of 7 — Document Used Bag',
+  'Step 5 of 7 — Return Signatures',
+  'Step 6 of 7 — Issue New Bag',
+  'Step 7 of 7 — Lock Up',
+];
+
+function openNarcModal(){
+  narcCurrentStep = 1;
+  narcTx = {};
+  const modal = document.getElementById('narc-modal');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  renderNarcStep();
+}
+function closeNarcModal(){
+  document.getElementById('narc-modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function saveNarcStepData(){
+  const content = document.getElementById('narc-step-content');
+  content.querySelectorAll('[data-nt]').forEach(el => {
+    narcTx[el.dataset.nt] = el.type === 'checkbox' ? el.checked : el.value;
+  });
+}
+
+function narcStep(dir){
+  saveNarcStepData();
+  if(dir === 1 && narcCurrentStep === NARC_TOTAL_STEPS){
+    completeNarcRestock();
+    return;
+  }
+  narcCurrentStep = Math.max(1, Math.min(NARC_TOTAL_STEPS, narcCurrentStep + dir));
+  renderNarcStep();
+}
+
+function renderNarcStep(){
+  const label = document.getElementById('narc-step-label');
+  const bar   = document.getElementById('narc-progress-bar');
+  const back  = document.getElementById('narc-btn-back');
+  const next  = document.getElementById('narc-btn-next');
+  label.textContent = NARC_STEP_LABELS[narcCurrentStep - 1];
+  bar.style.width   = (narcCurrentStep / NARC_TOTAL_STEPS * 100) + '%';
+  back.style.display = narcCurrentStep === 1 ? 'none' : '';
+  next.textContent   = narcCurrentStep === NARC_TOTAL_STEPS ? '✓ Complete & Log' : 'Next →';
+  next.style.background = narcCurrentStep === NARC_TOTAL_STEPS ? '#4ade80' : 'var(--accent)';
+
+  const c = document.getElementById('narc-step-content');
+  c.innerHTML = '';
+
+  const t = narcTx;
+  const steps = {
+    1: () => `
+      <div class="narc-step-title">📦 Receive Used Narcotic Bag</div>
+      <label class="narc-inp-label">Unit #</label>
+      <input class="narc-inp" data-nt="unit" placeholder="e.g. 279-ALS-PB" value="${t.unit||''}" />
+      <label class="narc-inp-label">Medic / Provider Name</label>
+      <input class="narc-inp" data-nt="provider" placeholder="First Last" value="${t.provider||''}" />
+      <label class="narc-inp-label">Run # (where narcotic was used)</label>
+      <input class="narc-inp" data-nt="runNum" placeholder="e.g. 2026-04812" value="${t.runNum||''}" />
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
+        <div>
+          <label class="narc-inp-label">Blue Seal #</label>
+          <input class="narc-inp" data-nt="blueSeal" placeholder="Seal number" value="${t.blueSeal||''}" />
+        </div>
+        <div>
+          <label class="narc-inp-label">Yellow Seal #</label>
+          <input class="narc-inp" data-nt="yellowSeal" placeholder="Seal number" value="${t.yellowSeal||''}" />
+        </div>
+      </div>`,
+
+    2: () => `
+      <div class="narc-step-title">🔐 Safe Access</div>
+      <div class="narc-check-row">
+        <input type="checkbox" id="nc-pw" data-nt="safePw" ${t.safePw?'checked':''} />
+        <label for="nc-pw"><b>Password entered into safe</b><span>Enter the combination code to unlock the electronic lock.</span></label>
+      </div>
+      <div class="narc-check-row">
+        <input type="checkbox" id="nc-key" data-nt="safeKey" ${t.safeKey?'checked':''} />
+        <label for="nc-key"><b>Physical key used to unlock safe</b><span>Insert and turn key to complete dual-control access.</span></label>
+      </div>`,
+
+    3: () => {
+      const lotMatch  = t.lotBag && t.lotBook && t.lotBag === t.lotBook;
+      const pageMatch = t.pageBag && t.pageBook && t.pageBag === t.pageBook;
+      return `
+      <div class="narc-step-title">📖 Narcotic Book Verification</div>
+      <div style="background:rgba(94,234,212,.06);border:1px solid rgba(94,234,212,.18);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--muted)">
+        Remove the narcotic book for <b style="color:var(--text)">${t.unit||'this unit'}</b> and navigate to the page for the returned bag.
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div>
+          <label class="narc-inp-label">Lot # on Bag</label>
+          <input class="narc-inp" data-nt="lotBag"  placeholder="Bag lot #"  value="${t.lotBag||''}"  oninput="narcLotCheck()" />
+        </div>
+        <div>
+          <label class="narc-inp-label">Lot # in Book</label>
+          <input class="narc-inp" data-nt="lotBook" placeholder="Book lot #" value="${t.lotBook||''}" oninput="narcLotCheck()" />
+        </div>
+      </div>
+      <div id="lot-match-indicator" style="margin-top:6px;min-height:18px">
+        ${t.lotBag && t.lotBook ? (lotMatch ? '<span class="narc-match-ok">✓ Lot numbers match</span>' : '<span class="narc-match-warn">✗ Lot numbers do NOT match — verify before proceeding</span>') : ''}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
+        <div>
+          <label class="narc-inp-label">Page # on Used Bag</label>
+          <input class="narc-inp" data-nt="pageBag"  placeholder="Written on bag"  value="${t.pageBag||''}"  oninput="narcPageCheck()" />
+        </div>
+        <div>
+          <label class="narc-inp-label">Page # in Book</label>
+          <input class="narc-inp" data-nt="pageBook" placeholder="Current page" value="${t.pageBook||''}" oninput="narcPageCheck()" />
+        </div>
+      </div>
+      <div id="page-match-indicator" style="margin-top:6px;min-height:18px">
+        ${t.pageBag && t.pageBook ? (pageMatch ? '<span class="narc-match-ok">✓ Page numbers match</span>' : '<span class="narc-match-warn">✗ Page numbers do NOT match — verify before proceeding</span>') : ''}
+      </div>`;
+    },
+
+    4: () => `
+      <div class="narc-step-title">✍️ Document Used Bag</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div>
+          <label class="narc-inp-label">Drug Used</label>
+          <select class="narc-inp" data-nt="drug">
+            ${RPT_DRUGS.map(d=>`<option value="${d}" ${t.drug===d?'selected':''}>${d}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label class="narc-inp-label">Amount Used</label>
+          <input class="narc-inp" data-nt="amtUsed" placeholder="e.g. 200 mcg" value="${t.amtUsed||''}" />
+        </div>
+      </div>
+      <div style="margin-top:14px">
+        <div class="narc-check-row">
+          <input type="checkbox" id="nc-doc1" data-nt="docUsedFilled" ${t.docUsedFilled?'checked':''} />
+          <label for="nc-doc1"><b>"Used / Return" section filled out</b><span>Complete the used and return fields in the narcotic book for the drug administered.</span></label>
+        </div>
+        <div class="narc-check-row">
+          <input type="checkbox" id="nc-doc2" data-nt="docUnusedLined" ${t.docUnusedLined?'checked':''} />
+          <label for="nc-doc2"><b>Lines drawn through unused narcotics</b><span>Draw a line through any narcotics in the bag that were not used.</span></label>
+        </div>
+      </div>`,
+
+    5: () => `
+      <div class="narc-step-title">✒️ Return Signatures</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Both the medic and supervisor must sign the narcotic book confirming narcotics were returned and accounted for.</p>
+      <div class="narc-check-row">
+        <input type="checkbox" id="nc-sig-med" data-nt="sigMedicReturn" ${t.sigMedicReturn?'checked':''} />
+        <label for="nc-sig-med"><b>Medic signed — return section</b><span>${t.provider||'Provider'} has signed the narcotic book confirming return.</span></label>
+      </div>
+      <div class="narc-check-row">
+        <input type="checkbox" id="nc-sig-sup" data-nt="sigSuperReturn" ${t.sigSuperReturn?'checked':''} />
+        <label for="nc-sig-sup"><b>Supervisor signed — return section</b><span>You have signed as supervisor, verifying the returned narcotics.</span></label>
+      </div>`,
+
+    6: () => `
+      <div class="narc-step-title">🆕 Issue New Narcotic Bag</div>
+      <div style="background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.25);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--muted)">
+        Remove new narcotic bag from the safe for <b style="color:var(--text)">${t.unit||'this unit'}</b>.
+      </div>
+      <label class="narc-inp-label">New Bag — Book Page #</label>
+      <input class="narc-inp" data-nt="newBagPage" placeholder="Page # to write on back of new bag" value="${t.newBagPage||''}" />
+      <div style="margin-top:14px">
+        <div class="narc-check-row">
+          <input type="checkbox" id="nc-new1" data-nt="newPageWritten" ${t.newPageWritten?'checked':''} />
+          <label for="nc-new1"><b>Page # written on back of new bag</b><span>Write the book page number on the back of the new narcotic bag.</span></label>
+        </div>
+        <div class="narc-check-row">
+          <input type="checkbox" id="nc-new2" data-nt="sigMedicNew" ${t.sigMedicNew?'checked':''} />
+          <label for="nc-new2"><b>Medic signed new bag</b><span>${t.provider||'Provider'} has signed the new bag acknowledgment.</span></label>
+        </div>
+        <div class="narc-check-row">
+          <input type="checkbox" id="nc-new3" data-nt="sigSuperNew" ${t.sigSuperNew?'checked':''} />
+          <label for="nc-new3"><b>Supervisor signed new bag</b><span>You have signed as supervisor for issuance of new bag.</span></label>
+        </div>
+        <div class="narc-check-row">
+          <input type="checkbox" id="nc-new4" data-nt="newBagToMedic" ${t.newBagToMedic?'checked':''} />
+          <label for="nc-new4"><b>New bag provided to medic</b><span>Medic will place new bag on unit with new blue and yellow seals.</span></label>
+        </div>
+      </div>`,
+
+    7: () => {
+      const allChecks = [t.safePw, t.safeKey, t.docUsedFilled, t.docUnusedLined,
+        t.sigMedicReturn, t.sigSuperReturn, t.newPageWritten, t.sigMedicNew, t.sigSuperNew, t.newBagToMedic];
+      const done = allChecks.filter(Boolean).length;
+      return `
+      <div class="narc-step-title">🔒 Lock Up &amp; Summary</div>
+      <div class="narc-check-row">
+        <input type="checkbox" id="nc-lock1" data-nt="oldBagTaped" ${t.oldBagTaped?'checked':''} />
+        <label for="nc-lock1"><b>Old bag taped and rolled up</b><span>Seal the used narcotic bag with tape and roll it closed.</span></label>
+      </div>
+      <div class="narc-check-row">
+        <input type="checkbox" id="nc-lock2" data-nt="oldBagInSafe" ${t.oldBagInSafe?'checked':''} />
+        <label for="nc-lock2"><b>Old bag placed back in safe</b><span>Return the sealed used bag to the narcotic safe for storage.</span></label>
+      </div>
+      <div class="narc-check-row" style="margin-bottom:14px">
+        <input type="checkbox" id="nc-lock3" data-nt="safeLocked" ${t.safeLocked?'checked':''} />
+        <label for="nc-lock3"><b>Safe locked and confirmed</b><span>Ensure both the electronic lock and physical key lock are engaged.</span></label>
+      </div>
+      <div style="background:rgba(94,234,212,.06);border:1px solid rgba(94,234,212,.2);border-radius:12px;padding:14px 16px;margin-top:4px">
+        <div style="font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Transaction Summary</div>
+        <div class="narc-summary-row"><span class="k">Unit</span><span class="v">${t.unit||'—'}</span></div>
+        <div class="narc-summary-row"><span class="k">Provider</span><span class="v">${t.provider||'—'}</span></div>
+        <div class="narc-summary-row"><span class="k">Run #</span><span class="v">${t.runNum||'—'}</span></div>
+        <div class="narc-summary-row"><span class="k">Drug</span><span class="v">${t.drug||'—'}</span></div>
+        <div class="narc-summary-row"><span class="k">Amount Used</span><span class="v">${t.amtUsed||'—'}</span></div>
+        <div class="narc-summary-row"><span class="k">Lot # Verified</span><span class="v">${t.lotBag===t.lotBook && t.lotBag ? '<span style="color:#4ade80">✓ Match</span>' : '<span style="color:#f87171">✗ Mismatch / Missing</span>'}</span></div>
+        <div class="narc-summary-row"><span class="k">Page # Verified</span><span class="v">${t.pageBag===t.pageBook && t.pageBag ? '<span style="color:#4ade80">✓ Match</span>' : '<span style="color:#f87171">✗ Mismatch / Missing</span>'}</span></div>
+        <div class="narc-summary-row"><span class="k">Steps Completed</span><span class="v">${done} / 10</span></div>
+      </div>`;
+    }
+  };
+
+  c.innerHTML = steps[narcCurrentStep]();
+}
+
+function narcLotCheck(){
+  const bag  = document.querySelector('[data-nt="lotBag"]')?.value || '';
+  const book = document.querySelector('[data-nt="lotBook"]')?.value || '';
+  const el   = document.getElementById('lot-match-indicator');
+  if(!el) return;
+  el.innerHTML = (bag && book)
+    ? (bag === book ? '<span class="narc-match-ok">✓ Lot numbers match</span>'
+                    : '<span class="narc-match-warn">✗ Lot numbers do NOT match — verify before proceeding</span>')
+    : '';
+}
+function narcPageCheck(){
+  const bag  = document.querySelector('[data-nt="pageBag"]')?.value || '';
+  const book = document.querySelector('[data-nt="pageBook"]')?.value || '';
+  const el   = document.getElementById('page-match-indicator');
+  if(!el) return;
+  el.innerHTML = (bag && book)
+    ? (bag === book ? '<span class="narc-match-ok">✓ Page numbers match</span>'
+                    : '<span class="narc-match-warn">✗ Page numbers do NOT match — verify before proceeding</span>')
+    : '';
+}
+
+function completeNarcRestock(){
+  saveNarcStepData();
+  const t = narcTx;
+  const time = new Date().toTimeString().slice(0,5);
+  // Auto-add a narcotic changes entry
+  const list = document.getElementById('narcotics-list');
+  const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
+  const entry = buildNarcEntry({
+    'nc-unit':    t.unit    || '',
+    'nc-prov':    t.provider|| '',
+    'nc-drug':    t.drug    || '',
+    'nc-change':  'Administered / Used',
+    'nc-amt':     t.amtUsed || '',
+    'nc-reason':  `Run #${t.runNum||'?'} | Lot verified: ${t.lotBag===t.lotBook?'Yes':'NO'} | Page verified: ${t.pageBag===t.pageBook?'Yes':'NO'} | New bag page: ${t.newBagPage||'?'} | Completed ${time}`,
+    'nc-witness': '',
+  });
+  list.appendChild(entry);
+  updateTotalsCount();
+  closeNarcModal();
+  showToast('Restock logged ✓');
+}
+
 function initShiftReport(){
   // Load report when date changes (roster-date is shared)
   const dateInput = document.getElementById('roster-date');
@@ -1636,6 +1946,11 @@ function initShiftReport(){
   dateInput.addEventListener('change', () => loadRptData(dateInput.value));
   document.getElementById('btn-rpt-save').addEventListener('click', saveRptData);
   document.getElementById('btn-rpt-email').addEventListener('click', emailReport);
+  document.getElementById('btn-restock').addEventListener('click', openNarcModal);
+  // Close modal on backdrop tap
+  document.getElementById('narc-modal').addEventListener('click', e => {
+    if(e.target === document.getElementById('narc-modal')) closeNarcModal();
+  });
 }
 </script>
 </body>
