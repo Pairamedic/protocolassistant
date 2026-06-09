@@ -537,7 +537,7 @@
         <div class="calc-card-hd calc-toggle" data-target="calc-body-std">
           <div class="calc-card-title">
             <div class="calc-icon" style="background:rgba(125,211,252,.12)">💊</div>
-            IV &amp; Fluids
+            Draw-Up Calc
           </div>
           <span class="calc-chev">▾</span>
         </div>
@@ -3346,7 +3346,7 @@
   const _RES_SECTIONS = [
     {label:'🧒 Pediatric Quick Reference', id:'peds-ref-section'},
     {label:'⚖️ Weight-Based Dose Calc',    id:'calc-body-weight'},
-    {label:'💊 IV & Fluids',                 id:'calc-body-std'},
+    {label:'💊 Draw-Up Calc',                id:'calc-body-std'},
     {label:'💉 IV Infusion Calc',           id:'calc-body-iv'},
     {label:'⏱ Drip Timing Calc',           id:'calc-body-md'},
     {label:'💧 Fluid Over Time Calc',       id:'calc-body-fo'},
@@ -3482,7 +3482,7 @@
         ${renderMedNotes(m.notes||'', filterTerms)}
         ${m.contra?`<div class="hint" style="margin-top:4px"><span style="color:#f87171">✕</span> ${highlight(sanitizeText(m.contra||''), filterTerms)}</div>`:''}
         <div style="margin-top:8px" class="row">
-          <button class="btn" style="font-size:13px" onclick="loadIntoCalc('${(m.name||'').replace(/'/g, "&#39;")}')">→ IV &amp; Fluids</button>
+          <button class="btn" style="font-size:13px" onclick="loadIntoCalc('${(m.name||'').replace(/'/g, "&#39;")}')">→ Draw-Up Calc</button>
           ${typeof m.default_mgkg!=='undefined' && m.default_mgkg!==null ? `<span class="pill"><span class="k">mg/kg</span>${m.default_mgkg}</span>`:''}
         </div>
       </div>`}).join('') || emptyState(_favsOnly ? 'No favorited meds yet — tap ☆ on any med to save it here.' : 'No medication matches');
@@ -3963,7 +3963,10 @@
       const body = document.getElementById(targetId);
       if(body) body.style.display = '';
       const card = toggle.closest('.calc-card') || toggle.closest('.card') || toggle;
-      card.scrollIntoView({behavior:'smooth', block:'start'});
+      // Wait two frames so layout updates after body is shown before scrolling
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        card.scrollIntoView({behavior:'smooth', block:'start'});
+      }));
       return;
     }
     const el = document.getElementById(targetId);
