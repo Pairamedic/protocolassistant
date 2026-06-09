@@ -53,6 +53,10 @@
     .ind-label::before{content:"▸";font-size:10px;opacity:.7;flex:none}
     .ind-content{padding:9px 12px;font-size:14px;line-height:1.55}
     .ind-unlabeled{color:var(--muted);font-size:13px;padding:4px 0;line-height:1.5}
+    .proto-sec{border-radius:8px;border:1px solid;overflow:hidden;margin-bottom:8px}
+    .proto-sec-label{font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;padding:5px 10px;border-bottom:1px solid;display:flex;align-items:center;gap:4px}
+    .proto-sec-label::before{content:"▸";font-size:9px;opacity:.7;flex:none}
+    .proto-sec-body{padding:6px 10px 8px;font-size:14px;line-height:1.5}
     :root.light .ind-block{border-color:rgba(13,148,136,.25)}
     :root.light .ind-label{background:rgba(13,148,136,.09);border-bottom-color:rgba(13,148,136,.2);color:#0d9488}
     .grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px}
@@ -386,7 +390,7 @@
           </div>
           <div id="header-toolbar" class="toolbar">
             <button id="report-issue" class="btn" style="color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08);font-size:13px;padding:8px 12px">🚩 Report Issue</button>
-            <a id="btn-pdf" href="EASI-Protocols-2026.pdf" download class="btn" style="color:#34d399;border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.08);font-size:13px;padding:8px 12px;text-decoration:none;display:inline-flex;align-items:center;gap:5px">📄 Protocols PDF</a>
+            <a id="btn-pdf" href="#" class="btn hidden" style="color:#34d399;border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.08);font-size:13px;padding:8px 12px;text-decoration:none;display:inline-flex;align-items:center;gap:5px">📄 Protocols PDF</a>
             <button id="btn-forms" class="btn" style="color:#c4b5fd;border-color:rgba(196,181,253,.35);background:rgba(196,181,253,.08);font-size:13px;padding:8px 12px">📋 Forms</button>
           </div>
           <div id="role-row" style="display:flex;gap:6px;align-items:center;margin-top:6px">
@@ -2319,7 +2323,7 @@
 
 
   const NMEMS_SERVICE = {
-    name: 'NMEMS 2022',
+    name: 'EMS National Guidelines - 2022',
     protocols: [
   {
     id: 'nmems-adult-assess',
@@ -3241,7 +3245,11 @@
   { name: "Tranexamic Acid (TXA)", route: "IV infusion", notes: "Hemorrhagic shock in trauma, significant hemorrhage.\x01Timing critical: give within 3 hr of injury (harm after 3 hr in some studies).\x01Adult: 1 g IV over 10 min loading, then 1 g IV over 8 hr (hospital completes).\x01Pediatric: 15–30 mg/kg IV over 20 min (max 1 g).", contra: "Active thromboembolic disease, subarachnoid hemorrhage (relative for TXA), >3 hr from injury onset", se: "Nausea, seizures at high doses, thromboembolism (rare)" },
   { name: "Thiamine (Vitamin B1)", route: "IV/IM", notes: "Give BEFORE glucose in suspected chronic alcohol use, malnutrition, or Wernicke's encephalopathy prevention.\x01Adult: 100 mg IV/IM.\x01Peds: 25–50 mg IV/IM.", contra: "Allergy (rare)", se: "Mild: hypotension with rapid IV push, local irritation; anaphylaxis very rare" }
 ],
-    contacts: []
+    contacts: [
+      { id:'c-nmems-jrmc', group:'clinical', name:'JRMC Emergency Room', role:'First-Line Medical Control', desc:'Primary medical control contact. When transporting to an alternate facility, contact the receiving ER physician directly when possible — if unreachable, follow standing protocol.', phone:'8705417111', email:'' },
+      { id:'c-nmems-arktrauma', group:'clinical', name:'Arkansas Trauma Com', role:'Trauma Communications', phone:'5013011409', email:'' },
+      { id:'c-nmems-poison', group:'clinical', name:'Poison Control', role:'National Poison Hotline', phone:'8002221222', email:'' }
+    ]
   };
 
   const SAMPLE = {
@@ -3249,7 +3257,7 @@
     services: {
       'EASI Protocols - 2026': JSON.parse(JSON.stringify(EASI_2026_SERVICE)),
       'AHA Algorithms 2026':   JSON.parse(JSON.stringify(AHA_2026_SERVICE)),
-      'NMEMS 2022':             JSON.parse(JSON.stringify(NMEMS_SERVICE))
+      'EMS National Guidelines - 2022':             JSON.parse(JSON.stringify(NMEMS_SERVICE))
     }
   };
 
@@ -3275,8 +3283,14 @@
       data.services['AHA Algorithms 2026'] = JSON.parse(JSON.stringify(AHA_2026_SERVICE));
       save(data);
     }
-    if(!data.services['NMEMS 2022']){
-      data.services['NMEMS 2022'] = JSON.parse(JSON.stringify(NMEMS_SERVICE));
+    if(data.services['NMEMS 2022']){
+      data.services['EMS National Guidelines - 2022'] = data.services['EMS National Guidelines - 2022'] || data.services['NMEMS 2022'];
+      delete data.services['NMEMS 2022'];
+      if(data.currentService === 'NMEMS 2022') data.currentService = 'EMS National Guidelines - 2022';
+      save(data);
+    }
+    if(!data.services['EMS National Guidelines - 2022']){
+      data.services['EMS National Guidelines - 2022'] = JSON.parse(JSON.stringify(NMEMS_SERVICE));
       save(data);
     }
     if(!data.favs) data.favs = {};
@@ -3463,7 +3477,13 @@
   const SERVICE_DISPLAY = {
     'EASI Protocols - 2026': 'Emergency Medical Ambulance Service INC',
     'AHA Algorithms 2026':   'AHA Algorithms 2026',
-    'NMEMS 2022':             'National Model EMS Clinical Guidelines',
+    'EMS National Guidelines - 2022': 'National Model EMS Clinical Guidelines',
+  };
+
+  const SERVICE_PDFS = {
+    'EASI Protocols - 2026':       { href: 'EASI-Protocols-2026.pdf', download: true,  label: '📄 Protocols PDF' },
+    'EMS National Guidelines - 2022': { href: 'https://healthy.arkansas.gov/wp-content/uploads/EMS_National_Guidelines.pdf', download: false, label: '📄 Protocols PDF' },
+    'AHA Algorithms 2026':         { href: 'https://cpr.heart.org/en/resuscitation-science/cpr-and-ecc-guidelines', download: false, label: '🔗 AHA Guidelines' },
   };
   const LOGO_HTML = `<img src="star-of-life.svg" alt="" style="width:28px;height:28px;flex:none" />`;
 
@@ -3471,6 +3491,18 @@
     const el = $('#app-title');
     const name = SERVICE_DISPLAY[state.currentService];
     el.innerHTML = `${LOGO_HTML} ${name || 'PAT'}`;
+  }
+
+  function updatePdfBtn(){
+    const btn = $('#btn-pdf');
+    if(!btn) return;
+    const info = SERVICE_PDFS[state.currentService];
+    if(!info){ btn.classList.add('hidden'); return; }
+    btn.classList.remove('hidden');
+    btn.href = info.href;
+    btn.textContent = info.label;
+    if(info.download){ btn.setAttribute('download',''); btn.removeAttribute('target'); }
+    else { btn.removeAttribute('download'); btn.setAttribute('target','_blank'); btn.setAttribute('rel','noopener'); }
   }
 
   function noServiceState(){
@@ -3851,6 +3883,41 @@
         const isBranch = /^(?:━━|•|→|⚠|──)/.test(clean.trimStart()) || /^ {3,}/.test(clean);
         // Strip leading manual step numbers (e.g. "1. ") from main steps to prevent double-numbering
         const dc = isBranch ? clean : clean.replace(/^\s*\d+\.\s+/, '');
+        // Section-label blocks: Assessment:, Reversible causes:, NOTE:, etc.
+        if(!isBranch){
+          const _slm = dc.match(/^(Assessment|Reversible\s+causes?|Note|NOTE|Signs?|Symptoms?|Treatment|All\s+Providers?|Scene\s+Safety|Considerations?|Warning|Caution)\s*:/i);
+          if(_slm){
+            const slLabel = _slm[1].charAt(0).toUpperCase() + _slm[1].slice(1).replace(/\s+causes?$/i,' Causes');
+            const slBody  = dc.slice(_slm[0].length).trim();
+            const PSTY = {
+              assessment:   {c:'rgba(94,234,212,1)',  bg:'rgba(94,234,212,.07)',  bd:'rgba(94,234,212,.25)'},
+              reversible:   {c:'rgba(251,146,60,1)',   bg:'rgba(251,146,60,.07)',  bd:'rgba(251,146,60,.28)'},
+              note:         {c:'rgba(148,163,184,1)',  bg:'rgba(148,163,184,.06)', bd:'rgba(148,163,184,.2)'},
+              sign:         {c:'rgba(96,165,250,1)',   bg:'rgba(96,165,250,.06)',  bd:'rgba(96,165,250,.2)'},
+              symptom:      {c:'rgba(96,165,250,1)',   bg:'rgba(96,165,250,.06)',  bd:'rgba(96,165,250,.2)'},
+              treatment:    {c:'rgba(74,222,128,1)',   bg:'rgba(74,222,128,.07)',  bd:'rgba(74,222,128,.25)'},
+              warning:      {c:'rgba(248,113,113,1)',  bg:'rgba(248,113,113,.06)', bd:'rgba(248,113,113,.25)'},
+              caution:      {c:'rgba(251,191,36,1)',   bg:'rgba(251,191,36,.07)',  bd:'rgba(251,191,36,.25)'},
+              consideration:{c:'rgba(167,139,250,1)',  bg:'rgba(167,139,250,.06)', bd:'rgba(167,139,250,.2)'},
+              all:          {c:'rgba(94,234,212,1)',   bg:'rgba(94,234,212,.07)',  bd:'rgba(94,234,212,.25)'},
+              scene:        {c:'rgba(251,191,36,1)',   bg:'rgba(251,191,36,.07)',  bd:'rgba(251,191,36,.25)'},
+            };
+            const sk = _slm[1].toLowerCase().split(/\s/)[0].replace(/s$/, '');
+            const st = PSTY[sk] || PSTY.note;
+            const slSubItems = splitInlineList(slBody);
+            let slHtml;
+            if(slSubItems && slSubItems.length > 1){
+              slHtml = slSubItems.map(item => {
+                const h = enhance(fmtRateTable(linkMeds(doseHL(highlight(sanitizeText(item.text), filterTerms)))));
+                return item.num ? `<div class="sub-step"><span class="sub-k">${item.num}</span><span>${h}</span></div>`
+                                : `<span style="display:block;margin-bottom:2px">${h}</span>`;
+              }).join('');
+            } else {
+              slHtml = enhance(fmtRateTable(linkMeds(doseHL(highlight(sanitizeText(slBody), filterTerms)))));
+            }
+            return `<div class="proto-sec" style="border-color:${st.bd};margin-bottom:8px"><div class="proto-sec-label" style="color:${st.c};background:${st.bg};border-bottom-color:${st.bd}">${sanitizeText(slLabel)}</div><div class="proto-sec-body">${ptBadge}${slHtml}</div></div>`;
+          }
+        }
         const subItems = splitInlineList(dc);
         let stepContent;
         if (subItems && subItems.length > 1) {
@@ -4529,6 +4596,7 @@
   function renderAll(terms){
     _lastTerms = terms;
     updateTitle();
+    updatePdfBtn();
     renderServiceSelect();
     renderProtocols(terms);
     renderMeds(terms);
@@ -5258,8 +5326,13 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       data.services['EASI Protocols - 2026'] = JSON.parse(JSON.stringify(EASI_2026_SERVICE));
     if(!data.services['AHA Algorithms 2026'])
       data.services['AHA Algorithms 2026'] = JSON.parse(JSON.stringify(AHA_2026_SERVICE));
-    if(!data.services['NMEMS 2022'])
-      data.services['NMEMS 2022'] = JSON.parse(JSON.stringify(NMEMS_SERVICE));
+    if(data.services['NMEMS 2022']){
+      data.services['EMS National Guidelines - 2022'] = data.services['EMS National Guidelines - 2022'] || data.services['NMEMS 2022'];
+      delete data.services['NMEMS 2022'];
+      if(data.currentService==='NMEMS 2022') data.currentService='EMS National Guidelines - 2022';
+    }
+    if(!data.services['EMS National Guidelines - 2022'])
+      data.services['EMS National Guidelines - 2022'] = JSON.parse(JSON.stringify(NMEMS_SERVICE));
     if(!data.favs) data.favs = {};
     return data;
   }
