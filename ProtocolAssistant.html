@@ -679,12 +679,12 @@
         <div class="calc-card-hd calc-toggle" data-target="calc-body-pump">
           <div class="calc-card-title">
             <div class="calc-icon" style="background:rgba(125,211,252,.12)">🔄</div>
-            Pump Rate → Manual gtts/min
+            Pump Rate → Manual Drip Rate
           </div>
           <span class="calc-chev">▾</span>
         </div>
         <div class="calc-card-body" id="calc-body-pump">
-          <p class="calc-hint">gtts/min = (mL/hr × gtt/mL) ÷ 60. With 60-drop microdrip: gtts/min = mL/hr.</p>
+          <p class="calc-hint">Converts pump rate (mL/hr) to manual drip rate (gtt/min). Formula: mL/hr × drip set ÷ 60.</p>
           <div class="calc-grid g2">
             <div class="calc-field">
               <label>Pump rate (mL/hr)</label>
@@ -779,10 +779,16 @@
         </div>
       </div>
 
+      <!-- ── OXYGEN & VENTILATOR ── -->
+      <div class="calc-section-hd">
+        <span class="calc-section-dot" style="background:#6ee7b7"></span>
+        <span class="calc-section-title" style="color:#6ee7b7">Oxygen &amp; Ventilator</span>
+      </div>
+
       <div class="calc-card">
         <div class="calc-card-hd calc-toggle" data-target="calc-body-o2">
           <div class="calc-card-title">
-            <div class="calc-icon" style="background:rgba(192,132,252,.12)">🫁</div>
+            <div class="calc-icon" style="background:rgba(110,231,183,.1)">🫁</div>
             Oxygen Duration
           </div>
           <span class="calc-chev">▾</span>
@@ -823,7 +829,7 @@
       <div class="calc-card" id="vent-section">
         <div class="calc-card-hd calc-toggle" data-target="calc-body-vent">
           <div class="calc-card-title">
-            <div class="calc-icon" style="background:rgba(192,132,252,.12)">📏</div>
+            <div class="calc-icon" style="background:rgba(110,231,183,.1)">📏</div>
             Vent Settings (IBW &amp; TV)
           </div>
           <span class="calc-chev">▾</span>
@@ -4545,10 +4551,11 @@ document.querySelector('#pump-calc').addEventListener('click', ()=>{
   }
   // gtts/min = (mL/hr × gtt/mL) ÷ 60
   const gttsMin = (rate * drip) / 60;
-  // Nice note for microdrip 60 gtt/mL
-  const microNote = (Math.abs(drip - 60) < 1e-6) ? ' (60 gtt/mL → equals mL/hr)' : '';
+  const per10 = gttsMin / 6;
+  const microNote = (Math.abs(drip - 60) < 1e-6) ? ' <span style="color:var(--muted);font-size:12px">(60 gtt/mL set — gtts/min = mL/hr)</span>' : '';
   document.querySelector('#pump-result').innerHTML =
-    `Target manual rate: <b>${Math.round(gttsMin)}</b> gtts/min${microNote} (exact: ${Number(gttsMin).toFixed(1)})`;
+    `<div style="margin-bottom:6px">Manual drip rate: <b>${Math.round(gttsMin)}</b> gtts/min${microNote}</div>`+
+    `<div style="color:var(--accent);font-weight:600">Count <b>${Math.round(per10)}</b> drops every 10 seconds to confirm your rate.</div>`;
 });
 
 document.querySelector('#pump-reset').addEventListener('click', ()=>{
@@ -4584,7 +4591,10 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     const mgPerHr = (ordered * wt * 60) / 1000; // mcg→mg
     const mLhr = mgPerHr / mgPerMl;
     const gttsMin = (mLhr * drip) / 60;
-    $('#iv-result').innerHTML = `mL/hr: <b>${fmt(mLhr,1)}</b> • gtts/min: <b>${Math.round(gttsMin)}</b>`;
+    const ivPer10 = gttsMin / 6;
+    $('#iv-result').innerHTML =
+      `<div style="margin-bottom:6px">mL/hr: <b>${fmt(mLhr,1)}</b> &nbsp;•&nbsp; gtts/min: <b>${Math.round(gttsMin)}</b></div>`+
+      `<div style="color:var(--accent);font-weight:600">Count <b>${Math.round(ivPer10)}</b> drops every 10 seconds to confirm your rate.</div>`;
   });
   $('#iv-reset').addEventListener('click', ()=>{ ['iv-ordered','iv-wt','iv-bagmg','iv-bagvol','iv-dripset'].forEach(id=> $('#'+id).value=''); $('#iv-result').innerHTML=''; const n=document.getElementById('iv-prefill-note'); if(n) n.textContent=''; });
 
@@ -4593,7 +4603,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     const target = parseFloat($('#md-target').value||'0');
     if(!target){ $('#md-result').innerHTML='Enter a target gtts/min.'; return }
     const per10 = target/6;
-    $('#md-result').innerHTML = `Aim ~<b>${Math.round(per10)}</b> gtts every 10 s (exact: ${fmt(per10,1)}).`;
+    $('#md-result').innerHTML = `<div style="color:var(--accent);font-weight:600">Count <b>${Math.round(per10)}</b> drops every 10 seconds to confirm your rate.</div><div style="color:var(--muted);font-size:12px;margin-top:4px">Exact: ${fmt(per10,1)} drops/10 sec</div>`;`;
   });
   $('#md-reset').addEventListener('click', ()=>{ $('#md-target').value=''; $('#md-result').innerHTML=''; });
 
@@ -4605,7 +4615,10 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     if(!(vol&&drip&&time)){ $('#fo-result').innerHTML='Enter volume, drip set, and time.'; return }
     const gttsMin = (vol * drip) / time;
     const mLhr = (vol / time) * 60;
-    $('#fo-result').innerHTML = `gtts/min: <b>${Math.round(gttsMin)}</b> • mL/hr: <b>${fmt(mLhr,0)}</b>`;
+    const foPer10 = gttsMin / 6;
+    $('#fo-result').innerHTML =
+      `<div style="margin-bottom:6px">gtts/min: <b>${Math.round(gttsMin)}</b> &nbsp;•&nbsp; mL/hr: <b>${fmt(mLhr,0)}</b></div>`+
+      `<div style="color:var(--accent);font-weight:600">Count <b>${Math.round(foPer10)}</b> drops every 10 seconds to confirm your rate.</div>`;
   });
   $('#fo-reset').addEventListener('click', ()=>{ ['fo-volume','fo-dripset','fo-time'].forEach(id=> $('#'+id).value=''); $('#fo-result').innerHTML=''; });
 
