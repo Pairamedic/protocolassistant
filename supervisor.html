@@ -582,8 +582,6 @@
       </div>
       <div id="dir-results" class="dir-results"></div>
     </div>
-  </div>
-</div>
 
     <!-- ── TAB: SHIFT REPORT ── -->
     <div id="tab-report" class="tab-panel">
@@ -668,7 +666,7 @@
 </div>
 
 <!-- Narcotic Restock Modal -->
-<div id="narc-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center">
+<div id="narc-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);align-items:flex-end;justify-content:center">
   <div style="background:var(--card);border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;padding:20px 20px 32px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
       <div>
@@ -1420,13 +1418,6 @@ function buildCalloutEntry(c={}){
     </div>`;
   return div;
 }
-document.addEventListener('DOMContentLoaded', ()=>{
-  document.getElementById('btn-add-callout').addEventListener('click', ()=>{
-    const list = document.getElementById('callouts-list');
-    const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
-    list.appendChild(buildCalloutEntry());
-  });
-});
 
 /* ── Significant Events ── */
 function renderEvents(){
@@ -1449,13 +1440,6 @@ function buildEventEntry(e={}){
     </div>`;
   return div;
 }
-document.addEventListener('DOMContentLoaded', ()=>{
-  document.getElementById('btn-add-event').addEventListener('click', ()=>{
-    const list = document.getElementById('events-list');
-    const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
-    list.appendChild(buildEventEntry());
-  });
-});
 
 /* ── Admin Actions ── */
 function renderAdminActions(){
@@ -1477,13 +1461,6 @@ function buildAdminEntry(a={}){
     </div>`;
   return div;
 }
-document.addEventListener('DOMContentLoaded', ()=>{
-  document.getElementById('btn-add-admin').addEventListener('click', ()=>{
-    const list = document.getElementById('admin-list');
-    const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
-    list.appendChild(buildAdminEntry());
-  });
-});
 
 /* ── Narcotics ── */
 function renderNarcotics(){
@@ -1511,13 +1488,6 @@ function buildNarcEntry(n={}){
     </div>`;
   return div;
 }
-document.addEventListener('DOMContentLoaded', ()=>{
-  document.getElementById('btn-add-narc').addEventListener('click', ()=>{
-    const list = document.getElementById('narcotics-list');
-    const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
-    list.appendChild(buildNarcEntry());
-  });
-});
 
 /* ── Call Totals ── */
 function renderTotals(){
@@ -1562,13 +1532,6 @@ function updateTotalsCount(){
   document.querySelectorAll('[data-f="tot-calls"]').forEach(el => total += parseInt(el.value)||0);
   document.getElementById('total-calls-count').textContent = total;
 }
-document.addEventListener('DOMContentLoaded', ()=>{
-  document.getElementById('btn-add-total').addEventListener('click', ()=>{
-    const list = document.getElementById('totals-list');
-    const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
-    list.appendChild(buildTotalEntry());
-  });
-});
 
 /* ── Email Report ── */
 function generateReportText(){
@@ -1969,6 +1932,32 @@ function initShiftReport(){
   document.getElementById('btn-rpt-save').addEventListener('click', saveRptData);
   document.getElementById('btn-rpt-email').addEventListener('click', emailReport);
   document.getElementById('btn-restock').addEventListener('click', openNarcModal);
+  // Add-entry buttons
+  document.getElementById('btn-add-callout').addEventListener('click', ()=>{
+    const list = document.getElementById('callouts-list');
+    const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
+    list.appendChild(buildCalloutEntry());
+  });
+  document.getElementById('btn-add-event').addEventListener('click', ()=>{
+    const list = document.getElementById('events-list');
+    const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
+    list.appendChild(buildEventEntry());
+  });
+  document.getElementById('btn-add-admin').addEventListener('click', ()=>{
+    const list = document.getElementById('admin-list');
+    const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
+    list.appendChild(buildAdminEntry());
+  });
+  document.getElementById('btn-add-narc').addEventListener('click', ()=>{
+    const list = document.getElementById('narcotics-list');
+    const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
+    list.appendChild(buildNarcEntry());
+  });
+  document.getElementById('btn-add-total').addEventListener('click', ()=>{
+    const list = document.getElementById('totals-list');
+    const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
+    list.appendChild(buildTotalEntry());
+  });
   // Close modal on backdrop tap
   document.getElementById('narc-modal').addEventListener('click', e => {
     if(e.target === document.getElementById('narc-modal')) closeNarcModal();
