@@ -2613,11 +2613,150 @@
     ]
   };
 
+  /* ─── AHA Algorithms 2026 (built-in, no cloud sync) ─── */
+  const AHA_2026_SERVICE = {
+    _version: 20260609,
+    protocols: [
+      {
+        id: 'aha26-adult-bls',
+        title: 'Adult BLS — Health Care Professionals',
+        summary: '2025 AHA Adult Basic Life Support Algorithm. For adults (or adolescents with signs of puberty). Assess breathing and pulse simultaneously within 10 seconds.',
+        steps: [
+          '1. Verify scene safety.',
+          '2. Check for responsiveness. Shout for nearby help. Activate emergency response system. Send someone to get AED/defibrillator.',
+          '3. Simultaneously: Look for no breathing or only gasping AND check pulse — is pulse definitely felt within 10 seconds?',
+          '━━ Normal breathing, pulse felt → Monitor until advanced care arrives.',
+          '━━ Abnormal breathing, pulse felt → Provide breaths: 1 breath every 6 seconds (10/min). Check pulse every 2 min; if no pulse, start CPR. If suspected opioid OD: administer naloxone if available.',
+          '━━ No breathing / only gasping, pulse NOT felt → Start CPR.',
+          '4. CPR: Cycles of 30 compressions + 2 breaths. Use AED/defibrillator as soon as available. If suspected opioid OD: consider naloxone.',
+          '5. AED arrives → Check rhythm. Shockable?',
+          '━━ YES — Shockable: Give 1 shock. Resume CPR immediately × 2 min (until AED prompts rhythm check). Continue until ALS professionals take over or patient moves.',
+          '━━ NO — Nonshockable: Resume CPR immediately × 2 min (until AED prompts rhythm check). Continue until ALS professionals take over or patient moves.',
+          '6. Repeat rhythm check loop every 2 minutes.',
+          '⚠ If signs of puberty present, treat as adult.'
+        ],
+        tags: ['bls','adult','cpr','aed','cardiac arrest','aha','2025','hcp','defibrillation']
+      },
+      {
+        id: 'aha26-peds-bls',
+        title: 'Pediatric BLS — Single Rescuer (Infants to Puberty)',
+        summary: '2025 AHA/AAP Pediatric Basic Life Support for Health Care Professionals — Single Rescuer.',
+        steps: [
+          '1. Verify scene safety.',
+          '2. Check for responsiveness. Shout for nearby help. Activate emergency response system.',
+          '3. Simultaneously: Look for no breathing / gasping AND check pulse — is pulse definitely felt within 10 seconds?',
+          '━━ Normal breathing, pulse felt → Monitor until advanced care arrives.',
+          '━━ Abnormal breathing, pulse felt (Support Ventilation): Open airway and reposition. 1 breath every 2–3 seconds (20–30/min). Assess pulse rate after 2 min. If suspected opioid OD: administer antagonist if available.',
+          '    → HR <60/min with signs of poor perfusion despite oxygenation/ventilation?',
+          '      YES → Perform CPR. | NO → Continue breaths; check pulse every 2 min.',
+          '━━ Abnormal breathing, pulse NOT felt → Witnessed sudden collapse?',
+          '    YES → Activate ERS (if not done); retrieve and use AED immediately.',
+          '    NO → Start CPR.',
+          '4. Start CPR: First rescuer: 30 compressions + 2 breaths. When 2nd rescuer arrives: 15 compressions + 2 breaths. Use AED as soon as available. If opioid OD: administer naloxone.',
+          '5. After 2 min (if still alone): Activate ERS and retrieve AED if not already done.',
+          '6. Check rhythm. Shockable?',
+          '━━ YES: Give 1 shock. Resume CPR × 2 min. Continue until PALS professionals take over or child/infant moves.',
+          '━━ NO: Resume CPR × 2 min. Continue until PALS professionals take over or child/infant moves.',
+          '7. Repeat rhythm check loop every 2 minutes.'
+        ],
+        tags: ['bls','pediatric','infant','peds','cpr','aed','cardiac arrest','aha','aap','2025','single rescuer']
+      },
+      {
+        id: 'aha26-peds-brady',
+        title: 'Pediatric Bradycardia With a Pulse',
+        summary: '2025 AHA/AAP. Epinephrine: 0.01 mg/kg IV/IO (max 1 mg). Atropine: 0.02 mg/kg IV/IO (min 0.1 mg, max single dose 0.5 mg, may repeat once).',
+        steps: [
+          '1. Child with bradycardia and a pulse.',
+          '2. Cardiopulmonary compromise? (Acutely altered mental status | Signs of shock | Hypotension)',
+          '━━ NO → Identify and treat underlying causes. Support ABCs. Consider oxygen. Consider 12-lead ECG. Observe.',
+          '━━ YES → Proceed to assessment and support.',
+          '3. Assessment and support: Maintain patent airway and provide oxygen. Assist breathing with PPV as necessary. Attach cardiorespiratory monitor. Monitor pulse.',
+          '4. Bradycardia persists WITH cardiopulmonary compromise?',
+          '━━ NO → Identify/treat underlying causes (loop back to observation).',
+          '━━ YES → Start CPR if HR <60, then:',
+          '   • IV/IO access.',
+          '   • Epinephrine 0.01 mg/kg IV/IO (0.1 mg/mL concentration; max 1 mg). Repeat every 3–5 min.',
+          '   • Atropine 0.02 mg/kg IV/IO for increased vagal tone or primary AV block (min 0.1 mg; max single dose 0.5 mg; may repeat once).',
+          '5. Identify and treat underlying causes. Consider transthoracic/transvenous pacing.',
+          '6. Check pulse every 2 minutes. Pulse present?',
+          '━━ YES → Loop back to bradycardia reassessment.',
+          '━━ NO → Go to Pediatric Cardiac Arrest Algorithm.',
+          'Possible Causes: Hypothermia • Hypoxia • Toxins/medications • Increased ICP • Increased vagal tone • Heart block • Physiologic/appropriate.'
+        ],
+        tags: ['bradycardia','pediatric','peds','heart rate','aha','aap','2025','epinephrine','atropine','cpr']
+      },
+      {
+        id: 'aha26-peds-tachy',
+        title: 'Pediatric Tachyarrhythmia With a Pulse',
+        summary: '2025 AHA/AAP. Adenosine: 0.1 mg/kg IV/IO rapid push + flush (max 6 mg); repeat 0.2 mg/kg (max 12 mg). Sync cardioversion: 0.5–1 J/kg; increase to 2 J/kg if ineffective.',
+        steps: [
+          '1. Child with suspected tachyarrhythmia.',
+          '2. Initial assessment and support: Maintain patent airway. Assist breathing with PPV and O2 as necessary. Attach cardiorespiratory monitor. Establish IV/IO access. 12-lead ECG if available.',
+          '3. Evaluate rhythm:',
+          '━━ Probable Sinus Tachycardia: P waves present/normal • Variable RR interval • Infant rate usually <220/min • Child rate usually <180/min → Search for and treat cause.',
+          '━━ Probable SVT: P waves absent/abnormal • RR not variable • Infant rate usually ≥220/min • Child rate usually ≥180/min • History of abrupt rate change → Proceed to step 4.',
+          '4. Cardiopulmonary compromise? (Acutely altered mental status | Signs of shock | Hypotension)',
+          '━━ YES → Evaluate QRS duration:',
+          '   • Narrow ≤0.09 sec (Probable SVT): Give adenosine 0.1 mg/kg IV/IO rapid push + flush (max 6 mg) OR perform synchronized cardioversion.',
+          '   • Wide >0.09 sec (Possible VT): Synchronized cardioversion. Expert consultation advised before additional drug therapies.',
+          '━━ NO → Evaluate QRS duration:',
+          '   • Narrow ≤0.09 sec (Probable SVT): Consider vagal maneuvers. Give adenosine 0.1 mg/kg IV/IO rapid push + flush (max 6 mg).',
+          '   • Wide >0.09 sec (Possible VT or SVT with aberrancy): If rhythm is regular and QRS monomorphic → consider adenosine. Expert consultation recommended.',
+          'Cardioversion dose: Begin 0.5–1 J/kg; increase to 2 J/kg if not effective. Sedate if possible — do not delay cardioversion.',
+          'Adenosine repeat dose: 0.2 mg/kg rapid IV push + flush (max dose 12 mg).'
+        ],
+        tags: ['tachycardia','tachyarrhythmia','svt','vt','pediatric','peds','aha','aap','2025','adenosine','cardioversion','qrs']
+      },
+      {
+        id: 'aha26-neonatal',
+        title: 'Neonatal Resuscitation Algorithm',
+        summary: '2025 AHA/AAP NRP. Target SpO2: 2 min 65–70% | 3 min 70–75% | 4 min 75–80% | 5 min 80–85% | 10 min 85–95%.',
+        steps: [
+          '1. Antenatal counseling. Team briefing. Equipment check.',
+          '2. Birth → Initiate cord management plan.',
+          '3. Term gestation? Good tone? Breathing or crying?',
+          '━━ YES → Skin to skin with parent. Routine care. Maintain normal temperature. Ongoing evaluation.',
+          '━━ NO → Warm and maintain normal temperature. Dry. Position. Stimulate and clear airway if needed.',
+          '4. [~1 minute] Apnea or gasping? HR <100/min?',
+          '━━ NO → Labored breathing or persistent cyanosis?',
+          '   • YES → Pulse oximeter. Oxygen if needed. Consider CPAP.',
+          '   • NO → Continue evaluation.',
+          '━━ YES → Ventilate. Apply pulse oximeter. Consider cardiac monitor.',
+          '5. HR <100/min?',
+          '━━ NO → Postresuscitation care. Communicate with family. Team debriefing.',
+          '━━ YES → Ventilation corrective steps. Consider intubation or laryngeal mask. Attach cardiac monitor.',
+          '6. HR <60/min?',
+          '━━ NO → Return to HR <100 reassessment.',
+          '━━ YES → Intubate or laryngeal mask. Chest compressions — 3:1 ratio with ventilation. 100% oxygen. UVC or IO access.',
+          '7. HR still <60/min?',
+          '━━ NO → Return to HR <100 reassessment.',
+          '━━ YES → UVC or IO epinephrine every 3–5 minutes. If HR remains <60/min: Consider hypovolemia. Consider pneumothorax.',
+          'Target SpO2 after birth: 2 min 65–70% | 3 min 70–75% | 4 min 75–80% | 5 min 80–85% | 10 min 85–95%.'
+        ],
+        tags: ['neonatal','newborn','resuscitation','neonate','nrp','aha','aap','2025','birth','cpap','intubation']
+      }
+    ],
+    meds: [
+      { name: "Epinephrine (Cardiac Arrest)", route: "IV/IO", notes: "Adult Arrest: 1 mg IV/IO every 3–5 minutes.\x01Pediatric Arrest: 0.01 mg/kg IV/IO (0.1 mg/mL concentration; max 1 mg) every 3–5 minutes.\x01Neonatal Arrest (UVC/IO): 0.01–0.03 mg/kg IV/IO. Repeat every 3–5 min.", contra: "None in cardiac arrest", se: "Increased myocardial O2 demand; hypertension post-ROSC" },
+      { name: "Epinephrine (Peds Bradycardia)", route: "IV/IO", notes: "0.01 mg/kg IV/IO (use 0.1 mg/mL concentration). Maximum dose 1 mg. Repeat every 3–5 minutes if needed.\x01Indication: Pediatric bradycardia with cardiopulmonary compromise persisting despite CPR and oxygenation.", default_mgkg: 0.01, max_mg: 1, contra: "None in symptomatic bradycardia", se: "Tachycardia, hypertension, arrhythmia" },
+      { name: "Adenosine (SVT)", route: "Rapid IV/IO push", notes: "Adult SVT: 6 mg rapid IV push + NS flush immediately. Repeat 12 mg if no conversion (max 3 doses).\x01Pediatric SVT: 0.1 mg/kg rapid IV/IO push + flush immediately (max 6 mg). Repeat: 0.2 mg/kg (max 12 mg). Must be given as rapid bolus followed immediately by flush — use IV line closest to heart.", contra: "2°/3° AV block without pacemaker, sick sinus syndrome, asthma (relative caution)", se: "Transient asystole, flushing, chest pressure, dyspnea, sense of doom" },
+      { name: "Amiodarone (Cardiac Arrest)", route: "IV/IO push", notes: "Adult VF/pVT: 300 mg IV/IO push. May repeat 150 mg × 1.\x01Pediatric VF/pVT: 5 mg/kg IV/IO. May repeat up to 2 times (max 15 mg/kg or 300 mg total).", default_mgkg: 5, max_mg: 300, contra: "Bradycardia, 2°/3° AV block", se: "Hypotension, bradycardia" },
+      { name: "Atropine (Peds Bradycardia)", route: "IV/IO", notes: "0.02 mg/kg IV/IO. Minimum dose 0.1 mg; maximum single dose 0.5 mg. May repeat once.\x01Indication: Pediatric bradycardia due to increased vagal tone or primary AV block, with cardiopulmonary compromise persisting after CPR and oxygenation.", default_mgkg: 0.02, max_mg: 0.5, contra: "None in symptomatic bradycardia", se: "Tachycardia, dry mouth; paradoxical bradycardia possible at doses below minimum" },
+      { name: "Lidocaine (Cardiac Arrest)", route: "IV/IO", notes: "VF/pVT — alternative to amiodarone. Initial: 1–1.5 mg/kg IV/IO. Additional: 0.5–0.75 mg/kg every 5–10 min (max cumulative 3 mg/kg).\x01Pediatric VF/pVT: 1 mg/kg IV/IO.", contra: "Known allergy, complete heart block without pacemaker", se: "CNS toxicity (seizures, confusion) at high doses; bradycardia" },
+      { name: "Magnesium Sulfate (Torsades)", route: "IV/IO", notes: "Adult Torsades de Pointes: 1–2 g IV/IO over 5–20 min.\x01Pediatric: 25–50 mg/kg IV/IO over 10–20 min (max 2 g).", contra: "Hypermagnesemia; severe renal impairment (caution)", se: "Flushing, hypotension, respiratory depression at high doses" },
+      { name: "Naloxone (Opioid Arrest/OD)", route: "IV/IO/IN/IM", notes: "Opioid-associated arrest/respiratory depression. Adult: 0.4–2 mg IV/IO/IM; 2–4 mg IN. Repeat every 2–3 min as needed.\x01Pediatric: 0.01 mg/kg IV/IO/IM (max 0.4 mg per dose); 0.1 mg/kg IN if no IV access.", contra: "None in emergency (relative: known opioid dependence — may precipitate withdrawal)", se: "Acute withdrawal, agitation; re-narcotization if short-acting naloxone vs. long-acting opioid" },
+      { name: "Sodium Bicarbonate", route: "IV/IO", notes: "1 mEq/kg IV/IO.\x01Indications in cardiac arrest: Hyperkalemia • Tricyclic antidepressant (TCA) overdose • Severe pre-existing metabolic acidosis • Prolonged resuscitation.\x01Pediatric/Neonatal: 1 mEq/kg IV/IO (use 0.5 mEq/mL solution in neonates).\x01Note: NOT recommended for routine cardiac arrest use without specific indication.", contra: "Routine cardiac arrest — empiric use not recommended", se: "Hypernatremia, metabolic alkalosis, paradoxical intracellular acidosis" },
+      { name: "Calcium Chloride (Arrest)", route: "IV/IO slow push", notes: "500–1000 mg (5–10 mL of 10% solution) IV/IO slow push.\x01Indications: Suspected hyperkalemia • Hypocalcemia • Calcium channel blocker overdose.\x01Pediatric: 20 mg/kg IV/IO (0.2 mL/kg of 10% solution; max 1 g).", contra: "VF without above indication; digoxin toxicity (relative)", se: "Tissue necrosis if extravasated; bradycardia; hypercalcemia" }
+    ],
+    contacts: []
+  };
+
   const SAMPLE = {
     currentService: '',
     services: {
       'EASI Protocols - 2025': JSON.parse(JSON.stringify(SAMPLE_SERVICE)),
-      'EASI Protocols - 2026': JSON.parse(JSON.stringify(EASI_2026_SERVICE))
+      'EASI Protocols - 2026': JSON.parse(JSON.stringify(EASI_2026_SERVICE)),
+      'AHA Algorithms 2026':   JSON.parse(JSON.stringify(AHA_2026_SERVICE))
     }
   };
 
@@ -2632,6 +2771,10 @@
     }
     if(!data.services['EASI Protocols - 2026']){
       data.services['EASI Protocols - 2026'] = JSON.parse(JSON.stringify(EASI_2026_SERVICE));
+      save(data);
+    }
+    if(!data.services['AHA Algorithms 2026']){
+      data.services['AHA Algorithms 2026'] = JSON.parse(JSON.stringify(AHA_2026_SERVICE));
       save(data);
     }
     if(!data.favs) data.favs = {};
@@ -4581,6 +4724,8 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     }
     if(!data.services['EASI Protocols - 2026'])
       data.services['EASI Protocols - 2026'] = JSON.parse(JSON.stringify(EASI_2026_SERVICE));
+    if(!data.services['AHA Algorithms 2026'])
+      data.services['AHA Algorithms 2026'] = JSON.parse(JSON.stringify(AHA_2026_SERVICE));
     if(!data.favs) data.favs = {};
     return data;
   }
