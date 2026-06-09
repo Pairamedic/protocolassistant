@@ -1258,7 +1258,7 @@
         title: 'Infusion Dosing of Medications',
         summary: 'Setup and drip rate reference for Amiodarone, Magnesium, Epinephrine, and Ketamine infusions using 60gtts Micro Drip Set with Dial-A-Flo.',
         steps: [
-          'Paramedic: Setup: Use Micro Drip Set (60 gtts/set; 60 gtts/min = 1 mL/hr). Attach Dial-A-Flo; prime while priming drip set. Control is via Dial-A-Flo, not the drip tubing clamp.',
+          'Paramedic: Use Micro Drip Set (60 gtts/set; 60 gtts/min = 1 mL/hr). Attach Dial-A-Flo; prime while priming drip set. Control is via Dial-A-Flo, not the drip tubing clamp.',
           'Paramedic: Amiodarone — Mix 150 mg in 100 cc NS 0.9%. 1 mg/min = 40 gtts/min.',
           'Paramedic: Magnesium — Mix 2 G in 100 mL NS 0.9%. 1 G/hr = 100 mL/hr.',
           'Paramedic: Epinephrine — Mix 1 mg (1:1,000) in 250 cc NS or D5W. 1 mcg/min = 15 gtts/min; 2 = 30; 3 = 45; 4 = 60; 5 = 75; 6 = 90; 7 = 105; 8 = 120; 9 = 135; 10 mcg/min = 150 gtts/min.',
@@ -3899,17 +3899,18 @@
       let _sn = 0;
 
       // ── Phase 1: group steps into label-blocks, treatment-blocks, or plain steps ──
-      const _SEC_RE  = /^(Required\s+Assessment|Assessment|Indications?|Contraindications?|Reversible\s+[Cc]auses?|Note|NOTE|Signs?|Symptoms?|All\s+Providers?|Scene\s+Safety|Considerations?|Warning|Caution)\s*:/i;
+      const _SEC_RE  = /^(Required\s+Assessment|GCS\s+Assessment|Assessment|Primary\s+Survey|Secondary\s+Survey|Vital\s+Signs?|History|Indications?|Contraindications?|Reversible\s+[Cc]auses?|Note|NOTE|Signs?|Symptoms?|All\s+Providers?|Scene\s+Safety|Considerations?|Warning|Caution)\s*:/i;
       const _ROLE_RE = /^\s*(?:Paramedic|AEMT|Advanced\s+EMT|Basic\s+EMT|EMT-I\b|EMT-Intermediate\b|EMT\b|ALL)\s*[:–\-]/i;
       const _blocks = []; let _tBlock = null;
       for(const s of (p.steps||[])){
         const ns = normalizeRoles(s);
         const role = stepRole(ns);
+        const explicitRole = _ROLE_RE.test(ns);
         if(role && _hiddenRoles.has(role)) continue;
         const {clean, descriptor} = stripRolePrefix(ns);
         const isBranch = /^(?:━━|•|→|⚠|──)/.test(clean.trimStart()) || /^ {3,}/.test(clean);
         const dc = isBranch ? clean : clean.replace(/^\s*\d+\.\s+/, '');
-        const it = {ns, role, clean, dc, descriptor, isBranch};
+        const it = {ns, role, explicitRole, clean, dc, descriptor, isBranch};
         if(!isBranch && _SEC_RE.test(dc)){
           _tBlock = null; _blocks.push({type:'label', ...it});
         } else if(!isBranch && _ROLE_RE.test(ns)){
@@ -3976,18 +3977,17 @@
           const lbl = m[1].charAt(0).toUpperCase() + m[1].slice(1).replace(/\s+causes?$/i,' Causes');
           const body = b.dc.slice(m[0].length).trim();
           const rawLabel = m[1].toLowerCase();
-          const sk = rawLabel.startsWith('required') ? 'assessment'
+          const sk = (rawLabel.startsWith('required') || rawLabel.startsWith('primary') || rawLabel.startsWith('secondary') || rawLabel.startsWith('vital') || rawLabel.startsWith('history') || rawLabel.startsWith('gcs')) ? 'assessment'
                    : rawLabel.startsWith('contra')   ? 'contraindication'
                    : rawLabel.startsWith('indic')    ? 'indication'
                    : rawLabel.startsWith('reversi')  ? 'reversible'
                    : rawLabel.split(/\s/)[0].replace(/s$/,'');
           const st = _PSTY[sk] || _PSTY.note;
-          const rl = b.role ? `<span class="step-role-tag" style="color:${ROLE_COLORS[b.role]};border-color:${ROLE_COLORS[b.role]};margin-left:4px;font-size:9px">${ROLE_LABELS[b.role]}</span>` : '';
-          const pb = /^(Pediatric|Peds)$/i.test(b.descriptor)?`<span class="pt-badge pt-peds">Peds</span> `:/^Adult$/i.test(b.descriptor)?`<span class="pt-badge pt-adult">Adult</span> `:'';
-          const si = splitInlineList(body); let bh;
-          if(si && si.length>1){ bh=si.map(x=>{const h=enhance(fmtRateTable(linkMeds(doseHL(highlight(sanitizeText(x.text),filterTerms)))));return x.num?`<div class="sub-step"><span class="sub-k">${x.num}</span><span>${h}</span></div>`:`<span style="display:block;margin-bottom:2px">${h}</span>`;}).join(''); }
-          else { bh=enhance(fmtRateTable(linkMeds(doseHL(highlight(sanitizeText(body),filterTerms))))); }
-          return `<div class="proto-sec" style="border-color:${st.bd};margin-bottom:8px"><div class="proto-sec-label" style="color:${st.c};background:${st.bg};border-bottom-color:${st.bd}">${sanitizeText(lbl)}${rl}</div><div class="proto-sec-body">${pb}${bh}</div></div>`;
+          // Only show role in body if step had an explicit role prefix (not the stepRole() default)
+          const bodyRole = b.explicitRole ? b.role : null;
+          // Render body as a numbered step so it gets a step number
+          const bodyHtml = body ? _rs({role:bodyRole, clean:body, dc:body, descriptor:b.descriptor, isBranch:false, explicitRole:b.explicitRole}) : '';
+          return `<div class="proto-sec" style="border-color:${st.bd};margin-bottom:8px"><div class="proto-sec-label" style="color:${st.c};background:${st.bg};border-bottom-color:${st.bd}">${sanitizeText(lbl)}</div><div class="proto-sec-body" style="padding:4px 4px 4px">${bodyHtml}</div></div>`;
         }
         if(b.type === 'treat'){
           return `<div class="proto-sec" style="border-color:${_TSTY.bd};margin-bottom:8px"><div class="proto-sec-label" style="color:${_TSTY.c};background:${_TSTY.bg};border-bottom-color:${_TSTY.bd}">Treatment</div><div class="proto-sec-body" style="padding:6px 4px 4px">${b.steps.map(_rs).join('')}</div></div>`;
