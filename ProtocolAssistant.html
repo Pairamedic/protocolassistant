@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>Pairamedic</title>
+  <title>PAT – Protocol Accessibility Tool</title>
   <link rel="manifest" href="manifest.json" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Pairamedic" />
+  <meta name="apple-mobile-web-app-title" content="PAT" />
   <link rel="apple-touch-icon" href="star-of-life.svg" />
   <style>
     :root { --bg:#0b0d10; --card:#141820; --muted:#a7b0be; --text:#e6eef8; --accent:#5eead4; --accent2:#93c5fd; --border:rgba(255,255,255,.1); --input-bg:#0f131a; }
@@ -359,7 +359,7 @@
   <header>
     <div class="wrap">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <div id="app-title" class="title" style="display:flex;align-items:center;gap:9px"><img src="star-of-life.svg" alt="" style="width:28px;height:28px;flex:none"/> Pairamedic</div>
+        <div id="app-title" class="title" style="display:flex;align-items:center;gap:9px"><img src="star-of-life.svg" alt="" style="width:28px;height:28px;flex:none"/> PAT</div>
         <div style="display:flex;align-items:center;gap:6px">
           <button id="btn-admin" class="ui-ctrl-btn hidden" title="Admin Panel">⚙️</button>
           <div style="position:relative">
@@ -369,6 +369,8 @@
               <button id="btn-theme" class="sett-item">☀ Light Mode</button>
               <button id="btn-size" class="sett-item">🔡 Text: Small</button>
               <button id="btn-update-app" class="sett-item">🔄 Update App</button>
+              <div class="sett-divider"></div>
+              <a id="btn-supervisor" href="supervisor.html" class="sett-item hidden" style="text-decoration:none;display:block">🗂 Supervisor Tools</a>
               <div class="sett-divider"></div>
               <button id="auth-logout" class="sett-item sett-danger">↩ Sign Out</button>
             </div>
@@ -3468,7 +3470,7 @@
   function updateTitle(){
     const el = $('#app-title');
     const name = SERVICE_DISPLAY[state.currentService];
-    el.innerHTML = `${LOGO_HTML} ${name || 'Pairamedic'}`;
+    el.innerHTML = `${LOGO_HTML} ${name || 'PAT'}`;
   }
 
   function noServiceState(){
@@ -5268,7 +5270,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       $('#user-email').textContent = user.email;
       $('#btn-settings').style.display = 'block';
       _adminMode = ADMIN_EMAILS.has(user.email);
-      if(_adminMode) $('#btn-admin').classList.remove('hidden');
+      if(_adminMode){ $('#btn-admin').classList.remove('hidden'); $('#btn-supervisor').classList.remove('hidden'); }
       // Load user preferences (currentService, favs) — NOT service protocol data
       try{
         const doc = await fbDb.collection('users').doc(user.uid)
