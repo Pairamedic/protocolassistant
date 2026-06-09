@@ -1587,6 +1587,28 @@ function generateReportText(){
   if(user) r += `Supervisor: ${user}\n`;
   r += '\n';
 
+  // Pine Bluff unit assignments (pulled from saved roster)
+  r += '── PINE BLUFF UNIT ASSIGNMENTS ──────────\n';
+  try {
+    const savedRoster = JSON.parse(localStorage.getItem('roster_v1_' + date) || 'null');
+    const pbRows = ROSTER_ROWS.filter(row => row.section === 'Pine Bluff');
+    let anyPB = false;
+    pbRows.forEach(row => {
+      const rd = savedRoster ? savedRoster[row.id] : null;
+      const unit  = (rd && rd.unit)      ? rd.unit      : row.defaultUnit;
+      const lead  = (rd && rd.lead)      ? rd.lead      : '';
+      const sec   = (rd && rd.secondary) ? rd.secondary : '';
+      if(!lead && !sec && !unit) return;
+      anyPB = true;
+      const unitLabel = unit || '—';
+      r += `  ${unitLabel.padEnd(18)} ${row.label}\n`;
+      r += `    Lead:      ${lead || 'Unstaffed'}\n`;
+      r += `    Secondary: ${sec  || 'Unstaffed'}\n`;
+    });
+    if(!anyPB) r += '  No Pine Bluff roster entered.\n';
+  } catch(e) { r += '  (roster data unavailable)\n'; }
+  r += '\n';
+
   // Call-outs
   r += '── CALL-OUTS (' + (rptData.callouts.length||'0') + ') ─────────────────\n';
   if(!rptData.callouts.length){ r += '  None\n'; }
