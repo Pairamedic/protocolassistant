@@ -1,4 +1,4 @@
-const CACHE = 'pairamedic-v1';
+const CACHE = 'pat-v2';
 const CORE = ['./ProtocolAssistant.html', './star-of-life.svg', './manifest.json'];
 
 self.addEventListener('install', e => {
@@ -19,14 +19,11 @@ self.addEventListener('fetch', e => {
   if (!url.startsWith(self.location.origin) ||
       url.includes('firestore') || url.includes('firebase') || url.includes('gstatic')) return;
   e.respondWith(
-    caches.match(e.request).then(cached => {
-      const network = fetch(e.request).then(resp => {
-        if (resp.ok && e.request.method === 'GET') {
-          caches.open(CACHE).then(c => c.put(e.request, resp.clone()));
-        }
-        return resp;
-      });
-      return cached || network;
-    })
+    fetch(e.request).then(resp => {
+      if (resp.ok && e.request.method === 'GET') {
+        caches.open(CACHE).then(c => c.put(e.request, resp.clone()));
+      }
+      return resp;
+    }).catch(() => caches.match(e.request))
   );
 });
