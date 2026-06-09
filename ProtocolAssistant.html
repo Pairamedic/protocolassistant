@@ -2740,25 +2740,22 @@
         title: 'Pediatric Cardiac Arrest Algorithm',
         summary: '2025 AHA/AAP. Shock: 2 J/kg → 4 J/kg → ≥4 J/kg (max 10 J/kg or adult dose). Epinephrine: 0.01 mg/kg IV/IO (max 1 mg) q3–5 min. Amiodarone: 5 mg/kg IV/IO (max 300 mg, repeat up to 3 doses). Lidocaine alt: 1 mg/kg IV/IO.',
         steps: [
-          '1. Start CPR: Begin bag-mask ventilation and give oxygen. Attach monitor/defibrillator.',
-          '2. Rhythm shockable?',
-          '━━ YES → VF / pVT path:',
-          '   3. Shock ASAP.',
-          '   4. CPR × 2 min. Establish IV/IO access.',
-          '   → Rhythm shockable?',
-          '     • YES → 5. Shock ASAP → 6. CPR × 2 min; Epinephrine every 3–5 min; Consider advanced airway and capnography.',
-          '     → Rhythm shockable? YES → 7. Shock ASAP → 8. CPR × 2 min; Amiodarone OR Lidocaine; Treat reversible causes.',
-          '━━ NO → Asystole / PEA path:',
-          '   9. Epinephrine ASAP.',
-          '   10. CPR × 2 min; IV/IO access; Epinephrine every 3–5 min; Consider advanced airway and capnography.',
-          '   → Rhythm shockable? YES → Go to step 5.',
-          '   → NO → 11. CPR × 2 min; Treat reversible causes. → Rhythm shockable? YES → Go to step 5. NO → loop to 10.',
-          '12. If no signs of ROSC → Go to step 10. | If ROSC → Post-Cardiac Arrest Care checklist.',
-          'Shock Energy: First shock 2 J/kg • Second shock 4 J/kg • Subsequent shocks ≥4 J/kg (max 10 J/kg or adult dose).',
-          'Drug Therapy: Epinephrine IV/IO 0.01 mg/kg (0.1 mg/mL; max 1 mg) every 3–5 min. Amiodarone IV/IO 5 mg/kg bolus (max 300 mg; subsequent max 150 mg each; up to 3 doses). OR Lidocaine IV/IO 1 mg/kg.',
-          'Advanced Airway: ET intubation or supraglottic airway. ETCO2 to confirm ET tube placement.',
-          'High-Quality CPR: Push hard (≥⅓ AP diameter chest) and fast (100–120/min). Full chest recoil. Minimize interruptions. Change compressor every 2 min (sooner if fatigued). No advanced airway: 15:2 (2 rescuers, prepuberty), 30:2 (2 rescuers, postpuberty or 1 rescuer any age). Advanced airway: continuous compressions + 1 breath every 2–3 sec.',
-          'Reversible Causes (Hs & Ts): Hypovolemia • Hypoxia • Hydrogen ion (acidosis) • Hypoglycemia • Hypo/hyperkalemia • Hypothermia • Tension pneumothorax • Tamponade, cardiac • Toxins • Thrombosis, pulmonary • Thrombosis, coronary.'
+          'Start CPR — Bag-mask ventilation with oxygen. Attach monitor/defibrillator.',
+          'Check rhythm — Shockable (VF/pVT)?',
+          '━━ YES — SHOCKABLE PATH (VF/pVT):',
+          '   • Shock immediately (2 J/kg).',
+          '   • CPR 2 min + establish IV/IO access. Recheck rhythm → shockable? Shock (4 J/kg).',
+          '   • CPR 2 min + Epinephrine 0.01 mg/kg IV/IO every 3–5 min + consider advanced airway + capnography. Recheck rhythm → shockable? Shock (≥4 J/kg).',
+          '   • CPR 2 min + Amiodarone 5 mg/kg IV/IO OR Lidocaine 1 mg/kg IV/IO + treat reversible causes. Continue loop.',
+          '━━ NO — NON-SHOCKABLE PATH (Asystole/PEA):',
+          '   • Give Epinephrine 0.01 mg/kg IV/IO immediately.',
+          '   • CPR 2 min + IV/IO access + Epinephrine every 3–5 min + consider advanced airway + capnography.',
+          '   • Recheck rhythm → Shockable? YES: move to shockable path. NO: CPR 2 min + treat reversible causes → repeat.',
+          'ROSC? → YES: Post-Cardiac Arrest Care. NO: Continue CPR loop.',
+          '⚠ SHOCK ENERGY: 2 J/kg → 4 J/kg → ≥4 J/kg (max 10 J/kg or adult dose).',
+          '⚠ DRUG DOSES: Epinephrine 0.01 mg/kg IV/IO (0.1 mg/mL; max 1 mg) q3–5 min. Amiodarone 5 mg/kg IV/IO (max 300 mg; subsequent max 150 mg each; up to 3 doses). Lidocaine 1 mg/kg IV/IO.',
+          '⚠ HIGH-QUALITY CPR: Push hard ≥⅓ AP chest depth, 100–120/min. Full recoil. Minimize interruptions. 2 rescuers (prepuberty): 15:2. 2 rescuers (postpuberty) or 1 rescuer: 30:2. Advanced airway: continuous compressions + 1 breath q2–3 sec.',
+          '⚠ REVERSIBLE CAUSES (Hs & Ts): Hypovolemia • Hypoxia • Hydrogen ion (acidosis) • Hypoglycemia • Hypo/Hyperkalemia • Hypothermia • Tension pneumothorax • Tamponade (cardiac) • Toxins • Thrombosis (pulmonary/coronary).'
         ],
         tags: ['cardiac arrest','pediatric','peds','vf','pvt','pea','asystole','cpr','shock','defibrillation','aha','aap','2025','epinephrine','amiodarone','rosc']
       },
@@ -2829,38 +2826,22 @@
         title: 'Adult Cardiac Arrest Algorithm (VF/pVT/Asystole/PEA)',
         summary: '2025 AHA. Universal adult cardiac arrest algorithm for VF, pVT, Asystole, and PEA. Emphasizes high-quality CPR, early defibrillation, epinephrine, and treatment of reversible causes.',
         steps: [
-          '1. START CPR: Begin bag-mask ventilation and give oxygen. Attach monitor/defibrillator.',
-          '2. Rhythm shockable?',
-          '━━ YES (VF/pVT) →',
-          '   Step 3: SHOCK',
-          '   Step 4: CPR 2 min + IV/IO access. Rhythm shockable?',
-          '   → YES: Step 5: SHOCK',
-          '   Step 6: CPR 2 min. Give Epinephrine 1 mg IV/IO every 3–5 min. Consider advanced airway + capnography. Rhythm shockable?',
-          '   → YES: Step 7: SHOCK',
-          '   Step 8: CPR 2 min. Amiodarone (300 mg IV/IO, may repeat 150 mg) OR Lidocaine (1–1.5 mg/kg, may repeat 0.5–0.75 mg/kg). Treat reversible causes.',
-          '━━ NO (Asystole/PEA) →',
-          '   Step 9: Give Epinephrine ASAP.',
-          '   Step 10: CPR 2 min + IV/IO access + Epinephrine every 3–5 min + consider advanced airway + capnography. Rhythm shockable?',
-          '   → YES: Go to Step 5.',
-          '   → NO: Continue CPR 2 min. Treat reversible causes. Check rhythm again → if shockable go to Step 5.',
-          '   Step 12: If no signs of ROSC → go to Step 10. If ROSC → post-cardiac arrest care. Consider appropriateness of continued resuscitation.',
-          '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
-          'HIGH-QUALITY CPR:',
-          '• Push hard (≥2 inches / 5 cm) and fast (100–120/min). Allow complete chest recoil.',
-          '• Minimize interruptions. Avoid excessive ventilation.',
-          '• Change compressor every 2 min or sooner if fatigued.',
-          '• No advanced airway: 30:2 compression-ventilation ratio.',
-          '• Advanced airway in place: 1 breath every 6 seconds (10 breaths/min) with continuous compressions.',
-          '• Continuous waveform capnography. If ETCO₂ low or decreasing, reassess CPR quality.',
-          'SHOCK ENERGY FOR DEFIBRILLATION:',
-          '• Biphasic: manufacturer recommendation (initial 120–200 J). If unknown, use maximum available. Second and subsequent doses should be equivalent; higher doses may be considered.',
-          '• Monophasic: 360 J.',
-          'DRUG THERAPY (see Drug Details):',
-          '• Epinephrine IV/IO: 1 mg every 3–5 minutes.',
-          '• Amiodarone IV/IO: First dose 300 mg bolus, second dose 150 mg.',
-          '• Lidocaine IV/IO: First dose 1–1.5 mg/kg, second dose 0.5–0.75 mg/kg.',
-          'ADVANCED AIRWAY: ET intubation or supraglottic advanced airway. Continuous waveform capnography to confirm and monitor ET tube placement.',
-          'REVERSIBLE CAUSES (H\'s & T\'s): Hypovolemia • Hypoxia • Hydrogen ion (acidosis) • Hypo-/Hyperkalemia • Hypothermia • Tension pneumothorax • Tamponade, cardiac • Toxins • Thrombosis, pulmonary • Thrombosis, coronary.'
+          'Start CPR — Bag-mask ventilation with oxygen. Attach monitor/defibrillator.',
+          'Check rhythm — Shockable (VF/pVT)?',
+          '━━ YES — SHOCKABLE PATH (VF/pVT):',
+          '   • Shock immediately.',
+          '   • CPR 2 min + establish IV/IO access. Recheck rhythm → shockable? Shock again.',
+          '   • CPR 2 min + Epinephrine 1 mg IV/IO every 3–5 min + consider advanced airway + capnography. Recheck rhythm → shockable? Shock again.',
+          '   • CPR 2 min + Amiodarone OR Lidocaine + treat reversible causes. Continue rhythm check loop.',
+          '━━ NO — NON-SHOCKABLE PATH (Asystole/PEA):',
+          '   • Give Epinephrine 1 mg IV/IO immediately.',
+          '   • CPR 2 min + IV/IO access + Epinephrine every 3–5 min + consider advanced airway + capnography.',
+          '   • Recheck rhythm → Shockable? YES: move to shockable path. NO: CPR 2 min + treat reversible causes → repeat.',
+          'ROSC? → YES: Post-Cardiac Arrest Care. NO: Continue CPR loop.',
+          '⚠ HIGH-QUALITY CPR: Push hard ≥2 in (5 cm), fast 100–120/min. Full recoil. Minimize interruptions. Change compressor q2 min. No airway: 30:2. Advanced airway: 1 breath q6 sec (10/min) with continuous compressions.',
+          '⚠ DEFIBRILLATION: Biphasic 120–200 J (or device max if unknown). Monophasic 360 J.',
+          '⚠ DRUG DOSES: Epinephrine 1 mg IV/IO q3–5 min. Amiodarone 300 mg IV/IO then 150 mg. Lidocaine 1–1.5 mg/kg then 0.5–0.75 mg/kg.',
+          '⚠ REVERSIBLE CAUSES (H\'s & T\'s): Hypovolemia • Hypoxia • Hydrogen ion (acidosis) • Hypo/Hyperkalemia • Hypothermia • Tension pneumothorax • Tamponade (cardiac) • Toxins • Thrombosis (pulmonary/coronary).'
         ],
         tags: ['adult','cardiac arrest','vf','pvt','asystole','pea','cpr','defibrillation','epinephrine','amiodarone','lidocaine','rosc','aha','2025','reversible causes']
       },
@@ -2869,35 +2850,22 @@
         title: 'Adult Tachyarrhythmia With a Pulse Algorithm',
         summary: '2025 AHA. Assess and treat adult tachyarrhythmia (typically ≥150/min). Unstable → synchronized cardioversion. Stable wide-QRS → consider antiarrhythmics. Stable narrow-QRS → adenosine, vagal maneuvers, or rate control.',
         steps: [
-          '1. Assess appropriateness of heart rate for clinical condition. Heart rate typically ≥150/min if tachyarrhythmia.',
-          '2. INITIAL ASSESSMENT AND SUPPORT:',
-          '   • Maintain patent airway; assist breathing as necessary.',
-          '   • Oxygen if hypoxemic.',
-          '   • Continue cardiac monitoring to identify rhythm; monitor blood pressure and oximetry.',
-          '   • IV access.',
-          '   • 12-lead ECG, if available.',
-          '3. Persistent tachyarrhythmia causing: Hypotension? Acutely altered mental status? Signs of shock? Ischemic chest discomfort? Acute heart failure?',
-          '━━ YES → SYNCHRONIZED CARDIOVERSION:',
+          'Assess heart rate — Tachyarrhythmia typically ≥150/min.',
+          'Initial assessment and support:',
+          '━━ Maintain patent airway; assist breathing if needed. Oxygen if hypoxemic.',
+          '━━ Continuous cardiac monitoring — identify rhythm, monitor BP and oximetry.',
+          '━━ IV access + 12-lead ECG if available.',
+          'Tachyarrhythmia causing: Hypotension? AMS? Signs of shock? Ischemic chest pain? Acute heart failure?',
+          '━━ YES — UNSTABLE → Synchronized cardioversion:',
           '   • Sedate whenever feasible.',
-          '   • If regular narrow complex, consider adenosine.',
-          '   → If refractory, consider: underlying cause, increasing energy for next cardioversion, addition of antiarrhythmic drug, expert consultation.',
-          '━━ NO → Wide QRS? (≥0.12 second)',
-          '   → YES: Consider:',
-          '      • Adenosine only if regular AND monomorphic.',
-          '      • Antiarrhythmic infusion.',
-          '      • Expert consultation.',
-          '   → NO (narrow QRS):',
-          '      • Vagal maneuvers (if regular).',
-          '      • Adenosine (if regular).',
-          '      • β-Blocker or calcium channel blocker.',
-          '      • Consider expert consultation.',
-          '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
-          'DOSES / DETAILS:',
-          'Synchronized cardioversion: Refer to device recommendation or 2025 Guidelines. If unknown, use maximum energy setting.',
-          'Adenosine IV: First dose 6 mg rapid IV push; follow with NS flush. Second dose 12 mg if required.',
-          'Antiarrhythmic Infusions for Stable Wide-QRS Tachycardia:',
-          '• Procainamide IV: 20–50 mg/min until arrhythmia suppressed, hypotension ensues, QRS duration increases >50%, or maximum dose 17 mg/kg given. Maintenance infusion: 1–4 mg/min. Avoid if prolonged QT or CHF.',
-          '• Amiodarone IV: First dose 150 mg over 10 minutes. Repeat as needed if VT recurs. Follow by maintenance infusion of 1 mg/min for first 6 hours.'
+          '   • If regular narrow complex, consider adenosine before cardioverting.',
+          '   • Refractory? Consider: underlying cause, increase energy, add antiarrhythmic, expert consult.',
+          '━━ NO — STABLE → Wide QRS? (≥0.12 sec)',
+          '   • YES — Wide QRS: Adenosine only if regular and monomorphic. Antiarrhythmic infusion (Procainamide or Amiodarone). Expert consultation.',
+          '   • NO — Narrow QRS: Vagal maneuvers (if regular). Adenosine 6 mg rapid IV push + NS flush; repeat 12 mg if needed. β-Blocker or calcium channel blocker. Consider expert consultation.',
+          '⚠ PROCAINAMIDE IV (wide-QRS): 20–50 mg/min until suppressed, hypotension, QRS >50%, or max 17 mg/kg. Maintenance 1–4 mg/min. Avoid if prolonged QT or CHF.',
+          '⚠ AMIODARONE IV: 150 mg over 10 min; repeat if VT recurs. Maintenance 1 mg/min × 6 hours.',
+          '⚠ CARDIOVERSION ENERGY: Per device/2025 guidelines. If unknown, use maximum setting.'
         ],
         tags: ['adult','tachycardia','tachyarrhythmia','svt','vt','afib','cardioversion','adenosine','procainamide','amiodarone','stable','unstable','aha','2025','wide qrs','narrow qrs']
       },
@@ -2906,25 +2874,18 @@
         title: 'Adult Cardioversion Algorithm',
         summary: '2025 AHA. Synchronized cardioversion for unstable tachycardia. Sedate when feasible. Energy levels vary by rhythm: Afib/Aflutter 200 J, narrow-complex 100 J, monomorphic VT 100 J, polymorphic VT → unsynchronized shock.',
         steps: [
-          '1. TACHYCARDIA with serious signs and symptoms caused by the tachycardia.',
-          '2. If ventricular rate is >150/min, prepare for IMMEDIATE CARDIOVERSION. May give brief trial of medications based on specific arrhythmias. Immediate cardioversion is generally not needed if heart rate is ≤150/min.',
-          '3. HAVE AVAILABLE AT BEDSIDE:',
-          '   • Oxygen saturation monitor.',
-          '   • Suction device.',
-          '   • IV line.',
-          '   • Intubation equipment.',
-          '4. SEDATE WHENEVER FEASIBLE.*',
-          '5. SYNCHRONIZED CARDIOVERSION†‡',
-          '   • Atrial fibrillation: 200 J',
-          '   • Atrial flutter: 200 J',
-          '   • Narrow-complex tachycardia: 100 J',
-          '   • Monomorphic VT: 100 J',
-          '   • Polymorphic VT: Unsynchronized, high-energy shock (defibrillation)',
-          '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
-          'NOTES:',
-          '* Effective regimens have included a sedative (e.g., diazepam) with or without an analgesic agent (e.g., fentanyl). Many experts recommend anesthesia if service is readily available.',
-          '† Note possible need to resynchronize after each cardioversion.',
-          '‡ If delays in synchronization occur and clinical condition is critical, go immediately to unsynchronized shocks.'
+          'Tachycardia with serious signs/symptoms caused by the tachycardia.',
+          'Ventricular rate >150/min → Prepare for IMMEDIATE CARDIOVERSION. (Brief medication trial may be appropriate for specific arrhythmias. Cardioversion generally not needed if HR ≤150/min.)',
+          'Have available at bedside — O2 sat monitor, suction, IV line, intubation equipment.',
+          'Sedate whenever feasible — e.g., diazepam ± fentanyl; anesthesia if available.',
+          'SYNCHRONIZED CARDIOVERSION energy by rhythm:',
+          '━━ Atrial fibrillation: 200 J',
+          '━━ Atrial flutter: 200 J',
+          '━━ Narrow-complex tachycardia: 100 J',
+          '━━ Monomorphic VT: 100 J',
+          '━━ Polymorphic VT: Unsynchronized high-energy shock (defibrillation)',
+          '⚠ Resynchronize after each cardioversion — the sync mode may reset after a shock.',
+          '⚠ If sync delays occur and patient is critical → go immediately to unsynchronized shocks.'
         ],
         tags: ['adult','cardioversion','synchronized cardioversion','tachycardia','afib','atrial fibrillation','flutter','vt','unstable','sedation','aha','2025','energy','joules']
       },
@@ -2933,13 +2894,13 @@
         title: 'BLS/Universal Termination of Resuscitation Rules',
         summary: '2025 AHA. Three criteria must ALL be present to consider TOR. If any criterion is absent, continue resuscitation and consider transport.',
         steps: [
-          'CRITERIA — ALL THREE must be present to consider termination of resuscitation:',
-          '1. Arrest was NOT witnessed by emergency medical services personnel.',
-          '2. No return of spontaneous circulation (ROSC) before transport.',
-          '3. No AED shock was delivered before transport.',
-          '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
-          '→ If ALL criteria are present: Consider termination of resuscitation.',
-          '→ If ANY criteria are NOT present: Continue resuscitation and consider transport.'
+          'ALL THREE criteria must be met to consider termination of resuscitation:',
+          '━━ Arrest NOT witnessed by EMS personnel.',
+          '━━ No return of spontaneous circulation (ROSC) before transport.',
+          '━━ No AED shock delivered before transport.',
+          'Decision:',
+          '━━ ALL criteria present → Consider termination of resuscitation.',
+          '━━ ANY criteria absent → Continue resuscitation and consider transport.'
         ],
         tags: ['termination of resuscitation','tor','bls','universal','rosc','cardiac arrest','witnessed','aed','transport','aha','2025']
       },
@@ -2948,14 +2909,14 @@
         title: 'ALS Termination of Resuscitation',
         summary: '2025 AHA. Four criteria must ALL be present to consider ALS TOR. Stricter than BLS TOR — also requires arrest to be unwitnessed AND no bystander CPR.',
         steps: [
-          'CRITERIA — ALL FOUR must be present to consider termination of resuscitation:',
-          '1. Arrest was NOT witnessed (by anyone).',
-          '2. No bystander CPR was performed.',
-          '3. No return of spontaneous circulation (ROSC) before transport.',
-          '4. No shock was delivered before transport.',
-          '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
-          '→ If ALL criteria are present: Consider termination of resuscitation.',
-          '→ If ANY criteria are NOT present: Continue resuscitation and consider transport.'
+          'ALL FOUR criteria must be met to consider termination of resuscitation:',
+          '━━ Arrest NOT witnessed (by anyone).',
+          '━━ No bystander CPR was performed.',
+          '━━ No ROSC before transport.',
+          '━━ No shock delivered before transport.',
+          'Decision:',
+          '━━ ALL criteria present → Consider termination of resuscitation.',
+          '━━ ANY criteria absent → Continue resuscitation and consider transport.'
         ],
         tags: ['termination of resuscitation','tor','als','advanced life support','rosc','cardiac arrest','witnessed','bystander cpr','transport','aha','2025']
       },
@@ -2964,34 +2925,20 @@
         title: 'Adult Cardiac Arrest Circular Algorithm',
         summary: '2025 AHA. Circular representation of the adult cardiac arrest algorithm. Emphasizes continuous CPR as the foundation; shock VF/pVT immediately; add drug therapy and advanced airway during rhythm checks; treat reversible causes throughout.',
         steps: [
-          'CONTINUOUS CPR is the foundation. Monitor CPR quality throughout.',
-          '1. START CPR: Begin bag-mask ventilation and give oxygen. Attach monitor/defibrillator.',
-          '2. CHECK RHYTHM every 2 minutes:',
-          '   → VF/pVT: SHOCK immediately.',
-          '   → ROSC: Proceed to Post-Cardiac Arrest Care.',
-          '   → No ROSC, no shockable rhythm: Continue CPR loop.',
-          '3. DRUG THERAPY (IV/IO access):',
-          '   • Epinephrine every 3–5 minutes.',
-          '   • Amiodarone or lidocaine for refractory VF/pVT.',
-          '4. CONSIDER ADVANCED AIRWAY + quantitative waveform capnography.',
-          '5. TREAT REVERSIBLE CAUSES throughout resuscitation.',
-          '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
-          'HIGH-QUALITY CPR:',
-          '• Push hard (≥2 inches / 5 cm). Push fast (100–120/min). Allow complete chest recoil.',
-          '• Minimize interruptions. Avoid excessive ventilation.',
-          '• Change compressor every 2 min or sooner if fatigued.',
-          '• No advanced airway: 30:2 compression-ventilation ratio.',
-          '• Advanced airway: 1 breath every 6 seconds (10 breaths/min) with continuous compressions.',
-          '• Continuous waveform capnography. If ETCO₂ low or decreasing, reassess CPR quality.',
-          'SHOCK ENERGY FOR DEFIBRILLATION:',
-          '• Biphasic: Manufacturer recommendation (initial 120–200 J). If unknown, use maximum available. Second and subsequent doses should be equivalent; higher doses may be considered.',
-          '• Monophasic: 360 J.',
-          'DRUG DOSES:',
-          '• Epinephrine IV/IO: 1 mg every 3–5 minutes.',
-          '• Amiodarone IV/IO: First dose 300 mg bolus, second dose 150 mg.',
-          '• Lidocaine IV/IO: First dose 1–1.5 mg/kg, second dose 0.5–0.75 mg/kg.',
-          'ADVANCED AIRWAY: ET intubation or supraglottic advanced airway. Continuous waveform capnography to confirm and monitor ET tube. Once in place, 1 breath every 6 seconds (10 breaths/min) with continuous compressions.',
-          'REVERSIBLE CAUSES (H\'s & T\'s): Hypovolemia • Hypoxia • Hydrogen ion (acidosis) • Hypo-/Hyperkalemia • Hypothermia • Tension pneumothorax • Tamponade, cardiac • Toxins • Thrombosis, pulmonary • Thrombosis, coronary.'
+          'Start CPR — Bag-mask ventilation with oxygen. Attach monitor/defibrillator. CONTINUOUS CPR is the foundation.',
+          'Check rhythm every 2 minutes:',
+          '━━ VF/pVT → Shock immediately.',
+          '━━ ROSC → Post-Cardiac Arrest Care.',
+          '━━ No ROSC, not shockable → Continue CPR loop.',
+          'Drug therapy via IV/IO:',
+          '━━ Epinephrine 1 mg IV/IO every 3–5 min.',
+          '━━ Refractory VF/pVT: Amiodarone OR Lidocaine.',
+          'Consider advanced airway + quantitative waveform capnography.',
+          'Treat reversible causes continuously throughout resuscitation.',
+          '⚠ HIGH-QUALITY CPR: Push hard ≥2 in (5 cm), fast 100–120/min. Full recoil. Minimize interruptions. Change compressor q2 min. No airway: 30:2. Advanced airway: 1 breath q6 sec (10/min) with continuous compressions. If ETCO₂ low/decreasing → reassess CPR quality.',
+          '⚠ DEFIBRILLATION: Biphasic 120–200 J (or device max). Monophasic 360 J.',
+          '⚠ DRUG DOSES: Epinephrine 1 mg IV/IO q3–5 min. Amiodarone 300 mg then 150 mg. Lidocaine 1–1.5 mg/kg then 0.5–0.75 mg/kg.',
+          '⚠ REVERSIBLE CAUSES (H\'s & T\'s): Hypovolemia • Hypoxia • Hydrogen ion (acidosis) • Hypo/Hyperkalemia • Hypothermia • Tension pneumothorax • Tamponade (cardiac) • Toxins • Thrombosis (pulmonary/coronary).'
         ],
         tags: ['adult','cardiac arrest','circular','vf','pvt','asystole','pea','cpr','continuous','defibrillation','epinephrine','amiodarone','lidocaine','rosc','aha','2025','reversible causes','post-cardiac arrest']
       }
@@ -3602,6 +3549,7 @@
       const cardRoles = detectRoles(allText);
       const badges = cardRoles.map(r=>`<span class="role-badge rb-${r}">${r==='paramedic'?'Paramedic':r==='aemt'?'AEMT':'EMT'}</span>`).join('');
       const visibleStepCount = (p.steps||[]).filter(s=>{ const r=stepRole(normalizeRoles(s)); return !r||!_hiddenRoles.has(r); }).length;
+      let _sn = 0;
       const stepsHtml = (p.steps||[]).map((s,si)=>{
         const ns   = normalizeRoles(s);
         const role = stepRole(ns);
@@ -3610,7 +3558,11 @@
         const roleLabel = role ? `<span class="step-role-tag" style="color:${ROLE_COLORS[role]};border-color:${ROLE_COLORS[role]}">${ROLE_LABELS[role]}</span>` : '';
         const ptBadge = /^(Pediatric|Peds)$/i.test(descriptor) ? `<span class="pt-badge pt-peds">Peds</span> `
                       : /^Adult$/i.test(descriptor)            ? `<span class="pt-badge pt-adult">Adult</span> ` : '';
-        const subItems = splitInlineList(clean);
+        // Branch/sub-step lines (━━, bullets, arrows, warnings, 3+ space indent) don't get a step number badge
+        const isBranch = /^(?:━━|•|→|⚠|──)/.test(clean.trimStart()) || /^ {3,}/.test(clean);
+        // Strip leading manual step numbers (e.g. "1. ") from main steps to prevent double-numbering
+        const dc = isBranch ? clean : clean.replace(/^\s*\d+\.\s+/, '');
+        const subItems = splitInlineList(dc);
         let stepContent;
         if (subItems && subItems.length > 1) {
           stepContent = subItems.map(item => {
@@ -3620,11 +3572,16 @@
               : `<span style="display:block;margin-bottom:2px">${html}</span>`;
           }).join('');
         } else {
-          stepContent = enhance(fmtRateTable(linkMeds(doseHL(highlight(sanitizeText(clean), filterTerms)))));
+          stepContent = enhance(fmtRateTable(linkMeds(doseHL(highlight(sanitizeText(dc), filterTerms)))));
         }
         const stepHtml = ptBadge + stepContent;
+        if (isBranch) {
+          return `<div class="step-row-wrap" style="margin-bottom:4px;padding-left:20px">
+            ${roleLabel}<div class="step-content">${stepHtml}</div>
+          </div>`;
+        }
         return `<div class="step-row-wrap" style="margin-bottom:6px">
-          ${roleLabel}<div class="step-content"><span class="k">${si+1}</span> ${stepHtml}</div>
+          ${roleLabel}<div class="step-content"><span class="k">${++_sn}</span> ${stepHtml}</div>
         </div>`;
       }).join('');
       return `
