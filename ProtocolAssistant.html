@@ -2734,6 +2734,95 @@
           'Target SpO2 after birth: 2 min 65–70% | 3 min 70–75% | 4 min 75–80% | 5 min 80–85% | 10 min 85–95%.'
         ],
         tags: ['neonatal','newborn','resuscitation','neonate','nrp','aha','aap','2025','birth','cpap','intubation']
+      },
+      {
+        id: 'aha26-peds-arrest',
+        title: 'Pediatric Cardiac Arrest Algorithm',
+        summary: '2025 AHA/AAP. Shock: 2 J/kg → 4 J/kg → ≥4 J/kg (max 10 J/kg or adult dose). Epinephrine: 0.01 mg/kg IV/IO (max 1 mg) q3–5 min. Amiodarone: 5 mg/kg IV/IO (max 300 mg, repeat up to 3 doses). Lidocaine alt: 1 mg/kg IV/IO.',
+        steps: [
+          '1. Start CPR: Begin bag-mask ventilation and give oxygen. Attach monitor/defibrillator.',
+          '2. Rhythm shockable?',
+          '━━ YES → VF / pVT path:',
+          '   3. Shock ASAP.',
+          '   4. CPR × 2 min. Establish IV/IO access.',
+          '   → Rhythm shockable?',
+          '     • YES → 5. Shock ASAP → 6. CPR × 2 min; Epinephrine every 3–5 min; Consider advanced airway and capnography.',
+          '     → Rhythm shockable? YES → 7. Shock ASAP → 8. CPR × 2 min; Amiodarone OR Lidocaine; Treat reversible causes.',
+          '━━ NO → Asystole / PEA path:',
+          '   9. Epinephrine ASAP.',
+          '   10. CPR × 2 min; IV/IO access; Epinephrine every 3–5 min; Consider advanced airway and capnography.',
+          '   → Rhythm shockable? YES → Go to step 5.',
+          '   → NO → 11. CPR × 2 min; Treat reversible causes. → Rhythm shockable? YES → Go to step 5. NO → loop to 10.',
+          '12. If no signs of ROSC → Go to step 10. | If ROSC → Post-Cardiac Arrest Care checklist.',
+          'Shock Energy: First shock 2 J/kg • Second shock 4 J/kg • Subsequent shocks ≥4 J/kg (max 10 J/kg or adult dose).',
+          'Drug Therapy: Epinephrine IV/IO 0.01 mg/kg (0.1 mg/mL; max 1 mg) every 3–5 min. Amiodarone IV/IO 5 mg/kg bolus (max 300 mg; subsequent max 150 mg each; up to 3 doses). OR Lidocaine IV/IO 1 mg/kg.',
+          'Advanced Airway: ET intubation or supraglottic airway. ETCO2 to confirm ET tube placement.',
+          'High-Quality CPR: Push hard (≥⅓ AP diameter chest) and fast (100–120/min). Full chest recoil. Minimize interruptions. Change compressor every 2 min (sooner if fatigued). No advanced airway: 15:2 (2 rescuers, prepuberty), 30:2 (2 rescuers, postpuberty or 1 rescuer any age). Advanced airway: continuous compressions + 1 breath every 2–3 sec.',
+          'Reversible Causes (Hs & Ts): Hypovolemia • Hypoxia • Hydrogen ion (acidosis) • Hypoglycemia • Hypo/hyperkalemia • Hypothermia • Tension pneumothorax • Tamponade, cardiac • Toxins • Thrombosis, pulmonary • Thrombosis, coronary.'
+        ],
+        tags: ['cardiac arrest','pediatric','peds','vf','pvt','pea','asystole','cpr','shock','defibrillation','aha','aap','2025','epinephrine','amiodarone','rosc']
+      },
+      {
+        id: 'aha26-adult-brady',
+        title: 'Adult Bradycardia With a Pulse',
+        summary: '2025 AHA. Heart rate typically <50/min if bradyarrhythmia. Atropine: 1 mg IV bolus, repeat q3–5 min (max 3 mg). Dopamine infusion: 5–20 mcg/kg/min IV. Epinephrine infusion: 2–10 mcg/min IV.',
+        steps: [
+          '1. Assess appropriateness for clinical condition. Heart rate typically <50/min if bradyarrhythmia.',
+          '2. Cardiopulmonary compromise? (Hypotension | Acutely altered mental status | Signs of shock | Ischemic chest discomfort | Acute heart failure?)',
+          '━━ NO → Identify and treat underlying causes. Support ABCs. Consider oxygen. Obtain 12-lead ECG. Observe.',
+          '━━ YES → Assessment and support:',
+          '   • Maintain patent airway and provide oxygen.',
+          '   • Assist breathing with PPV as necessary.',
+          '   • Attach cardiorespiratory monitor. Monitor pulse.',
+          '3. Bradycardia persists WITH cardiopulmonary compromise?',
+          '━━ NO → Identify and treat underlying causes (loop back to observation).',
+          '━━ YES → Atropine 1 mg IV bolus (first-line). Repeat every 3–5 min as needed. Maximum total dose: 3 mg.',
+          '4. If Atropine ineffective → Transcutaneous pacing AND/OR Dopamine OR Epinephrine infusion.',
+          '5. Consider: Expert consultation. Transvenous pacing.',
+          'Dopamine IV infusion: 5–20 mcg/kg/min. Titrate to patient response; taper slowly.',
+          'Epinephrine IV infusion: 2–10 mcg/min. Titrate to patient response.',
+          'Possible Causes: Myocardial ischemia/infarction • Drugs/toxicologic (CCBs, beta-blockers, digoxin) • Hypoxia • Electrolyte abnormality (e.g., hyperkalemia).'
+        ],
+        tags: ['bradycardia','adult','atropine','dopamine','pacing','heart rate','aha','2025','symptomatic']
+      },
+      {
+        id: 'aha26-pregnancy-arrest',
+        title: 'Cardiac Arrest in Pregnancy',
+        summary: '2025 AHA. Provide high-quality CPR + continuous left lateral uterine displacement when fundal height ≥ umbilicus. Goal: resuscitative delivery within 5 minutes if no ROSC.',
+        steps: [
+          '1. Start BLS/ALS: Provide high-quality CPR. Provide continuous LEFT LATERAL UTERINE DISPLACEMENT when fundal height is at or above the umbilicus (relieves aortocaval compression). Use AED/defibrillator when indicated.',
+          '2. Activate cardiac arrest in pregnancy team. Address etiology of arrest.',
+          '3. SIMULTANEOUSLY pursue two parallel tracks:',
+          '━━ Optimize resuscitation in pregnancy:',
+          '   • Prioritize early airway management (difficult airway common — use most experienced provider).',
+          '   • Place IV above the diaphragm.',
+          '   • If receiving IV magnesium → STOP magnesium and give calcium.',
+          '   • Detach fetal monitors.',
+          '   • Activate massive blood transfusion protocol if amniotic fluid embolism suspected.',
+          '━━ Prepare for resuscitative delivery: When fundal height is at or above the umbilicus.',
+          '4. Goal is delivery by 5 minutes if no ROSC.',
+          '━━ Continue ALS → if ROSC achieved.',
+          '━━ Resuscitate newborn infant using the Neonatal Resuscitation Algorithm.',
+          'Etiologies (A–H): A-Anesthetic complications • B-Bleeding • C-Cardiovascular • D-Drugs • E-Embolic (amniotic fluid or PE) • F-Fever • G-General causes (H\'s and T\'s) • H-Hypertension (e.g., preeclampsia).',
+          'Team may include: Team Leader, Anesthesiologist, Obstetrician, Neonatologist, Nurses, Pharmacists.'
+        ],
+        tags: ['pregnancy','cardiac arrest','maternal','resuscitation','uterine displacement','bls','als','aha','2025','obstetric','rosc']
+      },
+      {
+        id: 'aha26-lvad',
+        title: 'Adult & Pediatric LVAD Algorithm',
+        summary: '2025 AHA. Durable LVAD patients may not have a palpable pulse. DO NOT perform chest compressions if adequate perfusion is present. Assess perfusion using MAP, ETCO2, capillary refill.',
+        steps: [
+          '1. Unresponsive adult or child with a durable LVAD: Assist ventilation if necessary. Assess perfusion.',
+          '2. Adequate perfusion?',
+          '━━ YES → Do NOT perform external chest compressions. Assess and treat non-LVAD causes of unresponsiveness. Monitor perfusion.',
+          '━━ NO → Perform external chest compressions. Assess LVAD function (if second rescuer available). Assess and treat non-LVAD causes of unresponsiveness. → Continue BLS/ALS → Transport and contact VAD center. Continue to monitor perfusion.',
+          'Adequate Perfusion — present if ANY of the following: Normal skin color and temperature • Normal capillary refill • MAP >50 mm Hg (use Doppler or arterial line if noninvasive cuff nonfunctional) • PETCO2 >20 mm Hg (only when ET tube or tracheostomy used — supraglottic airway produces falsely elevated value).',
+          '⚠ LVAD patients may NOT have a palpable pulse — absence of pulse does NOT indicate cardiac arrest.',
+          'Assess and Attempt to Restart LVAD Function: Look/listen for alarms • Listen for LVAD hum • Driveline connected? • Power source connected? • Need to replace system controller?',
+          'Non-LVAD Causes of Unresponsiveness: Dysrhythmia • Hemorrhage/hypovolemia • Hypoglycemia • Hypoxia • Overdose • Right ventricular failure • Sepsis • Stroke.'
+        ],
+        tags: ['lvad','ventricular assist device','vad','cardiac','adult','pediatric','aha','2025','perfusion','chest compressions']
       }
     ],
     meds: [
@@ -2746,7 +2835,10 @@
       { name: "Magnesium Sulfate (Torsades)", route: "IV/IO", notes: "Adult Torsades de Pointes: 1–2 g IV/IO over 5–20 min.\x01Pediatric: 25–50 mg/kg IV/IO over 10–20 min (max 2 g).", contra: "Hypermagnesemia; severe renal impairment (caution)", se: "Flushing, hypotension, respiratory depression at high doses" },
       { name: "Naloxone (Opioid Arrest/OD)", route: "IV/IO/IN/IM", notes: "Opioid-associated arrest/respiratory depression. Adult: 0.4–2 mg IV/IO/IM; 2–4 mg IN. Repeat every 2–3 min as needed.\x01Pediatric: 0.01 mg/kg IV/IO/IM (max 0.4 mg per dose); 0.1 mg/kg IN if no IV access.", contra: "None in emergency (relative: known opioid dependence — may precipitate withdrawal)", se: "Acute withdrawal, agitation; re-narcotization if short-acting naloxone vs. long-acting opioid" },
       { name: "Sodium Bicarbonate", route: "IV/IO", notes: "1 mEq/kg IV/IO.\x01Indications in cardiac arrest: Hyperkalemia • Tricyclic antidepressant (TCA) overdose • Severe pre-existing metabolic acidosis • Prolonged resuscitation.\x01Pediatric/Neonatal: 1 mEq/kg IV/IO (use 0.5 mEq/mL solution in neonates).\x01Note: NOT recommended for routine cardiac arrest use without specific indication.", contra: "Routine cardiac arrest — empiric use not recommended", se: "Hypernatremia, metabolic alkalosis, paradoxical intracellular acidosis" },
-      { name: "Calcium Chloride (Arrest)", route: "IV/IO slow push", notes: "500–1000 mg (5–10 mL of 10% solution) IV/IO slow push.\x01Indications: Suspected hyperkalemia • Hypocalcemia • Calcium channel blocker overdose.\x01Pediatric: 20 mg/kg IV/IO (0.2 mL/kg of 10% solution; max 1 g).", contra: "VF without above indication; digoxin toxicity (relative)", se: "Tissue necrosis if extravasated; bradycardia; hypercalcemia" }
+      { name: "Calcium Chloride (Arrest)", route: "IV/IO slow push", notes: "500–1000 mg (5–10 mL of 10% solution) IV/IO slow push.\x01Indications: Suspected hyperkalemia • Hypocalcemia • Calcium channel blocker overdose.\x01Pediatric: 20 mg/kg IV/IO (0.2 mL/kg of 10% solution; max 1 g).", contra: "VF without above indication; digoxin toxicity (relative)", se: "Tissue necrosis if extravasated; bradycardia; hypercalcemia" },
+      { name: "Atropine (Adult Bradycardia)", route: "IV/IO", notes: "Symptomatic bradycardia (adult). First-line intervention.\x01Dose: 1 mg IV/IO bolus. Repeat every 3–5 min as needed.\x01Max total dose: 3 mg.\x01If ineffective, prepare for transcutaneous pacing or dopamine/epinephrine infusion.", contra: "Use caution in second-degree Mobitz II and third-degree AV block (may worsen); not for infranodal blocks — go straight to pacing", se: "Tachycardia, mydriasis, dry mouth, urinary retention; paradoxical bradycardia at very low doses (<0.5 mg)" },
+      { name: "Dopamine IV Infusion", route: "IV infusion", notes: "Symptomatic bradycardia or hypotension refractory to atropine; bridge to transcutaneous pacing.\x01Dose: 5–20 mcg/kg/min IV infusion. Titrate to patient response (heart rate, BP, perfusion).\x01Low dose (2–5 mcg/kg/min): dopaminergic — renal/mesenteric vasodilation.\x01Mid dose (5–10 mcg/kg/min): beta-1 — increased HR and contractility.\x01High dose (10–20 mcg/kg/min): alpha-1 — vasoconstriction.", contra: "Uncorrected hypovolemia; ventricular fibrillation; pheochromocytoma", se: "Tachyarrhythmias, ectopy, tissue necrosis with extravasation; excessive vasoconstriction at high doses" },
+      { name: "Epinephrine IV Infusion", route: "IV infusion", notes: "Symptomatic bradycardia or hypotension as alternative to dopamine.\x01Dose: 2–10 mcg/min IV infusion. Titrate to desired heart rate and blood pressure.\x01Weight-based alternative: 0.1–0.5 mcg/kg/min.\x01Can be used when dopamine unavailable or ineffective.", contra: "Avoid in cocaine/sympathomimetic toxicity (relative); use caution in ischemic heart disease", se: "Tachyarrhythmias, hypertension, increased myocardial oxygen demand; tissue necrosis with extravasation" }
     ],
     contacts: []
   };
