@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>EASI Supervisor Tools</title>
+  <style>
+    /* ── CSS Variables ── */
+    :root {
+      --bg: #0b0d10;
+      --card: #141820;
+      --muted: #a7b0be;
+      --text: #e6eef8;
+      --accent: #5eead4;
+      --border: rgba(255,255,255,.1);
+      --input-bg: #0f131a;
+    }
+
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ── Spinner / Auth Loading ── */
+    #auth-loading {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg); z-index: 999;
+      flex-direction: column; gap: 14px;
+    }
+    .spin {
+      display: inline-block; width: 32px; height: 32px;
+      border: 3px solid rgba(255,255,255,.12);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── App Shell ── */
+    #app { display: none; flex-direction: column; min-height: 100vh; }
+
+    /* ── Header ── */
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 16px 10px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .header-inner {
+      max-width: 900px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .header-title h1 {
+      margin: 0; font-size: 18px; font-weight: 700; color: var(--text);
+      line-height: 1.2;
+    }
+    .header-title p {
+      margin: 2px 0 0; font-size: 11px; color: var(--muted);
+      letter-spacing: .4px;
+    }
+    .signout-btn {
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      padding: 7px 13px;
+      transition: background .15s, color .15s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .signout-btn:hover { background: rgba(255,255,255,.11); color: var(--text); }
+
+    /* ── Tab Bar ── */
+    .tab-bar {
+      display: flex;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      max-width: 900px; margin: 0 auto; width: 100%;
+    }
+    .tab-bar-wrap {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 57px; z-index: 99;
+    }
+    .tab-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: var(--muted);
+      font-size: 14px;
+      font-family: inherit;
+      font-weight: 500;
+      padding: 11px 8px;
+      cursor: pointer;
+      transition: color .15s, border-color .15s;
+    }
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    /* ── Content Area ── */
+    .content {
+      flex: 1;
+      padding: 16px;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* ── Tab Panels ── */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Roster Header Bar ── */
+    .roster-topbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .roster-topbar label {
+      font-size: 13px; color: var(--muted); font-weight: 500;
+      margin-right: 4px;
+    }
+    input[type="date"] {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      padding: 8px 10px;
+      outline: none;
+      transition: border-color .15s;
+      color-scheme: dark;
+    }
+    input[type="date"]:focus { border-color: var(--accent); }
+    .action-btn {
+      background: rgba(255,255,255,.07);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      padding: 8px 14px;
+      transition: background .15s;
+    }
+    .action-btn:hover { background: rgba(255,255,255,.12); }
+    .action-btn.save-btn {
+      background: var(--accent);
+      color: #0b0d10;
+      border-color: transparent;
+      font-weight: 600;
+    }
+    .action-btn.save-btn:hover { background: #4dd4c0; }
+
+    /* ── Section Header ── */
+    .section-header {
+      background: rgba(94,234,212,.08);
+      border: 1px solid rgba(94,234,212,.2);
+      border-radius: 8px;
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      padding: 7px 14px;
+      margin: 14px 0 6px;
+    }
+
+    /* ── Roster Card ── */
+    .roster-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+    }
+    .roster-card-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .roster-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      flex: 1;
+      min-width: 120px;
+    }
+    .unit-input {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--text);
+      font-size: 12px;
+      font-family: inherit;
+      padding: 6px 9px;
+      width: 130px;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .unit-input:focus { border-color: var(--accent); }
+
+    .roster-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    @media (max-width: 520px) {
+      .roster-fields { grid-template-columns: 1fr; }
+    }
+
+    .field-group { display: flex; flex-direction: column; gap: 4px; }
+    .field-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 500;
+      letter-spacing: .3px;
+    }
+    .field-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .name-input {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      padding: 8px 10px;
+      flex: 1;
+      min-width: 0;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .name-input:focus { border-color: var(--accent); }
+
+    .call-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(94,234,212,.1);
+      border: 1px solid rgba(94,234,212,.25);
+      border-radius: 6px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 8px;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: background .15s;
+      flex-shrink: 0;
+    }
+    .call-badge:hover { background: rgba(94,234,212,.2); }
+
+    .notes-input {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 13px;
+      font-family: inherit;
+      padding: 7px 10px;
+      width: 100%;
+      outline: none;
+      transition: border-color .15s;
+      margin-top: 8px;
+    }
+    .notes-input:focus { border-color: var(--accent); }
+
+    /* ── Autocomplete Dropdown ── */
+    .ac-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: #1c2230;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.5);
+      z-index: 500;
+      overflow: hidden;
+      max-height: 240px;
+      overflow-y: auto;
+    }
+    .ac-item {
+      padding: 10px 13px;
+      cursor: pointer;
+      font-size: 14px;
+      border-bottom: 1px solid rgba(255,255,255,.05);
+      transition: background .1s;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .ac-item:last-child { border-bottom: none; }
+    .ac-item:hover, .ac-item.focused { background: rgba(94,234,212,.1); }
+    .ac-item .ac-name { color: var(--text); font-weight: 500; }
+    .ac-item .ac-detail { color: var(--muted); font-size: 11px; }
+
+    /* ── Directory ── */
+    .dir-search-bar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .dir-search-bar input {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 15px;
+      font-family: inherit;
+      padding: 11px 14px;
+      flex: 1;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .dir-search-bar input:focus { border-color: var(--accent); }
+
+    .filter-pills {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .pill {
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--muted);
+      font-size: 12px;
+      font-family: inherit;
+      font-weight: 500;
+      padding: 5px 13px;
+      cursor: pointer;
+      transition: background .15s, color .15s, border-color .15s;
+    }
+    .pill.active {
+      background: rgba(94,234,212,.15);
+      border-color: rgba(94,234,212,.35);
+      color: var(--accent);
+    }
+    .pill:hover:not(.active) { background: rgba(255,255,255,.1); }
+
+    .dir-results { display: flex; flex-direction: column; gap: 7px; }
+    .dir-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .dir-info { flex: 1; min-width: 0; }
+    .dir-name { font-size: 15px; font-weight: 600; color: var(--text); }
+    .dir-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .dir-note {
+      font-size: 11px;
+      color: #f59e0b;
+      margin-top: 2px;
+      font-style: italic;
+    }
+    .dir-empty {
+      color: var(--muted); font-size: 14px;
+      text-align: center; padding: 40px 0;
+    }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: #1e2a1e;
+      border: 1px solid rgba(74,222,128,.3);
+      border-radius: 10px;
+      color: #4ade80;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 10px 20px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .2s, transform .2s;
+      z-index: 999;
+      white-space: nowrap;
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── Print Styles ── */
+    @media print {
+      body > *:not(#print-view) { display: none !important; }
+      #print-view {
+        display: block !important;
+        font-family: Arial, sans-serif;
+        color: #000;
+        background: #fff;
+        padding: 10px;
+      }
+      #print-view .pl-header {
+        text-align: center;
+        margin-bottom: 14px;
+      }
+      #print-view .pl-header h1 {
+        font-size: 20px; margin: 0 0 2px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+      #print-view .pl-header p {
+        font-size: 13px; margin: 0;
+      }
+      #print-view table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+      #print-view th {
+        background: #e8e8e8;
+        border: 1px solid #bbb;
+        padding: 5px 8px;
+        text-align: left;
+        font-size: 11px;
+        text-transform: uppercase;
+      }
+      #print-view td {
+        border: 1px solid #ccc;
+        padding: 5px 8px;
+        vertical-align: top;
+      }
+      #print-view tr.section-row td {
+        background: #d4e8e4;
+        font-weight: 700;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: .8px;
+        padding: 4px 8px;
+      }
+      #print-view tr { page-break-inside: avoid; }
+    }
+
+    @media screen {
+      #print-view { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Auth Loading -->
+<div id="auth-loading">
+  <div class="spin"></div>
+  <span style="color:var(--muted);font-size:14px">Checking session…</span>
+</div>
+
+<!-- Main App -->
+<div id="app">
+  <header>
+    <div class="header-inner">
+      <div class="header-title">
+        <h1>EASI Supervisor Tools</h1>
+        <p>EASI Ambulance Service — Supervisor Tools</p>
+      </div>
+      <button class="signout-btn" id="signout-btn">Sign Out</button>
+    </div>
+  </header>
+
+  <div class="tab-bar-wrap">
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="roster">📋 Roster</button>
+      <button class="tab-btn" data-tab="directory">📞 Directory</button>
+    </div>
+  </div>
+
+  <!-- ── TAB: ROSTER ── -->
+  <div class="content">
+    <div id="tab-roster" class="tab-panel active">
+      <div class="roster-topbar">
+        <label for="roster-date">Date</label>
+        <input type="date" id="roster-date" />
+        <button class="action-btn save-btn" id="btn-save">💾 Save</button>
+        <button class="action-btn" id="btn-export">🖨 Export</button>
+      </div>
+      <div id="roster-rows-container"></div>
+    </div>
+
+    <!-- ── TAB: DIRECTORY ── -->
+    <div id="tab-directory" class="tab-panel">
+      <div class="dir-search-bar">
+        <input type="search" id="dir-search" placeholder="Search by name…" autocomplete="off" />
+      </div>
+      <div class="filter-pills" id="filter-pills">
+        <button class="pill active" data-station="All">All</button>
+        <button class="pill" data-station="Pine Bluff">Pine Bluff</button>
+        <button class="pill" data-station="England">England</button>
+        <button class="pill" data-station="Star City">Star City</button>
+        <button class="pill" data-station="Warren">Warren</button>
+        <button class="pill" data-station="Rison">Rison</button>
+        <button class="pill" data-station="DeWitt">DeWitt</button>
+        <button class="pill" data-station="Clarendon">Clarendon</button>
+      </div>
+      <div id="dir-results" class="dir-results"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Print View (hidden on screen, shown on print) -->
+<div id="print-view"></div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script>
+'use strict';
+
+/* ════════════════════════════════════════
+   SECURITY
+   ════════════════════════════════════════ */
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (e.key === 'F12') { e.preventDefault(); return; }
+  if ((e.ctrlKey || e.metaKey) && !e.shiftKey && k === 'u') { e.preventDefault(); return; }
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && (k === 'i' || k === 'j' || k === 'c')) e.preventDefault();
+});
+
+/* ════════════════════════════════════════
+   FIREBASE AUTH
+   ════════════════════════════════════════ */
+firebase.initializeApp({
+  apiKey: "AIzaSyAcnp4uXeOgzuzIHpO5UL6Eq9fvhVHFs7Y",
+  authDomain: "emsprotocolapp.firebaseapp.com",
+  projectId: "emsprotocolapp",
+  storageBucket: "emsprotocolapp.firebasestorage.app",
+  messagingSenderId: "498482397906",
+  appId: "1:498482397906:web:5517abc5d83cf6cf15e30b"
+});
+
+const fbAuth = firebase.auth();
+
+fbAuth.onAuthStateChanged(user => {
+  if (!user) {
+    window.location.replace('index.html');
+  } else {
+    document.getElementById('auth-loading').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    initApp();
+  }
+});
+
+document.getElementById('signout-btn').addEventListener('click', () => {
+  fbAuth.signOut();
+});
+
+/* ════════════════════════════════════════
+   EMPLOYEE DATA
+   ════════════════════════════════════════ */
+const EMPLOYEES = [{"last":"Aalseth","first":"Dwayne","station":"Pine Bluff","status":"FULL TIME","role":"OPS MGR","phone":"870-575-3004","note":""},{"last":"Aldridge","first":"Nyeshia","station":"Pine Bluff","status":"FULL TIME","role":"PR/DIREC/EMT","phone":"903-960-0139","note":""},{"last":"Alexander","first":"Braylon","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-288-5875","note":""},{"last":"Allen","first":"Jimmy","station":"Warren","status":"FULL TIME","role":"EMT","phone":"985-227-0234","note":""},{"last":"Anderson","first":"Allison","station":"Pine Bluff","status":"FULL TIME","role":"SUPERVISOR","phone":"870-917-4416","note":""},{"last":"Anderson","first":"Michael","station":"Dewitt","status":"FULL TIME","role":"SUPERVISOR","phone":"870-510-6361","note":""},{"last":"Arledge","first":"Brian","station":"Pine Bluff","status":"FULL TIME","role":"MAINT","phone":"870-718-7722","note":""},{"last":"Badgley","first":"Briana","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-718-4561","note":""},{"last":"Baker","first":"Amanda","station":"Clarendon","status":"FULL TIME","role":"EMT","phone":"501-266-1518","note":""},{"last":"Baker","first":"Melinda(Lindy)","station":"Clarendon","status":"FULL TIME","role":"EMT","phone":"870-718-4922","note":""},{"last":"Beadle","first":"Bill","station":"Pine Bluff","status":"PRN","role":"EMT/RESCUE","phone":"870-692-1387","note":""},{"last":"Bishop","first":"Josh","station":"Pine Bluff","status":"FULL TIME","role":"CEO","phone":"on file","note":""},{"last":"Blanchard","first":"Roland","station":"Warren","status":"FULL TIME","role":"PARAMEDIC","phone":"870-413-3777","note":""},{"last":"Braden","first":"Stephanie","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"405-269-3909","note":""},{"last":"Brangaccio","first":"Kimberly","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"870-312-0189","note":""},{"last":"Branson","first":"Morgan","station":"Dewitt","status":"FULL TIME","role":"EMT","phone":"870-267-3130","note":""},{"last":"Brickey","first":"Samantha","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-267-5922","note":""},{"last":"Brooks","first":"Keyviote","station":"Pine Bluff","status":"PRN","role":"EMT /FD","phone":"870-209-7743","note":""},{"last":"Brown","first":"Lane","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"479-320-8866","note":""},{"last":"Bryant","first":"Troupe","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"501-282-4450","note":""},{"last":"Bunting","first":"Cynthia","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-209-9328","note":""},{"last":"Burnett","first":"Becky","station":"Pine Bluff","status":"PRN","role":"DISPATCHER","phone":"870-623-5235","note":"cannot drive"},{"last":"Caldwell","first":"Elias","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"870-316-1165","note":""},{"last":"Caldwell","first":"Miranda","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-319-0133","note":""},{"last":"Canada","first":"LaRaven","station":"Pine Bluff","status":"PRN","role":"EMT/FD","phone":"870-413-3370","note":""},{"last":"Chiles","first":"Cindy","station":"Warren","status":"FULL TIME","role":"SUPERVISOR","phone":"870-643-0521","note":""},{"last":"Clement","first":"Belinda","station":"Pine Bluff","status":"PRN","role":"EVO","phone":"501-690-2846","note":""},{"last":"Collins","first":"David","station":"Pine Bluff","status":"FULL TIME","role":"SUPERVISOR","phone":"501-269-9041","note":""},{"last":"Croft","first":"Megan","station":"Pine Bluff","status":"FULL TIME","role":"DISPATCHER","phone":"870-794-6553","note":""},{"last":"Cumblidge","first":"Taylor","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-257-7418","note":""},{"last":"Cuthbertson","first":"Brayden","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-484-3394","note":""},{"last":"Earvin","first":"Tina","station":"Warren","status":"FULL TIME","role":"PARAMEDIC","phone":"870-501-1484","note":""},{"last":"Edgin","first":"Tiffany","station":"Rison","status":"PRN","role":"EMT","phone":"870-807-4245","note":""},{"last":"Edgin JR","first":"William","station":"Rison","status":"FULL TIME","role":"EMT","phone":"870-220-2368","note":""},{"last":"Fowler","first":"Brittany","station":"Pine Bluff","status":"PRN","role":"EVO","phone":"870-370-8102","note":""},{"last":"Freeman","first":"Holly","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-486-8089","note":""},{"last":"Fudge","first":"Greg","station":"England","status":"FULL TIME","role":"PARAMEDIC","phone":"501-563-0585","note":""},{"last":"Garrett","first":"Irene","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"501-499-0741","note":""},{"last":"Garrison","first":"Lindsay","station":"Warren","status":"FULL TIME","role":"EMT","phone":"870-608-9025","note":""},{"last":"Gilmore","first":"Shyanne","station":"Rison","status":"FULL TIME","role":"EMT","phone":"870-312-4775","note":""},{"last":"Givens","first":"Amber","station":"Pine Bluff","status":"FULL TIME","role":"DISPATCHER","phone":"501-864-5620","note":""},{"last":"Glason","first":"Dennis","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-247-2814","note":""},{"last":"Goehle III","first":"Charles","station":"Pine Bluff","status":"medical","role":"PARAMEDIC","phone":"239-872-6907","note":""},{"last":"Gorman","first":"Amber","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"501-647-4830","note":""},{"last":"Gorman","first":"Ricky","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"870-718-1502","note":""},{"last":"Goudelock","first":"Kelly","station":"Warren","status":"FULL TIME","role":"EMT","phone":"870-830-5595","note":""},{"last":"Goudelock","first":"LeKesha","station":"Warren","status":"PRN","role":"EMT","phone":"870-820-5018","note":""},{"last":"Greenlaw","first":"Carnell","station":"Pine Bluff","status":"PRN","role":"EMT/ FD","phone":"870-718-8609","note":"cannot drive"},{"last":"Hall","first":"Dakota","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-489-3034","note":""},{"last":"Hall","first":"Tonya","station":"Pine Bluff","status":"FULL TIME","role":"OFFICE","phone":"870-370-3426","note":""},{"last":"Hampton","first":"Joshua","station":"Pine Bluff","status":"PRN","role":"EVO","phone":"501-363-2258","note":""},{"last":"Hawkins","first":"Robert","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"501-773-6478","note":""},{"last":"Herrin","first":"Dennis","station":"Dewitt","status":"FULL TIME","role":"SUPERVISOR","phone":"870-718-6518","note":""},{"last":"Herrin","first":"Monica","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"call Dennis","note":""},{"last":"Hickman","first":"Cody","station":"Pine Bluff","status":"PRN","role":"EMT / FD","phone":"870-489-2272","note":""},{"last":"Hill","first":"Brodie(Jason)","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"870-377-1508","note":""},{"last":"Holiman","first":"Jamie","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"732-788-0314","note":""},{"last":"House","first":"Shawn","station":"Dewitt","status":"FULL TIME","role":"EMT","phone":"870-623-2822","note":""},{"last":"Howell","first":"Angela","station":"England","status":"FULL TIME","role":"EMT","phone":"501-672-2776","note":""},{"last":"Huntley-Johnson","first":"Andrea","station":"Star City","status":"FULL TIME","role":"EMT","phone":"870-352-1558","note":""},{"last":"Isenhour","first":"Dylan","station":"Pine Bluff","status":"FULL TIME","role":"EMR","phone":"870-461-0911","note":""},{"last":"Jackson","first":"Ian","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-805-1088","note":""},{"last":"Johnson","first":"Bubba","station":"Star City","status":"FULL TIME","role":"PARAMEDIC","phone":"870-659-6316","note":""},{"last":"Johnson","first":"Erica","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"501-412-0788","note":"cannot drive"},{"last":"Kindall","first":"Micha","station":"Pine Bluff","status":"FULL TIME","role":"A-EMT","phone":"985-348-7419","note":""},{"last":"Lalonde","first":"Courtney","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"501-912-5192","note":""},{"last":"Lang","first":"Robert","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-858-8090","note":""},{"last":"Leister","first":"Cory","station":"Dewitt","status":"FULL TIME","role":"EMT","phone":"479-264-0456","note":""},{"last":"Leister","first":"Erica","station":"Dewitt","status":"FULL TIME","role":"EMT","phone":"479-477-4356","note":""},{"last":"Linker","first":"Ciara","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-200-7681","note":""},{"last":"Lowe","first":"Diamond","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-663-4055","note":""},{"last":"Mackey","first":"Briana","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-718-4716","note":""},{"last":"Masters","first":"Amanda","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-329-1510","note":""},{"last":"Mattis","first":"Damian","station":"Pine Bluff","status":"FULL TIME","role":"EMR","phone":"501-237-6507","note":""},{"last":"Mays","first":"Isiah","station":"Pine Bluff","status":"PRN","role":"EMT / FD","phone":"870-502-9974","note":""},{"last":"McClanahan","first":"Steven","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-351-4943","note":""},{"last":"McClure","first":"Ayeshia","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"501-418-1702","note":""},{"last":"McDaniel","first":"Clyde","station":"Pine Bluff","status":"FULL TIME","role":"OPS SUPER","phone":"870-329-1448","note":""},{"last":"McDonel","first":"Shanna","station":"Pine Bluff","status":"FULL TIME","role":"SUPERVISOR","phone":"870-329-2491","note":""},{"last":"McDonel","first":"Traci","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-510-0271","note":""},{"last":"McFadden","first":"Stephanie","station":"Dewitt","status":"FULL TIME","role":"PARAMEDIC","phone":"501-470-8630","note":""},{"last":"McKinley","first":"Courtney","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-540-6936","note":""},{"last":"McNeill","first":"Laura","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"870-318-0037","note":""},{"last":"Mealler","first":"Carter","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"501-285-5454","note":""},{"last":"Miller","first":"Marilyn","station":"Pine Bluff","status":"FULL TIME","role":"SUPERVISOR","phone":"870-510-4844","note":""},{"last":"Miller","first":"Paul","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-331-2775","note":""},{"last":"Moody","first":"Greg","station":"Pine Bluff","status":"FULL TIME","role":"OFF MGR","phone":"870-643-9456","note":""},{"last":"Moring","first":"Elizabeth","station":"Pine Bluff","status":"FULL TIME","role":"EMR/DISPATCH","phone":"870-489-6414","note":""},{"last":"Moring","first":"Joseph","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-917-5622","note":""},{"last":"Motes","first":"Houston","station":"Pine Bluff","status":"PRN","role":"EMT /FD","phone":"501-271-9717","note":""},{"last":"Murphy","first":"Seth","station":"Warren","status":"FULL TIME","role":"PARAMEDIC","phone":"318-245-9209","note":""},{"last":"Nutz","first":"Jeremy","station":"Pine Bluff","status":"PRN","role":"EVO","phone":"501-425-8327","note":""},{"last":"Odom","first":"Sedric","station":"Pine Bluff","status":"PRN","role":"EMT /FD","phone":"870-329-8153","note":""},{"last":"Oliver","first":"Denishia","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-897-8131","note":""},{"last":"Oliver","first":"Amber","station":"Pine Bluff","status":"PRN","role":"DISPATCHER","phone":"870-592-0221","note":""},{"last":"Pack","first":"Brandi","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"601-433-4929","note":""},{"last":"Page","first":"Alivia","station":"Pine Bluff","status":"FULL TIME","role":"EMR","phone":"501-765-0593","note":""},{"last":"Pritchard","first":"Susan","station":"Pine Bluff","status":"FULL TIME","role":"EMR/DISPATCH","phone":"870-510-3481","note":""},{"last":"Reyna-Durham","first":"Daphne","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-764-8919","note":""},{"last":"Richardson","first":"Mykayla","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-723-7024","note":""},{"last":"Rivera","first":"Daniel","station":"England","status":"FULL TIME","role":"PARAMEDIC","phone":"870-362-0318","note":""},{"last":"Robertson","first":"Joshua","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"870-377-6228","note":""},{"last":"Rushing","first":"Ashton","station":"Clarendon","status":"FULL TIME","role":"EMT","phone":"870-592-2164","note":""},{"last":"Russell","first":"Thomas","station":"Pine Bluff","status":"PRN","role":"EMT /FD","phone":"870-489-8177","note":""},{"last":"Shelley","first":"Patrick","station":"Dewitt","status":"FULL TIME","role":"EMT","phone":"870-540-6986","note":""},{"last":"Sidwell","first":"Chris","station":"Rison","status":"FULL TIME","role":"PARAMEDIC","phone":"903-280-4528","note":""},{"last":"Sinclair-Davis","first":"NiKayla","station":"Pine Bluff","status":"FULL TIME","role":"EVO","phone":"857-757-0823","note":""},{"last":"Smith","first":"Cheryl","station":"Pine Bluff","status":"FULL TIME","role":"OPS ADM","phone":"870-718-2909","note":""},{"last":"Smith","first":"Lance","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"501-541-1016","note":"cannot drive"},{"last":"Smith","first":"Sara Bri","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"501-439-0884","note":""},{"last":"Spriggs","first":"Harvey","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"870-556-0887","note":""},{"last":"Spriggs JR","first":"John","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"870-830-0562","note":""},{"last":"Stayton","first":"James","station":"Pine Bluff","status":"FULL TIME","role":"SUPERVISOR","phone":"870-718-2920","note":""},{"last":"Stayton","first":"Scott","station":"Pine Bluff","status":"FULL TIME","role":"DISPATCHER","phone":"870-209-7358","note":""},{"last":"Tallent","first":"Phillip","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-240-3478","note":""},{"last":"Thomas","first":"Christina","station":"Pine Bluff","status":"FULL TIME","role":"DISPATCHER","phone":"870-377-1294","note":""},{"last":"Twomey","first":"Lauren","station":"Clarendon","status":"FULL TIME","role":"EMT","phone":"479-755-1526","note":""},{"last":"Visconti","first":"Christopher","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"718-614-9120","note":""},{"last":"Walker","first":"Courtland","station":"England","status":"FULL TIME","role":"EMT","phone":"870-556-0477","note":""},{"last":"Walker","first":"TK","station":"Pine Bluff","status":"FULL TIME","role":"EMR","phone":"501-200-0240","note":""},{"last":"Watkins","first":"Faith","station":"Pine Bluff","status":"FULL TIME","role":"DISPATCHER","phone":"870-329-8453","note":""},{"last":"West","first":"Tyisha","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-360-5999","note":""},{"last":"Whipple","first":"Rebekah","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-370-1945","note":""},{"last":"Whitney","first":"Tim","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-718-3812","note":""},{"last":"Williams","first":"Kiersten","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-659-7818","note":""},{"last":"Wise","first":"Neil","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"501-201-1226","note":""},{"last":"Wise","first":"Jill","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"501-201-0610","note":""},{"last":"Wood","first":"Tammy","station":"Pine Bluff","status":"FULL TIME","role":"FTO COOR","phone":"870-556-1301","note":""},{"last":"Woolridge","first":"Katherine","station":"Pine Bluff","status":"FULL TIME","role":"OFFICE","phone":"870-718-4282","note":""},{"last":"Young","first":"Ronald","station":"Warren","status":"FULL TIME","role":"EMT","phone":"870-489-0427","note":""}];
+
+/* ════════════════════════════════════════
+   ROSTER ROWS DEFINITION
+   ════════════════════════════════════════ */
+const ROSTER_ROWS = [
+  { id:0,  section:'Pine Bluff', label:'SUPERVISOR',            defaultUnit:'' },
+  { id:1,  section:'Pine Bluff', label:'BLS 6AM',               defaultUnit:'193-BLS-PB' },
+  { id:2,  section:'Pine Bluff', label:'BLS 8AM',               defaultUnit:'191-BLS-PB' },
+  { id:3,  section:'Pine Bluff', label:'BLS 6PM',               defaultUnit:'195-BLS-PB' },
+  { id:4,  section:'Pine Bluff', label:'ALS 6AM',               defaultUnit:'279-ALS-PB' },
+  { id:5,  section:'Pine Bluff', label:'ALS 7AM',               defaultUnit:'185-ALS-PB' },
+  { id:6,  section:'Pine Bluff', label:'ALS 8AM',               defaultUnit:'SR2-ALS-PB' },
+  { id:7,  section:'Pine Bluff', label:'ALS 9AM',               defaultUnit:'268-ALS-PB' },
+  { id:8,  section:'Pine Bluff', label:'ALS 9AM',               defaultUnit:'' },
+  { id:9,  section:'Pine Bluff', label:'ORIENTATION / STUDENT', defaultUnit:'' },
+  { id:10, section:'England',    label:'ALS 7AM',               defaultUnit:'263-ALS-ENG' },
+  { id:11, section:'Star City',  label:'ALS 8AM',               defaultUnit:'279-ALS-SC' },
+  { id:12, section:'Warren',     label:'ALS 8AM',               defaultUnit:'178-ALS-WRN' },
+  { id:13, section:'Warren',     label:'ALS 9AM',               defaultUnit:'374-ALS-WRN' },
+  { id:14, section:'Rison',      label:'ALS 9AM',               defaultUnit:'267-ALS-RSN' },
+  { id:15, section:'DeWitt',     label:'ALS 9AM',               defaultUnit:'181-ALS-DWT' },
+  { id:16, section:'DeWitt',     label:'BLS 9AM',               defaultUnit:'184-BLS-DWT' },
+  { id:17, section:'Clarendon',  label:'BLS 9AM',               defaultUnit:'175-BLS-CLR' },
+  { id:18, section:'Dispatch',   label:'DISPATCH 7AM',          defaultUnit:'' },
+  { id:19, section:'Dispatch',   label:'DISPATCH 7AM',          defaultUnit:'' },
+  { id:20, section:'Dispatch',   label:'DISPATCH 11AM',         defaultUnit:'' },
+  { id:21, section:'Dispatch',   label:'DISPATCH 7PM',          defaultUnit:'' },
+  { id:22, section:'On Call',    label:'ON CALL',               defaultUnit:'' },
+];
+
+/* ════════════════════════════════════════
+   HELPERS
+   ════════════════════════════════════════ */
+
+/** Extract searchable tokens from an employee's name (handles nicknames in parens) */
+function empTokens(emp) {
+  const raw = (emp.first + ' ' + emp.last).toLowerCase();
+  // also pull out nickname from parens e.g. "Brodie(Jason)" => "jason"
+  const nick = (emp.first.match(/\(([^)]+)\)/) || [])[1] || '';
+  return { raw, nick: nick.toLowerCase() };
+}
+
+/** Find up to `limit` employees whose name matches `query` */
+function searchEmployees(query, limit = 6) {
+  if (!query || query.length < 2) return [];
+  const q = query.toLowerCase();
+  return EMPLOYEES.filter(emp => {
+    const { raw, nick } = empTokens(emp);
+    return raw.includes(q) || nick.includes(q);
+  }).slice(0, limit);
+}
+
+/** Lookup a single employee by exact first name (or nickname) — returns first match */
+function lookupByName(name) {
+  if (!name) return null;
+  const q = name.toLowerCase().trim();
+  return EMPLOYEES.find(emp => {
+    const first = emp.first.toLowerCase();
+    // extract nickname
+    const nick = (emp.first.match(/\(([^)]+)\)/) || [])[1] || '';
+    // also try "FirstName LastName" combo
+    const full = (emp.first + ' ' + emp.last).toLowerCase();
+    return first === q || nick.toLowerCase() === q || full === q;
+  }) || null;
+}
+
+/** Format employee display name (strip parens for roster display) */
+function displayName(emp) {
+  // Show first name with nickname stripped, then last
+  return emp.first.replace(/\s*\(.*?\)/, '') + ' ' + emp.last;
+}
+
+/** Today as YYYY-MM-DD */
+function todayStr() {
+  return new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+}
+
+/** Format date for print header */
+function formatDateDisplay(dateStr) {
+  if (!dateStr) return '';
+  const [y, m, d] = dateStr.split('-');
+  const months = ['January','February','March','April','May','June',
+                  'July','August','September','October','November','December'];
+  return months[parseInt(m,10)-1] + ' ' + parseInt(d,10) + ', ' + y;
+}
+
+/* ════════════════════════════════════════
+   STATE
+   ════════════════════════════════════════ */
+// rowData[id] = { unit, lead, leadPhone, secondary, secondaryPhone, notes }
+let rowData = {};
+let activeAC = null; // currently open autocomplete { input, dropdown }
+
+/* ════════════════════════════════════════
+   TOAST
+   ════════════════════════════════════════ */
+let toastTimer = null;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+/* ════════════════════════════════════════
+   AUTOCOMPLETE ENGINE
+   ════════════════════════════════════════ */
+function closeActiveAC() {
+  if (activeAC) {
+    activeAC.dropdown.remove();
+    activeAC = null;
+  }
+}
+
+function buildAC(inputEl, onSelect) {
+  // Remove previous dropdown tied to this input if any
+  const existing = inputEl.parentElement.querySelector('.ac-dropdown');
+  if (existing) existing.remove();
+
+  const query = inputEl.value.trim();
+  const matches = searchEmployees(query);
+
+  if (!matches.length) { closeActiveAC(); return; }
+
+  const dropdown = document.createElement('div');
+  dropdown.className = 'ac-dropdown';
+  dropdown.setAttribute('role', 'listbox');
+
+  let focusIdx = -1;
+
+  matches.forEach((emp, i) => {
+    const item = document.createElement('div');
+    item.className = 'ac-item';
+    item.setAttribute('role', 'option');
+    item.innerHTML = `<span class="ac-name">${displayName(emp)}</span>
+      <span class="ac-detail">${emp.role} — ${emp.station} (${emp.status})</span>`;
+
+    const choose = () => {
+      closeActiveAC();
+      onSelect(emp);
+    };
+
+    item.addEventListener('mousedown', e => { e.preventDefault(); choose(); });
+    item.addEventListener('touchstart', e => { e.preventDefault(); choose(); }, { passive: false });
+    dropdown.appendChild(item);
+  });
+
+  // Keyboard navigation
+  inputEl.addEventListener('keydown', function navHandler(e) {
+    if (!inputEl.parentElement.contains(dropdown)) {
+      inputEl.removeEventListener('keydown', navHandler);
+      return;
+    }
+    const items = dropdown.querySelectorAll('.ac-item');
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      focusIdx = (focusIdx + 1) % items.length;
+      items.forEach((it, idx) => it.classList.toggle('focused', idx === focusIdx));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      focusIdx = (focusIdx - 1 + items.length) % items.length;
+      items.forEach((it, idx) => it.classList.toggle('focused', idx === focusIdx));
+    } else if (e.key === 'Enter' && focusIdx >= 0) {
+      e.preventDefault();
+      items[focusIdx].dispatchEvent(new MouseEvent('mousedown'));
+    } else if (e.key === 'Escape') {
+      closeActiveAC();
+    }
+  });
+
+  // Position inside the field-wrap (which is position:relative)
+  inputEl.parentElement.appendChild(dropdown);
+  activeAC = { input: inputEl, dropdown };
+}
+
+/* ════════════════════════════════════════
+   PHONE BADGE
+   ════════════════════════════════════════ */
+function updateBadge(badgeEl, phone) {
+  if (phone && phone !== 'on file' && phone !== 'call Dennis') {
+    badgeEl.innerHTML = `<a href="tel:${phone}" class="call-badge">📞 ${phone}</a>`;
+    badgeEl.style.display = '';
+  } else if (phone) {
+    // phone is a note, not a dialable number
+    badgeEl.innerHTML = `<span class="call-badge" style="color:var(--muted);border-color:var(--border)">${phone}</span>`;
+    badgeEl.style.display = '';
+  } else {
+    badgeEl.innerHTML = '';
+    badgeEl.style.display = 'none';
+  }
+}
+
+/* ════════════════════════════════════════
+   BUILD ROSTER DOM
+   ════════════════════════════════════════ */
+function buildRosterDOM() {
+  const container = document.getElementById('roster-rows-container');
+  container.innerHTML = '';
+
+  let lastSection = null;
+
+  ROSTER_ROWS.forEach(row => {
+    // Section header
+    if (row.section !== lastSection) {
+      lastSection = row.section;
+      const hdr = document.createElement('div');
+      hdr.className = 'section-header';
+      hdr.textContent = row.section;
+      container.appendChild(hdr);
+    }
+
+    // Card
+    const card = document.createElement('div');
+    card.className = 'roster-card';
+    card.dataset.rowId = row.id;
+
+    // Top bar: label + unit input
+    const top = document.createElement('div');
+    top.className = 'roster-card-top';
+
+    const labelEl = document.createElement('div');
+    labelEl.className = 'roster-label';
+    labelEl.textContent = row.label;
+
+    const unitInput = document.createElement('input');
+    unitInput.className = 'unit-input';
+    unitInput.type = 'text';
+    unitInput.placeholder = 'Unit #';
+    unitInput.value = rowData[row.id]?.unit ?? row.defaultUnit;
+    unitInput.setAttribute('autocomplete', 'off');
+    unitInput.addEventListener('input', () => {
+      ensureRowData(row.id);
+      rowData[row.id].unit = unitInput.value;
+    });
+
+    top.appendChild(labelEl);
+    top.appendChild(unitInput);
+    card.appendChild(top);
+
+    // Name fields grid
+    const fieldsGrid = document.createElement('div');
+    fieldsGrid.className = 'roster-fields';
+
+    // Helper to create a name field (lead or secondary)
+    function makeNameField(fieldKey, phoneKey, labelText) {
+      const group = document.createElement('div');
+      group.className = 'field-group';
+
+      const fLabel = document.createElement('div');
+      fLabel.className = 'field-label';
+      fLabel.textContent = labelText;
+      group.appendChild(fLabel);
+
+      const wrap = document.createElement('div');
+      wrap.className = 'field-wrap';
+      wrap.style.position = 'relative';
+
+      const nameInput = document.createElement('input');
+      nameInput.className = 'name-input';
+      nameInput.type = 'text';
+      nameInput.placeholder = 'Name…';
+      nameInput.setAttribute('autocomplete', 'off');
+      nameInput.value = rowData[row.id]?.[fieldKey] ?? '';
+
+      const badgeWrap = document.createElement('span');
+      badgeWrap.className = 'badge-wrap';
+      updateBadge(badgeWrap, rowData[row.id]?.[phoneKey] ?? '');
+
+      // Input handler — trigger autocomplete
+      nameInput.addEventListener('input', () => {
+        ensureRowData(row.id);
+        const val = nameInput.value.trim();
+        rowData[row.id][fieldKey] = nameInput.value;
+        if (!val) {
+          rowData[row.id][phoneKey] = '';
+          updateBadge(badgeWrap, '');
+          closeActiveAC();
+          return;
+        }
+        // Check exact match first
+        const exact = lookupByName(val);
+        if (exact) {
+          rowData[row.id][phoneKey] = exact.phone;
+          updateBadge(badgeWrap, exact.phone);
+        } else {
+          rowData[row.id][phoneKey] = '';
+          updateBadge(badgeWrap, '');
+        }
+        // Build AC
+        buildAC(nameInput, emp => {
+          nameInput.value = displayName(emp);
+          rowData[row.id][fieldKey] = nameInput.value;
+          rowData[row.id][phoneKey] = emp.phone;
+          updateBadge(badgeWrap, emp.phone);
+        });
+      });
+
+      nameInput.addEventListener('focus', () => {
+        if (nameInput.value.trim().length >= 2) {
+          buildAC(nameInput, emp => {
+            nameInput.value = displayName(emp);
+            ensureRowData(row.id);
+            rowData[row.id][fieldKey] = nameInput.value;
+            rowData[row.id][phoneKey] = emp.phone;
+            updateBadge(badgeWrap, emp.phone);
+          });
+        }
+      });
+
+      nameInput.addEventListener('blur', () => {
+        // Small delay so mousedown on AC item fires first
+        setTimeout(closeActiveAC, 150);
+      });
+
+      wrap.appendChild(nameInput);
+      wrap.appendChild(badgeWrap);
+      group.appendChild(wrap);
+      return group;
+    }
+
+    fieldsGrid.appendChild(makeNameField('lead', 'leadPhone', 'Lead Provider'));
+    fieldsGrid.appendChild(makeNameField('secondary', 'secondaryPhone', 'Secondary Provider'));
+    card.appendChild(fieldsGrid);
+
+    // Notes
+    const notesInput = document.createElement('input');
+    notesInput.className = 'notes-input';
+    notesInput.type = 'text';
+    notesInput.placeholder = 'Notes…';
+    notesInput.value = rowData[row.id]?.notes ?? '';
+    notesInput.addEventListener('input', () => {
+      ensureRowData(row.id);
+      rowData[row.id].notes = notesInput.value;
+    });
+    card.appendChild(notesInput);
+
+    container.appendChild(card);
+  });
+}
+
+function ensureRowData(id) {
+  if (!rowData[id]) {
+    rowData[id] = { unit: '', lead: '', leadPhone: '', secondary: '', secondaryPhone: '', notes: '' };
+  }
+}
+
+/* ════════════════════════════════════════
+   SAVE & LOAD
+   ════════════════════════════════════════ */
+function currentDate() {
+  return document.getElementById('roster-date').value;
+}
+
+function saveRoster() {
+  const date = currentDate();
+  if (!date) return;
+  localStorage.setItem('roster_v1_' + date, JSON.stringify(rowData));
+  showToast('Saved ✓');
+}
+
+function loadRoster(date) {
+  const saved = localStorage.getItem('roster_v1_' + date);
+  if (saved) {
+    try { rowData = JSON.parse(saved); } catch(e) { rowData = {}; }
+  } else {
+    // Default: populate unit fields only
+    rowData = {};
+    ROSTER_ROWS.forEach(row => {
+      rowData[row.id] = {
+        unit: row.defaultUnit,
+        lead: '', leadPhone: '',
+        secondary: '', secondaryPhone: '',
+        notes: ''
+      };
+    });
+  }
+  buildRosterDOM();
+}
+
+/* ════════════════════════════════════════
+   PRINT / EXPORT
+   ════════════════════════════════════════ */
+function buildPrintView() {
+  const date = currentDate();
+  const printDiv = document.getElementById('print-view');
+
+  // Group rows by section
+  const sections = [];
+  let curSection = null;
+  ROSTER_ROWS.forEach(row => {
+    if (row.section !== curSection) {
+      curSection = row.section;
+      sections.push({ name: row.section, rows: [] });
+    }
+    sections[sections.length - 1].rows.push(row);
+  });
+
+  let html = `
+    <div class="pl-header">
+      <h1>Daily List</h1>
+      <p>${formatDateDisplay(date)}</p>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:22%">Position</th>
+          <th style="width:18%">Unit #</th>
+          <th style="width:30%">Lead Provider</th>
+          <th style="width:30%">Secondary Provider</th>
+        </tr>
+      </thead>
+      <tbody>`;
+
+  sections.forEach(sec => {
+    html += `<tr class="section-row"><td colspan="4">${sec.name}</td></tr>`;
+    sec.rows.forEach(row => {
+      const rd = rowData[row.id] || {};
+      const unit = rd.unit || row.defaultUnit || '';
+      const lead = rd.lead || '';
+      const sec2 = rd.secondary || '';
+      html += `<tr>
+        <td>${row.label}</td>
+        <td>${unit}</td>
+        <td>${lead}</td>
+        <td>${sec2}</td>
+      </tr>`;
+    });
+  });
+
+  html += `</tbody></table>`;
+  printDiv.innerHTML = html;
+}
+
+function exportRoster() {
+  buildPrintView();
+  setTimeout(() => window.print(), 80);
+}
+
+/* ════════════════════════════════════════
+   DIRECTORY
+   ════════════════════════════════════════ */
+let dirStation = 'All';
+let dirQuery = '';
+
+function renderDirectory() {
+  const results = document.getElementById('dir-results');
+  let filtered = EMPLOYEES.filter(emp => {
+    if (dirStation !== 'All') {
+      // Normalize Dewitt <-> DeWitt
+      const empStation = emp.station.toLowerCase().replace(/\s/g, '');
+      const filterStation = dirStation.toLowerCase().replace(/\s/g, '');
+      if (empStation !== filterStation) return false;
+    }
+    if (dirQuery.length >= 1) {
+      const q = dirQuery.toLowerCase();
+      const { raw, nick } = empTokens(emp);
+      if (!raw.includes(q) && !nick.includes(q)) return false;
+    }
+    return true;
+  });
+
+  // Sort by last name, then first
+  filtered.sort((a, b) => {
+    const lc = a.last.toLowerCase().localeCompare(b.last.toLowerCase());
+    if (lc !== 0) return lc;
+    return a.first.toLowerCase().localeCompare(b.first.toLowerCase());
+  });
+
+  if (!filtered.length) {
+    results.innerHTML = '<div class="dir-empty">No results found.</div>';
+    return;
+  }
+
+  results.innerHTML = filtered.map(emp => {
+    const phone = emp.phone;
+    const phoneHtml = phone && phone !== 'on file'
+      ? `<a href="tel:${phone}" class="call-badge">📞 ${phone}</a>`
+      : phone
+        ? `<span class="call-badge" style="color:var(--muted);font-size:12px">${phone}</span>`
+        : '';
+    const noteHtml = emp.note
+      ? `<div class="dir-note">${emp.note}</div>`
+      : '';
+    return `
+      <div class="dir-card">
+        <div class="dir-info">
+          <div class="dir-name">${emp.first} ${emp.last}</div>
+          <div class="dir-meta">${emp.role} &mdash; ${emp.station} &bull; ${emp.status}</div>
+          ${noteHtml}
+        </div>
+        <div>${phoneHtml}</div>
+      </div>`;
+  }).join('');
+}
+
+/* ════════════════════════════════════════
+   TABS
+   ════════════════════════════════════════ */
+function initTabs() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      const tabId = 'tab-' + btn.dataset.tab;
+      document.getElementById(tabId).classList.add('active');
+      closeActiveAC();
+    });
+  });
+}
+
+/* ════════════════════════════════════════
+   GLOBAL TAP-TO-DISMISS AUTOCOMPLETE
+   ════════════════════════════════════════ */
+function initGlobalDismiss() {
+  const dismiss = e => {
+    if (!activeAC) return;
+    const target = e.target;
+    if (activeAC.input.contains(target) || activeAC.dropdown.contains(target)) return;
+    closeActiveAC();
+  };
+  document.addEventListener('mousedown', dismiss);
+  document.addEventListener('touchstart', dismiss, { passive: true });
+}
+
+/* ════════════════════════════════════════
+   APP INIT
+   ════════════════════════════════════════ */
+function initApp() {
+  // Set today's date
+  const dateInput = document.getElementById('roster-date');
+  dateInput.value = todayStr();
+
+  // Load roster for today
+  loadRoster(todayStr());
+
+  // Date change
+  dateInput.addEventListener('change', () => {
+    closeActiveAC();
+    loadRoster(dateInput.value);
+  });
+
+  // Save button
+  document.getElementById('btn-save').addEventListener('click', saveRoster);
+
+  // Export button
+  document.getElementById('btn-export').addEventListener('click', exportRoster);
+
+  // Directory search
+  const dirSearch = document.getElementById('dir-search');
+  dirSearch.addEventListener('input', () => {
+    dirQuery = dirSearch.value.trim();
+    renderDirectory();
+  });
+
+  // Filter pills
+  document.getElementById('filter-pills').addEventListener('click', e => {
+    const pill = e.target.closest('.pill');
+    if (!pill) return;
+    dirStation = pill.dataset.station;
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    renderDirectory();
+  });
+
+  // Initial directory render
+  renderDirectory();
+
+  // Tabs
+  initTabs();
+
+  // Global AC dismiss
+  initGlobalDismiss();
+}
+</script>
+</body>
+</html>
