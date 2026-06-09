@@ -3576,7 +3576,18 @@
         }
         const stepHtml = ptBadge + stepContent;
         if (isBranch) {
-          return `<div class="step-row-wrap" style="margin-bottom:4px;padding-left:20px">
+          const tr = clean.trimStart();
+          const isWarn = /^⚠/.test(tr);
+          const isYes  = /^━━\s*YES\b/i.test(tr);
+          const isNo   = /^━━\s*NO\b/i.test(tr);
+          const isDeep = /^ {3,}/.test(clean) || /^•/.test(tr) || /^→/.test(tr);
+          let ml, bl, bg;
+          if (isWarn)       { ml='0';    bl='3px solid rgba(251,191,36,.6)';  bg='rgba(251,191,36,.06)'; }
+          else if (isYes)   { ml='14px'; bl='3px solid rgba(74,222,128,.5)';  bg='rgba(74,222,128,.04)'; }
+          else if (isNo)    { ml='14px'; bl='3px solid rgba(248,113,113,.5)'; bg='rgba(248,113,113,.04)'; }
+          else if (isDeep)  { ml='28px'; bl='2px solid rgba(255,255,255,.08)';bg=''; }
+          else              { ml='14px'; bl='2px solid rgba(255,255,255,.13)';bg=''; }
+          return `<div class="step-row-wrap" style="margin-bottom:4px;margin-left:${ml};padding-left:10px;border-left:${bl};border-radius:0 4px 4px 0${bg?`;background:${bg}`:''}">
             ${roleLabel}<div class="step-content">${stepHtml}</div>
           </div>`;
         }
@@ -3597,7 +3608,7 @@
               <button class="fav-btn${on?' on':''}" onclick="event.stopPropagation();toggleFav('p','${fid}')" title="${on?'Remove from favorites':'Add to favorites'}">${on?'★':'☆'}</button>
             </div>
           </div>
-          <div class="card-step-count">${visibleStepCount} step${visibleStepCount!==1?'s':''}</div>
+          <div class="card-step-count">${_sn} step${_sn!==1?'s':''}</div>
         </div>
         <div class="card-body">
           <div class="hint" style="margin-bottom:6px">${highlight(normalizeRoles(p.summary||''), filterTerms)}</div>
