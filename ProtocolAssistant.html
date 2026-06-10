@@ -287,8 +287,17 @@
     .uco-table input[type=text]:focus,.uco-table input[type=number]:focus{border-color:var(--accent)}
     .uco-table .prob-cell{width:38%}
     .uco-table .qty-cell{width:50px;text-align:center}
-    .uco-table .act-cell{width:60px}
+    .uco-table .act-cell{width:64px}
     .uco-table .exp-cell{width:90px}
+    .uco-table .miss-cell{width:42px;text-align:center}
+    .ss-miss-btn{background:none;border:1.5px solid var(--border);border-radius:6px;color:var(--muted);font-size:14px;padding:3px 8px;cursor:pointer;transition:all .12s;line-height:1}
+    .ss-miss-btn.active{background:rgba(248,113,113,.15);border-color:rgba(248,113,113,.6);color:#f87171}
+    .ss-row-missing td{background:rgba(248,113,113,.13)!important}
+    .ss-row-missing td:first-child{border-left:3px solid #f87171}
+    .ss-row-warn td{background:rgba(251,191,36,.1)!important}
+    .ss-row-warn td:first-child{border-left:3px solid #fbbf24}
+    .ss-row-expired td{background:rgba(251,146,60,.13)!important}
+    .ss-row-expired td:first-child{border-left:3px solid #fb923c}
     .uco-footer-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px}
     .uco-footer-field{display:flex;flex-direction:column;gap:4px}
     .uco-footer-field label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
@@ -6472,11 +6481,40 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   function _ssState(){ try{ const s=localStorage.getItem(SS_KEY); if(s) return JSON.parse(s); }catch(e){} return {}; }
   function _saveSS(s){ try{ localStorage.setItem(SS_KEY,JSON.stringify(s)); }catch(e){} }
 
+  // Returns true if a MM/YYYY, MM/YY, or date string is before the current month
+  function _ssIsExpired(str){
+    if(!str) return false;
+    const m1=str.match(/^(\d{1,2})\/(\d{4})$/);
+    if(m1){ const d=new Date(+m1[2],+m1[1]-1,1); const n=new Date(); return d<new Date(n.getFullYear(),n.getMonth(),1); }
+    const m2=str.match(/^(\d{1,2})\/(\d{2})$/);
+    if(m2){ const d=new Date(2000+ +m2[2],+m2[1]-1,1); const n=new Date(); return d<new Date(n.getFullYear(),n.getMonth(),1); }
+    const d=new Date(str);
+    return !isNaN(d)&&d<new Date();
+  }
+
+  function _ssRowClass(e,req,isExp){
+    if(e.miss) return 'ss-row-missing';
+    const qty=parseFloat(e.qty);
+    if(!isNaN(qty) && e.qty!=='' && qty<req) return 'ss-row-warn';
+    if(isExp && _ssIsExpired(e.exp)) return 'ss-row-expired';
+    return '';
+  }
+
+  function _ssUpdateRow(key){
+    const s=_ssState(); const e=s[key]||{};
+    const m=key.match(/ss_(\d+)_(\d+)/); if(!m) return;
+    const sec=SS_SECTIONS[+m[1]], item=sec&&sec.items[+m[2]];
+    if(!item) return;
+    const row=document.getElementById('ss-row-'+key);
+    if(row) row.className=_ssRowClass(e,item.q,!!sec.exp);
+    const btn=row&&row.querySelector('.ss-miss-btn');
+    if(btn) btn.classList.toggle('active',!!e.miss);
+  }
+
   function renderStockSheet(){
     const state = _ssState();
     const container = document.getElementById('ss-sections');
     if(!container) return;
-    // Restore header fields
     ['ss-date','ss-unit','ss-narc','ss-o2main','ss-o2port','ss-para','ss-emt'].forEach(id=>{
       const el=document.getElementById(id);
       if(el&&state[id]) el.value=state[id];
@@ -6486,20 +6524,50 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       <div class="uco-section">
         <div class="uco-section-head">${sec.title}</div>
         <table class="uco-table">
-          <tr><th>Item</th><th class="qty-cell">Req</th><th class="act-cell">Actual${sec.exp?'/<br>Exp':''}</th></tr>
+          <tr>
+            <th>Item</th>
+            <th class="qty-cell">Req</th>
+            <th class="act-cell">Actual</th>
+            ${sec.exp?'<th class="exp-cell">Exp Date</th>':''}<th class="miss-cell">Flag</th>
+          </tr>
           ${sec.items.map((item,ii)=>{
             const key=`ss_${si}_${ii}`;
             const e=state[key]||{};
-            return `<tr>
+            const rc=_ssRowClass(e,item.q,!!sec.exp);
+            return `<tr class="${rc}" id="ss-row-${key}">
               <td>${item.n}</td>
               <td class="qty-cell" style="color:var(--muted);font-size:13px">${item.q}</td>
-              <td class="act-cell"><input type="${sec.exp?'text':'number'}" value="${e.act||''}" placeholder="${sec.exp?'Exp date':'#'}" data-key="${key}" class="ss-act" style="width:100%" /></td>
+              <td class="act-cell"><input type="number" value="${e.qty!=null?e.qty:''}" placeholder="#" data-key="${key}" class="ss-qty" inputmode="numeric" min="0" style="width:100%" /></td>
+              ${sec.exp?`<td class="exp-cell"><input type="text" value="${e.exp||''}" placeholder="MM/YYYY" data-key="${key}" class="ss-exp" style="width:100%" /></td>`:''}
+              <td class="miss-cell"><button type="button" class="ss-miss-btn${e.miss?' active':''}" data-key="${key}" title="Mark missing">⚑</button></td>
             </tr>`;
           }).join('')}
         </table>
       </div>`).join('');
-    container.querySelectorAll('.ss-act').forEach(inp=>{
-      inp.addEventListener('input',()=>{ const s=_ssState(); if(!s[inp.dataset.key]) s[inp.dataset.key]={}; s[inp.dataset.key].act=inp.value; _saveSS(s); });
+
+    container.querySelectorAll('.ss-qty').forEach(inp=>{
+      inp.addEventListener('input',()=>{
+        const s=_ssState();
+        if(!s[inp.dataset.key]) s[inp.dataset.key]={};
+        s[inp.dataset.key].qty=inp.value;
+        _saveSS(s); _ssUpdateRow(inp.dataset.key);
+      });
+    });
+    container.querySelectorAll('.ss-exp').forEach(inp=>{
+      inp.addEventListener('input',()=>{
+        const s=_ssState();
+        if(!s[inp.dataset.key]) s[inp.dataset.key]={};
+        s[inp.dataset.key].exp=inp.value;
+        _saveSS(s); _ssUpdateRow(inp.dataset.key);
+      });
+    });
+    container.querySelectorAll('.ss-miss-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const s=_ssState();
+        if(!s[btn.dataset.key]) s[btn.dataset.key]={};
+        s[btn.dataset.key].miss=!s[btn.dataset.key].miss;
+        _saveSS(s); _ssUpdateRow(btn.dataset.key);
+      });
     });
   }
 
@@ -6509,17 +6577,29 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     const date=get('ss-date'), unit=get('ss-unit'), narc=get('ss-narc');
     const o2m=get('ss-o2main'), o2p=get('ss-o2port'), para=get('ss-para'), emt=get('ss-emt');
 
+    const flagStyle={missing:'background:#fecaca;border-left:3px solid #ef4444',warn:'background:#fef9c3;border-left:3px solid #eab308',expired:'background:#ffedd5;border-left:3px solid #f97316'};
     const secHtml = SS_SECTIONS.map((sec,si)=>{
-      const actHeader = sec.exp ? 'Actual / Exp' : 'Actual';
       const rows = sec.items.map((item,ii)=>{
         const e=s[`ss_${si}_${ii}`]||{};
-        const act=e.act||'';
-        return `<tr><td class="item-name">${item.n}</td><td class="qty">${item.q}</td><td class="act">${act}</td></tr>`;
+        const qty=parseFloat(e.qty);
+        let style='';
+        if(e.miss) style=flagStyle.missing;
+        else if(!isNaN(qty)&&e.qty!==''&&qty<item.q) style=flagStyle.warn;
+        else if(sec.exp&&_ssIsExpired(e.exp)) style=flagStyle.expired;
+        const missLabel = e.miss ? '<span style="color:#b91c1c;font-weight:700;font-size:9px">MISSING</span>' : '';
+        const expiredLabel = (sec.exp&&_ssIsExpired(e.exp)&&!e.miss) ? '<span style="color:#c2410c;font-weight:700;font-size:9px">EXPIRED</span>' : '';
+        const lowLabel = (!e.miss&&!isNaN(qty)&&e.qty!==''&&qty<item.q) ? '<span style="color:#a16207;font-weight:700;font-size:9px">LOW</span>' : '';
+        return `<tr style="${style}">
+          <td class="item-name">${item.n} ${missLabel}${expiredLabel}${lowLabel}</td>
+          <td class="qty">${item.q}</td>
+          <td class="act">${e.qty!=null?e.qty:''}</td>
+          ${sec.exp?`<td class="exp">${e.exp||''}</td>`:''}
+        </tr>`;
       }).join('');
       return `<div class="section">
         <div class="section-head">${sec.title}</div>
         <table>
-          <thead><tr><th class="item-name">Item</th><th class="qty">Req</th><th class="act">${actHeader}</th></tr></thead>
+          <thead><tr><th class="item-name">Item</th><th class="qty">Req</th><th class="act">Actual</th>${sec.exp?'<th class="exp">Exp Date</th>':''}</tr></thead>
           <tbody>${rows}</tbody>
         </table>
       </div>`;
@@ -6542,9 +6622,10 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   th{background:#eee;font-weight:700;font-size:10px;padding:2px 4px;border:1px solid #ccc;text-align:left}
   td{padding:2px 4px;border:1px solid #ddd;vertical-align:top}
   tr:nth-child(even) td{background:#f9f9f9}
-  .qty,.act{text-align:center;white-space:nowrap}
+  .qty,.act,.exp{text-align:center;white-space:nowrap}
   th.qty,td.qty{width:30px}
-  th.act,td.act{width:72px}
+  th.act,td.act{width:50px}
+  th.exp,td.exp{width:72px}
   @media print{
     body{padding:4px}
     .section{break-inside:avoid}
