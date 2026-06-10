@@ -3639,6 +3639,8 @@
 
   // Final enhancement pass: route badges + DO NOT warnings + flow arrows (runs on text nodes only)
   function enhance(html){
+    // Bold inline sub-label prefixes: "No Transport / No Haul: ..." or "Transport: ..." at start of text
+    html = html.replace(/^([A-Z][A-Za-z0-9 \/&\-,]{1,55}):\s+/, '<strong>$1:</strong> ');
     return replaceTextOnly(html, text => {
       // Route administration badges (case-sensitive — protocols write routes in CAPS)
       text = text.replace(
@@ -3937,9 +3939,13 @@
       }
       // Step count: sequential across all blocks, matching flat render
       const _stepCount = _blocks.reduce((n, b) => {
-        if(b.type === 'treat') return n + b.steps.filter(it => !it.isBranch).length;
-        if(b.type === 'plain') return b.isBranch ? n : n + 1;
-        if(b.type === 'label'){ const m2 = b.dc.match(_SEC_RE); return n + (m2 && b.dc.slice(m2[0].length).trim() ? 1 : 0); }
+        if(b.type === 'treat') return n + b.steps.filter(it => {
+          if(it.isBranch) return false;
+          // Pure colon-header steps don't count
+          return !/^[A-Z][^.!?:]{3,69}:\s*$/.test(it.dc.trim());
+        }).length;
+        if(b.type === 'plain') return b.isBranch ? n : (/^[A-Z][^.!?:]{3,69}:\s*$/.test(b.dc.trim()) ? n : n + 1);
+        if(b.type === 'label') return n; // label subheadings + their body are un-numbered
         return n + (b.isBranch ? 0 : 1);
       }, 0);
 
@@ -3964,6 +3970,13 @@
         const rl = role ? `<span class="step-role-tag" style="color:${ROLE_COLORS[role]};border-color:${ROLE_COLORS[role]}">${ROLE_LABELS[role]}</span>` : '';
         const pb = /^(Pediatric|Peds)$/i.test(descriptor) ? `<span class="pt-badge pt-peds">Peds</span> `
                  : /^Adult$/i.test(descriptor) ? `<span class="pt-badge pt-adult">Adult</span> ` : '';
+
+        // Pure colon-header steps: a short phrase ending in ':' with no body content
+        // e.g. "No Haul Criteria:" or "Special Notes:" — render as bold divider, no step number
+        if(!isBranch && /^[A-Z][^.!?:]{3,69}:\s*$/.test(dc.trim())){
+          return `<div style="font-weight:700;font-size:12px;letter-spacing:.2px;color:var(--text);margin:12px 0 4px;padding-bottom:3px;border-bottom:1px solid rgba(255,255,255,.07)">${rl}${sanitizeText(dc.trim().replace(/:$/, ''))}</div>`;
+        }
+
         const si = splitInlineList(dc);
         let sc;
         if(si && si.length > 1){
@@ -3997,6 +4010,7 @@
           const lbl = /^note$/i.test(m[1]) ? 'Special Considerations'
                     : /^consider/i.test(m[1]) ? 'Considerations'
                     : m[1].charAt(0).toUpperCase() + m[1].slice(1).replace(/\s+causes?$/i,' Causes');
+          // Strip inline leading number like "1) " or "1. " from body (occurs when body is "1) do x 2) do y")
           const body = b.dc.slice(m[0].length).trim();
           const sk = (rawLabel.startsWith('required')||rawLabel.startsWith('primary')||rawLabel.startsWith('secondary')||rawLabel.startsWith('vital')||rawLabel.startsWith('history')||rawLabel.startsWith('gcs')) ? 'assessment'
                    : rawLabel.startsWith('contra')   ? 'contraindication'
@@ -4007,7 +4021,19 @@
           const color = _SLBL[sk] || _SLBL.note;
           const subhead = `<div style="font-size:10px;font-weight:800;letter-spacing:.65px;text-transform:uppercase;color:${color};margin:10px 0 3px;display:flex;align-items:center;gap:5px"><span style="width:2px;height:10px;background:${color};border-radius:1px;flex:none;opacity:.75"></span>${sanitizeText(lbl)}</div>`;
           const bodyRole = b.explicitRole ? b.role : null;
-          const bodyHtml = body ? _rs({role:bodyRole, clean:body, dc:body, descriptor:b.descriptor, isBranch:false}, ()=>++_sn) : '';
+          // Label body renders as un-numbered sub-content (not a main step) — avoids "ASSESSMENT\n1 ..."
+          let bodyHtml = '';
+          if(body){
+            const brl = bodyRole ? `<span class="step-role-tag" style="color:${ROLE_COLORS[bodyRole]};border-color:${ROLE_COLORS[bodyRole]}">${ROLE_LABELS[bodyRole]}</span>` : '';
+            const bsi = splitInlineList(body);
+            let bsc;
+            if(bsi && bsi.length > 1){
+              bsc = bsi.map(x=>{ const h=enhance(fmtRateTable(linkMeds(doseHL(highlight(sanitizeText(x.text),filterTerms))))); return x.num?`<div class="sub-step"><span class="sub-k">${x.num}</span><span>${h}</span></div>`:`<span style="display:block;margin-bottom:2px">${h}</span>`; }).join('');
+            } else {
+              bsc = enhance(fmtRateTable(linkMeds(doseHL(highlight(sanitizeText(body),filterTerms)))));
+            }
+            bodyHtml = `<div class="step-row-wrap" style="margin-bottom:5px;margin-left:10px;padding-left:8px;border-left:2px solid ${color}55;border-radius:0 3px 3px 0">${brl}<div class="step-content" style="font-size:13px;color:rgba(230,238,248,.82)">${bsc}</div></div>`;
+          }
           return subhead + bodyHtml;
         }
         if(b.type === 'treat'){
