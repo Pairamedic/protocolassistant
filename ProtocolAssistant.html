@@ -3625,7 +3625,8 @@
   }
 
   // --- Role detection & display helpers ---
-  const ROLE_COLORS = {emt:'#3b82f6', aemt:'#f97316', paramedic:'#22c55e'};
+  const ROLE_COLORS  = {emt:'#3b82f6', aemt:'#f97316', paramedic:'#22c55e'};
+  const ROLE_LABELS  = {emt:'EMT', aemt:'AEMT', paramedic:'Paramedic'};
 
   function normalizeRoles(text){
     return text
@@ -3974,8 +3975,6 @@
       if(!byCategory.has(cat)) byCategory.set(cat, []);
       byCategory.get(cat).push(item);
     });
-
-    const ROLE_LABELS = {paramedic:'Paramedic', aemt:'AEMT', emt:'EMT'};
 
     function renderCard({p, i}){
       const eid = (p.id||p.title).replace(/[^a-z0-9]/gi,'_');
@@ -5853,101 +5852,111 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   }
   setInterval(saveFormsToFirebase, 30000);
 
-  // ─── EQUIPMENT CHECKLIST ────────────────────────────────────────────────────
-  // Items: string = all providers; {t, lvl} = minimum provider level required
+  // ─── STATE EQUIPMENT CHECKLIST ──────────────────────────────────────────────
+  // Matches NJ state Rules for Emergency Medical Services equipment requirements.
+  // Items: string = all providers (EMT+); {t, lvl} = minimum provider level required.
   // lvl: 'emt'=all, 'aemt'=AEMT+, 'paramedic'=Paramedic only
   const SHIFT_SECTIONS = [
-    { title:'Soft Supplies & Equipment', items:['4×4 Pads','ABD Pads','Trauma Dressing','Isolation Kits','Roller Gauze','Triangular Bandages','OB Kit w/ Bulb Syringe','Sterile Saline','Betadine','Shears','Stethoscope','Hemostat','BP Cuffs (LA, A, C, I)','Alcohol Prep Pads','Band Aids','Antiseptic Hand Cleaner','Exam Gloves (various sizes)','Emesis Basin/Bag','Commercial Tourniquet','Linens','Tape','Occlusive Dressing','Thermometer','Sharps Container','Glucometer w/ strips','Time Critical Bands (Trauma/Stroke)','Triage Tag/Tape','Protocols','Biohazard Bags','N95 Respirator','Pediatric Dosage Guide','Disinfectant Solution'] },
+    { title:'Soft Supplies & Other Equipment', items:[
+      '4×4 Pads','ABD Pads','Trauma Dressing','Isolation Kits','Roller Gauze',
+      'Triangular Bandages','OB Kit w/ Bulb Syringe','Sterile Saline','Betadine',
+      'Shears','Stethoscope','Hemostat','Scalpel',
+      'Blood Pressure Cuff — Large Adult','Blood Pressure Cuff — Adult',
+      'Blood Pressure Cuff — Child','Blood Pressure Cuff — Infant',
+      'Alcohol Prep Pads','Band Aids','Antiseptic Hand Cleaner',
+      'Exam Gloves (various sizes)','Emesis Basin/Bag','Commercial Tourniquet',
+      'Linens','Tape','Occlusive Dressing','Thermometer','Sharps Container',
+      'Time Critical Bands (Trauma/Stroke)','Triage Tag/Tape','Protocols',
+      'Biohazard Bags','N95 Respirator','Pediatric Dosage Guide (Pedi-Wheel, Tape)',
+      'Disinfectant Solution',
+      {t:'Glucometer w/ strips', lvl:'aemt'},
+    ] },
     { title:'Airway, Oxygen & Suction', items:[
-        'Main O₂','Portable O₂',
-        'OPA Set','NPA Set','Lubricating Jelly',
-        'Nasal Cannula — Adult','Nasal Cannula — Pediatric',
-        'NRB — Adult','NRB — Pediatric','NRB — Infant',
-        'BVM — Adult','BVM — Pediatric','BVM — Infant',
-        'Nebulizer Kit',
-        'Suction — On-Board','Suction — Portable','Suction Tubing','Rigid Suction Tip',
-        'Suction Catheters (8/10fr, 12fr, 14fr, 14/18fr)',
-        'Magill Forceps — Adult','Magill Forceps — Pediatric',
-        {t:'EtCO₂ Detector', lvl:'aemt'},
-        {t:'Secondary Advanced Airway — Adult (Supraglottic)', lvl:'aemt'},
-        {t:'Secondary Advanced Airway — Pediatric (Supraglottic)', lvl:'aemt'},
-        {t:'Cric Kit or 10/12ga Needle', lvl:'paramedic'},
-        {t:'Laryngoscope Handle — Adult', lvl:'paramedic'},
-        {t:'Laryngoscope Handle — Pediatric', lvl:'paramedic'},
-        {t:'Laryngoscope Blades (1–4 or 0–3)', lvl:'paramedic'},
-        {t:'ET Tubes 2.5–7.5mm', lvl:'paramedic'},
-        {t:'ET Tube Holder — Adult', lvl:'paramedic'},
-        {t:'ET Tube Holder — Pediatric', lvl:'paramedic'},
-        {t:'Stylette — Adult', lvl:'paramedic'},
-        {t:'Stylette — Pediatric', lvl:'paramedic'},
+      'Main O₂','Portable O₂',
+      'OPA Set','NPA Set','Lubricating Jelly',
+      'Nasal Cannula — Adult','Nasal Cannula — Pediatric',
+      'NRB — Adult','NRB — Pediatric','NRB — Infant',
+      'BVM — Adult','BVM — Pediatric','BVM — Infant',
+      'Magill Forceps — Adult','Magill Forceps — Pediatric',
+      'Suction — On-Board','Suction — Portable','Suction Tubing','Rigid Suction Tip',
+      'Suction Catheters (8fr or 10fr)','Suction Catheters (12fr)','Suction Catheters (14fr or 18fr)',
+      {t:'Nebulizer Kit', lvl:'aemt'},
+      {t:'Secondary Advanced Airway — Adult', lvl:'aemt'},
+      {t:'Secondary Advanced Airway — Pediatric', lvl:'aemt'},
+      {t:'EtCO₂ Detector', lvl:'paramedic'},
+      {t:'Cric Kit or 10/12ga Needle', lvl:'paramedic'},
+      {t:'Laryngoscope Handle — Adult', lvl:'paramedic'},
+      {t:'Laryngoscope Handle — Pediatric', lvl:'paramedic'},
+      {t:'Laryngoscope Blades (1–4 or 0–3)', lvl:'paramedic'},
+      {t:'ET Tubes 2.5mm–7.5mm', lvl:'paramedic'},
+      {t:'ET Tube Holder — Adult', lvl:'paramedic'},
+      {t:'ET Tube Holder — Pediatric', lvl:'paramedic'},
+      {t:'Stylette — Adult', lvl:'paramedic'},
+      {t:'Stylette — Pediatric', lvl:'paramedic'},
     ] },
     { title:'Monitor', items:[
-        'Defibrillator Pads — Adult','Defibrillator Pads — Pediatric',
-        'Electrodes — Adult','Electrodes — Pediatric',
-        'Pulse Oximetry — Adult','Pulse Oximetry — Pediatric',
-        'AED (confirm operational)',
-        {t:'Cardiac Monitor', lvl:'aemt'},
-        {t:'Cardiac Monitor Cables/Charger', lvl:'aemt'},
-        {t:'4-Lead EKG Leads', lvl:'aemt'},
-        {t:'Defibrillator (Defib Test)', lvl:'aemt'},
-        {t:'12-Lead EKG Leads', lvl:'paramedic'},
-        {t:'Pacer Capability (confirm operational)', lvl:'paramedic'},
-        {t:'ECG Paper', lvl:'paramedic'},
+      'AED',
+      'Defibrillator Pads/Paddles — Adult','Defibrillator Pads/Paddles — Pediatric',
+      {t:'Cardiac Monitor', lvl:'aemt'},
+      {t:'Cardiac Monitor Cables', lvl:'aemt'},
+      {t:'4 Lead', lvl:'aemt'},
+      {t:'Electrodes — Adult', lvl:'aemt'},
+      {t:'Electrodes — Pediatric', lvl:'aemt'},
+      {t:'Pulse Oximetry — Adult', lvl:'aemt'},
+      {t:'Pulse Oximetry — Pediatric', lvl:'aemt'},
+      {t:'12 Lead', lvl:'paramedic'},
+      {t:'Defibrillator (confirm operational)', lvl:'paramedic'},
+      {t:'Pacer', lvl:'paramedic'},
+      {t:'ECG Paper', lvl:'paramedic'},
     ] },
     { title:'IV Supplies', items:[
-        {t:'Micro (60) Drip Set', lvl:'aemt'},
-        {t:'Macro (10) Drip Set', lvl:'aemt'},
-        {t:'Adjustable Drip Set', lvl:'aemt'},
-        {t:'IV Start Sets / Tourniquet', lvl:'aemt'},
-        {t:'IV Catheters 14–24ga', lvl:'aemt'},
-        {t:'Syringes 1cc–60cc', lvl:'aemt'},
-        {t:'Needles 18–25ga', lvl:'aemt'},
-        {t:'10/12 or 14g Cath or Chest Decomp Needle', lvl:'paramedic'},
-        {t:'IO Access Device', lvl:'paramedic'},
-        {t:'IO Needle — Adult', lvl:'paramedic'},
-        {t:'IO Needle — Pediatric', lvl:'paramedic'},
+      {t:'Micro Drip Set', lvl:'aemt'},
+      {t:'Adjustable Drip Set (can replace Micro & Macro)', lvl:'aemt'},
+      {t:'Macro Drip Set', lvl:'aemt'},
+      {t:'IV Start Sets / Tourniquet', lvl:'aemt'},
+      {t:'IV Catheters 14–24 gauge', lvl:'aemt'},
+      {t:'Syringes 1cc–60cc', lvl:'aemt'},
+      {t:'Needles 18–25 gauge', lvl:'aemt'},
+      {t:'IO Access Device', lvl:'aemt'},
+      {t:'IO Needle — Adult', lvl:'aemt'},
+      {t:'IO Needle — Pediatric', lvl:'aemt'},
+      {t:'10-, 12-, or 14-gauge catheter (3.25 in) or chest decompression needle', lvl:'paramedic'},
     ] },
     { title:'Medications', items:[
-        {t:'Aspirin', lvl:'emt'},
-        {t:'Inhaled Beta Agonist (Albuterol)', lvl:'emt'},
-        {t:'Narcotic Antagonist (Naloxone)', lvl:'emt'},
-        {t:'Oral Glucose', lvl:'emt'},
-        {t:'Antiemetic', lvl:'aemt'},
-        {t:'Crystalloid Solution (NS/LR)', lvl:'aemt'},
-        {t:'Epi 1:1 (1 mg/mL)', lvl:'aemt'},
-        {t:'H1 Antagonist (Diphenhydramine)', lvl:'aemt'},
-        {t:'IV Dextrose (D50/D10)', lvl:'aemt'},
-        {t:'Atropine', lvl:'paramedic'},
-        {t:'Adenosine', lvl:'paramedic'},
-        {t:'Antiarrhythmic — Bolus & Infusion', lvl:'paramedic'},
-        {t:'Benzodiazepine', lvl:'paramedic'},
-        {t:'Epi 1:10 (0.1 mg/mL)', lvl:'paramedic'},
-        {t:'Magnesium Sulfate', lvl:'paramedic'},
-        {t:'Narcotic Analgesic', lvl:'paramedic'},
-        {t:'Nitroglycerin', lvl:'paramedic'},
-        {t:'Pressor', lvl:'paramedic'},
-        {t:'Sodium Bicarbonate', lvl:'paramedic'},
+      {t:'Aspirin', lvl:'aemt'},
+      {t:'Crystalloid Solution', lvl:'aemt'},
+      {t:'Epinephrine (Auto-Injector or 1:1,000)', lvl:'aemt'},
+      {t:'Inhaled Beta Agonist', lvl:'aemt'},
+      {t:'IV Dextrose', lvl:'aemt'},
+      {t:'Narcotic Antagonist', lvl:'aemt'},
+      {t:'Nitroglycerin', lvl:'aemt'},
+      {t:'Adenosine', lvl:'paramedic'},
+      {t:'Antiarrhythmic (Bolus & Infusion)', lvl:'paramedic'},
+      {t:'Antiemetic', lvl:'paramedic'},
+      {t:'Atropine', lvl:'paramedic'},
+      {t:'Benzodiazepine', lvl:'paramedic'},
+      {t:'Epinephrine 1:10,000', lvl:'paramedic'},
+      {t:'H1 Antagonist', lvl:'paramedic'},
+      {t:'Magnesium Sulfate', lvl:'paramedic'},
+      {t:'Narcotic Analgesic', lvl:'paramedic'},
+      {t:'Pressor', lvl:'paramedic'},
+      {t:'Sodium Bicarbonate', lvl:'paramedic'},
     ] },
-    { title:'Readiness Checklist', items:[
-        {t:'ER Bag (BVM, iGel Adult, EtCO₂, Bougie, IO)', lvl:'aemt'},
-        {t:'ER Bag (+ Laryngoscope Mac 3–4, ET 7.5)', lvl:'paramedic'},
-        'C-Collar behind head of stretcher',
-        'Emesis Bags at head of stretcher',
-        {t:'Glucometer on/in Cardiac Monitor', lvl:'aemt'},
-        {t:'Adult Defib pads connected', lvl:'aemt'},
-        {t:'4-Lead EKG pre-loaded', lvl:'aemt'},
-        {t:'Nasal Cannula in Cardiac Monitor', lvl:'aemt'},
-        {t:'12-Lead EKG pre-loaded', lvl:'paramedic'},
-        {t:'IV/Med/Syringe Box on bench seat', lvl:'paramedic'},
+    { title:'Mechanical & Transport', items:[
+      'Fire Extinguisher','Haz-Mat Reference Guide','Reflective Safety Wear',
+      'Flashlight','KED','Pediatric Restraint System','Spine Board w/ straps',
+      'Window Punch','Traction Splint','Various Adjustable Splints',
+      'Elevating Stretcher','Folding Stretcher, Scoop Stretcher, or Stair Chair',
+      'Cervical Collars — Adult','Cervical Collars — Pediatric',
     ] },
-    { title:'Mechanical & Transport', items:['Fire Extinguisher','Haz-Mat Reference Guide','Reflective Safety Wear','Flashlight','KED','Pediatric Restraint System','Spine Board w/ straps','Window Punch','Traction Splint','Various Adjustable Splints','Elevating Stretcher','Folding Stretcher / Scoop Stretcher','Cervical Collars — Adult','Cervical Collars — Pediatric','Functioning Radios'] },
-    { title:'Vehicle Check', items:['Current DMV Registration (check expiration)','Current DMV Inspection (check expiration)','Current Red Light Permit','Current Insurance Coverage (check expiration)','Ambulance starts & drives in forward and reverse','Tires in good condition','No visible physical damage to body or fenders','All cab and patient compartment doors function properly','Exterior compartment doors secure and functional','Interior cabinet doors secure and functional','Clean and organized patient compartment and cab','Emergency lights operational (front, rear, side panels)','Scene lights functional','Corner lights functional','Grill lights functional','Headlight wig-wags functional (if present)','Headlights, tail lights, brake lights functional','Directional signals operational','Hazard lights operational','Siren and horn functional','Mounted and portable radios functional','Ventilation, A/C and heat operational','Windshield wipers operational','Fuel card, two truck keys, hotspot, phone present','All items >5 lbs properly secured'] },
   ];
 
   const LEVEL_ORDER = {emt:0, aemt:1, paramedic:2};
   function _itemVisible(item){
-    const minLvl = (typeof item === 'object') ? (item.lvl||'emt') : 'emt';
-    return (LEVEL_ORDER[_providerLevel]||2) >= (LEVEL_ORDER[minLvl]||0);
+    const minLvl = (typeof item === 'object') ? (item.lvl ?? 'emt') : 'emt';
+    const userRank = LEVEL_ORDER[_providerLevel] ?? 2;
+    const itemRank = LEVEL_ORDER[minLvl]    ?? 0;
+    return userRank >= itemRank;
   }
   function _itemText(item){ return typeof item === 'string' ? item : item.t; }
 
