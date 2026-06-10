@@ -307,7 +307,38 @@
             </div>
           </div>
         </div>
-        <div class="narr-preview-wrap" style="margin-top:4px">
+        <div class="narr-row">
+          <div class="narr-field">
+            <label class="narr-lbl">Onset Time</label>
+            <input type="text" id="qp-onset-time" class="narr-input" placeholder="e.g. 10:00 AM, 2 hrs ago">
+          </div>
+          <div class="narr-field">
+            <label class="narr-lbl">Duration</label>
+            <input type="text" id="qp-duration" class="narr-input" placeholder="e.g. 3 days, 45 min">
+          </div>
+        </div>
+        <div class="narr-field">
+          <label class="narr-lbl">Pain Score</label>
+          <div class="narr-num-wrap">
+            <input type="number" id="qp-pain" class="narr-input" min="0" max="10" placeholder="0 – 10" inputmode="numeric" style="max-width:100px">
+            <button class="narr-na-btn" id="qp-pain-na">N/A</button>
+            <button class="narr-na-btn" id="qp-pain-denied" style="font-size:11px">Denied</button>
+          </div>
+          <div id="qp-pain-loc-wrap" style="display:none;margin-top:7px">
+            <div class="narr-mon-chips" id="qp-pain-loc-chips" style="margin-bottom:6px">
+              <button type="button" class="narr-mon-chip" data-val="chest">Chest</button>
+              <button type="button" class="narr-mon-chip" data-val="abdomen">Abdomen</button>
+              <button type="button" class="narr-mon-chip" data-val="back">Back</button>
+              <button type="button" class="narr-mon-chip" data-val="head">Head</button>
+              <button type="button" class="narr-mon-chip" data-val="extremity">Extremity</button>
+            </div>
+            <div class="narr-num-wrap">
+              <input type="text" id="qp-pain-location" class="narr-input" placeholder="Describe pain location…">
+              <button class="narr-na-btn" id="qp-pain-loc-na">N/A</button>
+            </div>
+          </div>
+        </div>
+                <div class="narr-preview-wrap" style="margin-top:4px">
           <div class="narr-preview-hd">
             <span>&#128276; Pulsara Note</span>
             <button class="action-btn save-btn" id="btn-qp-pulsara-copy">&#128203; Copy</button>
@@ -553,31 +584,7 @@
             <option>Trendelenburg</option><option>upright</option><option>prone</option>
           </select>
         </div>
-        <!-- Airway adjuncts -->
-        <div class="narr-field">
-          <label class="narr-lbl">Airway / Ventilation</label>
-          <div class="narr-mon-chips" id="narr-air-chips">
-            <button type="button" class="narr-mon-chip" data-val="suction">Suctioning</button>
-            <button type="button" class="narr-mon-chip" data-val="opa">OPA</button>
-            <button type="button" class="narr-mon-chip" data-val="npa">NPA</button>
-            <button type="button" class="narr-mon-chip" data-val="bvm">BVM ventilation</button>
-            <button type="button" class="narr-mon-chip" data-val="ett">ET Intubation</button>
-            <button type="button" class="narr-mon-chip" data-val="sga">Supraglottic airway</button>
-            <button type="button" class="narr-mon-chip" data-val="cric">Surgical airway (cric)</button>
-          </div>
-          <!-- ET Intubation detail -->
-          <div id="nf-ett-detail" style="display:none;margin-top:8px">
-            <div class="narr-inline-row" style="flex-wrap:wrap;gap:8px">
-              <span class="narr-inline-lbl">Tube size:</span>
-              <input type="number" id="nf-ett-size" class="narr-inline-input" placeholder="7.5" style="width:75px" inputmode="decimal" step="0.5">
-              <span class="narr-inline-lbl">mm</span>
-              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--text)">
-                <input type="checkbox" id="nf-ett-etco2" style="width:15px;height:15px;accent-color:var(--accent);flex:none">
-                <span>EtCO2/capnography confirmed</span>
-              </label>
-            </div>
-          </div>
-        </div>
+
         <!-- IV / IO Access -->
         <div class="narr-field">
           <label style="display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer;padding:2px 0">
@@ -604,6 +611,13 @@
         <div class="narr-field">
           <label class="narr-lbl">Interventions</label>
           <div class="narr-mon-chips" id="narr-mon-chips">
+            <button type="button" class="narr-mon-chip" data-val="suction">Suctioning</button>
+            <button type="button" class="narr-mon-chip" data-val="opa">OPA</button>
+            <button type="button" class="narr-mon-chip" data-val="npa">NPA</button>
+            <button type="button" class="narr-mon-chip" data-val="bvm">BVM Ventilation</button>
+            <button type="button" class="narr-mon-chip" data-val="ett">ET Intubation</button>
+            <button type="button" class="narr-mon-chip" data-val="sga">Supraglottic Airway</button>
+            <button type="button" class="narr-mon-chip" data-val="cric">Surgical Airway (Cric)</button>
             <button type="button" class="narr-mon-chip" data-val="hemodynamic">Hemodynamic Monitoring</button>
             <button type="button" class="narr-mon-chip" data-val="bga">Blood Glucose Analysis</button>
             <button type="button" class="narr-mon-chip" data-val="c-collar">C-Collar Applied</button>
@@ -613,12 +627,23 @@
             <button type="button" class="narr-mon-chip" data-val="etco2-monitor">EtCO2 Monitoring</button>
             <button type="button" class="narr-mon-chip" data-val="12lead-tx">12-Lead Transmitted</button>
             <button type="button" class="narr-mon-chip" data-val="pulsara">Pulsara Notification</button>
-            <button type="button" class="narr-mon-chip" data-val="o2">Oxygen Administered</button>
             <button type="button" class="narr-mon-chip" data-val="backboard">Backboard / Spinal Precautions</button>
             <button type="button" class="narr-mon-chip" data-val="splint">Splint Applied</button>
             <button type="button" class="narr-mon-chip" data-val="tourniquet">Tourniquet Applied</button>
             <button type="button" class="narr-mon-chip" data-val="wound-packing">Wound Packing</button>
             <button type="button" class="narr-mon-chip" data-val="pressure-dressing">Pressure Dressing</button>
+          </div>
+          <!-- ET Intubation detail -->
+          <div id="nf-ett-detail" style="display:none;margin-top:8px">
+            <div class="narr-inline-row" style="flex-wrap:wrap;gap:8px">
+              <span class="narr-inline-lbl">Tube size:</span>
+              <input type="number" id="nf-ett-size" class="narr-inline-input" placeholder="7.5" style="width:75px" inputmode="decimal" step="0.5">
+              <span class="narr-inline-lbl">mm</span>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--text)">
+                <input type="checkbox" id="nf-ett-etco2" style="width:15px;height:15px;accent-color:var(--accent);flex:none">
+                <span>EtCO2/capnography confirmed</span>
+              </label>
+            </div>
           </div>
           <!-- 12-Lead interpretation -->
           <div id="nf-12lead-detail" style="display:none;margin-top:6px">
@@ -635,19 +660,7 @@
               <span class="narr-inline-lbl">min prior to arrival</span>
             </div>
           </div>
-          <!-- Oxygen detail -->
-          <div id="nf-o2-detail" style="display:none;margin-top:6px">
-            <div class="narr-inline-row">
-              <span class="narr-inline-lbl">Device:</span>
-              <select id="nf-o2-device" class="narr-inline-sel">
-                <option>nasal cannula</option><option>non-rebreather mask</option>
-                <option>BVM</option><option>CPAP</option><option>high-flow NC</option>
-              </select>
-              <span class="narr-inline-lbl">Rate:</span>
-              <input type="number" id="nf-o2-rate" class="narr-inline-input" placeholder="LPM" style="width:70px" inputmode="numeric">
-              <span class="narr-inline-lbl">LPM</span>
-            </div>
-          </div>
+
         </div>
         <!-- Medications -->
         <div class="narr-field">
@@ -662,6 +675,17 @@
               <input type="text" id="nf-txmed-dose" class="narr-med-dose-input" placeholder="Confirm dose (e.g. 4mg IV)" style="flex:1;min-width:150px">
               <button class="narr-add-btn" id="btn-add-txmed">+ Add</button>
               <button type="button" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0 4px;line-height:1" id="btn-cancel-txmed">✕</button>
+            </div>
+            <!-- O2 confirm row (shown when Oxygen selected) -->
+            <div id="narr-o2-confirm-row" style="display:none;margin-top:7px;gap:6px;align-items:center;flex-wrap:wrap" class="narr-inline-row">
+              <select id="nf-o2-confirm-device" class="narr-inline-sel">
+                <option>nasal cannula</option><option>non-rebreather mask</option>
+                <option>BVM</option><option>CPAP</option><option>high-flow nasal cannula</option>
+              </select>
+              <input type="number" id="nf-o2-confirm-rate" class="narr-med-dose-input" placeholder="LPM" style="width:70px" inputmode="numeric">
+              <span class="narr-inline-lbl">LPM</span>
+              <button class="narr-add-btn" id="btn-add-o2">+ Add O2</button>
+              <button type="button" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0 4px;line-height:1" id="btn-cancel-o2">&#10005;</button>
             </div>
             <div class="narr-tag-row" id="nf-txmed-tags"></div>
           </div>
@@ -949,6 +973,7 @@ const NARR_HOSPITALS = [
 
 // EASI Protocols 2026 — administered medications with default doses
 const NARR_TX_MEDS = [
+  {n:'Oxygen',d:''},
   {n:'Aspirin',d:'324mg PO'},
   {n:'Nitroglycerin',d:'0.4mg SL'},
   {n:'Epinephrine (1:1,000)',d:'0.3mg IM'},
@@ -1186,6 +1211,9 @@ function initMonChips(containerId){
         const d=document.getElementById('nf-pulsara-detail');
         if(d) d.style.display=chip.classList.contains('active')?'':'none';
       }
+      if(chip.dataset.val==='ett'){
+        document.getElementById('nf-ett-detail').style.display=chip.classList.contains('active')?'':'none';
+      }
       buildNarrative();
     });
   });
@@ -1197,7 +1225,7 @@ function isMonActive(containerId, val){
 }
 
 function isMoveActive(val){ return isMonActive('narr-move-chips',val); }
-function isAirActive(val){ return document.querySelector(`#narr-air-chips .narr-mon-chip[data-val="${val}"]`)?.classList.contains('active')||false; }
+function isAirActive(val){ return isMonChipActive(val); }
 function isMonChipActive(val){ return isMonActive('narr-mon-chips',val); }
 
 /* ── Trauma region handler ──────────────────────── */
@@ -1317,8 +1345,10 @@ function buildNarrative(){
   if(narrPainDenied) painText='PATIENT DENIED PAIN';
   else if(narrPainNA) painText='PAIN SCALE NOT APPLICABLE';
   else {
-    const pv = narrVal('nf-pain');
-    painText = pv!=='' ? `PAIN WAS RATED ${pv}/10` : '';
+    const pv = narrVal('nf-pain') || narrVal('qp-pain');
+    const _painLocNA = document.getElementById('qp-pain-loc-na')?.classList.contains('active');
+    const _painLoc = _painLocNA ? '' : narrVal('qp-pain-location');
+    painText = pv!=='' ? `PAIN WAS RATED ${pv}/10${_painLoc?' IN '+uc(_painLoc):''}` : '';
   }
 
   const symptoms = [...narrSelectedSymptoms];
@@ -1349,10 +1379,10 @@ function buildNarrative(){
   const ecg12Interp=ecg12NA?'':narrVal('nf-12lead-interp');
   const assessNotes=narrVal('nf-assessment-notes');
   let assessParts=[];
-  if(airway) assessParts.push(`AIRWAY ${uc(airway)}`);
-  if(lungs) assessParts.push(`LUNG SOUNDS ${uc(lungs)}`);
-  if(mental) assessParts.push(`MENTAL STATUS ${uc(mental)}`);
-  if(skin) assessParts.push(`SKIN ${uc(skin)}`);
+  if(airway && airway!=='patent and maintained') assessParts.push(`AIRWAY ${uc(airway)}`);
+  if(lungs && lungs!=='present and clear bilaterally') assessParts.push(`LUNG SOUNDS ${uc(lungs)}`);
+  if(mental && mental!=='alert and oriented x4') assessParts.push(`MENTAL STATUS ${uc(mental)}`);
+  if(skin && skin!=='warm, dry, and intact') assessParts.push(`SKIN ${uc(skin)}`);
   if(ecg12) assessParts.push(`12-LEAD EKG OBTAINED${ecg12Interp?' — INTERPRETATION: '+uc(ecg12Interp):''}`);
   if(painText) assessParts.push(painText);
   assessParts.push(`PATIENT COMPLAINT ${uc(complaint)}`);
@@ -1404,11 +1434,10 @@ function buildNarrative(){
   if(isMonChipActive('etco2-monitor')) txParts.push('END-TIDAL CO2 MONITORING INITIATED');
   if(isMonChipActive('12lead-tx')) txParts.push('12-LEAD EKG TRANSMITTED');
   if(isMonChipActive('pulsara')){ const m=narrVal('nf-pulsara-min'); txParts.push(`12-LEAD TRANSMITTED VIA PULSARA ${m||'___'} MINUTES PRIOR TO ARRIVAL`); }
-  if(isMonChipActive('o2')){
-    const dev=narrVal('nf-o2-device'), rate=narrVal('nf-o2-rate');
-    txParts.push(`OXYGEN ADMINISTERED VIA ${uc(dev)}${rate?' AT '+rate+' LPM':''}`);
-  }
-  narrTxMeds.forEach(m=>txParts.push(`${uc(m.name)} ${uc(m.dose)} ADMINISTERED`));
+  narrTxMeds.forEach(m=>{
+    if(m.name==='Oxygen') txParts.push(`OXYGEN ADMINISTERED VIA ${uc(m.dose)}`);
+    else txParts.push(`${uc(m.name)} ${uc(m.dose)} ADMINISTERED`);
+  });
   const txNotes=narrVal('nf-tx-notes'); if(txNotes) txParts.push(uc(txNotes));
   const txLine=txParts.length?`TREATMENT — ${txParts.join('. ')}.`:'';
 
@@ -1487,8 +1516,10 @@ function buildNarrative(){
   if(isMonChipActive('12lead-tx')) pulInterventions.push('12-LEAD TRANSMITTED');
   if(isMonChipActive('pulsara')){ const m=narrVal('nf-pulsara-min'); pulInterventions.push(`PULSARA ACTIVATED${m?' ('+m+' MIN PRIOR TO ARRIVAL)':''}`); }
   if(narrChk('nf-iv-chk')){ const g=narrVal('nf-iv-gauge'); pulInterventions.push(`IV ACCESS${g?' ('+g+'G)':''} ESTABLISHED`); }
-  if(isMonChipActive('o2')){ const dev=narrVal('nf-o2-device'),rate=narrVal('nf-o2-rate'); pulInterventions.push(`O2 VIA ${uc(dev||'delivery device')}${rate?' AT '+rate+' LPM':''}`); }
-  narrTxMeds.forEach(m=>pulInterventions.push(`${uc(m.name)}${m.dose?' '+uc(m.dose):''}`));
+  narrTxMeds.forEach(m=>{
+    if(m.name==='Oxygen') pulInterventions.push(`O2 VIA ${uc(m.dose)}`);
+    else pulInterventions.push(`${uc(m.name)}${m.dose?' '+uc(m.dose):''}`);
+  });
   if(isMonChipActive('cardiac-monitor')) pulInterventions.push('CARDIAC MONITORING');
   if(isMonChipActive('etco2-monitor')) pulInterventions.push('ETCO2 MONITORING');
   if(isMonChipActive('bga')) pulInterventions.push('BGL CHECKED');
@@ -1531,7 +1562,6 @@ function narrClear(){
   document.querySelectorAll('.page-content .narr-trauma-reg-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('nf-12lead-detail').style.display='none';
   document.getElementById('nf-ett-detail').style.display='none';
-  document.getElementById('nf-o2-detail').style.display='none';
   document.getElementById('nf-iv-detail').style.display='none';
   document.getElementById('narr-med-dose-row').style.display='none';
   document.getElementById('narr-trauma-sec').style.display='none';
@@ -1736,6 +1766,69 @@ function initNarrative(){
     });
   });
 
+  // QP → main form sync: onset, duration, pain
+  let _qpSyncing = false;
+  function _qpSync(qpId, mainId){
+    const qpEl=document.getElementById(qpId), mainEl=document.getElementById(mainId);
+    if(!qpEl||!mainEl) return;
+    qpEl.addEventListener('input',()=>{ if(_qpSyncing) return; _qpSyncing=true; mainEl.value=qpEl.value; _qpSyncing=false; buildNarrative(); });
+    mainEl.addEventListener('input',()=>{ if(_qpSyncing) return; _qpSyncing=true; qpEl.value=mainEl.value; _qpSyncing=false; });
+  }
+  _qpSync('qp-onset-time','nf-onset-time');
+  _qpSync('qp-duration','nf-duration');
+  _qpSync('qp-pain','nf-pain');
+
+  // QP pain score: show/hide location and sync N/A state
+  document.getElementById('qp-pain')?.addEventListener('input',function(){
+    const v=parseFloat(this.value);
+    const wrap=document.getElementById('qp-pain-loc-wrap');
+    if(wrap) wrap.style.display=(!isNaN(v)&&v>0)?'':'none';
+  });
+  document.getElementById('nf-pain')?.addEventListener('input',function(){
+    const v=parseFloat(this.value);
+    const wrap=document.getElementById('qp-pain-loc-wrap');
+    if(wrap) wrap.style.display=(!isNaN(v)&&v>0)?'':'none';
+  });
+
+  // QP N/A and Denied pain buttons — delegate to main buttons
+  document.getElementById('qp-pain-na')?.addEventListener('click',()=>{
+    document.getElementById('nf-pain-na')?.click();
+    const isNA=document.getElementById('nf-pain-na')?.classList.contains('active');
+    document.getElementById('qp-pain-na')?.classList.toggle('active',!!isNA);
+    document.getElementById('qp-pain-denied')?.classList.remove('active');
+    const qpP=document.getElementById('qp-pain');
+    if(qpP){ qpP.disabled=!!isNA; if(isNA) qpP.value=''; }
+    document.getElementById('qp-pain-loc-wrap').style.display='none';
+    buildNarrative();
+  });
+  document.getElementById('qp-pain-denied')?.addEventListener('click',()=>{
+    document.getElementById('nf-pain-denied')?.click();
+    const isDenied=document.getElementById('nf-pain-denied')?.classList.contains('active');
+    document.getElementById('qp-pain-denied')?.classList.toggle('active',!!isDenied);
+    document.getElementById('qp-pain-na')?.classList.remove('active');
+    const qpP=document.getElementById('qp-pain');
+    if(qpP){ qpP.disabled=!!isDenied; if(isDenied) qpP.value=''; }
+    document.getElementById('qp-pain-loc-wrap').style.display='none';
+    buildNarrative();
+  });
+
+  // QP pain location chips (pre-fill text input)
+  document.querySelectorAll('#qp-pain-loc-chips .narr-mon-chip').forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      const inp=document.getElementById('qp-pain-location');
+      if(inp) inp.value=chip.dataset.val;
+      buildNarrative();
+    });
+  });
+
+  // QP pain location N/A button
+  document.getElementById('qp-pain-loc-na')?.addEventListener('click',function(){
+    this.classList.toggle('active');
+    const inp=document.getElementById('qp-pain-location');
+    if(inp){ inp.disabled=this.classList.contains('active'); if(inp.disabled) inp.value=''; }
+    buildNarrative();
+  });
+
   // Symptom combo (multi)
   initCombo({
     inputId:'nf-symptom-input', dropId:'combo-symptoms-drop',
@@ -1779,10 +1872,18 @@ function initNarrative(){
     onSelect: item=>{
       const med = NARR_TX_MEDS.find(m=>m.n===item.value);
       pendingMedName = item.value;
-      pendingMedDose = med?med.d:'';
       if(txMedInp) txMedInp.value='';
-      if(txMedDoseInp) txMedDoseInp.value = pendingMedDose;
-      if(txMedDoseRow){ txMedDoseRow.style.display='flex'; txMedDoseInp?.focus(); }
+      const o2row = document.getElementById('narr-o2-confirm-row');
+      if(item.value==='Oxygen'){
+        pendingMedDose = '';
+        if(txMedDoseRow) txMedDoseRow.style.display='none';
+        if(o2row){ o2row.style.display='flex'; document.getElementById('nf-o2-confirm-device')?.focus(); }
+      } else {
+        pendingMedDose = med?med.d:'';
+        if(txMedDoseInp) txMedDoseInp.value = pendingMedDose;
+        if(txMedDoseRow){ txMedDoseRow.style.display='flex'; txMedDoseInp?.focus(); }
+        if(o2row) o2row.style.display='none';
+      }
     },
   });
 
@@ -1801,6 +1902,23 @@ function initNarrative(){
     pendingMedName=''; pendingMedDose='';
     if(txMedDoseInp) txMedDoseInp.value='';
     if(txMedDoseRow) txMedDoseRow.style.display='none';
+    document.getElementById('narr-o2-confirm-row').style.display='none';
+  });
+
+  // O2 add button
+  document.getElementById('btn-add-o2')?.addEventListener('click',()=>{
+    const dev=document.getElementById('nf-o2-confirm-device')?.value||'nasal cannula';
+    const rate=document.getElementById('nf-o2-confirm-rate')?.value||'';
+    const dose=`${dev}${rate?' at '+rate+' LPM':''}`;
+    narrTxMeds.push({name:'Oxygen', dose});
+    pendingMedName='';
+    if(document.getElementById('nf-o2-confirm-rate')) document.getElementById('nf-o2-confirm-rate').value='';
+    document.getElementById('narr-o2-confirm-row').style.display='none';
+    renderTxMedTags(); buildNarrative();
+  });
+  document.getElementById('btn-cancel-o2')?.addEventListener('click',()=>{
+    pendingMedName='';
+    document.getElementById('narr-o2-confirm-row').style.display='none';
   });
 
   // Destination combo
@@ -1815,29 +1933,16 @@ function initNarrative(){
     },
   });
 
-  // Monitoring + movement chips
+  // Monitoring + movement chips (airway now merged into narr-mon-chips)
   initMonChips('narr-mon-chips');
   initMonChips('narr-move-chips');
-  // Airway chips
-  document.querySelectorAll('#narr-air-chips .narr-mon-chip').forEach(chip=>{
-    chip.addEventListener('click',()=>{ chip.classList.toggle('active'); buildNarrative(); });
-  });
 
-  // ETT chip — show/hide tube size detail
-  document.querySelector('#narr-air-chips .narr-mon-chip[data-val="ett"]')?.addEventListener('click',()=>{
-    const active=document.querySelector('#narr-air-chips .narr-mon-chip[data-val="ett"]')?.classList.contains('active');
-    document.getElementById('nf-ett-detail').style.display=active?'':'none';
-  });
-
-  // Monitoring chip special expand handlers (12lead, pulsara, o2)
+  // Monitoring chip expand handler (12lead detail)
   document.getElementById('narr-mon-chips')?.addEventListener('click',e=>{
     const chip=e.target.closest('.narr-mon-chip'); if(!chip) return;
     const active=chip.classList.contains('active');
     if(chip.dataset.val==='12lead'){
       document.getElementById('nf-12lead-detail').style.display=active?'':'none';
-    }
-    if(chip.dataset.val==='o2'){
-      document.getElementById('nf-o2-detail').style.display=active?'':'none';
     }
   });
 
