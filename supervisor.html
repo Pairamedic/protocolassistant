@@ -532,48 +532,87 @@
     .import-file-label { display: inline-block; margin-top: 10px; font-size: 13px; color: var(--accent); cursor: pointer; text-decoration: underline; }
     #import-result { font-size: 13px; min-height: 18px; margin-top: 8px; }
 
-/* ── Narrative Builder ── */
+/* ── Narrative Builder ──────────────────────────── */
 .narr-topbar{display:flex;gap:8px;align-items:center;padding:12px 0 8px;flex-wrap:wrap}
-.narr-sec{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden}
-.narr-sec-hd{font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;padding:9px 13px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.03)}
-.narr-sec-body{padding:12px 13px;display:flex;flex-direction:column;gap:10px}
-.narr-field{display:flex;flex-direction:column;gap:4px}
+.narr-sec{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.narr-sec-hd{font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;padding:10px 14px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.025);display:flex;align-items:center;gap:6px}
+.narr-sec-body{padding:12px 14px;display:flex;flex-direction:column;gap:11px}
+.narr-field{display:flex;flex-direction:column;gap:5px}
 .narr-lbl{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.3px;text-transform:uppercase}
-.narr-input,.narr-sel,.narr-textarea{background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 10px;font-size:13px;width:100%;font-family:inherit}
+.narr-input,.narr-sel,.narr-textarea{background:var(--input-bg);border:1px solid var(--border);border-radius:9px;color:var(--text);padding:10px 12px;font-size:14px;width:100%;font-family:inherit}
 .narr-input:focus,.narr-sel:focus,.narr-textarea:focus{border-color:var(--accent);outline:none}
-.narr-textarea{resize:vertical;min-height:70px}
+.narr-textarea{resize:vertical;min-height:68px}
 .narr-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.narr-subhd{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.4px;text-transform:uppercase;margin:6px 0 4px;padding-bottom:4px;border-bottom:1px solid var(--border)}
-.narr-checklist{display:flex;flex-direction:column;gap:5px}
-.narr-chk-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;color:var(--text);flex-wrap:wrap}
-.narr-chk-item:has(input:checked){border-color:var(--accent);background:rgba(94,234,212,.05)}
-.narr-chk-item input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;flex:none;cursor:pointer}
-.narr-input-inline{background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:3px 7px;font-size:12px;font-family:inherit;min-width:0}
-.narr-chips{display:flex;flex-wrap:wrap;gap:5px}
-.narr-chip{padding:5px 11px;border-radius:20px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);font-size:12px;cursor:pointer;transition:all .15s}
-.narr-chip.sel{border-color:var(--accent);background:rgba(94,234,212,.1);color:var(--accent)}
-.narr-tag-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
-.narr-tag{display:flex;align-items:center;gap:5px;background:rgba(94,234,212,.1);border:1px solid rgba(94,234,212,.3);border-radius:20px;padding:3px 9px;font-size:12px;color:var(--accent)}
-.narr-tag button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;line-height:1;padding:0}
-.narr-med-row{display:flex;gap:6px;align-items:center}
-.narr-add-btn{background:var(--accent);border:none;border-radius:8px;color:#0b0d10;font-size:13px;font-weight:700;padding:8px 14px;cursor:pointer;white-space:nowrap}
-.narr-pain-row{display:flex;align-items:center;gap:10px}
-.narr-slider{flex:1;accent-color:var(--accent)}
-.narr-pain-num{font-size:18px;font-weight:800;color:var(--text);min-width:40px}
-.narr-preview-wrap{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px}
-.narr-preview-hd{display:flex;justify-content:space-between;align-items:center;padding:9px 13px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-#narr-preview{padding:13px;font-family:inherit;font-size:13px;line-height:1.75;color:var(--text);white-space:pre-wrap;word-break:break-word;margin:0;min-height:80px;background:none}
-.narr-hist-wrap{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
-.narr-hist-hd{display:flex;justify-content:space-between;align-items:center;padding:9px 13px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-.narr-hist-item{display:flex;flex-direction:column;gap:3px;padding:10px 13px;border-bottom:1px solid var(--border);cursor:pointer}
+.narr-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+/* N/A button + number wrap */
+.narr-num-wrap{display:flex;gap:6px;align-items:center}
+.narr-num-wrap .narr-input{flex:1}
+.narr-na-btn{flex:none;padding:9px 13px;border-radius:9px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s}
+.narr-na-btn.active{border-color:rgba(248,113,113,.5);background:rgba(248,113,113,.1);color:#f87171}
+/* Typeahead combo */
+.narr-combo-wrap{position:relative}
+.narr-combo-input-row{display:flex;gap:6px}
+.narr-combo-input{background:var(--input-bg);border:1px solid var(--border);border-radius:9px;color:var(--text);padding:10px 12px;font-size:14px;width:100%;font-family:inherit;outline:none}
+.narr-combo-input:focus{border-color:var(--accent)}
+.narr-combo-drop{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:10px;z-index:50;max-height:220px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.5);display:none}
+.narr-combo-drop.open{display:block}
+.narr-combo-item{padding:10px 13px;font-size:13px;cursor:pointer;color:var(--text);border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:8px}
+.narr-combo-item:last-child{border-bottom:none}
+.narr-combo-item:hover,.narr-combo-item.focused{background:rgba(94,234,212,.08);color:var(--accent)}
+.narr-combo-item.selected-item{color:var(--accent)}
+.narr-combo-item .ci-check{width:14px;height:14px;border-radius:3px;border:1px solid var(--border);flex:none;display:inline-flex;align-items:center;justify-content:center;font-size:10px}
+.narr-combo-item.selected-item .ci-check{background:var(--accent);border-color:var(--accent);color:#0b0d10}
+/* Tags row */
+.narr-tag-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;min-height:0}
+.narr-tag{display:flex;align-items:center;gap:5px;background:rgba(94,234,212,.1);border:1px solid rgba(94,234,212,.3);border-radius:20px;padding:4px 10px;font-size:12px;color:var(--accent);max-width:100%}
+.narr-tag span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.narr-tag button{background:none;border:none;color:rgba(94,234,212,.6);cursor:pointer;font-size:13px;line-height:1;padding:0;flex:none}
+/* Segmented pills for response type */
+.narr-seg{display:flex;gap:0;border:1px solid var(--border);border-radius:9px;overflow:hidden}
+.narr-seg-btn{flex:1;padding:10px 6px;background:none;border:none;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;border-right:1px solid var(--border)}
+.narr-seg-btn:last-child{border-right:none}
+.narr-seg-btn.active{background:rgba(94,234,212,.12);color:var(--accent)}
+/* Monitoring chips */
+.narr-mon-chips{display:flex;flex-wrap:wrap;gap:6px}
+.narr-mon-chip{padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);font-size:13px;cursor:pointer;transition:all .15s;text-align:left}
+.narr-mon-chip.active{border-color:rgba(94,234,212,.5);background:rgba(94,234,212,.08);color:var(--accent)}
+/* Med typeahead */
+.narr-med-dose-row{display:flex;gap:6px;margin-top:6px;display:none}
+.narr-med-dose-input{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:9px;color:var(--text);padding:9px 12px;font-size:13px;font-family:inherit;outline:none}
+.narr-med-dose-input:focus{border-color:var(--accent)}
+.narr-add-btn{background:var(--accent);border:none;border-radius:9px;color:#0b0d10;font-size:13px;font-weight:700;padding:9px 16px;cursor:pointer;white-space:nowrap}
+.narr-add-btn:active{opacity:.85}
+/* Trauma regions */
+.narr-trauma-regions{display:flex;flex-wrap:wrap;gap:6px}
+.narr-trauma-reg-btn{padding:8px 13px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);font-size:13px;cursor:pointer;transition:all .15s}
+.narr-trauma-reg-btn.active{border-color:rgba(248,113,113,.5);background:rgba(248,113,113,.08);color:#f87171}
+.narr-trauma-findings{margin-top:8px;display:flex;flex-direction:column;gap:6px}
+.narr-trauma-region-row{background:rgba(248,113,113,.05);border:1px solid rgba(248,113,113,.2);border-radius:9px;padding:8px 10px;display:flex;flex-direction:column;gap:4px}
+.narr-trauma-region-lbl{font-size:11px;font-weight:700;color:#f87171;text-transform:uppercase;letter-spacing:.3px;display:flex;justify-content:space-between;align-items:center}
+.narr-trauma-region-lbl button{background:none;border:none;color:rgba(248,113,113,.5);cursor:pointer;font-size:13px;padding:0}
+.narr-trauma-region-input{background:var(--input-bg);border:1px solid rgba(248,113,113,.2);border-radius:7px;color:var(--text);padding:8px 10px;font-size:13px;width:100%;font-family:inherit;outline:none}
+.narr-trauma-region-input:focus{border-color:#f87171}
+/* Preview */
+.narr-preview-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:10px}
+.narr-preview-hd{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+#narr-preview{padding:14px;font-family:inherit;font-size:13px;line-height:1.75;color:var(--text);white-space:pre-wrap;word-break:break-word;margin:0;min-height:80px;background:none}
+.narr-hist-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.narr-hist-hd{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.narr-hist-item{display:flex;flex-direction:column;gap:3px;padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer}
 .narr-hist-item:last-child{border-bottom:none}
 .narr-hist-item:hover{background:rgba(255,255,255,.03)}
 .narr-hist-meta{font-size:11px;color:var(--muted)}
 .narr-hist-text{font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .narr-hist-actions{display:flex;gap:6px;margin-top:4px}
-.narr-hist-btn{padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:11px;cursor:pointer}
+.narr-hist-btn{padding:5px 11px;border-radius:7px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:11px;cursor:pointer}
 .narr-hist-btn.del{color:rgba(248,113,113,.8);border-color:rgba(248,113,113,.3)}
-@media(max-width:520px){.narr-row{grid-template-columns:1fr}}
+.narr-inline-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.narr-inline-lbl{font-size:12px;color:var(--muted);white-space:nowrap}
+.narr-inline-input{background:var(--input-bg);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:7px 10px;font-size:13px;font-family:inherit;outline:none}
+.narr-inline-input:focus{border-color:var(--accent)}
+.narr-inline-sel{background:var(--input-bg);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:7px 10px;font-size:13px;font-family:inherit;outline:none}
+.narr-inline-sel:focus{border-color:var(--accent)}
+@media(max-width:580px){.narr-row{grid-template-columns:1fr}.narr-row3{grid-template-columns:1fr 1fr}}
   </style>
 </head>
 <body>
@@ -730,12 +769,12 @@
     <!-- ── TAB: NARRATIVE ── -->
     <div id="tab-narrative" class="tab-panel">
       <div class="narr-topbar">
-        <select id="narr-type" class="narr-sel" style="flex:1;max-width:220px">
-          <option value="emergency">🚨 Emergency Call</option>
-          <option value="transfer">🚑 Transfer / IFT</option>
-          <option value="transport">🏥 Medical Transport</option>
-          <option value="refusal">📋 Refusal</option>
-        </select>
+        <div class="narr-seg" id="narr-type-seg" style="flex:1">
+          <button class="narr-seg-btn active" data-type="emergency">🚨 Emergency</button>
+          <button class="narr-seg-btn" data-type="transfer">🚑 Transfer</button>
+          <button class="narr-seg-btn" data-type="transport">🏥 Transport</button>
+          <button class="narr-seg-btn" data-type="refusal">📋 Refusal</button>
+        </div>
         <button class="action-btn" id="btn-narr-clear">🗑 Clear</button>
         <button class="action-btn" id="btn-narr-hist-toggle">📂 History (<span id="narr-hist-ct">0</span>)</button>
       </div>
@@ -753,94 +792,116 @@
           <div class="narr-row">
             <div class="narr-field">
               <label class="narr-lbl">Chief Complaint</label>
-              <select id="nf-complaint" class="narr-input">
-                <option value="">— Select —</option>
-                <option>Chest Pain</option><option>Difficulty Breathing</option><option>Stroke / CVA</option>
-                <option>Seizure</option><option>Cardiac Arrest</option><option>Altered Mental Status</option>
-                <option>Abdominal Pain</option><option>Diabetic Emergency</option><option>Allergic Reaction / Anaphylaxis</option>
-                <option>MVA</option><option>Fall</option><option>Trauma</option><option>Respiratory Distress</option>
-                <option>OB Emergency</option><option>Overdose</option><option>Behavioral Emergency</option>
-                <option>General Illness</option><option>Syncope</option><option>Headache</option>
-                <option>Back Pain</option><option>Extremity Injury</option><option>Hemorrhage / Bleeding</option>
-                <option value="__other">Other…</option>
-              </select>
-              <input type="text" id="nf-complaint-other" class="narr-input" placeholder="Describe complaint…" style="margin-top:5px;display:none">
+              <div class="narr-combo-wrap" id="combo-complaint">
+                <div class="narr-combo-input-row">
+                  <input type="text" class="narr-combo-input" id="nf-complaint-input" placeholder="Type or select complaint…" autocomplete="off">
+                </div>
+                <div class="narr-combo-drop" id="combo-complaint-drop"></div>
+                <div class="narr-tag-row" id="nf-complaint-tags"></div>
+              </div>
             </div>
             <div class="narr-field">
               <label class="narr-lbl">Response Type</label>
-              <select id="nf-response" class="narr-input">
-                <option value="emergent">Emergent — Lights &amp; Sirens</option>
-                <option value="nonemergent">Non-Emergent</option>
-                <option value="staged">Staged / Delayed Response</option>
-              </select>
+              <div class="narr-seg" id="narr-response-seg">
+                <button class="narr-seg-btn active" data-val="emergent">Emergent</button>
+                <button class="narr-seg-btn" data-val="nonemergent">Non-Emergent</button>
+                <button class="narr-seg-btn" data-val="staged">Staged</button>
+              </div>
+              <input type="hidden" id="nf-response" value="emergent">
             </div>
           </div>
-          <!-- Transfer/IFT only -->
+          <label style="display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer;padding:4px 0">
+            <input type="checkbox" id="nf-trauma-call" style="width:17px;height:17px;accent-color:#f87171;cursor:pointer;flex:none">
+            <span style="color:var(--text)">🚧 Trauma Call</span>
+          </label>
           <div class="narr-field narr-transfer-only" style="display:none">
             <label class="narr-lbl">Sending Facility</label>
-            <input type="text" id="nf-sending-fac" class="narr-input" placeholder="e.g. UAMS Medical Center">
+            <div class="narr-num-wrap">
+              <input type="text" id="nf-sending-fac" class="narr-input" placeholder="e.g. UAMS Medical Center">
+              <button class="narr-na-btn" data-for="nf-sending-fac">N/A</button>
+            </div>
           </div>
           <div class="narr-field narr-transfer-only" style="display:none">
             <label class="narr-lbl">Reason for Transfer</label>
-            <input type="text" id="nf-transfer-reason" class="narr-input" placeholder="e.g. Higher level of care for STEMI">
+            <div class="narr-num-wrap">
+              <input type="text" id="nf-transfer-reason" class="narr-input" placeholder="e.g. Higher level of care for STEMI">
+              <button class="narr-na-btn" data-for="nf-transfer-reason">N/A</button>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- ── HISTORY OF PRESENT ILLNESS ── -->
+      <!-- ── HPI ── -->
       <div class="narr-sec">
         <div class="narr-sec-hd" style="color:rgba(94,234,212,1)">📋 History of Present Illness</div>
         <div class="narr-sec-body">
           <div class="narr-row">
             <div class="narr-field">
               <label class="narr-lbl">Onset Time</label>
-              <input type="text" id="nf-onset-time" class="narr-input" placeholder="e.g. 10:00 AM, 2 hours ago">
+              <div class="narr-num-wrap">
+                <input type="text" id="nf-onset-time" class="narr-input" placeholder="e.g. 10:00 AM, 2 hrs ago">
+                <button class="narr-na-btn" data-for="nf-onset-time">N/A</button>
+              </div>
             </div>
             <div class="narr-field">
               <label class="narr-lbl">Duration</label>
-              <input type="text" id="nf-duration" class="narr-input" placeholder="e.g. 3 days, 45 minutes">
+              <div class="narr-num-wrap">
+                <input type="text" id="nf-duration" class="narr-input" placeholder="e.g. 3 days, 45 min">
+                <button class="narr-na-btn" data-for="nf-duration">N/A</button>
+              </div>
             </div>
           </div>
           <div class="narr-field">
             <label class="narr-lbl">Patient Activity at Onset</label>
-            <input type="text" id="nf-activity" class="narr-input" list="narr-activity-dl" placeholder="e.g. walking, at rest, sleeping">
-            <datalist id="narr-activity-dl">
-              <option>walking around the house</option><option>at rest</option><option>sleeping</option>
-              <option>eating a meal</option><option>exercising</option><option>performing manual labor</option>
-              <option>driving</option><option>sitting</option><option>standing</option><option>working</option>
-            </datalist>
+            <div class="narr-num-wrap">
+              <input type="text" id="nf-activity" class="narr-input" placeholder="e.g. at rest, walking, sleeping">
+              <button class="narr-na-btn" data-for="nf-activity">N/A</button>
+            </div>
           </div>
-          <div class="narr-field">
-            <label class="narr-lbl">Pain Score</label>
-            <div class="narr-pain-row">
-              <input type="range" id="nf-pain" class="narr-slider" min="0" max="10" value="0">
-              <span id="nf-pain-val" class="narr-pain-num">0</span>
-              <span style="font-size:12px;color:var(--muted)">/10</span>
-              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);cursor:pointer;white-space:nowrap">
-                <input type="checkbox" id="nf-no-pain" style="accent-color:var(--accent)"> Denied pain
-              </label>
+          <div class="narr-row">
+            <div class="narr-field">
+              <label class="narr-lbl">Pain Score</label>
+              <div class="narr-num-wrap">
+                <input type="number" id="nf-pain" class="narr-input" min="0" max="10" placeholder="0 – 10" inputmode="numeric" style="max-width:100px">
+                <button class="narr-na-btn" id="nf-pain-na">N/A</button>
+                <button class="narr-na-btn" id="nf-pain-denied" style="font-size:11px">Denied</button>
+              </div>
             </div>
           </div>
           <div class="narr-field">
             <label class="narr-lbl">Associated Symptoms</label>
-            <div class="narr-chips" id="nf-symptoms"></div>
+            <div class="narr-combo-wrap" id="combo-symptoms">
+              <div class="narr-combo-input-row">
+                <input type="text" class="narr-combo-input" id="nf-symptom-input" placeholder="Search or type a symptom…" autocomplete="off">
+              </div>
+              <div class="narr-combo-drop" id="combo-symptoms-drop"></div>
+              <div class="narr-tag-row" id="nf-symptom-tags"></div>
+            </div>
           </div>
           <div class="narr-field">
             <label class="narr-lbl">Past Medical History</label>
-            <div class="narr-chips" id="nf-pmh"></div>
+            <div class="narr-combo-wrap" id="combo-pmh">
+              <div class="narr-combo-input-row">
+                <input type="text" class="narr-combo-input" id="nf-pmh-input" placeholder="Search or type PMH…" autocomplete="off">
+              </div>
+              <div class="narr-combo-drop" id="combo-pmh-drop"></div>
+              <div class="narr-tag-row" id="nf-pmh-tags"></div>
+            </div>
           </div>
           <div class="narr-field">
-            <label class="narr-lbl">Current Medications</label>
-            <div class="narr-med-row">
-              <input type="text" id="nf-med-input" class="narr-input" list="narr-med-dl" placeholder="Type medication name and press Add…">
-              <button id="btn-narr-add-med" class="narr-add-btn">+ Add</button>
+            <label class="narr-lbl">Patient's Home Medications</label>
+            <div class="narr-combo-wrap" id="combo-home-meds">
+              <div class="narr-combo-input-row">
+                <input type="text" class="narr-combo-input" id="nf-homemd-input" placeholder="Type a medication…" autocomplete="off">
+                <button class="narr-add-btn" id="btn-add-homemd">Add</button>
+              </div>
+              <div class="narr-combo-drop" id="combo-home-meds-drop"></div>
+              <div class="narr-tag-row" id="nf-homemd-tags"></div>
             </div>
-            <datalist id="narr-med-dl"></datalist>
-            <div class="narr-tag-row" id="nf-med-tags"></div>
           </div>
           <div class="narr-field">
             <label class="narr-lbl">Additional HPI Notes</label>
-            <textarea id="nf-hpi-notes" class="narr-textarea" rows="2" placeholder="Any additional relevant history…"></textarea>
+            <textarea id="nf-hpi-notes" class="narr-textarea" rows="2" placeholder="Additional relevant history…"></textarea>
           </div>
         </div>
       </div>
@@ -882,7 +943,7 @@
               </select>
             </div>
             <div class="narr-field">
-              <label class="narr-lbl">Skin Condition</label>
+              <label class="narr-lbl">Skin</label>
               <select id="nf-skin" class="narr-input">
                 <option value="">— Select —</option>
                 <option>warm, dry, and intact</option><option>warm and diaphoretic</option>
@@ -891,10 +952,71 @@
               </select>
             </div>
           </div>
-          <div class="narr-field">
-            <label class="narr-lbl">Additional Findings</label>
-            <textarea id="nf-assessment-notes" class="narr-textarea" rows="2" placeholder="Additional pertinent findings, vitals, exam details…"></textarea>
+          <div class="narr-row3">
+            <div class="narr-field">
+              <label class="narr-lbl">BGL (mg/dL)</label>
+              <div class="narr-num-wrap">
+                <input type="number" id="nf-bgl" class="narr-input" placeholder="e.g. 120" inputmode="numeric">
+                <button class="narr-na-btn" data-for="nf-bgl">N/A</button>
+              </div>
+            </div>
+            <div class="narr-field">
+              <label class="narr-lbl">SpO2 (%)</label>
+              <div class="narr-num-wrap">
+                <input type="number" id="nf-spo2" class="narr-input" placeholder="e.g. 98" inputmode="numeric" min="0" max="100">
+                <button class="narr-na-btn" data-for="nf-spo2">N/A</button>
+              </div>
+            </div>
+            <div class="narr-field">
+              <label class="narr-lbl">EtCO2 (mmHg)</label>
+              <div class="narr-num-wrap">
+                <input type="number" id="nf-etco2" class="narr-input" placeholder="e.g. 38" inputmode="numeric">
+                <button class="narr-na-btn" data-for="nf-etco2">N/A</button>
+              </div>
+            </div>
           </div>
+          <div class="narr-field">
+            <label class="narr-lbl">GCS</label>
+            <div class="narr-num-wrap">
+              <input type="number" id="nf-gcs" class="narr-input" placeholder="3–15" inputmode="numeric" min="3" max="15" style="max-width:100px">
+              <button class="narr-na-btn" data-for="nf-gcs">N/A</button>
+            </div>
+          </div>
+          <!-- 12-Lead -->
+          <div class="narr-field">
+            <label style="display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer;padding:2px 0">
+              <input type="checkbox" id="nf-ecg12-chk" style="width:17px;height:17px;accent-color:var(--accent);cursor:pointer;flex:none">
+              <span style="color:var(--text)">12-Lead EKG obtained</span>
+            </label>
+            <div id="nf-ecg12-interp-wrap" style="display:none;margin-top:5px">
+              <div class="narr-num-wrap">
+                <input type="text" id="nf-ecg12-interp" class="narr-input" placeholder="Interpretation (e.g. NSR, no acute ST changes)">
+                <button class="narr-na-btn" data-for="nf-ecg12-interp">N/A</button>
+              </div>
+            </div>
+          </div>
+          <!-- Trauma section -->
+          <div id="narr-trauma-sec" style="display:none">
+            <div style="font-size:11px;font-weight:700;color:#f87171;letter-spacing:.3px;text-transform:uppercase;margin-bottom:8px">Trauma — Body Regions</div>
+            <div class="narr-trauma-regions" id="narr-trauma-regions">
+              <button type="button" class="narr-trauma-reg-btn" data-region="Head/Face">Head/Face</button>
+              <button type="button" class="narr-trauma-reg-btn" data-region="Neck">Neck</button>
+              <button type="button" class="narr-trauma-reg-btn" data-region="Chest">Chest</button>
+              <button type="button" class="narr-trauma-reg-btn" data-region="Abdomen">Abdomen</button>
+              <button type="button" class="narr-trauma-reg-btn" data-region="Pelvis/Back">Pelvis/Back</button>
+              <button type="button" class="narr-trauma-reg-btn" data-region="Left Arm">Left Arm</button>
+              <button type="button" class="narr-trauma-reg-btn" data-region="Right Arm">Right Arm</button>
+              <button type="button" class="narr-trauma-reg-btn" data-region="Left Leg">Left Leg</button>
+              <button type="button" class="narr-trauma-reg-btn" data-region="Right Leg">Right Leg</button>
+              <button type="button" class="narr-trauma-reg-btn" data-region="Other">Other</button>
+            </div>
+            <div class="narr-trauma-findings" id="narr-trauma-findings"></div>
+          </div>
+          <div class="narr-field">
+            <label class="narr-lbl">Additional Assessment Notes</label>
+            <textarea id="nf-assessment-notes" class="narr-textarea" rows="2" placeholder="Additional pertinent findings…"></textarea>
+          </div>
+          <div style="font-size:12px;color:var(--muted);font-style:italic;padding:2px 0">All other assessment findings as documented throughout EHR.</div>
         </div>
       </div>
 
@@ -902,93 +1024,116 @@
       <div class="narr-sec">
         <div class="narr-sec-hd" style="color:rgba(74,222,128,1)">💊 Treatment</div>
         <div class="narr-sec-body">
-          <div class="narr-subhd">Movement &amp; Positioning</div>
-          <div class="narr-checklist">
-            <label class="narr-chk-item"><input type="checkbox" name="tx" value="ambulate"> Assisted ambulation to stretcher</label>
-            <label class="narr-chk-item"><input type="checkbox" name="tx" value="carried"> Patient carried / moved to stretcher</label>
-            <label class="narr-chk-item"><input type="checkbox" name="tx" value="position"> Patient secured to stretcher —
-              <select class="narr-input-inline" id="nf-position">
-                <option>semi-Fowler</option><option>supine</option><option>lateral recumbent</option>
-                <option>Trendelenburg</option><option>upright</option><option>prone</option>
-              </select>
-              position</label>
-            <label class="narr-chk-item"><input type="checkbox" name="tx" value="c-collar"> Cervical collar applied</label>
-            <label class="narr-chk-item"><input type="checkbox" name="tx" value="backboard"> Spinal precautions / long backboard</label>
+          <!-- Movement & Positioning -->
+          <div class="narr-field">
+            <label class="narr-lbl">Movement / Positioning</label>
+            <div class="narr-mon-chips" id="narr-move-chips">
+              <button type="button" class="narr-mon-chip" data-val="ambulate">Assisted to stretcher</button>
+              <button type="button" class="narr-mon-chip" data-val="carried">Carried to stretcher</button>
+              <button type="button" class="narr-mon-chip" data-val="c-collar">C-Collar applied</button>
+              <button type="button" class="narr-mon-chip" data-val="backboard">Backboard / spinal precautions</button>
+              <button type="button" class="narr-mon-chip" data-val="splint">Splint applied</button>
+              <button type="button" class="narr-mon-chip" data-val="tourniquet">Tourniquet applied</button>
+              <button type="button" class="narr-mon-chip" data-val="wound-packing">Wound packing</button>
+              <button type="button" class="narr-mon-chip" data-val="pressure-dressing">Pressure dressing</button>
+            </div>
           </div>
-          <div class="narr-subhd">Assessment &amp; Monitoring</div>
-          <div class="narr-checklist">
-            <label class="narr-chk-item"><input type="checkbox" name="tx" value="hemodynamic"> Hemodynamic assessment (BP, HR, RR, SpO2)</label>
-            <label class="narr-chk-item"><input type="checkbox" name="tx" value="bgl"> Blood glucose assessment —
-              <input type="text" class="narr-input-inline" id="nf-bgl-val" placeholder="mg/dL" style="width:70px">
-            </label>
-            <label class="narr-chk-item"><input type="checkbox" name="tx" value="ecg12"> 12-Lead EKG obtained</label>
-            <label class="narr-chk-item"><input type="checkbox" name="tx" value="cardiac-monitor"> Continuous cardiac monitoring initiated</label>
-            <label class="narr-chk-item"><input type="checkbox" name="tx" value="pulsara"> Pulsara notification transmitted —
-              <input type="text" class="narr-input-inline" id="nf-pulsara-min" placeholder="min" style="width:50px">
-              min prior to arrival</label>
+          <!-- Position select (shows when 'ambulate' or positioning active) -->
+          <div class="narr-field">
+            <label class="narr-lbl">Position on Stretcher</label>
+            <select id="nf-position" class="narr-input">
+              <option value="">— If applicable —</option>
+              <option>semi-Fowler</option><option>supine</option><option>lateral recumbent</option>
+              <option>Trendelenburg</option><option>upright</option><option>prone</option>
+            </select>
           </div>
-          <div class="narr-subhd">Airway &amp; Oxygen</div>
-          <div class="narr-checklist">
-            <label class="narr-chk-item"><input type="checkbox" name="tx" value="o2"> Oxygen administered via
-              <select class="narr-input-inline" id="nf-o2-device">
-                <option>nasal cannula</option><option>non-rebreather mask</option>
-                <option>BVM</option><option>CPAP</option>
-              </select>
-              at <input type="text" class="narr-input-inline" id="nf-o2-rate" placeholder="LPM" style="width:50px"> LPM
+          <!-- O2 -->
+          <div class="narr-field">
+            <label style="display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer;padding:2px 0">
+              <input type="checkbox" id="nf-o2-chk" style="width:17px;height:17px;accent-color:var(--accent);cursor:pointer;flex:none">
+              <span style="color:var(--text)">Oxygen administered</span>
             </label>
-            <label class="narr-chk-item"><input type="checkbox" name="tx" value="suction"> Airway suctioning performed</label>
-            <label class="narr-chk-item"><input type="checkbox" name="tx" value="opa"> OPA inserted</label>
-            <label class="narr-chk-item"><input type="checkbox" name="tx" value="npa"> NPA inserted</label>
-            <label class="narr-chk-item"><input type="checkbox" name="tx" value="ett"> Endotracheal intubation performed</label>
+            <div id="nf-o2-detail" style="display:none;margin-top:6px">
+              <div class="narr-inline-row">
+                <span class="narr-inline-lbl">Device:</span>
+                <select id="nf-o2-device" class="narr-inline-sel">
+                  <option>nasal cannula</option><option>non-rebreather mask</option>
+                  <option>BVM</option><option>CPAP</option><option>high-flow NC</option>
+                </select>
+                <span class="narr-inline-lbl">Rate:</span>
+                <input type="number" id="nf-o2-rate" class="narr-inline-input" placeholder="LPM" style="width:70px" inputmode="numeric">
+                <span class="narr-inline-lbl">LPM</span>
+              </div>
+            </div>
           </div>
-          <div class="narr-subhd">Vascular Access</div>
-          <div class="narr-checklist">
-            <label class="narr-chk-item"><input type="checkbox" name="tx" value="iv"> IV access —
-              <input type="text" class="narr-input-inline" id="nf-iv-gauge" placeholder="gauge" style="width:55px">G •
-              <select class="narr-input-inline" id="nf-iv-fluid">
-                <option>NS 0.9%</option><option>LR</option><option>D5W</option><option>NS TKO</option>
-              </select>
-              •
-              <input type="text" class="narr-input-inline" id="nf-iv-site" list="narr-iv-sites-dl" placeholder="site">
-              <datalist id="narr-iv-sites-dl">
-                <option>left antecubital (LAC)</option><option>right antecubital (RAC)</option>
-                <option>left forearm</option><option>right forearm</option>
-                <option>left hand</option><option>right hand</option>
-                <option>external jugular (EJ)</option><option>intraosseous (IO)</option>
-              </datalist>
-            </label>
-            <label class="narr-chk-item"><input type="checkbox" name="tx" value="saline-lock"> Saline lock applied</label>
+          <!-- Airway adjuncts -->
+          <div class="narr-field">
+            <label class="narr-lbl">Airway / Ventilation</label>
+            <div class="narr-mon-chips">
+              <button type="button" class="narr-mon-chip" data-val="suction">Suctioning</button>
+              <button type="button" class="narr-mon-chip" data-val="opa">OPA</button>
+              <button type="button" class="narr-mon-chip" data-val="npa">NPA</button>
+              <button type="button" class="narr-mon-chip" data-val="bvm">BVM ventilation</button>
+              <button type="button" class="narr-mon-chip" data-val="ett">ET intubation</button>
+              <button type="button" class="narr-mon-chip" data-val="sga">Supraglottic airway</button>
+              <button type="button" class="narr-mon-chip" data-val="cric">Surgical airway (cric)</button>
+            </div>
           </div>
-          <div class="narr-subhd">Medications Administered</div>
-          <div class="narr-checklist">
-            <label class="narr-chk-item"><input type="checkbox" name="tx-med" value="asa"> Aspirin 324mg PO</label>
-            <label class="narr-chk-item"><input type="checkbox" name="tx-med" value="nitro"> Nitroglycerin 0.4mg SL ×
-              <select class="narr-input-inline" id="nf-nitro-doses"><option>1</option><option>2</option><option>3</option></select>
+          <!-- IV Access -->
+          <div class="narr-field">
+            <label style="display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer;padding:2px 0">
+              <input type="checkbox" id="nf-iv-chk" style="width:17px;height:17px;accent-color:var(--accent);cursor:pointer;flex:none">
+              <span style="color:var(--text)">IV / IO access established</span>
             </label>
-            <label class="narr-chk-item"><input type="checkbox" name="tx-med" value="narcan"> Naloxone —
-              <input type="text" class="narr-input-inline" id="nf-narcan-dose" placeholder="dose" style="width:55px"> mg
-              <select class="narr-input-inline" id="nf-narcan-route"><option>IV</option><option>IM</option><option>IN</option><option>IO</option></select>
-            </label>
-            <label class="narr-chk-item"><input type="checkbox" name="tx-med" value="albuterol"> Albuterol 2.5mg nebulized</label>
-            <label class="narr-chk-item"><input type="checkbox" name="tx-med" value="zofran"> Ondansetron (Zofran) 4mg
-              <select class="narr-input-inline" id="nf-zofran-route"><option>IV</option><option>IM</option></select>
-            </label>
-            <label class="narr-chk-item"><input type="checkbox" name="tx-med" value="apap"> Acetaminophen 1000mg IV</label>
-            <label class="narr-chk-item"><input type="checkbox" name="tx-med" value="d50"> Dextrose 50% 25g IV</label>
-            <label class="narr-chk-item"><input type="checkbox" name="tx-med" value="epi"> Epinephrine 0.3mg IM (auto-injector)</label>
-            <label class="narr-chk-item"><input type="checkbox" name="tx-med" value="solumedrol"> Solu-Medrol 125mg IV/IM</label>
-            <label class="narr-chk-item"><input type="checkbox" name="tx-med" value="fentanyl"> Fentanyl —
-              <input type="text" class="narr-input-inline" id="nf-fentanyl-dose" placeholder="dose" style="width:55px"> mcg
-              <select class="narr-input-inline" id="nf-fentanyl-route"><option>IV</option><option>IM</option><option>IN</option></select>
-            </label>
-            <label class="narr-chk-item"><input type="checkbox" name="tx-med" value="midazolam"> Midazolam —
-              <input type="text" class="narr-input-inline" id="nf-midaz-dose" placeholder="dose" style="width:55px"> mg
-              <select class="narr-input-inline" id="nf-midaz-route"><option>IV</option><option>IM</option><option>IN</option></select>
-            </label>
+            <div id="nf-iv-detail" style="display:none;margin-top:6px;display:none">
+              <div class="narr-inline-row">
+                <input type="text" id="nf-iv-gauge" class="narr-inline-input" placeholder="gauge" style="width:65px">
+                <span class="narr-inline-lbl">G</span>
+                <select id="nf-iv-fluid" class="narr-inline-sel">
+                  <option>NS 0.9%</option><option>LR</option><option>D5W</option><option>TKO/KVO</option><option>IO</option>
+                </select>
+                <input type="text" id="nf-iv-site" class="narr-inline-input" placeholder="site (e.g. LAC, RAC)" style="flex:1">
+              </div>
+            </div>
           </div>
-          <div class="narr-field" style="margin-top:8px">
-            <label class="narr-lbl">Additional Treatment / Medications</label>
-            <textarea id="nf-tx-notes" class="narr-textarea" rows="2" placeholder="Additional interventions not listed above…"></textarea>
+          <!-- Monitoring -->
+          <div class="narr-field">
+            <label class="narr-lbl">Assessment &amp; Monitoring</label>
+            <div class="narr-mon-chips" id="narr-mon-chips">
+              <button type="button" class="narr-mon-chip" data-val="hemodynamic">Hemodynamic monitoring</button>
+              <button type="button" class="narr-mon-chip" data-val="cardiac-monitor">Cardiac monitor</button>
+              <button type="button" class="narr-mon-chip" data-val="etco2-monitor">EtCO2 monitoring</button>
+              <button type="button" class="narr-mon-chip" data-val="12lead-tx">12-Lead transmitted</button>
+              <button type="button" class="narr-mon-chip" data-val="pulsara">Pulsara notification</button>
+            </div>
+            <div id="nf-pulsara-detail" style="display:none;margin-top:6px">
+              <div class="narr-inline-row">
+                <span class="narr-inline-lbl">Transmitted</span>
+                <input type="number" id="nf-pulsara-min" class="narr-inline-input" placeholder="min" style="width:60px" inputmode="numeric">
+                <span class="narr-inline-lbl">min prior to arrival</span>
+              </div>
+            </div>
+          </div>
+          <!-- Medications -->
+          <div class="narr-field">
+            <label class="narr-lbl">Medications Administered</label>
+            <div class="narr-combo-wrap" id="combo-tx-meds">
+              <div class="narr-combo-input-row">
+                <input type="text" class="narr-combo-input" id="nf-txmed-input" placeholder="Search EASI meds…" autocomplete="off">
+              </div>
+              <div class="narr-combo-drop" id="combo-tx-meds-drop"></div>
+              <!-- Dose confirmation row (shows after selecting a med) -->
+              <div id="narr-med-dose-row" style="display:none;margin-top:7px;gap:6px;align-items:center;flex-wrap:wrap" class="narr-inline-row">
+                <input type="text" id="nf-txmed-dose" class="narr-med-dose-input" placeholder="Confirm dose (e.g. 4mg IV)" style="flex:1;min-width:150px">
+                <button class="narr-add-btn" id="btn-add-txmed">+ Add</button>
+                <button type="button" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0 4px;line-height:1" id="btn-cancel-txmed">✕</button>
+              </div>
+              <div class="narr-tag-row" id="nf-txmed-tags"></div>
+            </div>
+          </div>
+          <div class="narr-field">
+            <label class="narr-lbl">Additional Treatment Notes</label>
+            <textarea id="nf-tx-notes" class="narr-textarea" rows="2" placeholder="Additional interventions…"></textarea>
           </div>
         </div>
       </div>
@@ -999,24 +1144,30 @@
         <div class="narr-sec-body">
           <div class="narr-field">
             <label class="narr-lbl">Quick Select</label>
-            <div class="narr-chips" id="nf-response-chips"></div>
+            <div class="narr-mon-chips" id="nf-response-chips"></div>
           </div>
           <div class="narr-field">
-            <label class="narr-lbl">Response Details</label>
             <textarea id="nf-response-text" class="narr-textarea" rows="3" placeholder="Describe patient response to treatment…"></textarea>
           </div>
         </div>
       </div>
 
-      <!-- ── TRANSPORT / DESTINATION (non-refusal) ── -->
+      <!-- ── TRANSPORT ── -->
       <div class="narr-sec" id="nsec-transport">
         <div class="narr-sec-hd" style="color:rgba(251,146,60,1)">🏥 Transport &amp; Destination</div>
         <div class="narr-sec-body">
-          <div class="narr-row">
-            <div class="narr-field">
-              <label class="narr-lbl">Destination Facility</label>
-              <select id="nf-destination" class="narr-input"><option value="">— Select Hospital —</option></select>
+          <div class="narr-field">
+            <label class="narr-lbl">Destination Facility</label>
+            <div class="narr-combo-wrap" id="combo-destination">
+              <div class="narr-combo-input-row">
+                <input type="text" class="narr-combo-input" id="nf-destination-input" placeholder="Search hospital…" autocomplete="off">
+              </div>
+              <div class="narr-combo-drop" id="combo-destination-drop"></div>
+              <div class="narr-tag-row" id="nf-destination-tags"></div>
+              <input type="hidden" id="nf-destination" value="">
             </div>
+          </div>
+          <div class="narr-row">
             <div class="narr-field">
               <label class="narr-lbl">Arrival Method</label>
               <select id="nf-arrival-method" class="narr-input">
@@ -1025,8 +1176,6 @@
                 <option>transported via wheelchair</option>
               </select>
             </div>
-          </div>
-          <div class="narr-row">
             <div class="narr-field">
               <label class="narr-lbl">Moved to</label>
               <select id="nf-dest-area" class="narr-input">
@@ -1036,25 +1185,28 @@
                 <option>cardiac care unit</option><option>designated room</option>
               </select>
             </div>
-            <div class="narr-field">
-              <label class="narr-lbl">Left in Care of</label>
-              <select id="nf-care-of" class="narr-input">
-                <option value="">— Select —</option>
-                <option>RN at bedside</option><option>charge RN</option><option>ER physician</option>
-                <option>PA at bedside</option><option>NP at bedside</option><option>receiving EMS crew</option>
-              </select>
-            </div>
+          </div>
+          <div class="narr-field">
+            <label class="narr-lbl">Left in Care of</label>
+            <select id="nf-care-of" class="narr-input">
+              <option value="">— Select —</option>
+              <option>RN at bedside</option><option>charge RN</option><option>ER physician</option>
+              <option>PA at bedside</option><option>NP at bedside</option><option>receiving EMS crew</option>
+            </select>
           </div>
         </div>
       </div>
 
-      <!-- ── REFUSAL (refusal template only) ── -->
+      <!-- ── REFUSAL ── -->
       <div class="narr-sec" id="nsec-refusal" style="display:none">
         <div class="narr-sec-hd" style="color:rgba(248,113,113,1)">📋 Refusal of Care</div>
         <div class="narr-sec-body">
-          <label class="narr-chk-item"><input type="checkbox" id="nf-competency" checked> Patient was alert and oriented x4 and demonstrated decision-making capacity</label>
+          <label style="display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer">
+            <input type="checkbox" id="nf-competency" checked style="width:17px;height:17px;accent-color:var(--accent);cursor:pointer;flex:none">
+            <span style="color:var(--text)">Patient A&amp;Ox4 — demonstrated decision-making capacity</span>
+          </label>
           <div class="narr-field">
-            <label class="narr-lbl">Risks of Refusal Explained (include specifics)</label>
+            <label class="narr-lbl">Risks of Refusal Explained</label>
             <textarea id="nf-refusal-risks" class="narr-textarea" rows="2" placeholder="e.g. risk of heart attack, internal bleeding, stroke, death without evaluation…"></textarea>
           </div>
           <div class="narr-row">
@@ -1064,15 +1216,21 @@
             </div>
             <div class="narr-field">
               <label class="narr-lbl">Witness Role</label>
-              <input type="text" id="nf-witness-role" class="narr-input" placeholder="e.g. family member, bystander">
+              <input type="text" id="nf-witness-role" class="narr-input" placeholder="e.g. family member">
             </div>
           </div>
-          <label class="narr-chk-item"><input type="checkbox" id="nf-return-precautions" checked> Return precautions explained — patient verbalized understanding</label>
-          <label class="narr-chk-item"><input type="checkbox" id="nf-refusal-signed" checked> Patient signed refusal form</label>
+          <label style="display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer">
+            <input type="checkbox" id="nf-return-precautions" checked style="width:17px;height:17px;accent-color:var(--accent);cursor:pointer;flex:none">
+            <span style="color:var(--text)">Return precautions explained — patient verbalized understanding</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer">
+            <input type="checkbox" id="nf-refusal-signed" checked style="width:17px;height:17px;accent-color:var(--accent);cursor:pointer;flex:none">
+            <span style="color:var(--text)">Patient signed refusal form</span>
+          </label>
         </div>
       </div>
 
-      <!-- ── LIVE PREVIEW ── -->
+      <!-- ── PREVIEW ── -->
       <div class="narr-preview-wrap">
         <div class="narr-preview-hd">
           <span>📄 Narrative Preview</span>
