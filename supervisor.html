@@ -3420,6 +3420,18 @@ function narrDeleteItem(idx){
   const hist=loadNarrHistory(); hist.splice(idx,1); saveNarrHistory(hist); renderNarrHistory(); updateNarrHistCount();
 }
 
+function narrRestoreDraft(){
+  try{
+    const draft = JSON.parse(localStorage.getItem('pat-narr-draft')||'null');
+    if(draft){
+      const el = document.getElementById('narr-preview');
+      if(el) el.textContent = draft.text;
+      showToast('Draft restored — preview updated.');
+      document.getElementById('narr-draft-banner')?.remove();
+    }
+  }catch(e){}
+}
+
 function initNarrative(){
   // Template type segmented buttons
   document.getElementById('narr-type-seg')?.querySelectorAll('.narr-seg-btn').forEach(btn=>{
@@ -3621,6 +3633,29 @@ function initNarrative(){
 
   updateNarrHistCount();
   buildNarrative();
+
+  // Auto-save draft every 30 seconds
+  setInterval(()=>{
+    const text = document.getElementById('narr-preview')?.textContent||'';
+    if(text && text !== 'Fill in the fields above to generate your narrative.'){
+      localStorage.setItem('pat-narr-draft', JSON.stringify({ts: Date.now(), text}));
+    }
+  }, 30000);
+
+  // Restore draft on load
+  try{
+    const draft = JSON.parse(localStorage.getItem('pat-narr-draft')||'null');
+    if(draft && draft.text && draft.text !== 'Fill in the fields above to generate your narrative.'){
+      const d = new Date(draft.ts);
+      const dstr = d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' ' + d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+      const banner = document.createElement('div');
+      banner.id = 'narr-draft-banner';
+      banner.style.cssText = 'background:rgba(94,234,212,.1);border:1px solid rgba(94,234,212,.3);border-radius:9px;padding:10px 13px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:var(--text)';
+      banner.innerHTML = `<span>📝 Unsaved draft from ${dstr}</span><div style="display:flex;gap:6px"><button onclick="narrRestoreDraft()" style="background:var(--accent);border:none;border-radius:7px;color:#0b0d10;font-size:12px;font-weight:700;padding:5px 12px;cursor:pointer">Restore</button><button onclick="document.getElementById('narr-draft-banner').remove();localStorage.removeItem('pat-narr-draft')" style="background:none;border:1px solid var(--border);border-radius:7px;color:var(--muted);font-size:12px;padding:5px 10px;cursor:pointer">Dismiss</button></div>`;
+      const tab = document.getElementById('tab-narrative');
+      if(tab) tab.insertBefore(banner, tab.firstChild);
+    }
+  }catch(e){}
 }
 </script>
 </body>
