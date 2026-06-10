@@ -587,20 +587,20 @@
 
         <!-- IV / IO Access -->
         <div class="narr-field">
-          <label style="display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer;padding:2px 0">
-            <input type="checkbox" id="nf-iv-chk" style="width:17px;height:17px;accent-color:var(--accent);cursor:pointer;flex:none">
-            <span style="color:var(--text)">IV / IO access established</span>
-          </label>
-          <div id="nf-iv-detail" style="display:none;margin-top:6px">
-            <div class="narr-inline-row" style="flex-wrap:wrap;gap:6px">
-              <input type="text" id="nf-iv-gauge" class="narr-inline-input" placeholder="gauge" style="width:65px">
-              <span class="narr-inline-lbl">G</span>
-              <select id="nf-iv-fluid" class="narr-inline-sel">
-                <option>NS 0.9%</option><option>LR</option><option>D5W</option><option>TKO/KVO</option><option>IO</option>
-              </select>
-              <input type="text" id="nf-iv-site" class="narr-inline-input" placeholder="site (e.g. LAC, RAC)" style="flex:1;min-width:120px">
-            </div>
+          <label class="narr-lbl">IV / IO Access</label>
+          <div class="narr-inline-row" style="flex-wrap:wrap;gap:6px;margin-bottom:6px">
+            <select id="nf-iv-type" class="narr-inline-sel">
+              <option value="IV">IV</option>
+              <option value="IO">IO</option>
+            </select>
+            <input type="text" id="nf-iv-gauge" class="narr-inline-input" placeholder="Gauge" style="width:68px">
+            <select id="nf-iv-fluid" class="narr-inline-sel">
+              <option>NS 0.9%</option><option>LR</option><option>D5W</option><option>TKO/KVO</option>
+            </select>
+            <input type="text" id="nf-iv-site" class="narr-inline-input" placeholder="Site (e.g. LAC, RAC)" style="flex:1;min-width:110px">
+            <button class="narr-add-btn" id="btn-add-iv">+ Add</button>
           </div>
+          <div class="narr-tag-row" id="nf-iv-tags"></div>
           <!-- IV deferred / unsuccessful -->
           <label style="display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer;padding:6px 0 2px;color:var(--muted)">
             <input type="checkbox" id="nf-iv-deferred-chk" style="width:16px;height:16px;accent-color:#f87171;cursor:pointer;flex:none">
@@ -834,13 +834,13 @@
       </div>
     </div>
 
-    <!-- ── ENCOUNTER NOTES ── -->
+    <!-- ── SUPPLEMENTAL NOTES ── -->
     <div class="narr-sec">
-      <div class="narr-sec-hd" style="color:rgba(196,181,253,1)">📝 Encounter Notes</div>
+      <div class="narr-sec-hd" style="color:rgba(196,181,253,1)">📝 Supplemental Notes</div>
       <div class="narr-sec-body">
         <div class="narr-field">
-          <label class="narr-lbl">Additional Encounter Notes</label>
-          <textarea id="nf-encounter-notes" class="narr-textarea" rows="3" placeholder="Non-clinical notes related to the encounter (scene conditions, behavioral concerns, family involvement, crew observations, etc.)…"></textarea>
+          <label class="narr-lbl">Supplemental Notes</label>
+          <textarea id="nf-encounter-notes" class="narr-textarea" rows="3" placeholder="Any additional clinical or non-clinical information relevant to this call that doesn't fit elsewhere…"></textarea>
         </div>
       </div>
     </div>
@@ -1080,6 +1080,7 @@ let narrHomeMeds = [];
 let narrSelectedSymptoms = new Set();
 let narrSelectedPMH = new Set();
 let narrComplaint = '';
+let narrIVAccesses = [];
 let narrDestination = '';
 let narrTraumaRegions = {};
 let narrPainNA = false;
@@ -1196,6 +1197,11 @@ function narrRemoveTag(containerId, value){
 function renderHomeMedTags(){
   const el = document.getElementById('nf-homemd-tags'); if(!el) return;
   el.innerHTML = narrHomeMeds.map((m,i)=>`<div class="narr-tag"><span>${m}</span><button type="button" onclick="narrHomeMeds.splice(${i},1);renderHomeMedTags();buildNarrative()">✕</button></div>`).join('');
+}
+
+function renderIVTags(){
+  const el=document.getElementById('nf-iv-tags'); if(!el) return;
+  el.innerHTML=narrIVAccesses.map((iv,i)=>`<div class="narr-tag" style="border-color:rgba(94,234,212,.35);background:rgba(94,234,212,.08);color:#5eead4"><span>${iv.type} ${iv.gauge?iv.gauge+'G ':''}- ${iv.fluid}${iv.site?' @ '+iv.site:''}</span><button type="button" onclick="narrIVAccesses.splice(${i},1);renderIVTags();buildNarrative()" style="color:rgba(94,234,212,.5)">&#10005;</button></div>`).join('');
 }
 
 function renderTxMedTags(){
@@ -1420,10 +1426,13 @@ function buildNarrative(){
   }
   if(isAirActive('sga')) txParts.push('SUPRAGLOTTIC AIRWAY INSERTED');
   if(isAirActive('cric')) txParts.push('SURGICAL CRICOTHYROTOMY PERFORMED');
-  if(narrChk('nf-iv-chk')){
-    const g=narrVal('nf-iv-gauge'),f=narrVal('nf-iv-fluid'),s=narrVal('nf-iv-site');
-    txParts.push(`${g?g+'G ':''}IV ACCESS ESTABLISHED${f?' WITH '+uc(f):''}${s?' IN '+uc(s):''}, PATENT, FLUSHED WITH 10 ML 0.9% NS`);
-  }
+  narrIVAccesses.forEach(iv=>{
+    if(iv.type==='IO'){
+      txParts.push(`INTRAOSSEOUS ACCESS ESTABLISHED${iv.site?' IN '+uc(iv.site):''}, PATENT`);
+    } else {
+      txParts.push(`${iv.gauge?iv.gauge+'G ':''}IV ACCESS ESTABLISHED${iv.fluid?' WITH '+uc(iv.fluid):''}${iv.site?' IN '+uc(iv.site):''}, PATENT, FLUSHED WITH 10 ML 0.9% NS`);
+    }
+  });
   if(narrChk('nf-iv-deferred-chk')){
     txParts.push('PERIPHERAL IV ACCESS ATTEMPTED BUT UNSUCCESSFUL. IV ACCESS DEFERRED — UNABLE TO IDENTIFY SUITABLE PERIPHERAL VEIN. CLINICAL CONDITION DID NOT WARRANT INTRAOSSEOUS ACCESS');
   }
@@ -1481,7 +1490,7 @@ function buildNarrative(){
   }
 
   const encounterNotes = narrVal('nf-encounter-notes');
-  const encounterLine = encounterNotes ? `ENCOUNTER NOTES - ${uct(encounterNotes)}` : '';
+  const encounterLine = encounterNotes ? `SUPPLEMENTAL NOTES - ${uct(encounterNotes)}` : '';
 
   let txDelayLine = '';
   if(narrChk('nf-tx-delay-chk')){
@@ -1516,7 +1525,10 @@ function buildNarrative(){
   if(isMonChipActive('12lead')) pulInterventions.push('12-LEAD EKG OBTAINED');
   if(isMonChipActive('12lead-tx')) pulInterventions.push('12-LEAD TRANSMITTED');
   if(isMonChipActive('pulsara')){ const m=narrVal('nf-pulsara-min'); pulInterventions.push(`PULSARA ACTIVATED${m?' ('+m+' MIN PRIOR TO ARRIVAL)':''}`); }
-  if(narrChk('nf-iv-chk')){ const g=narrVal('nf-iv-gauge'); pulInterventions.push(`IV ACCESS${g?' ('+g+'G)':''} ESTABLISHED`); }
+  narrIVAccesses.forEach(iv=>{
+    if(iv.type==='IO') pulInterventions.push('IO ACCESS ESTABLISHED');
+    else pulInterventions.push(`IV ACCESS${iv.gauge?' ('+iv.gauge+'G)':''} ESTABLISHED`);
+  });
   narrTxMeds.forEach(m=>{
     if(m.name==='Oxygen') pulInterventions.push(`O2 VIA ${uc(m.dose)}`);
     else pulInterventions.push(`${uc(m.name)}${m.dose?' '+uc(m.dose):''}`);
@@ -1563,14 +1575,13 @@ function narrClear(){
   document.querySelectorAll('.page-content .narr-trauma-reg-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('nf-12lead-detail').style.display='none';
   document.getElementById('nf-ett-detail').style.display='none';
-  document.getElementById('nf-iv-detail').style.display='none';
   document.getElementById('narr-med-dose-row').style.display='none';
   document.getElementById('narr-trauma-sec').style.display='none';
   document.getElementById('nf-pulsara-detail').style.display='none';
   document.getElementById('nf-resp-delay-detail').style.display='none';
   document.getElementById('nf-tx-delay-detail').style.display='none';
   narrSelectedSymptoms.clear(); narrSelectedPMH.clear();
-  narrTxMeds=[]; narrHomeMeds=[]; narrComplaint=''; narrDestination='';
+  narrTxMeds=[]; narrIVAccesses=[]; narrHomeMeds=[]; narrComplaint=''; narrDestination='';
   narrTraumaRegions={}; narrPainNA=false; narrPainDenied=false;
   narrBloodThinnerAnswer=''; narrVoiceRecording=''; narrVoiceRecordingReason='';
   document.querySelectorAll('#qp-bt-yes,#qp-bt-no,#qp-vr-yes,#qp-vr-no').forEach(b=>b.classList.remove('active'));
@@ -1582,7 +1593,7 @@ function narrClear(){
   document.getElementById('qp-complaint-tags').innerHTML='';
   renderTags('nf-symptom-tags', narrSelectedSymptoms, null);
   renderTags('nf-pmh-tags', narrSelectedPMH, null);
-  renderHomeMedTags(); renderTxMedTags();
+  renderHomeMedTags(); renderTxMedTags(); renderIVTags();
   document.getElementById('nf-complaint-tags').innerHTML='';
   document.getElementById('nf-destination-tags').innerHTML='';
   document.getElementById('narr-trauma-findings').innerHTML='';
@@ -1955,11 +1966,18 @@ function initNarrative(){
   });
   initTraumaRegions();
 
-  // IV detail toggle
-  document.getElementById('nf-iv-chk')?.addEventListener('change',e=>{
-    document.getElementById('nf-iv-detail').style.display=e.target.checked?'flex':'none';
-    buildNarrative();
+  // Add IV/IO entry
+  document.getElementById('btn-add-iv')?.addEventListener('click',()=>{
+    const type=document.getElementById('nf-iv-type')?.value||'IV';
+    const gauge=(document.getElementById('nf-iv-gauge')?.value||'').trim();
+    const fluid=document.getElementById('nf-iv-fluid')?.value||'NS 0.9%';
+    const site=(document.getElementById('nf-iv-site')?.value||'').trim();
+    narrIVAccesses.push({type,gauge,fluid,site});
+    document.getElementById('nf-iv-gauge').value='';
+    document.getElementById('nf-iv-site').value='';
+    renderIVTags(); buildNarrative();
   });
+  document.getElementById('nf-iv-site')?.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); document.getElementById('btn-add-iv')?.click(); } });
 
   // Response delay toggle
   document.getElementById('nf-resp-delay-chk')?.addEventListener('change',e=>{
