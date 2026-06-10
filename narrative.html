@@ -733,6 +733,7 @@
               <option value="">— Select —</option>
               <option>transported in on stretcher</option><option>walked in</option>
               <option>transported via wheelchair</option>
+              <option>assisted in ambulating from stretcher</option>
             </select>
           </div>
           <div class="narr-field">
@@ -742,6 +743,15 @@
               <option>designated ER bed</option><option>trauma bay</option><option>ICU room</option>
               <option>labor and delivery room</option><option>observation room</option>
               <option>cardiac care unit</option><option>designated room</option>
+            </select>
+          </div>
+          <div class="narr-field">
+            <label class="narr-lbl">Transfer to Bed Method</label>
+            <select id="nf-transfer-method" class="narr-input">
+              <option value="">— Select if applicable —</option>
+              <option value="draw-sheet">via draw sheet</option>
+              <option value="slide-board">via slide board</option>
+              <option value="ambulated">patient ambulated to bed</option>
             </select>
           </div>
         </div>
@@ -1479,13 +1489,19 @@ function buildNarrative(){
   } else {
     const dest=narrDestination||narrVal('nf-destination-input')||'';
     const method=narrVal('nf-arrival-method'), area=narrVal('nf-dest-area');
+    const transferMethod=narrVal('nf-transfer-method');
     const careOfName=narrVal('nf-care-of-name');
     const careOfCredEl=document.getElementById('nf-care-of-cred');
     const careOfCredNA=document.getElementById('nf-care-of-cred-na')?.classList.contains('active');
     const careOfCred=careOfCredNA?'':careOfCredEl?.value||'';
     const careOf=careOfName?(uc(careOfName)+(careOfCred?', '+uc(careOfCred):'')):'';
     if(dest||method||area||careOf){
-      finalLine=`DESTINATION — UPON ARRIVAL AT ${uc(dest)||'[FACILITY]'}, PATIENT ${uc(method)||'TRANSPORTED IN ON STRETCHER'}. PATIENT MOVED TO ${uc(area)||'DESIGNATED BED'}. PATIENT LEFT IN CARE OF ${careOf||'[RECEIVING STAFF]'}.`;
+      let _movedSentence;
+      if(transferMethod==='draw-sheet') _movedSentence=`PATIENT MOVED FROM STRETCHER TO ${uc(area)||'DESIGNATED BED'} VIA DRAW SHEET.`;
+      else if(transferMethod==='slide-board') _movedSentence=`PATIENT MOVED FROM STRETCHER TO ${uc(area)||'DESIGNATED BED'} VIA SLIDE BOARD.`;
+      else if(transferMethod==='ambulated') _movedSentence=`PATIENT AMBULATED TO ${uc(area)||'DESIGNATED BED'}.`;
+      else _movedSentence=`PATIENT MOVED TO ${uc(area)||'DESIGNATED BED'}.`;
+      finalLine=`DESTINATION — UPON ARRIVAL AT ${uc(dest)||'[FACILITY]'}, PATIENT ${uc(method)||'TRANSPORTED IN ON STRETCHER'}. ${_movedSentence} PATIENT LEFT IN CARE OF ${careOf||'[RECEIVING STAFF]'}.`;
     }
   }
 
