@@ -186,6 +186,14 @@
     .calc-result{margin-top:12px;border-radius:11px;padding:12px 14px;background:rgba(94,234,212,.05);border:1px solid rgba(94,234,212,.15);font-size:14px;line-height:1.7}
     .calc-result:empty{display:none}
     .calc-result b{color:var(--accent);font-size:16px}
+    .stemi-lead-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:4px}
+    @media(max-width:400px){.stemi-lead-grid{grid-template-columns:repeat(4,1fr)}}
+    .stemi-lead-btn{display:flex;flex-direction:column;align-items:center;cursor:pointer;user-select:none}
+    .stemi-lead-btn input{display:none}
+    .stemi-lead-btn span{display:block;width:100%;text-align:center;padding:6px 2px;border-radius:7px;font-size:12px;font-weight:700;border:1px solid rgba(248,113,113,.3);background:rgba(248,113,113,.06);color:rgba(248,113,113,.7);transition:all .15s}
+    .stemi-lead-btn.dep span{border-color:rgba(96,165,250,.3);background:rgba(96,165,250,.06);color:rgba(96,165,250,.7)}
+    .stemi-lead-btn input:checked + span{background:rgba(248,113,113,.22);border-color:rgba(248,113,113,.7);color:#fca5a5}
+    .stemi-lead-btn.dep input:checked + span{background:rgba(96,165,250,.22);border-color:rgba(96,165,250,.7);color:#93c5fd}
     .calc-hint{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5}
     /* ui controls */
     .ui-ctrl-btn{background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer;font-size:13px;font-weight:600;padding:4px 9px;font-family:inherit;line-height:1.4}
@@ -791,6 +799,58 @@
         </div>
       </div>
 
+      <div class="calc-card">
+        <div class="calc-card-hd calc-toggle" data-target="calc-body-stemi">
+          <div class="calc-card-title">
+            <div class="calc-icon" style="background:rgba(248,113,113,.12)">❤️</div>
+            STEMI Localization
+          </div>
+          <span class="calc-chev">▾</span>
+        </div>
+        <div class="calc-card-body" id="calc-body-stemi">
+          <p class="calc-hint">Select leads with ST elevation and ST depression to identify the probable STEMI territory, culprit artery, and reciprocal changes. Based on standard 12-lead localization principles.</p>
+          <div style="margin-bottom:14px">
+            <div style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:rgba(248,113,113,.9);margin-bottom:8px">ST Elevation (select all that apply)</div>
+            <div class="stemi-lead-grid" id="stemi-elev-leads">
+              <label class="stemi-lead-btn"><input type="checkbox" value="I" /><span>I</span></label>
+              <label class="stemi-lead-btn"><input type="checkbox" value="II" /><span>II</span></label>
+              <label class="stemi-lead-btn"><input type="checkbox" value="III" /><span>III</span></label>
+              <label class="stemi-lead-btn"><input type="checkbox" value="aVR" /><span>aVR</span></label>
+              <label class="stemi-lead-btn"><input type="checkbox" value="aVL" /><span>aVL</span></label>
+              <label class="stemi-lead-btn"><input type="checkbox" value="aVF" /><span>aVF</span></label>
+              <label class="stemi-lead-btn"><input type="checkbox" value="V1" /><span>V1</span></label>
+              <label class="stemi-lead-btn"><input type="checkbox" value="V2" /><span>V2</span></label>
+              <label class="stemi-lead-btn"><input type="checkbox" value="V3" /><span>V3</span></label>
+              <label class="stemi-lead-btn"><input type="checkbox" value="V4" /><span>V4</span></label>
+              <label class="stemi-lead-btn"><input type="checkbox" value="V5" /><span>V5</span></label>
+              <label class="stemi-lead-btn"><input type="checkbox" value="V6" /><span>V6</span></label>
+            </div>
+          </div>
+          <div style="margin-bottom:14px">
+            <div style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:rgba(96,165,250,.9);margin-bottom:8px">ST Depression (select all that apply)</div>
+            <div class="stemi-lead-grid" id="stemi-dep-leads">
+              <label class="stemi-lead-btn dep"><input type="checkbox" value="I" /><span>I</span></label>
+              <label class="stemi-lead-btn dep"><input type="checkbox" value="II" /><span>II</span></label>
+              <label class="stemi-lead-btn dep"><input type="checkbox" value="III" /><span>III</span></label>
+              <label class="stemi-lead-btn dep"><input type="checkbox" value="aVR" /><span>aVR</span></label>
+              <label class="stemi-lead-btn dep"><input type="checkbox" value="aVL" /><span>aVL</span></label>
+              <label class="stemi-lead-btn dep"><input type="checkbox" value="aVF" /><span>aVF</span></label>
+              <label class="stemi-lead-btn dep"><input type="checkbox" value="V1" /><span>V1</span></label>
+              <label class="stemi-lead-btn dep"><input type="checkbox" value="V2" /><span>V2</span></label>
+              <label class="stemi-lead-btn dep"><input type="checkbox" value="V3" /><span>V3</span></label>
+              <label class="stemi-lead-btn dep"><input type="checkbox" value="V4" /><span>V4</span></label>
+              <label class="stemi-lead-btn dep"><input type="checkbox" value="V5" /><span>V5</span></label>
+              <label class="stemi-lead-btn dep"><input type="checkbox" value="V6" /><span>V6</span></label>
+            </div>
+          </div>
+          <div class="calc-actions">
+            <button id="stemi-calc" class="calc-btn primary">Localize STEMI</button>
+            <button id="stemi-reset" class="calc-btn secondary">Reset</button>
+          </div>
+          <div id="stemi-result" class="calc-result"></div>
+        </div>
+      </div>
+
       <!-- ── OXYGEN & VENTILATOR ── -->
       <div class="calc-section-hd">
         <span class="calc-section-dot" style="background:#6ee7b7"></span>
@@ -891,86 +951,102 @@
 
     <!-- Shift Check-Off / EASI Forms -->
     <section id="panel-shift" class="panel hidden">
-      <!-- Sub-navigation -->
-      <div class="tab-filter">
-        <div class="filter-pills" id="shift-subnav-pills">
-          <button class="pill-btn active" data-sform="checklist">📋 My Checklist</button>
-          <button class="pill-btn" data-sform="unit-checkoff">🚐 Unit Check Off</button>
-          <button class="pill-btn" data-sform="stock-sheet">📦 Stock Sheet</button>
-        </div>
+      <!-- Service check: non-EASI shows placeholder -->
+      <div id="forms-no-service" class="hidden" style="padding:40px 20px;text-align:center">
+        <div style="font-size:36px;margin-bottom:12px">🗂</div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:8px">No Forms Configured</div>
+        <div style="font-size:14px;color:var(--muted);line-height:1.6">Forms are not configured for this service.<br>Switch to <strong style="color:var(--text)">EASI Protocols – 2026</strong> to access equipment checks and shift forms.</div>
       </div>
 
-      <!-- My Personal Checklist -->
-      <div id="sform-checklist">
-        <div class="card" style="margin-bottom:12px">
-          <div class="shift-clockin-banner" style="margin-bottom:12px">
-            <span style="font-size:18px">⏰</span>
-            <label style="display:flex;align-items:center;gap:10px;flex:1;cursor:pointer">
-              <input type="checkbox" id="shift-clockin-cb" style="width:20px;height:20px;accent-color:var(--accent);flex:none" />
-              <span style="font-weight:700;font-size:14px">CLOCKED IN (or alarm set)?</span>
-            </label>
-          </div>
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-            <label style="font-size:13px;color:var(--muted);white-space:nowrap">Unit #</label>
-            <input id="shift-unit" type="text" placeholder="e.g. 279-ALS-PB" autocomplete="off"
-              style="flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:15px;padding:10px 12px;outline:none;font-family:inherit;transition:border-color .15s" />
-          </div>
-          <div style="display:flex;gap:8px">
-            <button class="btn" onclick="exportShiftChecklist()" style="flex:1;font-size:13px;padding:10px">📤 Export</button>
-            <button class="btn" onclick="resetShiftChecklist()" style="flex:1;font-size:13px;padding:10px;color:#f87171;border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.06)">🗑 Reset</button>
+      <!-- EASI-only forms container -->
+      <div id="forms-easi-content">
+        <!-- Provider level toggle row -->
+        <div style="padding:10px 16px 0;display:flex;align-items:center;gap:8px">
+          <span style="font-size:11px;color:var(--muted);flex:none">Provider level:</span>
+          <div class="provider-level-seg" id="forms-level-seg">
+            <button class="provider-level-btn lvl-emt" data-flevel="emt">EMT</button>
+            <button class="provider-level-btn lvl-aemt" data-flevel="aemt">AEMT</button>
+            <button class="provider-level-btn lvl-paramedic" data-flevel="paramedic">Paramedic</button>
           </div>
         </div>
-        <div id="shift-sections"></div>
-        <div class="card" style="margin-top:12px;margin-bottom:20px">
-          <div style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:8px">📝 Notes</div>
-          <textarea id="shift-notes" rows="4" placeholder="Shift notes…"
-            style="width:100%;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;padding:10px 12px;outline:none;font-family:inherit;resize:vertical;transition:border-color .15s"></textarea>
-        </div>
-      </div>
 
-      <!-- Unit Check Off (Official EASI Form) -->
-      <div id="sform-unit-checkoff" class="hidden">
-        <div class="card" style="margin-bottom:12px">
-          <div style="text-align:center;margin-bottom:14px">
-            <div style="font-size:13px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;font-weight:600">Emergency Ambulance Service, Inc.</div>
-            <div style="font-size:17px;font-weight:700;margin-top:4px">EMT Check Off</div>
-          </div>
-          <div class="uco-header-grid">
-            <div class="uco-field"><label>Unit</label><input id="uco-unit" type="text" placeholder="Unit #" /></div>
-            <div class="uco-field"><label>Mileage</label><input id="uco-mileage" type="text" placeholder="Miles" /></div>
-            <div class="uco-field"><label>Date</label><input id="uco-date" type="date" /></div>
-            <div class="uco-field"><label>EMT</label><input id="uco-emt" type="text" placeholder="Name" /></div>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:12px">
-            <button class="btn" onclick="exportUCO()" style="flex:1;font-size:13px;padding:10px">📤 Export</button>
-            <button class="btn" onclick="resetUCO()" style="flex:1;font-size:13px;padding:10px;color:#f87171;border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.06)">🗑 Reset</button>
+        <!-- Sub-navigation -->
+        <div class="tab-filter" style="padding-top:8px">
+          <div class="filter-pills" id="shift-subnav-pills">
+            <button class="pill-btn active" data-sform="checklist">📋 Equipment Check</button>
+            <button class="pill-btn" data-sform="unit-checkoff">🚐 Unit Check Off</button>
+            <button class="pill-btn" data-sform="stock-sheet">🗂 EASI Equipment Check</button>
           </div>
         </div>
-        <div id="uco-sections"></div>
-      </div>
 
-      <!-- ALS Unit Stock Sheet -->
-      <div id="sform-stock-sheet" class="hidden">
-        <div class="card" style="margin-bottom:12px">
-          <div style="text-align:center;margin-bottom:14px">
-            <div style="font-size:17px;font-weight:700">ALS Unit Stock Sheet</div>
+        <!-- Equipment Check (State-standard list, provider-level-aware) -->
+        <div id="sform-checklist">
+          <div class="card" style="margin-bottom:12px">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+              <label style="font-size:13px;color:var(--muted);white-space:nowrap">Unit #</label>
+              <input id="shift-unit" type="text" placeholder="e.g. 279-ALS-PB" autocomplete="off"
+                style="flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:15px;padding:10px 12px;outline:none;font-family:inherit;transition:border-color .15s" />
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn" onclick="exportShiftChecklist()" style="flex:1;font-size:13px;padding:10px">📤 Export</button>
+              <button class="btn" onclick="resetShiftChecklist()" style="flex:1;font-size:13px;padding:10px;color:#f87171;border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.06)">🗑 Reset</button>
+            </div>
+            <div id="forms-save-status" style="font-size:11px;color:var(--muted);margin-top:8px;text-align:right;min-height:14px"></div>
           </div>
-          <div class="uco-header-grid">
-            <div class="uco-field"><label>Date</label><input id="ss-date" type="date" /></div>
-            <div class="uco-field"><label>Unit</label><input id="ss-unit" type="text" placeholder="Unit #" /></div>
-            <div class="uco-field"><label>Narc Lock #</label><input id="ss-narc" type="text" placeholder="#" /></div>
-            <div class="uco-field"><label>Main O₂ PSI</label><input id="ss-o2main" type="text" placeholder="PSI" /></div>
-            <div class="uco-field"><label>Port O₂ PSI</label><input id="ss-o2port" type="text" placeholder="PSI" /></div>
-            <div class="uco-field"><label>Paramedic</label><input id="ss-para" type="text" placeholder="Name" /></div>
-            <div class="uco-field"><label>EMT</label><input id="ss-emt" type="text" placeholder="Name" /></div>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:12px">
-            <button class="btn" onclick="exportStockSheet()" style="flex:1;font-size:13px;padding:10px">📤 Export</button>
-            <button class="btn" onclick="resetStockSheet()" style="flex:1;font-size:13px;padding:10px;color:#f87171;border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.06)">🗑 Reset</button>
+          <div id="shift-sections"></div>
+          <div class="card" style="margin-top:12px;margin-bottom:20px">
+            <div style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:8px">📝 Notes</div>
+            <textarea id="shift-notes" rows="4" placeholder="Shift notes…"
+              style="width:100%;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;padding:10px 12px;outline:none;font-family:inherit;resize:vertical;transition:border-color .15s"></textarea>
           </div>
         </div>
-        <div id="ss-sections"></div>
-      </div>
+
+        <!-- Unit Check Off (Official EASI Form) -->
+        <div id="sform-unit-checkoff" class="hidden">
+          <div class="card" style="margin-bottom:12px">
+            <div style="text-align:center;margin-bottom:14px">
+              <div style="font-size:13px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;font-weight:600">Emergency Ambulance Service, Inc.</div>
+              <div style="font-size:17px;font-weight:700;margin-top:4px">EMT Check Off</div>
+            </div>
+            <div class="uco-header-grid">
+              <div class="uco-field"><label>Unit</label><input id="uco-unit" type="text" placeholder="Unit #" /></div>
+              <div class="uco-field"><label>Mileage</label><input id="uco-mileage" type="text" placeholder="Miles" /></div>
+              <div class="uco-field"><label>Date</label><input id="uco-date" type="date" /></div>
+              <div class="uco-field"><label>EMT</label><input id="uco-emt" type="text" placeholder="Name" /></div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:12px">
+              <button class="btn" onclick="exportUCO()" style="flex:1;font-size:13px;padding:10px">📤 Export</button>
+              <button class="btn" onclick="resetUCO()" style="flex:1;font-size:13px;padding:10px;color:#f87171;border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.06)">🗑 Reset</button>
+            </div>
+          </div>
+          <div id="uco-sections"></div>
+        </div>
+
+        <!-- EASI Equipment Check (ALS Unit Stock Sheet) -->
+        <div id="sform-stock-sheet" class="hidden">
+          <div class="card" style="margin-bottom:12px">
+            <div style="text-align:center;margin-bottom:14px">
+              <div style="font-size:13px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;font-weight:600">Emergency Ambulance Service, Inc.</div>
+              <div style="font-size:17px;font-weight:700;margin-top:4px">EASI Equipment Check</div>
+            </div>
+            <div class="uco-header-grid">
+              <div class="uco-field"><label>Date</label><input id="ss-date" type="date" /></div>
+              <div class="uco-field"><label>Unit</label><input id="ss-unit" type="text" placeholder="Unit #" /></div>
+              <div class="uco-field"><label>Narc Lock #</label><input id="ss-narc" type="text" placeholder="#" /></div>
+              <div class="uco-field"><label>Main O₂ PSI</label><input id="ss-o2main" type="text" placeholder="PSI" /></div>
+              <div class="uco-field"><label>Port O₂ PSI</label><input id="ss-o2port" type="text" placeholder="PSI" /></div>
+              <div class="uco-field"><label>Paramedic</label><input id="ss-para" type="text" placeholder="Name" /></div>
+              <div class="uco-field"><label>EMT</label><input id="ss-emt" type="text" placeholder="Name" /></div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:12px">
+              <button class="btn" onclick="exportStockSheet()" style="flex:1;font-size:13px;padding:10px">📤 Export</button>
+              <button class="btn" onclick="resetStockSheet()" style="flex:1;font-size:13px;padding:10px;color:#f87171;border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.06)">🗑 Reset</button>
+            </div>
+          </div>
+          <div id="ss-sections"></div>
+        </div>
+
+      </div><!-- /forms-easi-content -->
     </section>
 
     <div class="footer">Offline‑friendly reference. Always follow your service’s latest approved protocols.</div>
@@ -3986,14 +4062,18 @@
           const rawLabel = m[1].toLowerCase();
           const lbl = /^note$/i.test(m[1]) ? 'Special Considerations'
                     : /^consider/i.test(m[1]) ? 'Considerations'
+                    : /^signs?$/i.test(m[1]) ? 'Signs & Symptoms'
+                    : /^symptoms?$/i.test(m[1]) ? 'Signs & Symptoms'
                     : m[1].charAt(0).toUpperCase() + m[1].slice(1).replace(/\s+causes?$/i,' Causes');
           const body = b.dc.slice(m[0].length).trim();
-          const sk = (rawLabel.startsWith('required')||rawLabel.startsWith('primary')||rawLabel.startsWith('secondary')||rawLabel.startsWith('vital')||rawLabel.startsWith('history')||rawLabel.startsWith('gcs')) ? 'assessment'
+          const sk = (rawLabel.startsWith('required')||rawLabel.startsWith('primary')||rawLabel.startsWith('secondary')||rawLabel.startsWith('vital')||rawLabel.startsWith('history')||rawLabel.startsWith('gcs')||rawLabel.startsWith('assessment')) ? 'assessment'
                    : rawLabel.startsWith('contra')   ? 'contraindication'
                    : rawLabel.startsWith('consider') ? 'consideration'
                    : rawLabel.startsWith('indic')    ? 'indication'
                    : rawLabel.startsWith('reversi')  ? 'reversible'
                    : rawLabel.split(/\s/)[0].replace(/s$/,'');
+          // Assessment-type labels render as plain numbered steps (inline bold via enhance()) — not containers
+          if(sk === 'assessment'){ return _rs(b, ()=>++_sn); }
           const color = _SLBL[sk] || _SLBL.note;
           const subhead = `<div style="font-size:10px;font-weight:800;letter-spacing:.65px;text-transform:uppercase;color:${color};margin:10px 0 3px;display:flex;align-items:center;gap:5px"><span style="width:2px;height:10px;background:${color};border-radius:1px;flex:none;opacity:.75"></span>${sanitizeText(lbl)}</div>`;
           const bodyRole = b.explicitRole ? b.role : null;
@@ -4710,13 +4790,22 @@
     renderMeds(_lastTerms);
   });
 
-  ['paramedic','aemt'].forEach(role => {
-    $(`#role-toggle-${role}`).addEventListener('click', ()=>{
-      if(_hiddenRoles.has(role)) _hiddenRoles.delete(role);
-      else _hiddenRoles.add(role);
-      $(`#role-toggle-${role}`).classList.toggle('off', _hiddenRoles.has(role));
-      renderProtocols(_lastTerms);
+  function applyProviderLevel(level){
+    _providerLevel = level;
+    _syncHiddenRoles();
+    localStorage.setItem('pref_provider_level', level);
+    // Sync all provider level buttons (header + forms panel)
+    document.querySelectorAll('.provider-level-btn').forEach(btn => {
+      const btnLevel = btn.dataset.level || btn.dataset.flevel;
+      btn.classList.toggle('active', btnLevel === level);
     });
+    renderProtocols(_lastTerms);
+    renderMeds(_lastTerms);
+    // Re-render checklist if forms panel is open
+    if(typeof renderShiftChecklist === 'function') renderShiftChecklist();
+  }
+  document.querySelectorAll('.provider-level-btn').forEach(btn => {
+    btn.addEventListener('click', () => applyProviderLevel(btn.dataset.level));
   });
 
   document.querySelectorAll('[data-age]').forEach(btn => {
@@ -4883,6 +4972,7 @@
       save(state);
       if(!svc() || !(svc().protocols||[]).length || !(svc().contacts||[]).length) await loadServiceData();
       renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
+      if(typeof syncFormsService === 'function') syncFormsService();
     } else {
       $('#pin-error').textContent = 'Incorrect PIN — try again.';
       $('#pin-input').value = '';
@@ -4909,6 +4999,7 @@
     _contactTextFilter = ''; const _ci = $('#contact-filter-input'); if(_ci){ _ci.value=''; $('#contact-filter-clear').style.display='none'; }
     if(!svc() || !(svc().protocols||[]).length) await loadServiceData();
     renderAll(q.value.trim().toLowerCase().split(/\s+/).filter(Boolean));
+    if(typeof syncFormsService === 'function') syncFormsService();
   });
 
   // --- Calculators ---
@@ -5109,6 +5200,110 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   });
   $('#vent-reset').addEventListener('click', ()=>{ $('#vent-height').value=''; $('#vent-sex').selectedIndex=0; $('#vent-hunit').selectedIndex=0; $('#vent-result').innerHTML=''; });
 
+  // --- STEMI Localization Calculator ---
+  function _stemiLeads(gridId){
+    return Array.from(document.querySelectorAll(`#${gridId} input:checked`)).map(cb=>cb.value);
+  }
+  $('#stemi-calc').addEventListener('click', ()=>{
+    const elev = new Set(_stemiLeads('stemi-elev-leads'));
+    const dep  = new Set(_stemiLeads('stemi-dep-leads'));
+    const res  = document.getElementById('stemi-result');
+    if(!elev.size && !dep.size){ res.innerHTML='Select at least one lead.'; return; }
+
+    const has = (set, ...leads) => leads.every(l => set.has(l));
+    const any = (set, ...leads) => leads.some(l => set.has(l));
+
+    const findings = [];
+
+    // Inferior STEMI: elevation II, III, aVF
+    const inferior = any(elev,'II','III','aVF') && (elev.has('II')||elev.has('III')) && elev.has('aVF');
+    if(inferior){
+      const rvInvolve = elev.has('V1') || elev.has('V4R');
+      const territory = rvInvolve ? 'Inferior + RV (Right Ventricular)' : 'Inferior';
+      const artery = 'RCA (Right Coronary Artery)';
+      const reciprocal = [];
+      if(dep.has('I') || dep.has('aVL')) reciprocal.push('I, aVL (High Lateral)');
+      findings.push({ territory, artery, reciprocal, note: rvInvolve ? 'RV involvement suspected — avoid NTG, use cautious fluid resuscitation.' : '' });
+    }
+
+    // Anterior / Anteroseptal / Extensive Anterior
+    const antLeads = ['V1','V2','V3','V4','V5','V6'];
+    const elevAnterior = antLeads.filter(l => elev.has(l));
+    if(elevAnterior.length){
+      let territory, note='';
+      if(any(elev,'V1','V2') && !any(elev,'V3','V4','V5','V6')){
+        territory = 'Anteroseptal';
+        note = 'Proximal LAD territory.';
+      } else if(any(elev,'V1','V2','V3') && !any(elev,'V4','V5','V6')){
+        territory = 'Anteroseptal (V1–V3)';
+        note = 'Proximal LAD.';
+      } else if(any(elev,'V3','V4') && !any(elev,'V1','V2','V5','V6') && !inferior){
+        territory = 'Anterior (V3–V4)';
+      } else if(any(elev,'V1','V2','V3','V4') && !any(elev,'V5','V6')){
+        territory = 'Anterior (V1–V4)';
+        note = 'Mid-to-proximal LAD.';
+      } else if(any(elev,'V1','V2','V3','V4','V5','V6')){
+        territory = 'Extensive Anterior (V1–V6)';
+        note = 'Proximal LAD occlusion. High-risk.';
+      } else {
+        territory = 'Anterior';
+      }
+      const lateralAlso = any(elev,'I','aVL','V5','V6');
+      if(lateralAlso) territory = 'Anterolateral';
+      const artery = 'LAD (Left Anterior Descending)';
+      const reciprocal = [];
+      if(dep.has('II')||dep.has('III')||dep.has('aVF')) reciprocal.push('II, III, aVF (Inferior)');
+      findings.push({ territory, artery, reciprocal, note });
+    }
+
+    // Lateral STEMI (without anterior involvement)
+    const lateralElev = (elev.has('I')||elev.has('aVL')||elev.has('V5')||elev.has('V6'));
+    if(lateralElev && !elevAnterior.length){
+      let territory;
+      if((elev.has('I')||elev.has('aVL')) && !elev.has('V5') && !elev.has('V6')){
+        territory = 'High Lateral (I, aVL)';
+      } else if(elev.has('V5')||elev.has('V6')){
+        territory = (elev.has('I')||elev.has('aVL')) ? 'Lateral (I, aVL, V5–V6)' : 'Lateral (V5–V6)';
+      } else {
+        territory = 'Lateral';
+      }
+      const artery = 'LCx (Left Circumflex) or Diagonal Branch';
+      const reciprocal = [];
+      if(dep.has('V1')||dep.has('V2')||dep.has('V3')) reciprocal.push('V1–V3');
+      findings.push({ territory, artery, reciprocal, note: '' });
+    }
+
+    // Posterior STEMI: ST depression V1–V4 without anterior elevation (posterior depression = reciprocal)
+    const posteriorDep = ['V1','V2','V3','V4'].filter(l => dep.has(l));
+    if(posteriorDep.length >= 2 && !elevAnterior.length){
+      findings.push({
+        territory: 'Posterior',
+        artery: 'RCA or LCx',
+        reciprocal: [],
+        note: `ST depression in ${posteriorDep.join(', ')} with tall R waves suggests posterior STEMI. Consider right-sided and posterior leads (V7–V9).`
+      });
+    }
+
+    if(!findings.length){
+      // Check for reciprocal-only patterns or no clear territory
+      res.innerHTML = '<span style="color:var(--muted)">Pattern does not clearly localize to a standard STEMI territory. Verify lead placement, consider posterior leads (V7–V9) or right-sided leads (V3R–V4R), and correlate with clinical presentation.</span>';
+      return;
+    }
+
+    res.innerHTML = findings.map(f => {
+      const recp = f.reciprocal.length ? `<div style="margin-top:5px;font-size:12px;color:rgba(96,165,250,.9)">🔄 Reciprocal changes: ${f.reciprocal.join(' · ')}</div>` : '';
+      const noteHtml = f.note ? `<div style="margin-top:5px;font-size:12px;color:rgba(251,191,36,.85)">⚠ ${f.note}</div>` : '';
+      return `<div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.07)">
+        <div><b style="color:#fca5a5">${f.territory} STEMI</b></div>
+        <div style="font-size:13px;color:var(--muted);margin-top:2px">Likely culprit: <span style="color:var(--text)">${f.artery}</span></div>
+        ${recp}${noteHtml}
+      </div>`;
+    }).join('').replace(/<\/div>\s*$/, '</div>').replace(/style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid rgba\(255,255,255,\.07\)">\s*(<div><b)/, 'style="margin-bottom:10px">$1');
+  });
+  $('#stemi-reset').addEventListener('click', ()=>{
+    document.querySelectorAll('#stemi-elev-leads input, #stemi-dep-leads input').forEach(cb => cb.checked = false);
+    document.getElementById('stemi-result').innerHTML = '';
+  });
 
   // --- Edit / Add Modal ---
   let editState = { type: null, idx: -1 };
@@ -5456,6 +5651,8 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       // Auto-load saved service; new users see the "select a service" prompt instead
       if(state.currentService) await loadServiceData();
       renderAll([]);
+      syncFormsService();
+      loadFormsFromFirebase();
       acquireWakeLock();
       if(!sessionStorage.getItem('tos_ok')) showTOS();
     } else {
@@ -5577,18 +5774,138 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     });
   });
 
-  // ─── PERSONAL SHIFT CHECKLIST ───────────────────────────────────────────────
+  // Forms provider level buttons (mirror the main provider level selector)
+  document.querySelectorAll('#forms-level-seg .provider-level-btn').forEach(btn => {
+    btn.addEventListener('click', () => applyProviderLevel(btn.dataset.flevel));
+  });
+
+  // Firebase auto-save for equipment check (30-second interval)
+  const FORMS_FB_KEY = 'equipment_check_v1';
+  async function saveFormsToFirebase(){
+    if(!fbAuth.currentUser) return;
+    const s = _shiftState();
+    try{
+      await fbDb.collection('users').doc(fbAuth.currentUser.uid)
+        .collection('appdata').doc(FORMS_FB_KEY)
+        .set({ ...s, savedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      const el = document.getElementById('forms-save-status');
+      if(el){ el.textContent = 'Auto-saved ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }
+    }catch(e){ /* offline */ }
+  }
+  async function loadFormsFromFirebase(){
+    if(!fbAuth.currentUser) return;
+    try{
+      const doc = await fbDb.collection('users').doc(fbAuth.currentUser.uid)
+        .collection('appdata').doc(FORMS_FB_KEY).get();
+      if(doc.exists){
+        const data = doc.data();
+        delete data.savedAt;
+        const local = _shiftState();
+        // Merge: prefer whichever has more data
+        const merged = Object.assign({}, data, local);
+        _saveShift(merged);
+      }
+    }catch(e){}
+  }
+  setInterval(saveFormsToFirebase, 30000);
+
+  // ─── EQUIPMENT CHECKLIST ────────────────────────────────────────────────────
+  // Items: string = all providers; {t, lvl} = minimum provider level required
+  // lvl: 'emt'=all, 'aemt'=AEMT+, 'paramedic'=Paramedic only
   const SHIFT_SECTIONS = [
-    { title:'Personal Items & Pre-Shift', items:['BlueBag with Eko Stethoscope (Charged)','BackPack w/ Chargers, Padfolio (iPad), Shower Towels, High-Vis Vest','Medications (Propranolol, Namenda, Glycopyrrolate)','Apple Watch & Open Shockz (Charged) — bring charger for 24hr+','High-Vis Rain Jacket','Radio','Narcotic Keys','Wallet'] },
-    { title:'Soft Supplies & Equipment', items:['4×4 Pads','ABD Pads','Trauma Dressing','Isolation Kits','Roller Gauze','Triangular Bandages','OB Kit w/ Bulb Syringe','Sterile Saline','Betadine','Shears','Stethoscope','Hemostat','Scalpel','BP Cuffs (LA, A, C, I)','Alcohol Prep Pads','Band Aids','Antiseptic Hand Cleaner','Exam Gloves (various sizes)','Emesis Basin/Bag','Commercial Tourniquet','Linens','Tape','Occlusive Dressing','Thermometer','Sharps Container','Glucometer w/ strips','Time Critical Bands (Trauma/Stroke)','Triage Tag/Tape','Protocols','Biohazard Bags','N95 Respirator','Pediatric Dosage Guide','Disinfectant Solution'] },
-    { title:'Airway, Oxygen & Suction', items:['Main O₂','Portable O₂','OPA Set','NPA Set','Lubricating Jelly','Nasal Cannula — Adult','Nasal Cannula — Pediatric','NRB — Adult','NRB — Pediatric','NRB — Infant','BVM — Adult','BVM — Pediatric','BVM — Infant','Nebulizer Kit','Suction — On-Board','Suction — Portable','Suction Tubing','Rigid Suction Tip','Suction Catheters (8/10fr, 12fr, 14fr, 14/18fr)','Magill Forceps — Adult','Magill Forceps — Pediatric','EtCO₂ Detector','Cric Kit or 10/12ga Needle','Laryngoscope Handle — Adult','Laryngoscope Handle — Pediatric','Laryngoscope Blades (1–4 or 0–3)','ET Tubes 2.5–7.5mm','ET Tube Holder — Adult','ET Tube Holder — Pediatric','Stylette — Adult','Stylette — Pediatric','Secondary Advanced Airway — Adult','Secondary Advanced Airway — Pediatric'] },
-    { title:'Monitor', items:['Cardiac Monitor','Cardiac Monitor Cables/Charger','4-Lead','12-Lead','Defibrillator (Defib Test)','Pacer','ECG Paper','Defibrillator Pads — Adult','Defibrillator Pads — Pediatric','Electrodes — Adult','Electrodes — Pediatric','Pulse Oximetry — Adult','Pulse Oximetry — Pediatric'] },
-    { title:'IV Supplies', items:['Micro (60) Drip Set','Macro (10) Drip Set','Adjustable Drip Set','IV Start Sets / Tourniquet','IV Catheters 14–24ga','Syringes 1cc–60cc','Needles 18–25','10/12 or 14g Cath or Chest Decomp Needle','IO Access Device','IO Needle — Adult','IO Needle — Pediatric'] },
-    { title:'Medications', items:['Atropine','Adenosine','Antiarrhythmic (Bolus & Infusion)','Antiemetic','Aspirin','IV Dextrose','Pressor','Epi 1:1','Epi 1:10','Crystalloid Solution','H1 Antagonist','Inhaled Beta Agonist','Magnesium Sulfate','Narcotic Antagonist','Nitroglycerin','Sodium Bicarbonate','Narcotic Analgesic','Benzodiazepine'] },
-    { title:'Readiness Checklist', items:['ER Bag (BVM, Laryngoscope Handle & Blade Mac 3–4, iGel Adult, EtCO₂, Bougie, ET 7.5, IO)','Glucometer on/in Cardiac Monitor','Adult Defib pads connected','12-Lead/4-Lead EKG pre-loaded','C-Collar behind head of stretcher','Nasal Cannula in Cardiac Monitor','IV/Med/Syringe Box on bench seat','Portable fan on action desk','Emesis Bags at head of stretcher'] },
+    { title:'Soft Supplies & Equipment', items:['4×4 Pads','ABD Pads','Trauma Dressing','Isolation Kits','Roller Gauze','Triangular Bandages','OB Kit w/ Bulb Syringe','Sterile Saline','Betadine','Shears','Stethoscope','Hemostat','BP Cuffs (LA, A, C, I)','Alcohol Prep Pads','Band Aids','Antiseptic Hand Cleaner','Exam Gloves (various sizes)','Emesis Basin/Bag','Commercial Tourniquet','Linens','Tape','Occlusive Dressing','Thermometer','Sharps Container','Glucometer w/ strips','Time Critical Bands (Trauma/Stroke)','Triage Tag/Tape','Protocols','Biohazard Bags','N95 Respirator','Pediatric Dosage Guide','Disinfectant Solution'] },
+    { title:'Airway, Oxygen & Suction', items:[
+        'Main O₂','Portable O₂',
+        'OPA Set','NPA Set','Lubricating Jelly',
+        'Nasal Cannula — Adult','Nasal Cannula — Pediatric',
+        'NRB — Adult','NRB — Pediatric','NRB — Infant',
+        'BVM — Adult','BVM — Pediatric','BVM — Infant',
+        'Nebulizer Kit',
+        'Suction — On-Board','Suction — Portable','Suction Tubing','Rigid Suction Tip',
+        'Suction Catheters (8/10fr, 12fr, 14fr, 14/18fr)',
+        'Magill Forceps — Adult','Magill Forceps — Pediatric',
+        {t:'EtCO₂ Detector', lvl:'aemt'},
+        {t:'Secondary Advanced Airway — Adult (Supraglottic)', lvl:'aemt'},
+        {t:'Secondary Advanced Airway — Pediatric (Supraglottic)', lvl:'aemt'},
+        {t:'Cric Kit or 10/12ga Needle', lvl:'paramedic'},
+        {t:'Laryngoscope Handle — Adult', lvl:'paramedic'},
+        {t:'Laryngoscope Handle — Pediatric', lvl:'paramedic'},
+        {t:'Laryngoscope Blades (1–4 or 0–3)', lvl:'paramedic'},
+        {t:'ET Tubes 2.5–7.5mm', lvl:'paramedic'},
+        {t:'ET Tube Holder — Adult', lvl:'paramedic'},
+        {t:'ET Tube Holder — Pediatric', lvl:'paramedic'},
+        {t:'Stylette — Adult', lvl:'paramedic'},
+        {t:'Stylette — Pediatric', lvl:'paramedic'},
+    ] },
+    { title:'Monitor', items:[
+        'Defibrillator Pads — Adult','Defibrillator Pads — Pediatric',
+        'Electrodes — Adult','Electrodes — Pediatric',
+        'Pulse Oximetry — Adult','Pulse Oximetry — Pediatric',
+        'AED (confirm operational)',
+        {t:'Cardiac Monitor', lvl:'aemt'},
+        {t:'Cardiac Monitor Cables/Charger', lvl:'aemt'},
+        {t:'4-Lead EKG Leads', lvl:'aemt'},
+        {t:'Defibrillator (Defib Test)', lvl:'aemt'},
+        {t:'12-Lead EKG Leads', lvl:'paramedic'},
+        {t:'Pacer Capability (confirm operational)', lvl:'paramedic'},
+        {t:'ECG Paper', lvl:'paramedic'},
+    ] },
+    { title:'IV Supplies', items:[
+        {t:'Micro (60) Drip Set', lvl:'aemt'},
+        {t:'Macro (10) Drip Set', lvl:'aemt'},
+        {t:'Adjustable Drip Set', lvl:'aemt'},
+        {t:'IV Start Sets / Tourniquet', lvl:'aemt'},
+        {t:'IV Catheters 14–24ga', lvl:'aemt'},
+        {t:'Syringes 1cc–60cc', lvl:'aemt'},
+        {t:'Needles 18–25ga', lvl:'aemt'},
+        {t:'10/12 or 14g Cath or Chest Decomp Needle', lvl:'paramedic'},
+        {t:'IO Access Device', lvl:'paramedic'},
+        {t:'IO Needle — Adult', lvl:'paramedic'},
+        {t:'IO Needle — Pediatric', lvl:'paramedic'},
+    ] },
+    { title:'Medications', items:[
+        {t:'Aspirin', lvl:'emt'},
+        {t:'Inhaled Beta Agonist (Albuterol)', lvl:'emt'},
+        {t:'Narcotic Antagonist (Naloxone)', lvl:'emt'},
+        {t:'Oral Glucose', lvl:'emt'},
+        {t:'Antiemetic', lvl:'aemt'},
+        {t:'Crystalloid Solution (NS/LR)', lvl:'aemt'},
+        {t:'Epi 1:1 (1 mg/mL)', lvl:'aemt'},
+        {t:'H1 Antagonist (Diphenhydramine)', lvl:'aemt'},
+        {t:'IV Dextrose (D50/D10)', lvl:'aemt'},
+        {t:'Atropine', lvl:'paramedic'},
+        {t:'Adenosine', lvl:'paramedic'},
+        {t:'Antiarrhythmic — Bolus & Infusion', lvl:'paramedic'},
+        {t:'Benzodiazepine', lvl:'paramedic'},
+        {t:'Epi 1:10 (0.1 mg/mL)', lvl:'paramedic'},
+        {t:'Magnesium Sulfate', lvl:'paramedic'},
+        {t:'Narcotic Analgesic', lvl:'paramedic'},
+        {t:'Nitroglycerin', lvl:'paramedic'},
+        {t:'Pressor', lvl:'paramedic'},
+        {t:'Sodium Bicarbonate', lvl:'paramedic'},
+    ] },
+    { title:'Readiness Checklist', items:[
+        {t:'ER Bag (BVM, iGel Adult, EtCO₂, Bougie, IO)', lvl:'aemt'},
+        {t:'ER Bag (+ Laryngoscope Mac 3–4, ET 7.5)', lvl:'paramedic'},
+        'C-Collar behind head of stretcher',
+        'Emesis Bags at head of stretcher',
+        {t:'Glucometer on/in Cardiac Monitor', lvl:'aemt'},
+        {t:'Adult Defib pads connected', lvl:'aemt'},
+        {t:'4-Lead EKG pre-loaded', lvl:'aemt'},
+        {t:'Nasal Cannula in Cardiac Monitor', lvl:'aemt'},
+        {t:'12-Lead EKG pre-loaded', lvl:'paramedic'},
+        {t:'IV/Med/Syringe Box on bench seat', lvl:'paramedic'},
+    ] },
     { title:'Mechanical & Transport', items:['Fire Extinguisher','Haz-Mat Reference Guide','Reflective Safety Wear','Flashlight','KED','Pediatric Restraint System','Spine Board w/ straps','Window Punch','Traction Splint','Various Adjustable Splints','Elevating Stretcher','Folding Stretcher / Scoop Stretcher','Cervical Collars — Adult','Cervical Collars — Pediatric','Functioning Radios'] },
     { title:'Vehicle Check', items:['Current DMV Registration (check expiration)','Current DMV Inspection (check expiration)','Current Red Light Permit','Current Insurance Coverage (check expiration)','Ambulance starts & drives in forward and reverse','Tires in good condition','No visible physical damage to body or fenders','All cab and patient compartment doors function properly','Exterior compartment doors secure and functional','Interior cabinet doors secure and functional','Clean and organized patient compartment and cab','Emergency lights operational (front, rear, side panels)','Scene lights functional','Corner lights functional','Grill lights functional','Headlight wig-wags functional (if present)','Headlights, tail lights, brake lights functional','Directional signals operational','Hazard lights operational','Siren and horn functional','Mounted and portable radios functional','Ventilation, A/C and heat operational','Windshield wipers operational','Fuel card, two truck keys, hotspot, phone present','All items >5 lbs properly secured'] },
   ];
+
+  const LEVEL_ORDER = {emt:0, aemt:1, paramedic:2};
+  function _itemVisible(item){
+    const minLvl = (typeof item === 'object') ? (item.lvl||'emt') : 'emt';
+    return (LEVEL_ORDER[_providerLevel]||2) >= (LEVEL_ORDER[minLvl]||0);
+  }
+  function _itemText(item){ return typeof item === 'string' ? item : item.t; }
 
   const SHIFT_KEY = 'shift_checklist_v1';
 
@@ -5598,23 +5915,41 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   }
   function _saveShift(state){ try{ localStorage.setItem(SHIFT_KEY, JSON.stringify(state)); }catch(e){} }
 
+  // Show/hide forms based on current service
+  function syncFormsService(){
+    const isEasi = state.currentService === 'EASI Protocols - 2026';
+    const noSvc = document.getElementById('forms-no-service');
+    const easiContent = document.getElementById('forms-easi-content');
+    if(noSvc) noSvc.classList.toggle('hidden', isEasi);
+    if(easiContent) easiContent.classList.toggle('hidden', !isEasi);
+  }
+
   function renderShiftChecklist(){
-    const state = _shiftState();
+    syncFormsService();
+    const isEasi = state.currentService === 'EASI Protocols - 2026';
+    if(!isEasi) return;
+
+    const state_ = _shiftState();
     const container = document.getElementById('shift-sections');
     if(!container) return;
 
-    // Restore unit & clock-in
+    // Restore unit
     const unitInp = document.getElementById('shift-unit');
-    if(unitInp && state.unit) unitInp.value = state.unit;
-    const clockCb = document.getElementById('shift-clockin-cb');
-    if(clockCb) clockCb.checked = !!state.clockin;
+    if(unitInp && state_.unit) unitInp.value = state_.unit;
     const notesEl = document.getElementById('shift-notes');
-    if(notesEl && state.notes) notesEl.value = state.notes;
+    if(notesEl && state_.notes) notesEl.value = state_.notes;
+
+    // Sync forms provider level buttons
+    document.querySelectorAll('#forms-level-seg .provider-level-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.flevel === _providerLevel);
+    });
 
     container.innerHTML = SHIFT_SECTIONS.map((sec, si) => {
-      const checked = SHIFT_SECTIONS[si].items.filter((_,ii)=> state[`${si}_${ii}`]?.checked).length;
-      const total = sec.items.length;
-      return `<div class="shift-section${checked===total?' shift-done':''}" id="shift-sec-${si}">
+      const visibleItems = sec.items.filter(_itemVisible);
+      const checked = sec.items.filter((item, ii)=> _itemVisible(item) && state_[`${si}_${ii}`]?.checked).length;
+      const total = visibleItems.length;
+      if(!total) return '';
+      return `<div class="shift-section${checked===total&&total>0?' shift-done':''}" id="shift-sec-${si}">
         <div class="shift-section-header" onclick="toggleShiftSec(${si})">
           <span class="shift-section-title">${sec.title}</span>
           <span class="shift-section-progress" id="shift-prog-${si}">${checked}/${total}</span>
@@ -5622,12 +5957,16 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
         </div>
         <div class="shift-section-body">
           ${sec.items.map((item, ii) => {
-            const entry = state[`${si}_${ii}`]||{};
+            if(!_itemVisible(item)) return '';
+            const entry = state_[`${si}_${ii}`]||{};
+            const txt = _itemText(item);
+            const minLvl = (typeof item === 'object') ? item.lvl : 'emt';
+            const badge = (minLvl && minLvl !== 'emt') ? `<span class="step-role-tag" style="color:${ROLE_COLORS[minLvl]||'#ccc'};border-color:${ROLE_COLORS[minLvl]||'#ccc'};margin-left:5px;font-size:10px">${ROLE_LABELS[minLvl]||minLvl.toUpperCase()}</span>` : '';
             return `<div class="shift-item" id="shift-item-${si}-${ii}">
               <input type="checkbox" ${entry.checked?'checked':''} onchange="shiftCheck(${si},${ii},this)" />
-              <div>
-                <div class="shift-item-label${entry.checked?' done':''}">${item}</div>
-                ${entry.checked&&entry.time?`<div class="shift-item-time">✓ ${entry.time}</div>`:''}
+              <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+                <div class="shift-item-label${entry.checked?' done':''}">${txt}</div>${badge}
+                ${entry.checked&&entry.time?`<div class="shift-item-time" style="width:100%">✓ ${entry.time}</div>`:''}
               </div>
             </div>`;
           }).join('')}
@@ -5635,13 +5974,11 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       </div>`;
     }).join('');
 
-    // Wire header save events
+    // Wire header save events (re-wire each render to avoid stale refs)
     const ui = document.getElementById('shift-unit');
-    if(ui) ui.addEventListener('input', ()=>{ const s=_shiftState(); s.unit=ui.value; _saveShift(s); });
-    const cc = document.getElementById('shift-clockin-cb');
-    if(cc) cc.addEventListener('change', ()=>{ const s=_shiftState(); s.clockin=cc.checked; _saveShift(s); });
+    if(ui){ ui.oninput = ()=>{ const s=_shiftState(); s.unit=ui.value; _saveShift(s); }; }
     const no = document.getElementById('shift-notes');
-    if(no) no.addEventListener('input', ()=>{ const s=_shiftState(); s.notes=no.value; _saveShift(s); });
+    if(no){ no.oninput = ()=>{ const s=_shiftState(); s.notes=no.value; _saveShift(s); }; }
   }
 
   window.toggleShiftSec = function(si){
@@ -5656,26 +5993,34 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     const timeEl = cb.parentNode.querySelector('.shift-item-time');
     if(label) label.classList.toggle('done', cb.checked);
     if(timeEl){ if(cb.checked) timeEl.textContent='✓ '+time; else timeEl.textContent=''; }
-    // Update progress
+    // Update progress (only count visible items)
     const sec = SHIFT_SECTIONS[si];
-    const total = sec.items.length;
-    const checked = sec.items.filter((_,i)=> _shiftState()[`${si}_${i}`]?.checked).length;
+    const visibleItems = sec.items.filter(_itemVisible);
+    const total = visibleItems.length;
+    const checked = sec.items.filter((item,i)=> _itemVisible(item) && _shiftState()[`${si}_${i}`]?.checked).length;
     const progEl = document.getElementById('shift-prog-'+si);
     if(progEl) progEl.textContent = `${checked}/${total}`;
-    document.getElementById('shift-sec-'+si).classList.toggle('shift-done', checked===total);
+    document.getElementById('shift-sec-'+si).classList.toggle('shift-done', total>0&&checked===total);
   };
 
   window.exportShiftChecklist = function(){
     const s = _shiftState();
     const unit = document.getElementById('shift-unit')?.value || s.unit || '';
     const date = new Date().toLocaleDateString();
-    let out = `EASI EMS — SHIFT CHECK-OFF\nUnit: ${unit}  Date: ${date}\nClocked In: ${s.clockin?'YES':'NO'}\n${'='.repeat(45)}\n\n`;
+    const lvlLabel = {emt:'EMT',aemt:'AEMT',paramedic:'Paramedic'}[_providerLevel]||'Paramedic';
+    let out = `EASI EMS — EQUIPMENT CHECK\nUnit: ${unit}  Date: ${date}  Provider Level: ${lvlLabel}\n${'='.repeat(45)}\n\n`;
     SHIFT_SECTIONS.forEach((sec, si) => {
-      const checked = sec.items.filter((_,ii)=>s[`${si}_${ii}`]?.checked).length;
-      out += `${sec.title.toUpperCase()} (${checked}/${sec.items.length})\n`;
+      const visItems = sec.items.filter(_itemVisible);
+      if(!visItems.length) return;
+      const checked = visItems.filter((item,ii_full)=>{
+        const ii = sec.items.indexOf(item);
+        return s[`${si}_${ii}`]?.checked;
+      }).length;
+      out += `${sec.title.toUpperCase()} (${checked}/${visItems.length})\n`;
       sec.items.forEach((item, ii) => {
+        if(!_itemVisible(item)) return;
         const entry = s[`${si}_${ii}`]||{};
-        out += `  [${entry.checked?'✓':' '}] ${item}${entry.checked&&entry.time?' — '+entry.time:''}\n`;
+        out += `  [${entry.checked?'✓':' '}] ${_itemText(item)}${entry.checked&&entry.time?' — '+entry.time:''}\n`;
       });
       out += '\n';
     });
