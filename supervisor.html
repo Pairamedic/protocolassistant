@@ -3231,12 +3231,9 @@ function buildNarrative(){
   if(hpiNotes) hpiParts.push(uc(hpiNotes));
   const hpiLine=`HISTORY OF PRESENT ILLNESS — ${hpiParts.length?hpiParts.join('. ')+'.':'[HPI]'}`;
 
-  // Assessment
+  // Assessment — routine vitals (BGL, SpO2, EtCO2, GCS) excluded from narrative
+  // since they are documented in the EHR vitals section; only pertinent findings included
   const airway=narrVal('nf-airway'), lungs=narrVal('nf-lungs'), mental=narrVal('nf-mental'), skin=narrVal('nf-skin');
-  const bglNA=document.getElementById('nf-bgl')?.disabled, bgl=bglNA?'N/A':narrVal('nf-bgl');
-  const spo2NA=document.getElementById('nf-spo2')?.disabled, spo2=spo2NA?'N/A':narrVal('nf-spo2');
-  const etco2NA=document.getElementById('nf-etco2')?.disabled, etco2=etco2NA?'N/A':narrVal('nf-etco2');
-  const gcsNA=document.getElementById('nf-gcs')?.disabled, gcs=gcsNA?'N/A':narrVal('nf-gcs');
   const ecg12=narrChk('nf-ecg12-chk');
   const ecg12NA=document.getElementById('nf-ecg12-interp')?.disabled;
   const ecg12Interp=ecg12NA?'':narrVal('nf-ecg12-interp');
@@ -3246,10 +3243,6 @@ function buildNarrative(){
   if(lungs) assessParts.push(`LUNG SOUNDS ${uc(lungs)}`);
   if(mental) assessParts.push(`MENTAL STATUS ${uc(mental)}`);
   if(skin) assessParts.push(`SKIN ${uc(skin)}`);
-  if(bgl) assessParts.push(`BLOOD GLUCOSE ${bgl==='N/A'?'NOT ASSESSED':bgl+' MG/DL'}`);
-  if(spo2) assessParts.push(`SPO2 ${spo2==='N/A'?'NOT ASSESSED':spo2+'%'}`);
-  if(etco2) assessParts.push(`ETCO2 ${etco2==='N/A'?'NOT ASSESSED':etco2+' MMHG'}`);
-  if(gcs) assessParts.push(`GCS ${gcs==='N/A'?'NOT ASSESSED':gcs}`);
   if(ecg12) assessParts.push(`12-LEAD EKG OBTAINED${ecg12Interp?' — INTERPRETATION: '+uc(ecg12Interp):''}`);
   if(painText) assessParts.push(painText);
   assessParts.push(`PATIENT COMPLAINT ${uc(complaint)}`);
