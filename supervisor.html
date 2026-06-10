@@ -814,6 +814,28 @@
             <input type="checkbox" id="nf-trauma-call" style="width:17px;height:17px;accent-color:#f87171;cursor:pointer;flex:none">
             <span style="color:var(--text)">🚧 Trauma Call</span>
           </label>
+          <!-- Response delay -->
+          <div class="narr-field">
+            <label style="display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer;padding:2px 0">
+              <input type="checkbox" id="nf-resp-delay-chk" style="width:17px;height:17px;accent-color:rgba(251,191,36,1);cursor:pointer;flex:none">
+              <span style="color:var(--text)">⏱ Response Delay</span>
+            </label>
+            <div id="nf-resp-delay-detail" style="display:none;margin-top:7px;display:none;flex-direction:column;gap:7px">
+              <select id="nf-resp-delay-reason" class="narr-input">
+                <option value="">— Select reason —</option>
+                <option>Staff assembly delay</option>
+                <option>Traffic / road conditions</option>
+                <option>Weather conditions</option>
+                <option>Scene staging (law enforcement request)</option>
+                <option>Unit unavailability</option>
+                <option>Scene access difficulty</option>
+                <option>Vehicle / mechanical issue</option>
+                <option>Extended dispatch time</option>
+                <option>Other</option>
+              </select>
+              <input type="text" id="nf-resp-delay-notes" class="narr-input" placeholder="Additional delay details (optional)">
+            </div>
+          </div>
           <div class="narr-field narr-transfer-only" style="display:none">
             <label class="narr-lbl">Sending Facility</label>
             <div class="narr-num-wrap">
@@ -1193,6 +1215,29 @@
               <option>RN at bedside</option><option>charge RN</option><option>ER physician</option>
               <option>PA at bedside</option><option>NP at bedside</option><option>receiving EMS crew</option>
             </select>
+          </div>
+          <!-- Transport / on-scene delay -->
+          <div class="narr-field">
+            <label style="display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer;padding:2px 0">
+              <input type="checkbox" id="nf-tx-delay-chk" style="width:17px;height:17px;accent-color:rgba(251,191,36,1);cursor:pointer;flex:none">
+              <span style="color:var(--text)">⏱ Transport / On-Scene Delay</span>
+            </label>
+            <div id="nf-tx-delay-detail" style="display:none;flex-direction:column;gap:7px">
+              <select id="nf-tx-delay-reason" class="narr-input">
+                <option value="">— Select reason —</option>
+                <option>ED overcrowding / diversion</option>
+                <option>Extended extrication</option>
+                <option>Extended on-scene stabilization</option>
+                <option>Awaiting ALS intercept</option>
+                <option>Awaiting law enforcement clearance</option>
+                <option>Awaiting accepting physician</option>
+                <option>Air transport unavailable / weather</option>
+                <option>Patient initially refused — later consented</option>
+                <option>Extended transfer of care wait</option>
+                <option>Other</option>
+              </select>
+              <input type="text" id="nf-tx-delay-notes" class="narr-input" placeholder="Additional delay details (optional)">
+            </div>
           </div>
         </div>
       </div>
@@ -2747,13 +2792,16 @@ function initShiftReport(){
   });
 }
 
-/* ══════════════════════════════════════════════
-   PCR NARRATIVE BUILDER
-   ══════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════
+   PCR NARRATIVE BUILDER — data + logic
+   ══════════════════════════════════════════════════════ */
 
 const NARR_HOSPITALS = [
-  {n:'Jefferson Regional Medical Center (JRMC)',c:'Pine Bluff, AR',d:0},
-  {n:'Baptist Health Medical Center – Pine Bluff',c:'Pine Bluff, AR',d:2},
+  {n:'Jefferson Regional Medical Center',c:'Pine Bluff, AR',d:0},
+  {n:'National Park Medical Center',c:'Hot Springs, AR',d:5},
+  {n:'CHI St. Vincent – Pine Bluff',c:'Pine Bluff, AR',d:6},
+  {n:'Southeast Arkansas Medical Center',c:'Pine Bluff, AR',d:7},
+  {n:'Chicot Memorial Medical Center',c:'Lake Village, AR',d:38},
   {n:'UAMS Medical Center',c:'Little Rock, AR',d:42},
   {n:'CHI St. Vincent Infirmary',c:'Little Rock, AR',d:43},
   {n:'Baptist Health Medical Center – Little Rock',c:'Little Rock, AR',d:44},
@@ -2788,165 +2836,475 @@ const NARR_HOSPITALS = [
   {n:'UAMS Northwest Regional Campus',c:'Fayetteville, AR',d:193},
 ];
 
-const NARR_MEDS = [
-  'Aspirin','Nitroglycerin','Naloxone (Narcan)','Albuterol','Epinephrine 1:1,000',
-  'Adenosine','Amiodarone','Atropine','Dextrose 50%','Dextrose 10%','Diphenhydramine',
-  'Fentanyl','Glucagon','Ketamine','Labetalol','Lidocaine','Lorazepam (Ativan)',
-  'Magnesium Sulfate','Midazolam (Versed)','Morphine','Ondansetron (Zofran)',
-  'Solu-Medrol','Sodium Bicarbonate','Thiamine','Tranexamic Acid (TXA)',
-  'Eliquis (Apixaban)','Xarelto (Rivaroxaban)','Warfarin (Coumadin)',
-  'Metoprolol','Lisinopril','Atorvastatin','Amlodipine','Metformin','Insulin',
-  'Furosemide (Lasix)','Gabapentin','Clopidogrel (Plavix)','Omeprazole',
+// EASI Protocols 2026 — administered medications with default doses
+const NARR_TX_MEDS = [
+  {n:'Aspirin',d:'324mg PO'},
+  {n:'Nitroglycerin',d:'0.4mg SL'},
+  {n:'Epinephrine (1:1,000)',d:'0.3mg IM'},
+  {n:'Epinephrine (1:10,000)',d:'0.1mg IV'},
+  {n:'Naloxone (Narcan)',d:'0.4–2mg IV/IM/IN'},
+  {n:'Albuterol',d:'2.5mg nebulized'},
+  {n:'Ipratropium',d:'0.5mg nebulized'},
+  {n:'Ondansetron (Zofran)',d:'4mg IV/IM'},
+  {n:'Acetaminophen',d:'1,000mg IV'},
+  {n:'Ketorolac',d:'15–30mg IV/IM'},
+  {n:'Fentanyl',d:'mcg IV/IM/IN'},
+  {n:'Morphine',d:'mg IV'},
+  {n:'Ketamine (analgesic)',d:'0.1–0.3mg/kg IV'},
+  {n:'Ketamine (induction)',d:'1–2mg/kg IV'},
+  {n:'Ketamine (high-dose IM)',d:'5mg/kg IM'},
+  {n:'Midazolam (Versed)',d:'mg IV/IM/IN'},
+  {n:'Diazepam',d:'5–10mg IV/IM'},
+  {n:'Lorazepam (Ativan)',d:'1–2mg IV/IM'},
+  {n:'Dextrose 50%',d:'25g (50mL) IV'},
+  {n:'Dextrose 10%',d:'250mL IV'},
+  {n:'Glucagon',d:'1mg IM'},
+  {n:'Adenosine',d:'6mg IV rapid push'},
+  {n:'Amiodarone',d:'300mg IV'},
+  {n:'Lidocaine',d:'1–1.5mg/kg IV'},
+  {n:'Atropine',d:'0.5–1mg IV'},
+  {n:'Calcium Gluconate',d:'1–2g IV'},
+  {n:'Magnesium Sulfate',d:'1–2g IV'},
+  {n:'Sodium Bicarbonate',d:'1mEq/kg IV'},
+  {n:'Diphenhydramine (Benadryl)',d:'25–50mg IV/IM'},
+  {n:'Methylprednisolone (Solu-Medrol)',d:'125mg IV/IM'},
+  {n:'Dexamethasone',d:'10mg IV/IM'},
+  {n:'Dopamine',d:'mcg/kg/min IV drip'},
+  {n:'Norepinephrine',d:'mcg/kg/min IV drip'},
+  {n:'Normal Saline Bolus',d:'500mL IV'},
+  {n:'Lactated Ringers Bolus',d:'500mL IV'},
+  {n:'Tranexamic Acid (TXA)',d:'1g IV'},
+  {n:'Succinylcholine',d:'1.5mg/kg IV'},
+  {n:'Rocuronium',d:'1.2mg/kg IV'},
+  {n:'Etomidate',d:'0.3mg/kg IV'},
+  {n:'Vecuronium',d:'0.1mg/kg IV'},
+  {n:'Thiamine',d:'100mg IV/IM'},
+  {n:'Oxytocin',d:'10–20 units IM'},
+  {n:'Nifedipine',d:'10mg PO'},
+  {n:'Magnesium Sulfate (OB/eclampsia)',d:'2–4g IV'},
+  {n:'Nicardipine',d:'mcg/kg/min IV drip'},
 ];
 
-const NARR_SYMPTOMS = ['Nausea','Vomiting','Dizziness','Shortness of Breath','Diaphoresis','Syncope','Palpitations','Weakness','Headache','Fever','Chills'];
-const NARR_PMH = ['Hypertension','Diabetes','CAD / ACS','Myocardial Infarction','CHF','COPD / Asthma','Stroke / CVA','Renal Disease / Dialysis','Seizure Disorder','Obesity','Cancer','No Significant PMH'];
+const NARR_HOME_MEDS = [
+  'Aspirin','Metoprolol','Lisinopril','Amlodipine','Atorvastatin','Warfarin (Coumadin)',
+  'Eliquis (Apixaban)','Xarelto (Rivaroxaban)','Clopidogrel (Plavix)','Furosemide (Lasix)',
+  'Metformin','Insulin','Glipizide','Omeprazole','Pantoprazole','Gabapentin',
+  'Hydrocodone','Oxycodone','Tramadol','Prednisone','Albuterol (home)','Montelukast',
+  'Levothyroxine','Sertraline','Fluoxetine','Escitalopram','Lorazepam','Alprazolam',
+  'Amiodarone','Digoxin','Spironolactone','Hydralazine','Carvedilol',
+  'Semaglutide (Ozempic)','Jardiance','Farxiga','Eliquis','Plavix',
+];
+
+const NARR_SYMPTOMS = [
+  'Chest pain','Shortness of breath','Nausea','Vomiting','Dizziness','Diaphoresis',
+  'Syncope','Near-syncope','Palpitations','Weakness','Fatigue','Headache',
+  'Fever','Chills','Altered mental status','Confusion','Abdominal pain',
+  'Back pain','Neck pain','Numbness/tingling','Cough','Wheezing','Edema',
+  'Anxiety','Tremors','Blurred vision','Slurred speech','Facial droop',
+  'Arm/leg weakness','Seizure activity','Loss of bowel/bladder control',
+  'Hematemesis','Melena','Hematuria','Bloody stool',
+];
+
+const NARR_PMH = [
+  'Hypertension','Diabetes (Type 1)','Diabetes (Type 2)','Coronary Artery Disease',
+  'History of MI','Congestive Heart Failure','COPD','Asthma','Stroke/CVA',
+  'Renal Disease','Dialysis dependent','Seizure Disorder','Atrial Fibrillation',
+  'Peripheral Vascular Disease','Obesity','Cancer','HIV/AIDS',
+  'Psychiatric disorder','Substance use disorder','GERD','Hypothyroidism',
+  'Hyperthyroidism','Liver disease','Blood clotting disorder','Anemia',
+  'Sickle Cell Disease','PTSD','Dementia','Alzheimer\'s Disease',
+  'No significant PMH',
+];
+
+const NARR_COMPLAINTS = [
+  'Chest Pain','Difficulty Breathing','Respiratory Distress','Stroke / CVA',
+  'Seizure','Cardiac Arrest','Altered Mental Status','Abdominal Pain',
+  'Diabetic Emergency','Allergic Reaction / Anaphylaxis','MVA','Fall',
+  'Trauma','OB Emergency','Overdose / Toxic Exposure','Behavioral Emergency',
+  'General Illness / Sick Person','Syncope','Headache','Back Pain',
+  'Extremity Injury','Hemorrhage / Bleeding','Cardiac Arrhythmia',
+  'Hypertension','Hypotension / Shock','Sepsis','Hypothermia','Heat Emergency',
+  'Eye Injury','Burn','Drowning / Near-Drowning','Choking / Airway Obstruction',
+  'Obstetric — Active Labor','Psychiatric Emergency','Pediatric Emergency',
+];
+
 const NARR_RESPONSES = [
-  'Pt reported relief in pain following treatment.',
-  'Pt tolerated treatment well with no adverse effects noted.',
-  'No improvement noted en route to receiving facility.',
+  'Pt reported relief following treatment.',
+  'Pt tolerated treatment well with no adverse effects.',
+  'No improvement noted en route.',
   'Pt condition remained stable throughout transport.',
   'Pt denied any complaint at time of transport.',
   'Pt condition deteriorated en route — receiving facility notified.',
+  'Pt reported partial improvement following treatment.',
 ];
 
-let narrMeds = []; // current medication tags
+// State
+let narrTxMeds = [];          // chips: {name, dose}
+let narrHomeMeds = [];        // home med chips
+let narrSelectedSymptoms = new Set();
+let narrSelectedPMH = new Set();
+let narrComplaint = '';
+let narrDestination = '';
+let narrTraumaRegions = {};   // { 'Left Leg': 'findings text', ... }
+let narrPainNA = false;
+let narrPainDenied = false;
+let narrResponseType = 'emergency';
 
 function narrVal(id){ return (document.getElementById(id)?.value||'').trim(); }
 function narrChk(id){ return document.getElementById(id)?.checked||false; }
-function isNarrTx(name,val){ return [...(document.querySelectorAll(`[name="${name}"]`)||[])].some(cb=>cb.value===val&&cb.checked); }
 function uc(s){ return (s||'').toUpperCase(); }
 
-function initNarrHospitals(){
-  const sel = document.getElementById('nf-destination');
-  if(!sel) return;
-  NARR_HOSPITALS.sort((a,b)=>a.d-b.d);
-  NARR_HOSPITALS.forEach(h=>{
-    const o = document.createElement('option');
-    o.value = h.n;
-    o.textContent = `${h.n} (${h.c} · ~${h.d} mi)`;
-    sel.appendChild(o);
+/* ── Typeahead Combo helper ─────────────────────── */
+function initCombo(opts){
+  /*
+    opts: {
+      inputId, dropId, items: [{label, sublabel?, value?}] or [string],
+      multi: bool, onSelect: fn(item),
+      selectedSet?: Set (for multi), tagsId?: string,
+      singleHidden?: string  // hidden input id for single-select
+    }
+  */
+  const inp = document.getElementById(opts.inputId);
+  const drop = document.getElementById(opts.dropId);
+  if(!inp||!drop) return;
+
+  const items = opts.items.map(i => typeof i==='string' ? {label:i,value:i} : i);
+  let focusedIdx = -1;
+
+  function renderDrop(filter=''){
+    const f = filter.toLowerCase();
+    const filtered = f ? items.filter(i=>i.label.toLowerCase().includes(f)||((i.sublabel||'').toLowerCase().includes(f))) : items;
+    drop.innerHTML = filtered.length ? filtered.map((it,idx)=>{
+      const sel = opts.selectedSet ? opts.selectedSet.has(it.value||it.label) : false;
+      return `<div class="narr-combo-item${sel?' selected-item':''}" data-idx="${idx}" data-val="${(it.value||it.label).replace(/"/g,'&quot;')}" data-label="${(it.label).replace(/"/g,'&quot;')}">
+        ${opts.multi?`<span class="ci-check">${sel?'✓':''}</span>`:''}
+        <span>${it.label}${it.sublabel?`<span style="color:var(--muted);font-size:11px;margin-left:6px">${it.sublabel}</span>`:''}</span>
+      </div>`;
+    }).join('') : `<div class="narr-combo-item" style="color:var(--muted);cursor:default">No matches — press Enter to add</div>`;
+    focusedIdx = -1;
+    drop.querySelectorAll('.narr-combo-item').forEach((el,i)=>{
+      el.addEventListener('mousedown',e=>{
+        e.preventDefault();
+        const val = el.dataset.val, label = el.dataset.label;
+        if(!val||val==='') return;
+        handleSelect({label, value:val});
+      });
+    });
+  }
+
+  function handleSelect(item){
+    if(opts.multi){
+      const s = opts.selectedSet;
+      if(s.has(item.value)){ s.delete(item.value); } else { s.add(item.value); }
+      inp.value = '';
+      renderDrop('');
+      renderTags(opts.tagsId, opts.selectedSet, opts.onRemove||null);
+      if(opts.onSelect) opts.onSelect(item);
+      buildNarrative();
+    } else {
+      inp.value = item.label;
+      if(opts.singleHidden){
+        const h = document.getElementById(opts.singleHidden);
+        if(h) h.value = item.value;
+      }
+      drop.classList.remove('open');
+      if(opts.onSelect) opts.onSelect(item);
+      buildNarrative();
+    }
+  }
+
+  inp.addEventListener('focus', ()=>{ renderDrop(inp.value); drop.classList.add('open'); });
+  inp.addEventListener('input', ()=>{ renderDrop(inp.value); drop.classList.add('open'); });
+  inp.addEventListener('keydown', e=>{
+    const items2 = drop.querySelectorAll('.narr-combo-item[data-val]');
+    if(e.key==='ArrowDown'){ e.preventDefault(); focusedIdx=Math.min(focusedIdx+1,items2.length-1); items2.forEach((el,i)=>el.classList.toggle('focused',i===focusedIdx)); }
+    else if(e.key==='ArrowUp'){ e.preventDefault(); focusedIdx=Math.max(focusedIdx-1,0); items2.forEach((el,i)=>el.classList.toggle('focused',i===focusedIdx)); }
+    else if(e.key==='Enter'){
+      e.preventDefault();
+      if(focusedIdx>=0&&items2[focusedIdx]){
+        const el=items2[focusedIdx];
+        handleSelect({label:el.dataset.label, value:el.dataset.val});
+      } else if(opts.multi && inp.value.trim()){
+        // custom entry
+        const custom = inp.value.trim();
+        if(opts.selectedSet) opts.selectedSet.add(custom);
+        inp.value='';
+        renderDrop('');
+        renderTags(opts.tagsId, opts.selectedSet, opts.onRemove||null);
+        buildNarrative();
+      } else if(!opts.multi && inp.value.trim()){
+        handleSelect({label:inp.value.trim(),value:inp.value.trim()});
+      }
+    } else if(e.key==='Escape'){ drop.classList.remove('open'); }
   });
+  inp.addEventListener('blur', ()=>{ setTimeout(()=>drop.classList.remove('open'),150); });
 }
 
-function initNarrMedDL(){
-  const dl = document.getElementById('narr-med-dl');
-  if(!dl) return;
-  NARR_MEDS.forEach(m=>{ const o=document.createElement('option'); o.value=m; dl.appendChild(o); });
-}
-
-function renderNarrChips(containerId, items, selectedSet){
+function renderTags(containerId, selectedSet, onRemoveCb){
   const el = document.getElementById(containerId);
   if(!el) return;
-  el.innerHTML = items.map(item=>`<button type="button" class="narr-chip${selectedSet.has(item)?' sel':''}" data-val="${item}">${item}</button>`).join('');
-  el.querySelectorAll('.narr-chip').forEach(chip=>{
+  const items = [...selectedSet];
+  el.innerHTML = items.map(v=>`<div class="narr-tag"><span>${v}</span><button type="button" onclick="narrRemoveTag('${containerId}','${v.replace(/'/g,"\\'")}')">✕</button></div>`).join('');
+}
+
+function narrRemoveTag(containerId, value){
+  if(containerId==='nf-symptom-tags') narrSelectedSymptoms.delete(value);
+  else if(containerId==='nf-pmh-tags') narrSelectedPMH.delete(value);
+  renderTags(containerId, containerId==='nf-symptom-tags'?narrSelectedSymptoms:narrSelectedPMH, null);
+  buildNarrative();
+}
+
+function renderHomeMedTags(){
+  const el = document.getElementById('nf-homemd-tags'); if(!el) return;
+  el.innerHTML = narrHomeMeds.map((m,i)=>`<div class="narr-tag"><span>${m}</span><button type="button" onclick="narrHomeMeds.splice(${i},1);renderHomeMedTags();buildNarrative()">✕</button></div>`).join('');
+}
+
+function renderTxMedTags(){
+  const el = document.getElementById('nf-txmed-tags'); if(!el) return;
+  el.innerHTML = narrTxMeds.map((m,i)=>`<div class="narr-tag" style="border-color:rgba(74,222,128,.35);background:rgba(74,222,128,.08);color:#4ade80"><span>${m.name} ${m.dose}</span><button type="button" onclick="narrTxMeds.splice(${i},1);renderTxMedTags();buildNarrative()" style="color:rgba(74,222,128,.5)">✕</button></div>`).join('');
+}
+
+/* ── Monitoring chip toggles ────────────────────── */
+function initMonChips(containerId){
+  document.getElementById(containerId)?.querySelectorAll('.narr-mon-chip').forEach(chip=>{
     chip.addEventListener('click',()=>{
-      const v = chip.dataset.val;
-      if(selectedSet.has(v)) selectedSet.delete(v); else selectedSet.add(v);
-      chip.classList.toggle('sel', selectedSet.has(v));
+      chip.classList.toggle('active');
+      // Pulsara detail toggle
+      if(chip.dataset.val==='pulsara'){
+        const d=document.getElementById('nf-pulsara-detail');
+        if(d) d.style.display=chip.classList.contains('active')?'':'none';
+      }
       buildNarrative();
     });
   });
 }
 
-const narrSelectedSymptoms = new Set();
-const narrSelectedPMH = new Set();
-
-function renderMedTags(){
-  const row = document.getElementById('nf-med-tags');
-  if(!row) return;
-  row.innerHTML = narrMeds.map((m,i)=>`<div class="narr-tag">${m}<button onclick="narrMeds.splice(${i},1);renderMedTags();buildNarrative()">✕</button></div>`).join('');
+function isMonActive(containerId, val){
+  const el = document.querySelector(`#${containerId} .narr-mon-chip[data-val="${val}"]`);
+  return el ? el.classList.contains('active') : false;
 }
 
-function buildNarrTreatment(){
-  const parts=[];
-  if(isNarrTx('tx','ambulate')) parts.push('PATIENT ASSISTED IN AMBULATING TO STRETCHER');
-  if(isNarrTx('tx','carried')) parts.push('PATIENT CARRIED TO STRETCHER');
-  if(isNarrTx('tx','position')){ const pos=narrVal('nf-position'); parts.push(`PATIENT SECURED TO STRETCHER IN ${uc(pos)} POSITION`); }
-  if(isNarrTx('tx','c-collar')) parts.push('CERVICAL COLLAR APPLIED');
-  if(isNarrTx('tx','backboard')) parts.push('SPINAL PRECAUTIONS TAKEN, LONG BACKBOARD APPLIED');
-  if(isNarrTx('tx','hemodynamic')) parts.push('HEMODYNAMIC ASSESSMENT COMPLETED');
-  if(isNarrTx('tx','bgl')){ const v=narrVal('nf-bgl-val'); parts.push(`BLOOD GLUCOSE ASSESSED${v?': '+v+' MG/DL':''}`); }
-  if(isNarrTx('tx','ecg12')) parts.push('12-LEAD EKG OBTAINED');
-  if(isNarrTx('tx','cardiac-monitor')) parts.push('CONTINUOUS CARDIAC MONITORING INITIATED');
-  if(isNarrTx('tx','o2')){ const dev=narrVal('nf-o2-device'),rate=narrVal('nf-o2-rate'); parts.push(`OXYGEN ADMINISTERED VIA ${uc(dev)}${rate?' AT '+rate+' LPM':''}`); }
-  if(isNarrTx('tx','suction')) parts.push('AIRWAY SUCTIONING PERFORMED');
-  if(isNarrTx('tx','opa')) parts.push('OPA INSERTED');
-  if(isNarrTx('tx','npa')) parts.push('NPA INSERTED');
-  if(isNarrTx('tx','ett')) parts.push('ENDOTRACHEAL INTUBATION PERFORMED');
-  if(isNarrTx('tx','iv')){ const g=narrVal('nf-iv-gauge'),f=narrVal('nf-iv-fluid'),s=narrVal('nf-iv-site'); parts.push(`${g?g+'G ':''}IV ACCESS ESTABLISHED${f?' WITH '+uc(f):''}${s?' IN '+uc(s):''}`); }
-  if(isNarrTx('tx','saline-lock')) parts.push('SALINE LOCK APPLIED');
-  if(isNarrTx('tx-med','asa')) parts.push('ASPIRIN 324MG ADMINISTERED PO');
-  if(isNarrTx('tx-med','nitro')){ const d=narrVal('nf-nitro-doses')||'1'; parts.push(`NITROGLYCERIN 0.4MG ADMINISTERED SL × ${d}`); }
-  if(isNarrTx('tx-med','narcan')){ const d=narrVal('nf-narcan-dose'),r=narrVal('nf-narcan-route'); parts.push(`NALOXONE${d?' '+d+'MG':''} ADMINISTERED ${uc(r)}`); }
-  if(isNarrTx('tx-med','albuterol')) parts.push('ALBUTEROL 2.5MG ADMINISTERED VIA NEBULIZER');
-  if(isNarrTx('tx-med','zofran')){ const r=narrVal('nf-zofran-route'); parts.push(`ONDANSETRON 4MG ADMINISTERED ${uc(r)}`); }
-  if(isNarrTx('tx-med','apap')) parts.push('ACETAMINOPHEN 1000MG ADMINISTERED IV');
-  if(isNarrTx('tx-med','d50')) parts.push('DEXTROSE 50% 25G ADMINISTERED IV');
-  if(isNarrTx('tx-med','epi')) parts.push('EPINEPHRINE 0.3MG ADMINISTERED IM');
-  if(isNarrTx('tx-med','solumedrol')) parts.push('SOLU-MEDROL 125MG ADMINISTERED');
-  if(isNarrTx('tx-med','fentanyl')){ const d=narrVal('nf-fentanyl-dose'),r=narrVal('nf-fentanyl-route'); parts.push(`FENTANYL${d?' '+d+'MCG':''} ADMINISTERED ${uc(r)}`); }
-  if(isNarrTx('tx-med','midazolam')){ const d=narrVal('nf-midaz-dose'),r=narrVal('nf-midaz-route'); parts.push(`MIDAZOLAM${d?' '+d+'MG':''} ADMINISTERED ${uc(r)}`); }
-  if(isNarrTx('tx','pulsara')){ const t=narrVal('nf-pulsara-min'); parts.push(`12-LEAD EKG TRANSMITTED VIA PULSARA APPROXIMATELY ${t||'___'} MINUTES PRIOR TO ARRIVAL`); }
-  const notes=narrVal('nf-tx-notes'); if(notes) parts.push(uc(notes));
-  return parts.join('. ')+(parts.length?'.':'');
+function isMoveActive(val){ return isMonActive('narr-move-chips',val); }
+function isAirActive(val){ return document.querySelector(`.narr-mon-chip[data-val="${val}"]`)?.classList.contains('active')||false; }
+function isMonChipActive(val){ return isMonActive('narr-mon-chips',val); }
+
+/* ── Trauma region handler ──────────────────────── */
+function initTraumaRegions(){
+  document.getElementById('narr-trauma-regions')?.querySelectorAll('.narr-trauma-reg-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const region = btn.dataset.region;
+      if(btn.classList.contains('active')){
+        // deactivate — remove region
+        btn.classList.remove('active');
+        delete narrTraumaRegions[region];
+      } else {
+        btn.classList.add('active');
+        if(narrTraumaRegions[region]===undefined) narrTraumaRegions[region]='';
+      }
+      renderTraumaFindings();
+      buildNarrative();
+    });
+  });
 }
 
+function renderTraumaFindings(){
+  const el = document.getElementById('narr-trauma-findings'); if(!el) return;
+  el.innerHTML = Object.keys(narrTraumaRegions).map(region=>`
+    <div class="narr-trauma-region-row">
+      <div class="narr-trauma-region-lbl">
+        ${region}
+        <button type="button" onclick="narrRemoveTraumaRegion('${region}')">✕</button>
+      </div>
+      <input type="text" class="narr-trauma-region-input" placeholder="Describe injury findings…"
+        value="${(narrTraumaRegions[region]||'').replace(/"/g,'&quot;')}"
+        oninput="narrTraumaRegions['${region}']=this.value;buildNarrative()">
+    </div>`).join('');
+}
+
+function narrRemoveTraumaRegion(region){
+  delete narrTraumaRegions[region];
+  const btn = document.querySelector(`.narr-trauma-reg-btn[data-region="${region}"]`);
+  if(btn) btn.classList.remove('active');
+  renderTraumaFindings();
+  buildNarrative();
+}
+
+/* ── N/A button handlers ───────────────────────── */
+function initNABtns(){
+  document.querySelectorAll('#tab-narrative .narr-na-btn[data-for]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const inp = document.getElementById(btn.dataset.for);
+      if(!inp) return;
+      if(btn.classList.contains('active')){
+        btn.classList.remove('active');
+        inp.disabled = false;
+        inp.value = '';
+      } else {
+        btn.classList.add('active');
+        inp.disabled = true;
+        inp.value = '';
+      }
+      buildNarrative();
+    });
+  });
+  // Pain-specific buttons
+  const painNA = document.getElementById('nf-pain-na');
+  const painDenied = document.getElementById('nf-pain-denied');
+  const painInp = document.getElementById('nf-pain');
+  painNA?.addEventListener('click',()=>{
+    narrPainDenied = false; narrPainNA = !narrPainNA;
+    painNA.classList.toggle('active', narrPainNA);
+    if(painDenied) painDenied.classList.remove('active');
+    if(painInp){ painInp.disabled = narrPainNA; if(narrPainNA) painInp.value=''; }
+    buildNarrative();
+  });
+  painDenied?.addEventListener('click',()=>{
+    narrPainNA = false; narrPainDenied = !narrPainDenied;
+    painDenied.classList.toggle('active', narrPainDenied);
+    if(painNA) painNA.classList.remove('active');
+    if(painInp){ painInp.disabled = narrPainDenied; if(narrPainDenied) painInp.value=''; }
+    buildNarrative();
+  });
+}
+
+/* ── Narrative builder ─────────────────────────── */
 function buildNarrative(){
-  const type=narrVal('narr-type')||'emergency';
+  const type = narrResponseType;
+
   // Complaint
-  let complaint=narrVal('nf-complaint');
-  if(complaint==='__other') complaint=narrVal('nf-complaint-other');
-  if(!complaint) complaint='[COMPLAINT]';
-  // Response
-  const respVal=narrVal('nf-response');
-  const respText=respVal==='nonemergent'?'NON-EMERGENT':respVal==='staged'?'STAGED':' EMERGENT WITH LIGHTS AND SIRENS';
-  const dispatchLine = type==='transfer'
+  const complaint = narrComplaint || narrVal('nf-complaint-input') || '[COMPLAINT]';
+
+  // Response type
+  const respVal = narrVal('nf-response')||'emergent';
+  const respText = respVal==='nonemergent'?'NON-EMERGENT':respVal==='staged'?'STAGED':'EMERGENT WITH LIGHTS AND SIRENS';
+
+  // Dispatch line
+  let dispatchLine = type==='transfer'
     ? `DISPATCH — EMS REQUESTED FOR INTERFACILITY TRANSFER OF ${uc(complaint)} PATIENT. EMS RESPONDED ${respText}.`
     : `DISPATCH — EMS DISPATCHED FOR ${uc(complaint)}. EMS RESPONDED ${respText}.`;
+
+  // Response delay
+  let respDelayLine = '';
+  if(narrChk('nf-resp-delay-chk')){
+    const reason = narrVal('nf-resp-delay-reason');
+    const notes  = narrVal('nf-resp-delay-notes');
+    respDelayLine = `RESPONSE DELAY — ${reason ? uc(reason) : 'DELAY NOTED'}${notes ? '. ' + uc(notes) : ''}.`;
+  }
 
   // Transfer additions
   let transferLines='';
   if(type==='transfer'){
     const sf=narrVal('nf-sending-fac'), tr=narrVal('nf-transfer-reason');
-    if(sf||tr) transferLines=`\nSENDING FACILITY — PATIENT WAS RECEIVED AT ${uc(sf)||'[SENDING FACILITY]'}.${tr?' PATIENT WAS TRANSFERRED FOR '+uc(tr)+'.':''}`;
+    const sfNA = document.getElementById('nf-sending-fac')?.disabled;
+    const trNA = document.getElementById('nf-transfer-reason')?.disabled;
+    if(sf||tr) transferLines=`\nSENDING FACILITY — PATIENT RECEIVED AT ${sfNA?'N/A':uc(sf)||'[SENDING FACILITY]'}.${(tr&&!trNA)?' PATIENT TRANSFERRED FOR '+uc(tr)+'.':''}`;
   }
 
   // HPI
-  const onset=narrVal('nf-onset-time'), duration=narrVal('nf-duration'), activity=narrVal('nf-activity');
-  const noPain=narrChk('nf-no-pain');
-  const painVal=document.getElementById('nf-pain')?.value||'0';
-  const painText=noPain?'PATIENT DENIED PAIN':`PAIN WAS RATED ${painVal}/10`;
-  const symptoms=[...narrSelectedSymptoms];
-  const pmh=[...narrSelectedPMH];
-  const meds=[...narrMeds];
-  const hpiNotes=narrVal('nf-hpi-notes');
+  const onsetNA = document.getElementById('nf-onset-time')?.disabled;
+  const durNA = document.getElementById('nf-duration')?.disabled;
+  const actNA = document.getElementById('nf-activity')?.disabled;
+  const onset = onsetNA ? '' : narrVal('nf-onset-time');
+  const duration = durNA ? '' : narrVal('nf-duration');
+  const activity = actNA ? '' : narrVal('nf-activity');
+
+  let painText;
+  if(narrPainDenied) painText='PATIENT DENIED PAIN';
+  else if(narrPainNA) painText='PAIN SCALE NOT APPLICABLE';
+  else {
+    const pv = narrVal('nf-pain');
+    painText = pv!=='' ? `PAIN WAS RATED ${pv}/10` : '';
+  }
+
+  const symptoms = [...narrSelectedSymptoms];
+  const pmh = [...narrSelectedPMH];
+  const homeMeds = [...narrHomeMeds];
+  const hpiNotes = narrVal('nf-hpi-notes');
   let hpiParts=[];
   if(activity) hpiParts.push(`PATIENT WAS ${uc(activity)} WHEN SYMPTOMS BEGAN`);
-  if(onset) hpiParts.push(`ONSET WAS NOTED AT ${uc(onset)}`);
-  if(duration) hpiParts.push(`DURATION OF COMPLAINT WAS ${uc(duration)}`);
-  if(noPain||parseInt(painVal)>0) hpiParts.push(painText);
+  if(onset) hpiParts.push(`ONSET NOTED AT ${uc(onset)}`);
+  if(duration) hpiParts.push(`DURATION ${uc(duration)}`);
+  if(painText) hpiParts.push(painText);
   if(symptoms.length) hpiParts.push(`ASSOCIATED SYMPTOMS INCLUDED ${symptoms.map(uc).join(', ')}`);
   if(pmh.length) hpiParts.push(`HISTORY OF ${pmh.map(uc).join(', ')}`);
-  if(meds.length) hpiParts.push(`PATIENT TAKES ${meds.map(uc).join(', ')}`);
+  if(homeMeds.length) hpiParts.push(`PATIENT TAKES ${homeMeds.map(uc).join(', ')}`);
   if(hpiNotes) hpiParts.push(uc(hpiNotes));
   const hpiLine=`HISTORY OF PRESENT ILLNESS — ${hpiParts.length?hpiParts.join('. ')+'.':'[HPI]'}`;
 
   // Assessment
-  const airway=narrVal('nf-airway'), lungs=narrVal('nf-lungs'), mental=narrVal('nf-mental'), skin=narrVal('nf-skin'), assessNotes=narrVal('nf-assessment-notes');
+  const airway=narrVal('nf-airway'), lungs=narrVal('nf-lungs'), mental=narrVal('nf-mental'), skin=narrVal('nf-skin');
+  const bglNA=document.getElementById('nf-bgl')?.disabled, bgl=bglNA?'N/A':narrVal('nf-bgl');
+  const spo2NA=document.getElementById('nf-spo2')?.disabled, spo2=spo2NA?'N/A':narrVal('nf-spo2');
+  const etco2NA=document.getElementById('nf-etco2')?.disabled, etco2=etco2NA?'N/A':narrVal('nf-etco2');
+  const gcsNA=document.getElementById('nf-gcs')?.disabled, gcs=gcsNA?'N/A':narrVal('nf-gcs');
+  const ecg12=narrChk('nf-ecg12-chk');
+  const ecg12NA=document.getElementById('nf-ecg12-interp')?.disabled;
+  const ecg12Interp=ecg12NA?'':narrVal('nf-ecg12-interp');
+  const assessNotes=narrVal('nf-assessment-notes');
   let assessParts=[];
-  if(airway) assessParts.push(`AIRWAY WAS ${uc(airway)}`);
-  if(lungs) assessParts.push(`LUNG SOUNDS WERE ${uc(lungs)}`);
-  if(mental) assessParts.push(`MENTAL STATUS WAS ${uc(mental)}`);
-  if(skin) assessParts.push(`SKIN WAS ${uc(skin)}`);
-  assessParts.push(`PATIENT COMPLAINT WAS ${uc(complaint)}`);
-  assessParts.push(painText);
+  if(airway) assessParts.push(`AIRWAY ${uc(airway)}`);
+  if(lungs) assessParts.push(`LUNG SOUNDS ${uc(lungs)}`);
+  if(mental) assessParts.push(`MENTAL STATUS ${uc(mental)}`);
+  if(skin) assessParts.push(`SKIN ${uc(skin)}`);
+  if(bgl) assessParts.push(`BLOOD GLUCOSE ${bgl==='N/A'?'NOT ASSESSED':bgl+' MG/DL'}`);
+  if(spo2) assessParts.push(`SPO2 ${spo2==='N/A'?'NOT ASSESSED':spo2+'%'}`);
+  if(etco2) assessParts.push(`ETCO2 ${etco2==='N/A'?'NOT ASSESSED':etco2+' MMHG'}`);
+  if(gcs) assessParts.push(`GCS ${gcs==='N/A'?'NOT ASSESSED':gcs}`);
+  if(ecg12) assessParts.push(`12-LEAD EKG OBTAINED${ecg12Interp?' — INTERPRETATION: '+uc(ecg12Interp):''}`);
+  if(painText) assessParts.push(painText);
+  assessParts.push(`PATIENT COMPLAINT ${uc(complaint)}`);
+  // Trauma regions
+  const traumaKeys = Object.keys(narrTraumaRegions);
+  if(traumaKeys.length){
+    const traumaParts = traumaKeys.map(r=>{
+      const f = narrTraumaRegions[r];
+      return f ? `${uc(r)}: ${uc(f)}` : uc(r);
+    });
+    assessParts.push(`TRAUMA FINDINGS — ${traumaParts.join('; ')}`);
+  }
   if(assessNotes) assessParts.push(uc(assessNotes));
+  assessParts.push('ALL OTHER ASSESSMENT FINDINGS AS DOCUMENTED THROUGHOUT EHR');
   const assessLine=`PERTINENT ASSESSMENT FINDINGS — ${assessParts.join('. ')}.`;
 
   // Treatment
-  const txText=buildNarrTreatment();
-  const txLine=txText?`TREATMENT — TREATMENT INCLUDED: ${txText}`:'';
+  const txParts=[];
+  // Movement
+  if(isMoveActive('ambulate')) txParts.push('PATIENT ASSISTED IN AMBULATING TO STRETCHER');
+  if(isMoveActive('carried')) txParts.push('PATIENT CARRIED TO STRETCHER');
+  const pos=narrVal('nf-position'); if(pos) txParts.push(`PATIENT SECURED TO STRETCHER IN ${uc(pos)} POSITION`);
+  if(isMoveActive('c-collar')) txParts.push('CERVICAL COLLAR APPLIED');
+  if(isMoveActive('backboard')) txParts.push('SPINAL PRECAUTIONS TAKEN, LONG BACKBOARD APPLIED');
+  if(isMoveActive('splint')) txParts.push('SPLINT APPLIED');
+  if(isMoveActive('tourniquet')) txParts.push('TOURNIQUET APPLIED');
+  if(isMoveActive('wound-packing')) txParts.push('WOUND PACKING PERFORMED');
+  if(isMoveActive('pressure-dressing')) txParts.push('PRESSURE DRESSING APPLIED');
+  // O2
+  if(narrChk('nf-o2-chk')){
+    const dev=narrVal('nf-o2-device'), rate=narrVal('nf-o2-rate');
+    txParts.push(`OXYGEN ADMINISTERED VIA ${uc(dev)}${rate?' AT '+rate+' LPM':''}`);
+  }
+  // Airway adjuncts
+  ['suction','opa','npa','bvm','ett','sga','cric'].forEach(v=>{
+    if(isAirActive(v)){
+      const m={suction:'AIRWAY SUCTIONING PERFORMED',opa:'OPA INSERTED',npa:'NPA INSERTED',bvm:'BVM VENTILATION INITIATED',ett:'ENDOTRACHEAL INTUBATION PERFORMED',sga:'SUPRAGLOTTIC AIRWAY INSERTED',cric:'SURGICAL CRICOTHYROTOMY PERFORMED'};
+      txParts.push(m[v]);
+    }
+  });
+  // IV
+  if(narrChk('nf-iv-chk')){
+    const g=narrVal('nf-iv-gauge'),f=narrVal('nf-iv-fluid'),s=narrVal('nf-iv-site');
+    txParts.push(`${g?g+'G ':''}IV ACCESS ESTABLISHED${f?' WITH '+uc(f):''}${s?' IN '+uc(s):''}`);
+  }
+  // Monitoring
+  if(isMonChipActive('hemodynamic')) txParts.push('HEMODYNAMIC ASSESSMENT COMPLETED (BP, HR, RR, SPO2)');
+  if(isMonChipActive('cardiac-monitor')) txParts.push('CONTINUOUS CARDIAC MONITORING INITIATED');
+  if(isMonChipActive('etco2-monitor')) txParts.push('END-TIDAL CO2 MONITORING INITIATED');
+  if(isMonChipActive('12lead-tx')) txParts.push('12-LEAD EKG TRANSMITTED');
+  if(isMonChipActive('pulsara')){ const m=narrVal('nf-pulsara-min'); txParts.push(`12-LEAD TRANSMITTED VIA PULSARA ${m||'___'} MINUTES PRIOR TO ARRIVAL`); }
+  // Medications
+  narrTxMeds.forEach(m=>txParts.push(`${uc(m.name)} ${uc(m.dose)} ADMINISTERED`));
+  const txNotes=narrVal('nf-tx-notes'); if(txNotes) txParts.push(uc(txNotes));
+  const txLine=txParts.length?`TREATMENT — ${txParts.join('. ')}.`:'';
 
   // Response
   const responseText=narrVal('nf-response-text');
@@ -2962,29 +3320,35 @@ function buildNarrative(){
     if(comp) rParts.push('PATIENT WAS ALERT AND ORIENTED X4 AND DEMONSTRATED DECISION-MAKING CAPACITY');
     rParts.push('TREATMENT AND TRANSPORT WERE OFFERED AND REFUSED BY THE PATIENT');
     if(risks) rParts.push(`RISKS OF REFUSAL WERE EXPLAINED INCLUDING ${uc(risks)}`);
-    if(wName) rParts.push(`${uc(wName)}${wRole?', '+uc(wRole):''} WAS PRESENT AS A WITNESS`);
-    if(retPrec) rParts.push('RETURN PRECAUTIONS WERE EXPLAINED AND PATIENT VERBALIZED UNDERSTANDING');
+    if(wName) rParts.push(`${uc(wName)}${wRole?', '+uc(wRole):''} PRESENT AS WITNESS`);
+    if(retPrec) rParts.push('RETURN PRECAUTIONS EXPLAINED — PATIENT VERBALIZED UNDERSTANDING');
     if(signed) rParts.push('PATIENT SIGNED REFUSAL FORM');
     finalLine=`PATIENT REFUSAL — ${rParts.join('. ')}.`;
   } else {
-    const destSel=document.getElementById('nf-destination');
-    const dest=destSel?.value||'';
+    const dest=narrDestination||narrVal('nf-destination-input')||'';
     const method=narrVal('nf-arrival-method'), area=narrVal('nf-dest-area'), careOf=narrVal('nf-care-of');
     if(dest||method||area||careOf){
-      finalLine=`DESTINATION — UPON ARRIVAL AT ${uc(dest)||'[FACILITY]'} PATIENT ${uc(method)||'TRANSPORTED IN ON STRETCHER'}. PATIENT MOVED TO ${uc(area)||'DESIGNATED BED'}. PATIENT LEFT IN CARE OF ${uc(careOf)||'[RECEIVING STAFF]'}.`;
+      finalLine=`DESTINATION — UPON ARRIVAL AT ${uc(dest)||'[FACILITY]'}, PATIENT ${uc(method)||'TRANSPORTED IN ON STRETCHER'}. PATIENT MOVED TO ${uc(area)||'DESIGNATED BED'}. PATIENT LEFT IN CARE OF ${uc(careOf)||'[RECEIVING STAFF]'}.`;
     }
   }
 
-  const narrative=[dispatchLine,transferLines,hpiLine,assessLine,txLine,responseLine,finalLine].filter(Boolean).join('\n\n');
+  // Transport / on-scene delay
+  let txDelayLine = '';
+  if(narrChk('nf-tx-delay-chk')){
+    const reason = narrVal('nf-tx-delay-reason');
+    const notes  = narrVal('nf-tx-delay-notes');
+    txDelayLine = `TRANSPORT DELAY — ${reason ? uc(reason) : 'DELAY NOTED'}${notes ? '. ' + uc(notes) : ''}.`;
+  }
+
+  const narrative=[dispatchLine,respDelayLine,transferLines,hpiLine,assessLine,txLine,responseLine,txDelayLine,finalLine].filter(Boolean).join('\n\n');
   const el=document.getElementById('narr-preview');
   if(el) el.textContent=narrative;
   return narrative;
 }
 
 function narrUpdateTemplate(){
-  const type=narrVal('narr-type')||'emergency';
-  document.querySelectorAll('.narr-transfer-only').forEach(el=>el.style.display=type==='transfer'?'':'none');
-  const refusal=type==='refusal';
+  document.querySelectorAll('.narr-transfer-only').forEach(el=>el.style.display=narrResponseType==='transfer'?'':'none');
+  const refusal=narrResponseType==='refusal';
   const transport=document.getElementById('nsec-transport');
   const refusalSec=document.getElementById('nsec-refusal');
   if(transport) transport.style.display=refusal?'none':'';
@@ -2993,18 +3357,30 @@ function narrUpdateTemplate(){
 }
 
 function narrClear(){
-  if(!confirm('Clear the current narrative? This cannot be undone.')) return;
-  document.querySelectorAll('#tab-narrative input[type=text],#tab-narrative input[type=range],#tab-narrative textarea,#tab-narrative select').forEach(el=>{
-    if(el.type==='range') el.value='0';
-    else el.value='';
-  });
+  if(!confirm('Clear the current narrative?')) return;
+  document.querySelectorAll('#tab-narrative input[type=text],#tab-narrative input[type=number],#tab-narrative textarea,#tab-narrative select').forEach(el=>{ el.value=''; el.disabled=false; });
   document.querySelectorAll('#tab-narrative input[type=checkbox]').forEach(el=>{ el.checked=false; });
-  document.querySelectorAll('#tab-narrative input#nf-competency,#tab-narrative input#nf-return-precautions,#tab-narrative input#nf-refusal-signed').forEach(el=>{ el.checked=true; });
-  narrSelectedSymptoms.clear(); narrSelectedPMH.clear(); narrMeds=[];
-  renderNarrChips('nf-symptoms',NARR_SYMPTOMS,narrSelectedSymptoms);
-  renderNarrChips('nf-pmh',NARR_PMH,narrSelectedPMH);
-  renderMedTags();
-  document.getElementById('nf-pain-val').textContent='0';
+  ['nf-competency','nf-return-precautions','nf-refusal-signed'].forEach(id=>{ const e=document.getElementById(id); if(e) e.checked=true; });
+  document.querySelectorAll('#tab-narrative .narr-na-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#tab-narrative .narr-mon-chip').forEach(c=>c.classList.remove('active'));
+  document.querySelectorAll('#tab-narrative .narr-trauma-reg-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('nf-ecg12-interp-wrap').style.display='none';
+  document.getElementById('nf-o2-detail').style.display='none';
+  document.getElementById('nf-iv-detail').style.display='none';
+  document.getElementById('narr-med-dose-row').style.display='none';
+  document.getElementById('narr-trauma-sec').style.display='none';
+  document.getElementById('nf-pulsara-detail').style.display='none';
+  document.getElementById('nf-resp-delay-detail').style.display='none';
+  document.getElementById('nf-tx-delay-detail').style.display='none';
+  narrSelectedSymptoms.clear(); narrSelectedPMH.clear();
+  narrTxMeds=[]; narrHomeMeds=[]; narrComplaint=''; narrDestination='';
+  narrTraumaRegions={}; narrPainNA=false; narrPainDenied=false;
+  renderTags('nf-symptom-tags', narrSelectedSymptoms, null);
+  renderTags('nf-pmh-tags', narrSelectedPMH, null);
+  renderHomeMedTags(); renderTxMedTags();
+  document.getElementById('nf-complaint-tags').innerHTML='';
+  document.getElementById('nf-destination-tags').innerHTML='';
+  document.getElementById('narr-trauma-findings').innerHTML='';
   buildNarrative();
 }
 
@@ -3038,15 +3414,12 @@ function narrSave(){
   const text=document.getElementById('narr-preview')?.textContent||'';
   if(!text||text==='Fill in the fields above to generate your narrative.'){ showToast('Nothing to save yet.'); return; }
   const hist=loadNarrHistory();
-  hist.unshift({ ts:Date.now(), type:narrVal('narr-type')||'emergency', preview:text.slice(0,120), text });
-  saveNarrHistory(hist);
-  updateNarrHistCount();
-  showToast('Narrative saved to history.');
+  hist.unshift({ts:Date.now(),type:narrResponseType,preview:text.slice(0,120),text});
+  saveNarrHistory(hist); updateNarrHistCount(); showToast('Narrative saved.');
 }
 
 function narrCopyItem(idx){
-  const hist=loadNarrHistory();
-  if(!hist[idx]) return;
+  const hist=loadNarrHistory(); if(!hist[idx]) return;
   navigator.clipboard.writeText(hist[idx].text).then(()=>showToast('Copied!')).catch(()=>{ const ta=document.createElement('textarea'); ta.value=hist[idx].text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('Copied!'); });
 }
 
@@ -3055,52 +3428,182 @@ function narrDeleteItem(idx){
 }
 
 function initNarrative(){
-  initNarrHospitals();
-  initNarrMedDL();
-  renderNarrChips('nf-symptoms',NARR_SYMPTOMS,narrSelectedSymptoms);
-  renderNarrChips('nf-pmh',NARR_PMH,narrSelectedPMH);
+  // Template type segmented buttons
+  document.getElementById('narr-type-seg')?.querySelectorAll('.narr-seg-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('#narr-type-seg .narr-seg-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      narrResponseType = btn.dataset.type;
+      narrUpdateTemplate();
+    });
+  });
+
+  // Response type segmented
+  document.getElementById('narr-response-seg')?.querySelectorAll('.narr-seg-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('#narr-response-seg .narr-seg-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const h=document.getElementById('nf-response'); if(h) h.value=btn.dataset.val;
+      buildNarrative();
+    });
+  });
+
+  // Complaint combo (single-select)
+  initCombo({
+    inputId:'nf-complaint-input', dropId:'combo-complaint-drop',
+    items: NARR_COMPLAINTS,
+    multi: false,
+    onSelect: item=>{ narrComplaint=item.value; document.getElementById('nf-complaint-tags').innerHTML=`<div class="narr-tag"><span>${item.label}</span><button type="button" onclick="narrComplaint='';document.getElementById('nf-complaint-input').value='';document.getElementById('nf-complaint-tags').innerHTML='';buildNarrative()">✕</button></div>`; },
+  });
+
+  // Symptom combo (multi)
+  initCombo({
+    inputId:'nf-symptom-input', dropId:'combo-symptoms-drop',
+    items: NARR_SYMPTOMS, multi: true,
+    selectedSet: narrSelectedSymptoms, tagsId:'nf-symptom-tags',
+  });
+
+  // PMH combo (multi)
+  initCombo({
+    inputId:'nf-pmh-input', dropId:'combo-pmh-drop',
+    items: NARR_PMH, multi: true,
+    selectedSet: narrSelectedPMH, tagsId:'nf-pmh-tags',
+  });
+
+  // Home medications (add chip on Enter or Add button)
+  const homeInp = document.getElementById('nf-homemd-input');
+  initCombo({
+    inputId:'nf-homemd-input', dropId:'combo-home-meds-drop',
+    items: NARR_HOME_MEDS, multi: false,
+    onSelect: item=>{
+      const v=(item.label||'').trim();
+      if(v&&!narrHomeMeds.includes(v)){ narrHomeMeds.push(v); if(homeInp) homeInp.value=''; renderHomeMedTags(); buildNarrative(); }
+    },
+  });
+  document.getElementById('btn-add-homemd')?.addEventListener('click',()=>{
+    const v=(homeInp?.value||'').trim();
+    if(v&&!narrHomeMeds.includes(v)){ narrHomeMeds.push(v); if(homeInp) homeInp.value=''; renderHomeMedTags(); buildNarrative(); }
+  });
+  homeInp?.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); document.getElementById('btn-add-homemd')?.click(); } });
+
+  // TX meds combo
+  const txMedInp = document.getElementById('nf-txmed-input');
+  const txMedDoseRow = document.getElementById('narr-med-dose-row');
+  const txMedDoseInp = document.getElementById('nf-txmed-dose');
+  let pendingMedName = '', pendingMedDose = '';
+
+  initCombo({
+    inputId:'nf-txmed-input', dropId:'combo-tx-meds-drop',
+    items: NARR_TX_MEDS.map(m=>({label:m.n, sublabel:m.d, value:m.n})),
+    multi: false,
+    onSelect: item=>{
+      const med = NARR_TX_MEDS.find(m=>m.n===item.value);
+      pendingMedName = item.value;
+      pendingMedDose = med?med.d:'';
+      if(txMedInp) txMedInp.value='';
+      if(txMedDoseInp) txMedDoseInp.value = pendingMedDose;
+      if(txMedDoseRow){ txMedDoseRow.style.display='flex'; txMedDoseInp?.focus(); }
+    },
+  });
+
+  document.getElementById('btn-add-txmed')?.addEventListener('click',()=>{
+    const dose = (txMedDoseInp?.value||'').trim();
+    if(pendingMedName){
+      narrTxMeds.push({name:pendingMedName, dose:dose});
+      pendingMedName=''; pendingMedDose='';
+      if(txMedDoseInp) txMedDoseInp.value='';
+      if(txMedDoseRow) txMedDoseRow.style.display='none';
+      renderTxMedTags(); buildNarrative();
+    }
+  });
+  txMedDoseInp?.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); document.getElementById('btn-add-txmed')?.click(); } });
+  document.getElementById('btn-cancel-txmed')?.addEventListener('click',()=>{
+    pendingMedName=''; pendingMedDose='';
+    if(txMedDoseInp) txMedDoseInp.value='';
+    if(txMedDoseRow) txMedDoseRow.style.display='none';
+  });
+
+  // Destination combo (single, hospital list)
+  initCombo({
+    inputId:'nf-destination-input', dropId:'combo-destination-drop',
+    items: NARR_HOSPITALS.sort((a,b)=>a.d-b.d).map(h=>({label:h.n, sublabel:`${h.c} · ~${h.d} mi`, value:h.n})),
+    multi: false,
+    onSelect: item=>{
+      narrDestination=item.value;
+      document.getElementById('nf-destination').value=item.value;
+      document.getElementById('nf-destination-tags').innerHTML=`<div class="narr-tag"><span>${item.label}</span><button type="button" onclick="narrDestination='';document.getElementById('nf-destination-input').value='';document.getElementById('nf-destination-tags').innerHTML='';buildNarrative()">✕</button></div>`;
+    },
+  });
+
+  // Monitoring + movement chips
+  initMonChips('narr-mon-chips');
+  initMonChips('narr-move-chips');
+  // Airway adjuncts (use same initMonChips approach — they share the .narr-mon-chip class in second group)
+  document.querySelectorAll('#tab-narrative .narr-mon-chip').forEach(chip=>{
+    if(!chip.closest('#narr-mon-chips') && !chip.closest('#narr-move-chips')){
+      chip.addEventListener('click',()=>{ chip.classList.toggle('active'); buildNarrative(); });
+    }
+  });
+
+  // Trauma toggle
+  document.getElementById('nf-trauma-call')?.addEventListener('change',e=>{
+    document.getElementById('narr-trauma-sec').style.display=e.target.checked?'':'none';
+    if(!e.target.checked){ narrTraumaRegions={}; renderTraumaFindings(); document.querySelectorAll('.narr-trauma-reg-btn').forEach(b=>b.classList.remove('active')); }
+    buildNarrative();
+  });
+  initTraumaRegions();
+
+  // 12-lead interpretation toggle
+  document.getElementById('nf-ecg12-chk')?.addEventListener('change',e=>{
+    document.getElementById('nf-ecg12-interp-wrap').style.display=e.target.checked?'':'none';
+    buildNarrative();
+  });
+
+  // O2 detail toggle
+  document.getElementById('nf-o2-chk')?.addEventListener('change',e=>{
+    document.getElementById('nf-o2-detail').style.display=e.target.checked?'':'none';
+    buildNarrative();
+  });
+
+  // IV detail toggle
+  document.getElementById('nf-iv-chk')?.addEventListener('change',e=>{
+    document.getElementById('nf-iv-detail').style.display=e.target.checked?'flex':'none';
+    buildNarrative();
+  });
+
+  // Response delay toggle
+  document.getElementById('nf-resp-delay-chk')?.addEventListener('change',e=>{
+    document.getElementById('nf-resp-delay-detail').style.display=e.target.checked?'flex':'none';
+    buildNarrative();
+  });
+
+  // Transport delay toggle
+  document.getElementById('nf-tx-delay-chk')?.addEventListener('change',e=>{
+    document.getElementById('nf-tx-delay-detail').style.display=e.target.checked?'flex':'none';
+    buildNarrative();
+  });
+
+  // N/A buttons
+  initNABtns();
+
   // Response quick-select chips
   const respEl=document.getElementById('nf-response-chips');
   if(respEl){
-    respEl.innerHTML=NARR_RESPONSES.map(r=>`<button type="button" class="narr-chip" data-val="${r}">${r}</button>`).join('');
-    respEl.querySelectorAll('.narr-chip').forEach(chip=>{
+    respEl.innerHTML=NARR_RESPONSES.map(r=>`<button type="button" class="narr-mon-chip" data-val="${r}">${r}</button>`).join('');
+    respEl.querySelectorAll('.narr-mon-chip').forEach(chip=>{
       chip.addEventListener('click',()=>{
         const ta=document.getElementById('nf-response-text');
         if(ta){ ta.value=chip.dataset.val; buildNarrative(); }
       });
     });
   }
-  updateNarrHistCount();
 
-  // Wire template type change
-  document.getElementById('narr-type')?.addEventListener('change', narrUpdateTemplate);
-
-  // Wire complaint other
-  document.getElementById('nf-complaint')?.addEventListener('change', e=>{
-    const oth=document.getElementById('nf-complaint-other');
-    if(oth) oth.style.display=e.target.value==='__other'?'':'none';
-    buildNarrative();
+  // Wire all plain inputs/selects/textareas to rebuild
+  document.getElementById('tab-narrative')?.querySelectorAll('input:not([type=checkbox]):not([type=button]),select,textarea').forEach(el=>{
+    el.addEventListener('input', buildNarrative);
   });
-
-  // Pain slider
-  const painSlider=document.getElementById('nf-pain');
-  const painVal=document.getElementById('nf-pain-val');
-  const noPainChk=document.getElementById('nf-no-pain');
-  painSlider?.addEventListener('input',()=>{ if(painVal) painVal.textContent=painSlider.value; if(noPainChk&&parseInt(painSlider.value)>0) noPainChk.checked=false; buildNarrative(); });
-  noPainChk?.addEventListener('change',()=>{ if(painSlider&&noPainChk.checked) painSlider.value='0'; if(painVal&&noPainChk.checked) painVal.textContent='0'; buildNarrative(); });
-
-  // Med add button
-  document.getElementById('btn-narr-add-med')?.addEventListener('click',()=>{
-    const inp=document.getElementById('nf-med-input');
-    const v=(inp?.value||'').trim();
-    if(v&&!narrMeds.includes(v)){ narrMeds.push(v); if(inp) inp.value=''; renderMedTags(); buildNarrative(); }
-  });
-  document.getElementById('nf-med-input')?.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); document.getElementById('btn-narr-add-med')?.click(); } });
-
-  // Wire all other inputs
-  document.getElementById('tab-narrative')?.querySelectorAll('input,select,textarea').forEach(el=>{
-    const evt=el.type==='checkbox'||el.type==='radio'?'change':'input';
-    el.addEventListener(evt, buildNarrative);
+  document.getElementById('tab-narrative')?.querySelectorAll('input[type=checkbox]').forEach(el=>{
+    el.addEventListener('change', buildNarrative);
   });
 
   // Copy button
@@ -3110,16 +3613,11 @@ function initNarrative(){
     navigator.clipboard.writeText(text).then(()=>showToast('Narrative copied!')).catch(()=>{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('Copied!'); });
   });
 
-  // Save button
   document.getElementById('btn-narr-save-hist')?.addEventListener('click', narrSave);
-
-  // Clear button
   document.getElementById('btn-narr-clear')?.addEventListener('click', narrClear);
 
-  // History toggle
   document.getElementById('btn-narr-hist-toggle')?.addEventListener('click',()=>{
-    const panel=document.getElementById('narr-hist-panel');
-    if(!panel) return;
+    const panel=document.getElementById('narr-hist-panel'); if(!panel) return;
     const hidden=panel.style.display==='none';
     panel.style.display=hidden?'':'none';
     if(hidden) renderNarrHistory();
@@ -3128,6 +3626,7 @@ function initNarrative(){
     const p=document.getElementById('narr-hist-panel'); if(p) p.style.display='none';
   });
 
+  updateNarrHistCount();
   buildNarrative();
 }
 </script>
