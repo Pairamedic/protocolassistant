@@ -6314,7 +6314,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       {n:'Pedi C-Collars',q:1},{n:'Adult C-Collars',q:1},
     ]},
     { title:'Medications & Supplies', exp:true, items:[
-      {n:'10g Needles',q:8},{n:'21g Needles',q:8},{n:'25g Needles',q:8},
+      {n:'18g Needles',q:8},{n:'21g Needles',q:8},{n:'20g Needles',q:8},
       {n:'1mL Syringe',q:4},{n:'3mL Syringe',q:6},{n:'5mL Syringe',q:4},
       {n:'10mL Syringe',q:8},{n:'20mL Syringe',q:4},{n:'60mL Syringe',q:2},
       {n:'Atrovent Exp.',q:2},{n:'Albuterol Exp.',q:2},{n:'Atropine Exp.',q:2},
@@ -6326,6 +6326,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       {n:'Aspirin Bottle Exp.',q:1},{n:'Roll of Med Labels',q:1},{n:'Broselow Tape',q:1},
       {n:'Oral Glucose Exp.',q:2},{n:'Verapamil Exp.',q:2},{n:'Bacteriostatic Water Exp.',q:2},
       {n:'Amiodarone Exp.',q:2},{n:'TXA Exp.',q:2},{n:'Glucagon Exp.',q:1},{n:'Diltiazem Exp.',q:2},
+      {n:'Activated Charcoal Exp.',q:1},{n:'Thiamine Exp.',q:2},
     ]},
     { title:'IV Pouch 1', items:[
       {n:'NS 1000mL',q:1},{n:'10gtt set',q:1},{n:'Tourniquet',q:1},{n:'Saline Lock',q:1},
@@ -6351,10 +6352,10 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     { title:'Thomas Pack — Inside Upper Pouch', items:[
       {n:'Adult BVM',q:1},{n:'Adult tube turner',q:1},{n:'10mL syringe',q:1},
       {n:'Magill Forceps Adult',q:1},{n:'Magill Forceps Pediatric',q:1},
-      {n:'6.0 ETT',q:1},{n:'7.0 ETT',q:1},{n:'8.0 ETT',q:1},
+      {n:'6.0 ETT',q:1},{n:'7.0 ETT',q:1},{n:'7.5 ETT',q:1},{n:'8.0 ETT',q:1},
     ]},
     { title:'Thomas Pack — Right Outside Pocket', items:[
-      {n:'Laryngoscope Handle',q:1},{n:'Mac 2 Blade',q:1},{n:'Mac 4 Blade',q:1},
+      {n:'Laryngoscope Handle',q:1},{n:'Mac 2 Blade',q:1},{n:'Mac 3 Blade',q:1},{n:'Mac 4 Blade',q:1},
       {n:'Miller 1 Blade',q:1},{n:'Miller 2 Blade',q:1},{n:'Miller 3 Blade',q:1},{n:'Miller 4 Blade',q:1},
     ]},
     { title:'Thomas Pack — Front Outside Pocket', items:[
@@ -6404,23 +6405,68 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   window.exportStockSheet = function(){
     const s=_ssState();
     const get=id=>document.getElementById(id)?.value||s[id]||'';
-    let out=`ALS UNIT STOCK SHEET\n${'='.repeat(50)}\n`;
-    out+=`Date: ${get('ss-date')}  Unit: ${get('ss-unit')}  Narc Lock: ${get('ss-narc')}\n`;
-    out+=`Main O2: ${get('ss-o2main')} PSI  Port O2: ${get('ss-o2port')} PSI\n`;
-    out+=`Paramedic: ${get('ss-para')}  EMT: ${get('ss-emt')}\n\n`;
-    SS_SECTIONS.forEach((sec,si)=>{
-      out+=`${sec.title.toUpperCase()}\n${'-'.repeat(40)}\n`;
-      out+=`${'ITEM'.padEnd(38)} REQ  ACTUAL${sec.exp?'/EXP':''}\n`;
-      sec.items.forEach((item,ii)=>{
+    const date=get('ss-date'), unit=get('ss-unit'), narc=get('ss-narc');
+    const o2m=get('ss-o2main'), o2p=get('ss-o2port'), para=get('ss-para'), emt=get('ss-emt');
+
+    const secHtml = SS_SECTIONS.map((sec,si)=>{
+      const actHeader = sec.exp ? 'Actual / Exp' : 'Actual';
+      const rows = sec.items.map((item,ii)=>{
         const e=s[`ss_${si}_${ii}`]||{};
-        out+=`${item.n.padEnd(38)} ${String(item.q).padEnd(4)} ${e.act||''}\n`;
-      });
-      out+='\n';
-    });
-    const blob=new Blob([out],{type:'text/plain'});
+        const act=e.act||'';
+        return `<tr><td class="item-name">${item.n}</td><td class="qty">${item.q}</td><td class="act">${act}</td></tr>`;
+      }).join('');
+      return `<div class="section">
+        <div class="section-head">${sec.title}</div>
+        <table>
+          <thead><tr><th class="item-name">Item</th><th class="qty">Req</th><th class="act">${actHeader}</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+    }).join('');
+
+    const html=`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<title>ALS Unit Stock Sheet — ${unit||'Unit'} — ${date||''}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#111;background:#fff;padding:10px}
+  h1{font-size:15px;font-weight:700;text-align:center;text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid #111;padding-bottom:4px;margin-bottom:8px}
+  .header-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px 16px;margin-bottom:10px;border:1px solid #888;padding:6px 8px}
+  .hf{display:flex;align-items:center;gap:4px}
+  .hf label{font-weight:700;white-space:nowrap}
+  .hf span{border-bottom:1px solid #555;flex:1;min-width:60px;padding:0 2px}
+  .sections-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .section{border:1px solid #888;break-inside:avoid}
+  .section-head{background:#333;color:#fff;font-weight:700;text-transform:uppercase;font-size:10px;letter-spacing:.5px;padding:3px 6px}
+  table{width:100%;border-collapse:collapse}
+  th{background:#eee;font-weight:700;font-size:10px;padding:2px 4px;border:1px solid #ccc;text-align:left}
+  td{padding:2px 4px;border:1px solid #ddd;vertical-align:top}
+  tr:nth-child(even) td{background:#f9f9f9}
+  .qty,.act{text-align:center;white-space:nowrap}
+  th.qty,td.qty{width:30px}
+  th.act,td.act{width:72px}
+  @media print{
+    body{padding:4px}
+    .section{break-inside:avoid}
+    .sections-grid{grid-template-columns:repeat(2,1fr)}
+  }
+</style></head><body>
+<h1>EASI Ambulance Service — ALS Unit Stock Sheet</h1>
+<div class="header-grid">
+  <div class="hf"><label>Date:</label><span>${date}</span></div>
+  <div class="hf"><label>Unit #:</label><span>${unit}</span></div>
+  <div class="hf"><label>Narc Lock #:</label><span>${narc}</span></div>
+  <div class="hf"><label>Main O₂ PSI:</label><span>${o2m}</span></div>
+  <div class="hf"><label>Port O₂ PSI:</label><span>${o2p}</span></div>
+  <div class="hf"><label>Paramedic:</label><span>${para}</span></div>
+  <div class="hf"><label>EMT:</label><span>${emt}</span></div>
+</div>
+<div class="sections-grid">${secHtml}</div>
+</body></html>`;
+
+    const blob=new Blob([html],{type:'text/html'});
     const a=document.createElement('a');
     a.href=URL.createObjectURL(blob);
-    a.download=`stock-sheet-${get('ss-unit')||'export'}-${get('ss-date')||new Date().toISOString().slice(0,10)}.txt`;
+    a.download=`stock-sheet-${unit||'export'}-${date||new Date().toISOString().slice(0,10)}.html`;
     a.click();
   };
   window.resetStockSheet = function(){
