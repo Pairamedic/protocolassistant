@@ -106,12 +106,12 @@
     :root.light .rb-emt{background:rgba(59,130,246,.1);color:#1d4ed8}
     :root.light .rb-aemt{background:rgba(249,115,22,.1);color:#c2410c}
     :root.light .rb-paramedic{background:rgba(34,197,94,.12);color:#15803d}
-    .role-toggle-btn{border-radius:12px;font-size:12px;font-weight:600;padding:5px 12px;cursor:pointer;border:1px solid;transition:all .15s;font-family:inherit;min-height:36px}
-    .role-toggle-btn.rb-paramedic{background:rgba(34,197,94,.15);color:#4ade80;border-color:rgba(34,197,94,.35)}
-    .role-toggle-btn.rb-aemt{background:rgba(249,115,22,.15);color:#fb923c;border-color:rgba(249,115,22,.35)}
-    .role-toggle-btn.rb-emt{background:rgba(59,130,246,.15);color:#60a5fa;border-color:rgba(59,130,246,.35);opacity:.6;cursor:default}
-    .role-toggle-btn.off{background:rgba(255,255,255,.05)!important;color:rgba(167,176,190,.5)!important;border-color:rgba(255,255,255,.1)!important;text-decoration:line-through}
-    :root.light .role-toggle-btn.off{background:rgba(0,0,0,.04)!important;color:rgba(100,116,139,.4)!important;border-color:rgba(0,0,0,.08)!important}
+    .provider-level-seg{display:flex;border:1px solid var(--border);border-radius:9px;overflow:hidden;background:rgba(255,255,255,.04)}
+    .provider-level-btn{padding:5px 13px;background:none;border:none;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;border-right:1px solid var(--border);min-height:32px;white-space:nowrap}
+    .provider-level-btn:last-child{border-right:none}
+    .provider-level-btn.active.lvl-emt{background:rgba(59,130,246,.18);color:#60a5fa}
+    .provider-level-btn.active.lvl-aemt{background:rgba(249,115,22,.18);color:#fb923c}
+    .provider-level-btn.active.lvl-paramedic{background:rgba(34,197,94,.18);color:#4ade80}
     .panel-toolbar{display:flex;justify-content:flex-end;padding:10px 0 4px}
     /* collapsible cards — open by default, tap to collapse */
     .card-header{cursor:pointer;user-select:none;-webkit-user-select:none}
@@ -394,10 +394,12 @@
             <button id="btn-forms" class="btn" style="color:#c4b5fd;border-color:rgba(196,181,253,.35);background:rgba(196,181,253,.08);font-size:13px;padding:8px 12px">📋 Forms</button>
           </div>
           <div id="role-row" style="display:flex;gap:6px;align-items:center;margin-top:6px">
-            <span style="font-size:11px;color:var(--muted);flex:none">Show roles:</span>
-            <button id="role-toggle-paramedic" class="role-toggle-btn rb-paramedic" title="Toggle Paramedic steps">Paramedic</button>
-            <button id="role-toggle-aemt" class="role-toggle-btn rb-aemt" title="Toggle AEMT steps">AEMT</button>
-            <button id="role-toggle-emt" class="role-toggle-btn rb-emt" title="EMT always shown" disabled>EMT</button>
+            <span style="font-size:11px;color:var(--muted);flex:none">Provider level:</span>
+            <div class="provider-level-seg">
+              <button class="provider-level-btn lvl-emt" data-level="emt">EMT</button>
+              <button class="provider-level-btn lvl-aemt" data-level="aemt">AEMT</button>
+              <button class="provider-level-btn lvl-paramedic" data-level="paramedic">Paramedic</button>
+            </div>
           </div>
         </div>
         <div class="tabs">
@@ -3450,7 +3452,14 @@
 
   // --- Favorites ---
   let _favsOnly    = false;
+  let _providerLevel = localStorage.getItem('pref_provider_level') || 'paramedic';
   const _hiddenRoles = new Set();
+  function _syncHiddenRoles(){
+    _hiddenRoles.clear();
+    if(_providerLevel === 'emt'){ _hiddenRoles.add('aemt'); _hiddenRoles.add('paramedic'); }
+    else if(_providerLevel === 'aemt'){ _hiddenRoles.add('paramedic'); }
+  }
+  _syncHiddenRoles();
   let _lastTerms = [];
   let _ageFilter = new Set(['adult','peds']);
   let _medClassFilter = null;
@@ -4277,6 +4286,11 @@
     const all = svc().meds||[];
     let items = all.map((m,i)=>({m,i})).filter(({m})=> matchItem(m, filterTerms));
     if(_favsOnly) items = items.filter(({m})=> isFav('m', m.name));
+    if(_hiddenRoles.size) items = items.filter(({m})=>{
+      const roles = medRoles(m.name||'');
+      if(!roles.length) return true;
+      return roles.includes(_providerLevel);
+    });
     if(_medClassFilter) items = items.filter(({m})=> medClasses(m.name||'').includes(_medClassFilter));
     if(_medTextFilter) items = items.filter(({m})=> (m.name||'').toLowerCase().includes(_medTextFilter) || medClasses(m.name||'').some(c=>c.toLowerCase().includes(_medTextFilter)));
     const tcM = $('#tc-m'); if(tcM) tcM.textContent = items.length < all.length ? `(${items.length}/${all.length})` : `(${items.length})`;
@@ -4711,14 +4725,20 @@
     renderMeds(_lastTerms);
   });
 
-  ['paramedic','aemt'].forEach(role => {
-    $(`#role-toggle-${role}`).addEventListener('click', ()=>{
-      if(_hiddenRoles.has(role)) _hiddenRoles.delete(role);
-      else _hiddenRoles.add(role);
-      $(`#role-toggle-${role}`).classList.toggle('off', _hiddenRoles.has(role));
-      renderProtocols(_lastTerms);
+  function applyProviderLevel(level){
+    _providerLevel = level;
+    _syncHiddenRoles();
+    localStorage.setItem('pref_provider_level', level);
+    document.querySelectorAll('.provider-level-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.level === level);
     });
+    renderProtocols(_lastTerms);
+    renderMeds(_lastTerms);
+  }
+  document.querySelectorAll('.provider-level-btn').forEach(btn => {
+    btn.addEventListener('click', () => applyProviderLevel(btn.dataset.level));
   });
+  applyProviderLevel(_providerLevel);
 
   document.querySelectorAll('[data-age]').forEach(btn => {
     btn.addEventListener('click', () => {
