@@ -3899,7 +3899,7 @@
       let _sn = 0;
 
       // ── Phase 1: group steps into label-blocks, treatment-blocks, or all-providers-blocks ──
-      const _SEC_RE  = /^(Required\s+Assessment|GCS\s+Assessment|Assessment|Primary\s+Survey|Secondary\s+Survey|Vital\s+Signs?|History|Indications?|Contraindications?|Reversible\s+[Cc]auses?|Note|NOTE|Signs?|Symptoms?|All\s+Providers?|Scene\s+Safety|Considerations?|Warning|Caution)\s*:/i;
+      const _SEC_RE  = /^(Required\s+Assessment|GCS\s+Assessment|Assessment|Primary\s+Survey|Secondary\s+Survey|Vital\s+Signs?|History|Indications?|Contraindications?|Consider\s+in|Reversible\s+[Cc]auses?|Note|NOTE|Signs?|Symptoms?|Scene\s+Safety|Considerations?|Warning|Caution)\s*:/i;
       const _ROLE_RE = /^\s*(?:Paramedic|AEMT|Advanced\s+EMT|Basic\s+EMT|EMT-I\b|EMT-Intermediate\b|EMT\b|ALL)\s*[:–\-]/i;
       const _blocks = []; let _tBlock = null;
       for(const s of (p.steps||[])){
@@ -3920,13 +3920,9 @@
         } else if(isBranch && _tBlock){
           _tBlock.steps.push(it);
         } else {
-          // Plain or orphan-branch step — group into "All Providers" block
-          if(_tBlock && _tBlock.type === 'allprov'){
-            _tBlock.steps.push(it);
-          } else {
-            _tBlock = {type:'allprov', steps:[it]};
-            _blocks.push(_tBlock);
-          }
+          // Plain or orphan-branch step — render as standalone numbered step (no container)
+          _tBlock = null;
+          _blocks.push({type:'plain', ...it});
         }
       }
       // Step count for card header (non-branch items across all blocks)
@@ -3949,8 +3945,7 @@
         symptom:          {c:'rgba(96,165,250,1)',  bg:'rgba(96,165,250,.06)',  bd:'rgba(96,165,250,.2)'},
         warning:          {c:'rgba(248,113,113,1)', bg:'rgba(248,113,113,.06)', bd:'rgba(248,113,113,.25)'},
         caution:          {c:'rgba(251,191,36,1)',  bg:'rgba(251,191,36,.07)',  bd:'rgba(251,191,36,.25)'},
-        consideration:    {c:'rgba(167,139,250,1)', bg:'rgba(167,139,250,.06)', bd:'rgba(167,139,250,.2)'},
-        all:              {c:'rgba(94,234,212,1)',  bg:'rgba(94,234,212,.07)',  bd:'rgba(94,234,212,.25)'},
+        consideration:    {c:'rgba(248,113,113,1)', bg:'rgba(248,113,113,.06)', bd:'rgba(248,113,113,.25)'},
         scene:            {c:'rgba(94,234,212,1)',  bg:'rgba(94,234,212,.07)',  bd:'rgba(94,234,212,.25)'},
       };
       const _TSTY = {c:'rgba(74,222,128,1)', bg:'rgba(74,222,128,.06)', bd:'rgba(74,222,128,.22)'};
@@ -3993,10 +3988,12 @@
           const rawLabel = m[1].toLowerCase();
           // Rename Note/NOTE → "Special Considerations"
           const lbl = /^note$/i.test(m[1]) ? 'Special Considerations'
+                    : /^consider/i.test(m[1]) ? 'Considerations'
                     : m[1].charAt(0).toUpperCase() + m[1].slice(1).replace(/\s+causes?$/i,' Causes');
           const body = b.dc.slice(m[0].length).trim();
           const sk = (rawLabel.startsWith('required') || rawLabel.startsWith('primary') || rawLabel.startsWith('secondary') || rawLabel.startsWith('vital') || rawLabel.startsWith('history') || rawLabel.startsWith('gcs')) ? 'assessment'
                    : rawLabel.startsWith('contra')   ? 'contraindication'
+                   : rawLabel.startsWith('consider') ? 'consideration'
                    : rawLabel.startsWith('indic')    ? 'indication'
                    : rawLabel.startsWith('reversi')  ? 'reversible'
                    : rawLabel.split(/\s/)[0].replace(/s$/,'');
@@ -4011,11 +4008,8 @@
           let _csn = 0; const _numFn = () => ++_csn;
           return `<div class="proto-sec" style="border-color:${_TSTY.bd};margin-bottom:8px"><div class="proto-sec-label" style="color:${_TSTY.c};background:${_TSTY.bg};border-bottom-color:${_TSTY.bd}">Treatment</div><div class="proto-sec-body" style="padding:6px 4px 4px">${b.steps.map(it=>_rs(it,_numFn)).join('')}</div></div>`;
         }
-        if(b.type === 'allprov'){
-          let _csn = 0; const _numFn = () => ++_csn;
-          return `<div class="proto-sec" style="border-color:${_TSTY.bd};margin-bottom:8px"><div class="proto-sec-label" style="color:${_TSTY.c};background:${_TSTY.bg};border-bottom-color:${_TSTY.bd}">All Providers</div><div class="proto-sec-body" style="padding:6px 4px 4px">${b.steps.map(it=>_rs(it,_numFn)).join('')}</div></div>`;
-        }
-        let _fn = () => ++_sn; return _rs(b, _fn); // fallback (should not occur)
+        // type:'plain' — render as regular numbered step, no container
+        let _fn = () => ++_sn; return _rs(b, _fn);
       }).join('');
       return `
       <div class="card${on?' fav-on':''}" id="pcard-${eid}">

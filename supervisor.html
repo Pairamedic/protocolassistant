@@ -531,6 +531,49 @@
     #import-textarea:focus { border-color: var(--accent); }
     .import-file-label { display: inline-block; margin-top: 10px; font-size: 13px; color: var(--accent); cursor: pointer; text-decoration: underline; }
     #import-result { font-size: 13px; min-height: 18px; margin-top: 8px; }
+
+/* ── Narrative Builder ── */
+.narr-topbar{display:flex;gap:8px;align-items:center;padding:12px 0 8px;flex-wrap:wrap}
+.narr-sec{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden}
+.narr-sec-hd{font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;padding:9px 13px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.03)}
+.narr-sec-body{padding:12px 13px;display:flex;flex-direction:column;gap:10px}
+.narr-field{display:flex;flex-direction:column;gap:4px}
+.narr-lbl{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.3px;text-transform:uppercase}
+.narr-input,.narr-sel,.narr-textarea{background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 10px;font-size:13px;width:100%;font-family:inherit}
+.narr-input:focus,.narr-sel:focus,.narr-textarea:focus{border-color:var(--accent);outline:none}
+.narr-textarea{resize:vertical;min-height:70px}
+.narr-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.narr-subhd{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.4px;text-transform:uppercase;margin:6px 0 4px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.narr-checklist{display:flex;flex-direction:column;gap:5px}
+.narr-chk-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;color:var(--text);flex-wrap:wrap}
+.narr-chk-item:has(input:checked){border-color:var(--accent);background:rgba(94,234,212,.05)}
+.narr-chk-item input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;flex:none;cursor:pointer}
+.narr-input-inline{background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:3px 7px;font-size:12px;font-family:inherit;min-width:0}
+.narr-chips{display:flex;flex-wrap:wrap;gap:5px}
+.narr-chip{padding:5px 11px;border-radius:20px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);font-size:12px;cursor:pointer;transition:all .15s}
+.narr-chip.sel{border-color:var(--accent);background:rgba(94,234,212,.1);color:var(--accent)}
+.narr-tag-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.narr-tag{display:flex;align-items:center;gap:5px;background:rgba(94,234,212,.1);border:1px solid rgba(94,234,212,.3);border-radius:20px;padding:3px 9px;font-size:12px;color:var(--accent)}
+.narr-tag button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;line-height:1;padding:0}
+.narr-med-row{display:flex;gap:6px;align-items:center}
+.narr-add-btn{background:var(--accent);border:none;border-radius:8px;color:#0b0d10;font-size:13px;font-weight:700;padding:8px 14px;cursor:pointer;white-space:nowrap}
+.narr-pain-row{display:flex;align-items:center;gap:10px}
+.narr-slider{flex:1;accent-color:var(--accent)}
+.narr-pain-num{font-size:18px;font-weight:800;color:var(--text);min-width:40px}
+.narr-preview-wrap{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px}
+.narr-preview-hd{display:flex;justify-content:space-between;align-items:center;padding:9px 13px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+#narr-preview{padding:13px;font-family:inherit;font-size:13px;line-height:1.75;color:var(--text);white-space:pre-wrap;word-break:break-word;margin:0;min-height:80px;background:none}
+.narr-hist-wrap{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.narr-hist-hd{display:flex;justify-content:space-between;align-items:center;padding:9px 13px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.narr-hist-item{display:flex;flex-direction:column;gap:3px;padding:10px 13px;border-bottom:1px solid var(--border);cursor:pointer}
+.narr-hist-item:last-child{border-bottom:none}
+.narr-hist-item:hover{background:rgba(255,255,255,.03)}
+.narr-hist-meta{font-size:11px;color:var(--muted)}
+.narr-hist-text{font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.narr-hist-actions{display:flex;gap:6px;margin-top:4px}
+.narr-hist-btn{padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:11px;cursor:pointer}
+.narr-hist-btn.del{color:rgba(248,113,113,.8);border-color:rgba(248,113,113,.3)}
+@media(max-width:520px){.narr-row{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -561,6 +604,7 @@
       <button class="tab-btn active" data-tab="roster">📋 Roster</button>
       <button class="tab-btn" data-tab="directory">📞 Directory</button>
       <button class="tab-btn" data-tab="report">📝 Report</button>
+      <button class="tab-btn" data-tab="narrative">🗒 Narrative</button>
     </div>
   </div>
 
@@ -681,6 +725,364 @@
 
       <!-- Copy area (shown after email attempt) -->
       <div id="rpt-copy-area" class="rpt-copy-area"></div>
+    </div>
+
+    <!-- ── TAB: NARRATIVE ── -->
+    <div id="tab-narrative" class="tab-panel">
+      <div class="narr-topbar">
+        <select id="narr-type" class="narr-sel" style="flex:1;max-width:220px">
+          <option value="emergency">🚨 Emergency Call</option>
+          <option value="transfer">🚑 Transfer / IFT</option>
+          <option value="transport">🏥 Medical Transport</option>
+          <option value="refusal">📋 Refusal</option>
+        </select>
+        <button class="action-btn" id="btn-narr-clear">🗑 Clear</button>
+        <button class="action-btn" id="btn-narr-hist-toggle">📂 History (<span id="narr-hist-ct">0</span>)</button>
+      </div>
+
+      <!-- History panel -->
+      <div class="narr-hist-wrap" id="narr-hist-panel" style="display:none;margin-bottom:10px">
+        <div class="narr-hist-hd"><span>📂 Saved Narratives</span><button class="narr-hist-btn" id="btn-narr-hist-close">✕ Close</button></div>
+        <div id="narr-hist-list"><div style="padding:14px;text-align:center;color:var(--muted);font-size:13px">No saved narratives yet.</div></div>
+      </div>
+
+      <!-- ── DISPATCH ── -->
+      <div class="narr-sec">
+        <div class="narr-sec-hd" style="color:var(--accent)">📡 Dispatch</div>
+        <div class="narr-sec-body">
+          <div class="narr-row">
+            <div class="narr-field">
+              <label class="narr-lbl">Chief Complaint</label>
+              <select id="nf-complaint" class="narr-input">
+                <option value="">— Select —</option>
+                <option>Chest Pain</option><option>Difficulty Breathing</option><option>Stroke / CVA</option>
+                <option>Seizure</option><option>Cardiac Arrest</option><option>Altered Mental Status</option>
+                <option>Abdominal Pain</option><option>Diabetic Emergency</option><option>Allergic Reaction / Anaphylaxis</option>
+                <option>MVA</option><option>Fall</option><option>Trauma</option><option>Respiratory Distress</option>
+                <option>OB Emergency</option><option>Overdose</option><option>Behavioral Emergency</option>
+                <option>General Illness</option><option>Syncope</option><option>Headache</option>
+                <option>Back Pain</option><option>Extremity Injury</option><option>Hemorrhage / Bleeding</option>
+                <option value="__other">Other…</option>
+              </select>
+              <input type="text" id="nf-complaint-other" class="narr-input" placeholder="Describe complaint…" style="margin-top:5px;display:none">
+            </div>
+            <div class="narr-field">
+              <label class="narr-lbl">Response Type</label>
+              <select id="nf-response" class="narr-input">
+                <option value="emergent">Emergent — Lights &amp; Sirens</option>
+                <option value="nonemergent">Non-Emergent</option>
+                <option value="staged">Staged / Delayed Response</option>
+              </select>
+            </div>
+          </div>
+          <!-- Transfer/IFT only -->
+          <div class="narr-field narr-transfer-only" style="display:none">
+            <label class="narr-lbl">Sending Facility</label>
+            <input type="text" id="nf-sending-fac" class="narr-input" placeholder="e.g. UAMS Medical Center">
+          </div>
+          <div class="narr-field narr-transfer-only" style="display:none">
+            <label class="narr-lbl">Reason for Transfer</label>
+            <input type="text" id="nf-transfer-reason" class="narr-input" placeholder="e.g. Higher level of care for STEMI">
+          </div>
+        </div>
+      </div>
+
+      <!-- ── HISTORY OF PRESENT ILLNESS ── -->
+      <div class="narr-sec">
+        <div class="narr-sec-hd" style="color:rgba(94,234,212,1)">📋 History of Present Illness</div>
+        <div class="narr-sec-body">
+          <div class="narr-row">
+            <div class="narr-field">
+              <label class="narr-lbl">Onset Time</label>
+              <input type="text" id="nf-onset-time" class="narr-input" placeholder="e.g. 10:00 AM, 2 hours ago">
+            </div>
+            <div class="narr-field">
+              <label class="narr-lbl">Duration</label>
+              <input type="text" id="nf-duration" class="narr-input" placeholder="e.g. 3 days, 45 minutes">
+            </div>
+          </div>
+          <div class="narr-field">
+            <label class="narr-lbl">Patient Activity at Onset</label>
+            <input type="text" id="nf-activity" class="narr-input" list="narr-activity-dl" placeholder="e.g. walking, at rest, sleeping">
+            <datalist id="narr-activity-dl">
+              <option>walking around the house</option><option>at rest</option><option>sleeping</option>
+              <option>eating a meal</option><option>exercising</option><option>performing manual labor</option>
+              <option>driving</option><option>sitting</option><option>standing</option><option>working</option>
+            </datalist>
+          </div>
+          <div class="narr-field">
+            <label class="narr-lbl">Pain Score</label>
+            <div class="narr-pain-row">
+              <input type="range" id="nf-pain" class="narr-slider" min="0" max="10" value="0">
+              <span id="nf-pain-val" class="narr-pain-num">0</span>
+              <span style="font-size:12px;color:var(--muted)">/10</span>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);cursor:pointer;white-space:nowrap">
+                <input type="checkbox" id="nf-no-pain" style="accent-color:var(--accent)"> Denied pain
+              </label>
+            </div>
+          </div>
+          <div class="narr-field">
+            <label class="narr-lbl">Associated Symptoms</label>
+            <div class="narr-chips" id="nf-symptoms"></div>
+          </div>
+          <div class="narr-field">
+            <label class="narr-lbl">Past Medical History</label>
+            <div class="narr-chips" id="nf-pmh"></div>
+          </div>
+          <div class="narr-field">
+            <label class="narr-lbl">Current Medications</label>
+            <div class="narr-med-row">
+              <input type="text" id="nf-med-input" class="narr-input" list="narr-med-dl" placeholder="Type medication name and press Add…">
+              <button id="btn-narr-add-med" class="narr-add-btn">+ Add</button>
+            </div>
+            <datalist id="narr-med-dl"></datalist>
+            <div class="narr-tag-row" id="nf-med-tags"></div>
+          </div>
+          <div class="narr-field">
+            <label class="narr-lbl">Additional HPI Notes</label>
+            <textarea id="nf-hpi-notes" class="narr-textarea" rows="2" placeholder="Any additional relevant history…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ASSESSMENT FINDINGS ── -->
+      <div class="narr-sec">
+        <div class="narr-sec-hd" style="color:rgba(94,234,212,1)">🩺 Assessment Findings</div>
+        <div class="narr-sec-body">
+          <div class="narr-row">
+            <div class="narr-field">
+              <label class="narr-lbl">Airway</label>
+              <select id="nf-airway" class="narr-input">
+                <option value="">— Select —</option>
+                <option>patent and maintained</option><option>compromised</option>
+                <option>maintained with OPA</option><option>maintained with NPA</option>
+                <option>managed with BVM</option><option>secured via endotracheal intubation</option>
+                <option>secured via supraglottic airway</option>
+              </select>
+            </div>
+            <div class="narr-field">
+              <label class="narr-lbl">Lung Sounds</label>
+              <select id="nf-lungs" class="narr-input">
+                <option value="">— Select —</option>
+                <option>present and clear bilaterally</option><option>diminished bilaterally</option>
+                <option>diminished on the left</option><option>diminished on the right</option>
+                <option>absent bilaterally</option><option>wheezing bilaterally</option>
+                <option>crackles bilaterally</option><option>rhonchi bilaterally</option>
+              </select>
+            </div>
+          </div>
+          <div class="narr-row">
+            <div class="narr-field">
+              <label class="narr-lbl">Mental Status</label>
+              <select id="nf-mental" class="narr-input">
+                <option value="">— Select —</option>
+                <option>alert and oriented x4</option><option>alert and oriented x3</option>
+                <option>alert and oriented x2</option><option>alert and oriented x1</option>
+                <option>confused / disoriented</option><option>obtunded</option><option>unresponsive</option>
+              </select>
+            </div>
+            <div class="narr-field">
+              <label class="narr-lbl">Skin Condition</label>
+              <select id="nf-skin" class="narr-input">
+                <option value="">— Select —</option>
+                <option>warm, dry, and intact</option><option>warm and diaphoretic</option>
+                <option>pale and diaphoretic</option><option>pale and cool</option>
+                <option>flushed and warm</option><option>cyanotic</option><option>jaundiced</option>
+              </select>
+            </div>
+          </div>
+          <div class="narr-field">
+            <label class="narr-lbl">Additional Findings</label>
+            <textarea id="nf-assessment-notes" class="narr-textarea" rows="2" placeholder="Additional pertinent findings, vitals, exam details…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TREATMENT ── -->
+      <div class="narr-sec">
+        <div class="narr-sec-hd" style="color:rgba(74,222,128,1)">💊 Treatment</div>
+        <div class="narr-sec-body">
+          <div class="narr-subhd">Movement &amp; Positioning</div>
+          <div class="narr-checklist">
+            <label class="narr-chk-item"><input type="checkbox" name="tx" value="ambulate"> Assisted ambulation to stretcher</label>
+            <label class="narr-chk-item"><input type="checkbox" name="tx" value="carried"> Patient carried / moved to stretcher</label>
+            <label class="narr-chk-item"><input type="checkbox" name="tx" value="position"> Patient secured to stretcher —
+              <select class="narr-input-inline" id="nf-position">
+                <option>semi-Fowler</option><option>supine</option><option>lateral recumbent</option>
+                <option>Trendelenburg</option><option>upright</option><option>prone</option>
+              </select>
+              position</label>
+            <label class="narr-chk-item"><input type="checkbox" name="tx" value="c-collar"> Cervical collar applied</label>
+            <label class="narr-chk-item"><input type="checkbox" name="tx" value="backboard"> Spinal precautions / long backboard</label>
+          </div>
+          <div class="narr-subhd">Assessment &amp; Monitoring</div>
+          <div class="narr-checklist">
+            <label class="narr-chk-item"><input type="checkbox" name="tx" value="hemodynamic"> Hemodynamic assessment (BP, HR, RR, SpO2)</label>
+            <label class="narr-chk-item"><input type="checkbox" name="tx" value="bgl"> Blood glucose assessment —
+              <input type="text" class="narr-input-inline" id="nf-bgl-val" placeholder="mg/dL" style="width:70px">
+            </label>
+            <label class="narr-chk-item"><input type="checkbox" name="tx" value="ecg12"> 12-Lead EKG obtained</label>
+            <label class="narr-chk-item"><input type="checkbox" name="tx" value="cardiac-monitor"> Continuous cardiac monitoring initiated</label>
+            <label class="narr-chk-item"><input type="checkbox" name="tx" value="pulsara"> Pulsara notification transmitted —
+              <input type="text" class="narr-input-inline" id="nf-pulsara-min" placeholder="min" style="width:50px">
+              min prior to arrival</label>
+          </div>
+          <div class="narr-subhd">Airway &amp; Oxygen</div>
+          <div class="narr-checklist">
+            <label class="narr-chk-item"><input type="checkbox" name="tx" value="o2"> Oxygen administered via
+              <select class="narr-input-inline" id="nf-o2-device">
+                <option>nasal cannula</option><option>non-rebreather mask</option>
+                <option>BVM</option><option>CPAP</option>
+              </select>
+              at <input type="text" class="narr-input-inline" id="nf-o2-rate" placeholder="LPM" style="width:50px"> LPM
+            </label>
+            <label class="narr-chk-item"><input type="checkbox" name="tx" value="suction"> Airway suctioning performed</label>
+            <label class="narr-chk-item"><input type="checkbox" name="tx" value="opa"> OPA inserted</label>
+            <label class="narr-chk-item"><input type="checkbox" name="tx" value="npa"> NPA inserted</label>
+            <label class="narr-chk-item"><input type="checkbox" name="tx" value="ett"> Endotracheal intubation performed</label>
+          </div>
+          <div class="narr-subhd">Vascular Access</div>
+          <div class="narr-checklist">
+            <label class="narr-chk-item"><input type="checkbox" name="tx" value="iv"> IV access —
+              <input type="text" class="narr-input-inline" id="nf-iv-gauge" placeholder="gauge" style="width:55px">G •
+              <select class="narr-input-inline" id="nf-iv-fluid">
+                <option>NS 0.9%</option><option>LR</option><option>D5W</option><option>NS TKO</option>
+              </select>
+              •
+              <input type="text" class="narr-input-inline" id="nf-iv-site" list="narr-iv-sites-dl" placeholder="site">
+              <datalist id="narr-iv-sites-dl">
+                <option>left antecubital (LAC)</option><option>right antecubital (RAC)</option>
+                <option>left forearm</option><option>right forearm</option>
+                <option>left hand</option><option>right hand</option>
+                <option>external jugular (EJ)</option><option>intraosseous (IO)</option>
+              </datalist>
+            </label>
+            <label class="narr-chk-item"><input type="checkbox" name="tx" value="saline-lock"> Saline lock applied</label>
+          </div>
+          <div class="narr-subhd">Medications Administered</div>
+          <div class="narr-checklist">
+            <label class="narr-chk-item"><input type="checkbox" name="tx-med" value="asa"> Aspirin 324mg PO</label>
+            <label class="narr-chk-item"><input type="checkbox" name="tx-med" value="nitro"> Nitroglycerin 0.4mg SL ×
+              <select class="narr-input-inline" id="nf-nitro-doses"><option>1</option><option>2</option><option>3</option></select>
+            </label>
+            <label class="narr-chk-item"><input type="checkbox" name="tx-med" value="narcan"> Naloxone —
+              <input type="text" class="narr-input-inline" id="nf-narcan-dose" placeholder="dose" style="width:55px"> mg
+              <select class="narr-input-inline" id="nf-narcan-route"><option>IV</option><option>IM</option><option>IN</option><option>IO</option></select>
+            </label>
+            <label class="narr-chk-item"><input type="checkbox" name="tx-med" value="albuterol"> Albuterol 2.5mg nebulized</label>
+            <label class="narr-chk-item"><input type="checkbox" name="tx-med" value="zofran"> Ondansetron (Zofran) 4mg
+              <select class="narr-input-inline" id="nf-zofran-route"><option>IV</option><option>IM</option></select>
+            </label>
+            <label class="narr-chk-item"><input type="checkbox" name="tx-med" value="apap"> Acetaminophen 1000mg IV</label>
+            <label class="narr-chk-item"><input type="checkbox" name="tx-med" value="d50"> Dextrose 50% 25g IV</label>
+            <label class="narr-chk-item"><input type="checkbox" name="tx-med" value="epi"> Epinephrine 0.3mg IM (auto-injector)</label>
+            <label class="narr-chk-item"><input type="checkbox" name="tx-med" value="solumedrol"> Solu-Medrol 125mg IV/IM</label>
+            <label class="narr-chk-item"><input type="checkbox" name="tx-med" value="fentanyl"> Fentanyl —
+              <input type="text" class="narr-input-inline" id="nf-fentanyl-dose" placeholder="dose" style="width:55px"> mcg
+              <select class="narr-input-inline" id="nf-fentanyl-route"><option>IV</option><option>IM</option><option>IN</option></select>
+            </label>
+            <label class="narr-chk-item"><input type="checkbox" name="tx-med" value="midazolam"> Midazolam —
+              <input type="text" class="narr-input-inline" id="nf-midaz-dose" placeholder="dose" style="width:55px"> mg
+              <select class="narr-input-inline" id="nf-midaz-route"><option>IV</option><option>IM</option><option>IN</option></select>
+            </label>
+          </div>
+          <div class="narr-field" style="margin-top:8px">
+            <label class="narr-lbl">Additional Treatment / Medications</label>
+            <textarea id="nf-tx-notes" class="narr-textarea" rows="2" placeholder="Additional interventions not listed above…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── RESPONSE TO TREATMENT ── -->
+      <div class="narr-sec">
+        <div class="narr-sec-hd" style="color:rgba(74,222,128,1)">📈 Response to Treatment</div>
+        <div class="narr-sec-body">
+          <div class="narr-field">
+            <label class="narr-lbl">Quick Select</label>
+            <div class="narr-chips" id="nf-response-chips"></div>
+          </div>
+          <div class="narr-field">
+            <label class="narr-lbl">Response Details</label>
+            <textarea id="nf-response-text" class="narr-textarea" rows="3" placeholder="Describe patient response to treatment…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TRANSPORT / DESTINATION (non-refusal) ── -->
+      <div class="narr-sec" id="nsec-transport">
+        <div class="narr-sec-hd" style="color:rgba(251,146,60,1)">🏥 Transport &amp; Destination</div>
+        <div class="narr-sec-body">
+          <div class="narr-row">
+            <div class="narr-field">
+              <label class="narr-lbl">Destination Facility</label>
+              <select id="nf-destination" class="narr-input"><option value="">— Select Hospital —</option></select>
+            </div>
+            <div class="narr-field">
+              <label class="narr-lbl">Arrival Method</label>
+              <select id="nf-arrival-method" class="narr-input">
+                <option value="">— Select —</option>
+                <option>transported in on stretcher</option><option>walked in</option>
+                <option>transported via wheelchair</option>
+              </select>
+            </div>
+          </div>
+          <div class="narr-row">
+            <div class="narr-field">
+              <label class="narr-lbl">Moved to</label>
+              <select id="nf-dest-area" class="narr-input">
+                <option value="">— Select —</option>
+                <option>designated ER bed</option><option>trauma bay</option><option>ICU room</option>
+                <option>labor and delivery room</option><option>observation room</option>
+                <option>cardiac care unit</option><option>designated room</option>
+              </select>
+            </div>
+            <div class="narr-field">
+              <label class="narr-lbl">Left in Care of</label>
+              <select id="nf-care-of" class="narr-input">
+                <option value="">— Select —</option>
+                <option>RN at bedside</option><option>charge RN</option><option>ER physician</option>
+                <option>PA at bedside</option><option>NP at bedside</option><option>receiving EMS crew</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── REFUSAL (refusal template only) ── -->
+      <div class="narr-sec" id="nsec-refusal" style="display:none">
+        <div class="narr-sec-hd" style="color:rgba(248,113,113,1)">📋 Refusal of Care</div>
+        <div class="narr-sec-body">
+          <label class="narr-chk-item"><input type="checkbox" id="nf-competency" checked> Patient was alert and oriented x4 and demonstrated decision-making capacity</label>
+          <div class="narr-field">
+            <label class="narr-lbl">Risks of Refusal Explained (include specifics)</label>
+            <textarea id="nf-refusal-risks" class="narr-textarea" rows="2" placeholder="e.g. risk of heart attack, internal bleeding, stroke, death without evaluation…"></textarea>
+          </div>
+          <div class="narr-row">
+            <div class="narr-field">
+              <label class="narr-lbl">Witness Name</label>
+              <input type="text" id="nf-witness-name" class="narr-input" placeholder="Witness full name">
+            </div>
+            <div class="narr-field">
+              <label class="narr-lbl">Witness Role</label>
+              <input type="text" id="nf-witness-role" class="narr-input" placeholder="e.g. family member, bystander">
+            </div>
+          </div>
+          <label class="narr-chk-item"><input type="checkbox" id="nf-return-precautions" checked> Return precautions explained — patient verbalized understanding</label>
+          <label class="narr-chk-item"><input type="checkbox" id="nf-refusal-signed" checked> Patient signed refusal form</label>
+        </div>
+      </div>
+
+      <!-- ── LIVE PREVIEW ── -->
+      <div class="narr-preview-wrap">
+        <div class="narr-preview-hd">
+          <span>📄 Narrative Preview</span>
+          <div style="display:flex;gap:6px">
+            <button class="action-btn save-btn" id="btn-narr-copy">📋 Copy</button>
+            <button class="action-btn" id="btn-narr-save-hist">💾 Save</button>
+          </div>
+        </div>
+        <pre id="narr-preview">Fill in the fields above to generate your narrative.</pre>
+      </div>
     </div>
   </div>
 </div>
@@ -1584,6 +1986,9 @@ function initApp() {
   // Tabs
   initTabs();
 
+  // Narrative builder
+  initNarrative();
+
   // Global AC dismiss
   initGlobalDismiss();
 
@@ -2182,6 +2587,390 @@ function initShiftReport(){
   document.getElementById('narc-modal').addEventListener('click', e => {
     if(e.target === document.getElementById('narc-modal')) closeNarcModal();
   });
+}
+
+/* ══════════════════════════════════════════════
+   PCR NARRATIVE BUILDER
+   ══════════════════════════════════════════════ */
+
+const NARR_HOSPITALS = [
+  {n:'Jefferson Regional Medical Center (JRMC)',c:'Pine Bluff, AR',d:0},
+  {n:'Baptist Health Medical Center – Pine Bluff',c:'Pine Bluff, AR',d:2},
+  {n:'UAMS Medical Center',c:'Little Rock, AR',d:42},
+  {n:'CHI St. Vincent Infirmary',c:'Little Rock, AR',d:43},
+  {n:'Baptist Health Medical Center – Little Rock',c:'Little Rock, AR',d:44},
+  {n:'Arkansas Children\'s Hospital',c:'Little Rock, AR',d:44},
+  {n:'Baptist Health Medical Center – Stuttgart',c:'Stuttgart, AR',d:45},
+  {n:'Baptist Health Medical Center – North Little Rock',c:'North Little Rock, AR',d:48},
+  {n:'Desha County Hospital',c:'McGehee, AR',d:50},
+  {n:'CHI St. Vincent Doctors Hospital',c:'Sherwood, AR',d:52},
+  {n:'Drew Memorial Health System',c:'Monticello, AR',d:55},
+  {n:'Saline Memorial Hospital',c:'Benton, AR',d:58},
+  {n:'Ouachita County Medical Center',c:'Camden, AR',d:60},
+  {n:'Ashley County Medical Center',c:'Crossett, AR',d:72},
+  {n:'National Park Medical Center',c:'Hot Springs, AR',d:76},
+  {n:'CHI St. Vincent – Hot Springs',c:'Hot Springs, AR',d:78},
+  {n:'Conway Regional Medical Center',c:'Conway, AR',d:84},
+  {n:'CHI St. Vincent – Morrilton',c:'Morrilton, AR',d:92},
+  {n:'White County Medical Center',c:'Searcy, AR',d:95},
+  {n:'Delta Regional Medical Center',c:'Greenville, MS',d:98},
+  {n:'St. Bernards Medical Center',c:'Jonesboro, AR',d:108},
+  {n:'NEA Baptist Memorial Hospital',c:'Jonesboro, AR',d:110},
+  {n:'Baptist Memorial Hospital – Memphis',c:'Memphis, TN',d:128},
+  {n:'Regional One Health',c:'Memphis, TN',d:130},
+  {n:'Methodist Le Bonheur Healthcare',c:'Memphis, TN',d:132},
+  {n:'Willis-Knighton Medical Center',c:'Shreveport, LA',d:133},
+  {n:'LSU Health Shreveport',c:'Shreveport, LA',d:135},
+  {n:'Ochsner LSU Health – Shreveport',c:'Shreveport, LA',d:137},
+  {n:'Wadley Regional Medical Center',c:'Texarkana, TX',d:145},
+  {n:'Sparks Regional Medical Center',c:'Fort Smith, AR',d:158},
+  {n:'Mercy Hospital Fort Smith',c:'Fort Smith, AR',d:160},
+  {n:'CHRISTUS Mother Frances Hospital',c:'Tyler, TX',d:188},
+  {n:'Washington Regional Medical Center',c:'Fayetteville, AR',d:192},
+  {n:'UAMS Northwest Regional Campus',c:'Fayetteville, AR',d:193},
+];
+
+const NARR_MEDS = [
+  'Aspirin','Nitroglycerin','Naloxone (Narcan)','Albuterol','Epinephrine 1:1,000',
+  'Adenosine','Amiodarone','Atropine','Dextrose 50%','Dextrose 10%','Diphenhydramine',
+  'Fentanyl','Glucagon','Ketamine','Labetalol','Lidocaine','Lorazepam (Ativan)',
+  'Magnesium Sulfate','Midazolam (Versed)','Morphine','Ondansetron (Zofran)',
+  'Solu-Medrol','Sodium Bicarbonate','Thiamine','Tranexamic Acid (TXA)',
+  'Eliquis (Apixaban)','Xarelto (Rivaroxaban)','Warfarin (Coumadin)',
+  'Metoprolol','Lisinopril','Atorvastatin','Amlodipine','Metformin','Insulin',
+  'Furosemide (Lasix)','Gabapentin','Clopidogrel (Plavix)','Omeprazole',
+];
+
+const NARR_SYMPTOMS = ['Nausea','Vomiting','Dizziness','Shortness of Breath','Diaphoresis','Syncope','Palpitations','Weakness','Headache','Fever','Chills'];
+const NARR_PMH = ['Hypertension','Diabetes','CAD / ACS','Myocardial Infarction','CHF','COPD / Asthma','Stroke / CVA','Renal Disease / Dialysis','Seizure Disorder','Obesity','Cancer','No Significant PMH'];
+const NARR_RESPONSES = [
+  'Pt reported relief in pain following treatment.',
+  'Pt tolerated treatment well with no adverse effects noted.',
+  'No improvement noted en route to receiving facility.',
+  'Pt condition remained stable throughout transport.',
+  'Pt denied any complaint at time of transport.',
+  'Pt condition deteriorated en route — receiving facility notified.',
+];
+
+let narrMeds = []; // current medication tags
+
+function narrVal(id){ return (document.getElementById(id)?.value||'').trim(); }
+function narrChk(id){ return document.getElementById(id)?.checked||false; }
+function isNarrTx(name,val){ return [...(document.querySelectorAll(`[name="${name}"]`)||[])].some(cb=>cb.value===val&&cb.checked); }
+function uc(s){ return (s||'').toUpperCase(); }
+
+function initNarrHospitals(){
+  const sel = document.getElementById('nf-destination');
+  if(!sel) return;
+  NARR_HOSPITALS.sort((a,b)=>a.d-b.d);
+  NARR_HOSPITALS.forEach(h=>{
+    const o = document.createElement('option');
+    o.value = h.n;
+    o.textContent = `${h.n} (${h.c} · ~${h.d} mi)`;
+    sel.appendChild(o);
+  });
+}
+
+function initNarrMedDL(){
+  const dl = document.getElementById('narr-med-dl');
+  if(!dl) return;
+  NARR_MEDS.forEach(m=>{ const o=document.createElement('option'); o.value=m; dl.appendChild(o); });
+}
+
+function renderNarrChips(containerId, items, selectedSet){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  el.innerHTML = items.map(item=>`<button type="button" class="narr-chip${selectedSet.has(item)?' sel':''}" data-val="${item}">${item}</button>`).join('');
+  el.querySelectorAll('.narr-chip').forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      const v = chip.dataset.val;
+      if(selectedSet.has(v)) selectedSet.delete(v); else selectedSet.add(v);
+      chip.classList.toggle('sel', selectedSet.has(v));
+      buildNarrative();
+    });
+  });
+}
+
+const narrSelectedSymptoms = new Set();
+const narrSelectedPMH = new Set();
+
+function renderMedTags(){
+  const row = document.getElementById('nf-med-tags');
+  if(!row) return;
+  row.innerHTML = narrMeds.map((m,i)=>`<div class="narr-tag">${m}<button onclick="narrMeds.splice(${i},1);renderMedTags();buildNarrative()">✕</button></div>`).join('');
+}
+
+function buildNarrTreatment(){
+  const parts=[];
+  if(isNarrTx('tx','ambulate')) parts.push('PATIENT ASSISTED IN AMBULATING TO STRETCHER');
+  if(isNarrTx('tx','carried')) parts.push('PATIENT CARRIED TO STRETCHER');
+  if(isNarrTx('tx','position')){ const pos=narrVal('nf-position'); parts.push(`PATIENT SECURED TO STRETCHER IN ${uc(pos)} POSITION`); }
+  if(isNarrTx('tx','c-collar')) parts.push('CERVICAL COLLAR APPLIED');
+  if(isNarrTx('tx','backboard')) parts.push('SPINAL PRECAUTIONS TAKEN, LONG BACKBOARD APPLIED');
+  if(isNarrTx('tx','hemodynamic')) parts.push('HEMODYNAMIC ASSESSMENT COMPLETED');
+  if(isNarrTx('tx','bgl')){ const v=narrVal('nf-bgl-val'); parts.push(`BLOOD GLUCOSE ASSESSED${v?': '+v+' MG/DL':''}`); }
+  if(isNarrTx('tx','ecg12')) parts.push('12-LEAD EKG OBTAINED');
+  if(isNarrTx('tx','cardiac-monitor')) parts.push('CONTINUOUS CARDIAC MONITORING INITIATED');
+  if(isNarrTx('tx','o2')){ const dev=narrVal('nf-o2-device'),rate=narrVal('nf-o2-rate'); parts.push(`OXYGEN ADMINISTERED VIA ${uc(dev)}${rate?' AT '+rate+' LPM':''}`); }
+  if(isNarrTx('tx','suction')) parts.push('AIRWAY SUCTIONING PERFORMED');
+  if(isNarrTx('tx','opa')) parts.push('OPA INSERTED');
+  if(isNarrTx('tx','npa')) parts.push('NPA INSERTED');
+  if(isNarrTx('tx','ett')) parts.push('ENDOTRACHEAL INTUBATION PERFORMED');
+  if(isNarrTx('tx','iv')){ const g=narrVal('nf-iv-gauge'),f=narrVal('nf-iv-fluid'),s=narrVal('nf-iv-site'); parts.push(`${g?g+'G ':''}IV ACCESS ESTABLISHED${f?' WITH '+uc(f):''}${s?' IN '+uc(s):''}`); }
+  if(isNarrTx('tx','saline-lock')) parts.push('SALINE LOCK APPLIED');
+  if(isNarrTx('tx-med','asa')) parts.push('ASPIRIN 324MG ADMINISTERED PO');
+  if(isNarrTx('tx-med','nitro')){ const d=narrVal('nf-nitro-doses')||'1'; parts.push(`NITROGLYCERIN 0.4MG ADMINISTERED SL × ${d}`); }
+  if(isNarrTx('tx-med','narcan')){ const d=narrVal('nf-narcan-dose'),r=narrVal('nf-narcan-route'); parts.push(`NALOXONE${d?' '+d+'MG':''} ADMINISTERED ${uc(r)}`); }
+  if(isNarrTx('tx-med','albuterol')) parts.push('ALBUTEROL 2.5MG ADMINISTERED VIA NEBULIZER');
+  if(isNarrTx('tx-med','zofran')){ const r=narrVal('nf-zofran-route'); parts.push(`ONDANSETRON 4MG ADMINISTERED ${uc(r)}`); }
+  if(isNarrTx('tx-med','apap')) parts.push('ACETAMINOPHEN 1000MG ADMINISTERED IV');
+  if(isNarrTx('tx-med','d50')) parts.push('DEXTROSE 50% 25G ADMINISTERED IV');
+  if(isNarrTx('tx-med','epi')) parts.push('EPINEPHRINE 0.3MG ADMINISTERED IM');
+  if(isNarrTx('tx-med','solumedrol')) parts.push('SOLU-MEDROL 125MG ADMINISTERED');
+  if(isNarrTx('tx-med','fentanyl')){ const d=narrVal('nf-fentanyl-dose'),r=narrVal('nf-fentanyl-route'); parts.push(`FENTANYL${d?' '+d+'MCG':''} ADMINISTERED ${uc(r)}`); }
+  if(isNarrTx('tx-med','midazolam')){ const d=narrVal('nf-midaz-dose'),r=narrVal('nf-midaz-route'); parts.push(`MIDAZOLAM${d?' '+d+'MG':''} ADMINISTERED ${uc(r)}`); }
+  if(isNarrTx('tx','pulsara')){ const t=narrVal('nf-pulsara-min'); parts.push(`12-LEAD EKG TRANSMITTED VIA PULSARA APPROXIMATELY ${t||'___'} MINUTES PRIOR TO ARRIVAL`); }
+  const notes=narrVal('nf-tx-notes'); if(notes) parts.push(uc(notes));
+  return parts.join('. ')+(parts.length?'.':'');
+}
+
+function buildNarrative(){
+  const type=narrVal('narr-type')||'emergency';
+  // Complaint
+  let complaint=narrVal('nf-complaint');
+  if(complaint==='__other') complaint=narrVal('nf-complaint-other');
+  if(!complaint) complaint='[COMPLAINT]';
+  // Response
+  const respVal=narrVal('nf-response');
+  const respText=respVal==='nonemergent'?'NON-EMERGENT':respVal==='staged'?'STAGED':' EMERGENT WITH LIGHTS AND SIRENS';
+  const dispatchLine = type==='transfer'
+    ? `DISPATCH — EMS REQUESTED FOR INTERFACILITY TRANSFER OF ${uc(complaint)} PATIENT. EMS RESPONDED ${respText}.`
+    : `DISPATCH — EMS DISPATCHED FOR ${uc(complaint)}. EMS RESPONDED ${respText}.`;
+
+  // Transfer additions
+  let transferLines='';
+  if(type==='transfer'){
+    const sf=narrVal('nf-sending-fac'), tr=narrVal('nf-transfer-reason');
+    if(sf||tr) transferLines=`\nSENDING FACILITY — PATIENT WAS RECEIVED AT ${uc(sf)||'[SENDING FACILITY]'}.${tr?' PATIENT WAS TRANSFERRED FOR '+uc(tr)+'.':''}`;
+  }
+
+  // HPI
+  const onset=narrVal('nf-onset-time'), duration=narrVal('nf-duration'), activity=narrVal('nf-activity');
+  const noPain=narrChk('nf-no-pain');
+  const painVal=document.getElementById('nf-pain')?.value||'0';
+  const painText=noPain?'PATIENT DENIED PAIN':`PAIN WAS RATED ${painVal}/10`;
+  const symptoms=[...narrSelectedSymptoms];
+  const pmh=[...narrSelectedPMH];
+  const meds=[...narrMeds];
+  const hpiNotes=narrVal('nf-hpi-notes');
+  let hpiParts=[];
+  if(activity) hpiParts.push(`PATIENT WAS ${uc(activity)} WHEN SYMPTOMS BEGAN`);
+  if(onset) hpiParts.push(`ONSET WAS NOTED AT ${uc(onset)}`);
+  if(duration) hpiParts.push(`DURATION OF COMPLAINT WAS ${uc(duration)}`);
+  if(noPain||parseInt(painVal)>0) hpiParts.push(painText);
+  if(symptoms.length) hpiParts.push(`ASSOCIATED SYMPTOMS INCLUDED ${symptoms.map(uc).join(', ')}`);
+  if(pmh.length) hpiParts.push(`HISTORY OF ${pmh.map(uc).join(', ')}`);
+  if(meds.length) hpiParts.push(`PATIENT TAKES ${meds.map(uc).join(', ')}`);
+  if(hpiNotes) hpiParts.push(uc(hpiNotes));
+  const hpiLine=`HISTORY OF PRESENT ILLNESS — ${hpiParts.length?hpiParts.join('. ')+'.':'[HPI]'}`;
+
+  // Assessment
+  const airway=narrVal('nf-airway'), lungs=narrVal('nf-lungs'), mental=narrVal('nf-mental'), skin=narrVal('nf-skin'), assessNotes=narrVal('nf-assessment-notes');
+  let assessParts=[];
+  if(airway) assessParts.push(`AIRWAY WAS ${uc(airway)}`);
+  if(lungs) assessParts.push(`LUNG SOUNDS WERE ${uc(lungs)}`);
+  if(mental) assessParts.push(`MENTAL STATUS WAS ${uc(mental)}`);
+  if(skin) assessParts.push(`SKIN WAS ${uc(skin)}`);
+  assessParts.push(`PATIENT COMPLAINT WAS ${uc(complaint)}`);
+  assessParts.push(painText);
+  if(assessNotes) assessParts.push(uc(assessNotes));
+  const assessLine=`PERTINENT ASSESSMENT FINDINGS — ${assessParts.join('. ')}.`;
+
+  // Treatment
+  const txText=buildNarrTreatment();
+  const txLine=txText?`TREATMENT — TREATMENT INCLUDED: ${txText}`:'';
+
+  // Response
+  const responseText=narrVal('nf-response-text');
+  const responseLine=responseText?`RESPONSE TO TREATMENT — ${uc(responseText)}`:'';
+
+  // Destination / Refusal
+  let finalLine='';
+  if(type==='refusal'){
+    const comp=narrChk('nf-competency'), risks=narrVal('nf-refusal-risks');
+    const wName=narrVal('nf-witness-name'), wRole=narrVal('nf-witness-role');
+    const retPrec=narrChk('nf-return-precautions'), signed=narrChk('nf-refusal-signed');
+    let rParts=[];
+    if(comp) rParts.push('PATIENT WAS ALERT AND ORIENTED X4 AND DEMONSTRATED DECISION-MAKING CAPACITY');
+    rParts.push('TREATMENT AND TRANSPORT WERE OFFERED AND REFUSED BY THE PATIENT');
+    if(risks) rParts.push(`RISKS OF REFUSAL WERE EXPLAINED INCLUDING ${uc(risks)}`);
+    if(wName) rParts.push(`${uc(wName)}${wRole?', '+uc(wRole):''} WAS PRESENT AS A WITNESS`);
+    if(retPrec) rParts.push('RETURN PRECAUTIONS WERE EXPLAINED AND PATIENT VERBALIZED UNDERSTANDING');
+    if(signed) rParts.push('PATIENT SIGNED REFUSAL FORM');
+    finalLine=`PATIENT REFUSAL — ${rParts.join('. ')}.`;
+  } else {
+    const destSel=document.getElementById('nf-destination');
+    const dest=destSel?.value||'';
+    const method=narrVal('nf-arrival-method'), area=narrVal('nf-dest-area'), careOf=narrVal('nf-care-of');
+    if(dest||method||area||careOf){
+      finalLine=`DESTINATION — UPON ARRIVAL AT ${uc(dest)||'[FACILITY]'} PATIENT ${uc(method)||'TRANSPORTED IN ON STRETCHER'}. PATIENT MOVED TO ${uc(area)||'DESIGNATED BED'}. PATIENT LEFT IN CARE OF ${uc(careOf)||'[RECEIVING STAFF]'}.`;
+    }
+  }
+
+  const narrative=[dispatchLine,transferLines,hpiLine,assessLine,txLine,responseLine,finalLine].filter(Boolean).join('\n\n');
+  const el=document.getElementById('narr-preview');
+  if(el) el.textContent=narrative;
+  return narrative;
+}
+
+function narrUpdateTemplate(){
+  const type=narrVal('narr-type')||'emergency';
+  document.querySelectorAll('.narr-transfer-only').forEach(el=>el.style.display=type==='transfer'?'':'none');
+  const refusal=type==='refusal';
+  const transport=document.getElementById('nsec-transport');
+  const refusalSec=document.getElementById('nsec-refusal');
+  if(transport) transport.style.display=refusal?'none':'';
+  if(refusalSec) refusalSec.style.display=refusal?'':'none';
+  buildNarrative();
+}
+
+function narrClear(){
+  if(!confirm('Clear the current narrative? This cannot be undone.')) return;
+  document.querySelectorAll('#tab-narrative input[type=text],#tab-narrative input[type=range],#tab-narrative textarea,#tab-narrative select').forEach(el=>{
+    if(el.type==='range') el.value='0';
+    else el.value='';
+  });
+  document.querySelectorAll('#tab-narrative input[type=checkbox]').forEach(el=>{ el.checked=false; });
+  document.querySelectorAll('#tab-narrative input#nf-competency,#tab-narrative input#nf-return-precautions,#tab-narrative input#nf-refusal-signed').forEach(el=>{ el.checked=true; });
+  narrSelectedSymptoms.clear(); narrSelectedPMH.clear(); narrMeds=[];
+  renderNarrChips('nf-symptoms',NARR_SYMPTOMS,narrSelectedSymptoms);
+  renderNarrChips('nf-pmh',NARR_PMH,narrSelectedPMH);
+  renderMedTags();
+  document.getElementById('nf-pain-val').textContent='0';
+  buildNarrative();
+}
+
+const NARR_HIST_KEY='pat-narr-history';
+function loadNarrHistory(){ try{ return JSON.parse(localStorage.getItem(NARR_HIST_KEY)||'[]'); }catch(e){ return []; } }
+function saveNarrHistory(arr){ localStorage.setItem(NARR_HIST_KEY,JSON.stringify(arr.slice(0,60))); }
+
+function updateNarrHistCount(){
+  const el=document.getElementById('narr-hist-ct'); if(el) el.textContent=loadNarrHistory().length;
+}
+
+function renderNarrHistory(){
+  const list=document.getElementById('narr-hist-list'); if(!list) return;
+  const hist=loadNarrHistory();
+  if(!hist.length){ list.innerHTML='<div style="padding:14px;text-align:center;color:var(--muted);font-size:13px">No saved narratives yet.</div>'; return; }
+  list.innerHTML=hist.map((item,i)=>{
+    const d=new Date(item.ts);
+    const dstr=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    return `<div class="narr-hist-item">
+      <div class="narr-hist-meta">${dstr} · ${item.type||'Emergency'}</div>
+      <div class="narr-hist-text">${item.preview||''}</div>
+      <div class="narr-hist-actions">
+        <button class="narr-hist-btn" onclick="narrCopyItem(${i})">📋 Copy</button>
+        <button class="narr-hist-btn del" onclick="narrDeleteItem(${i})">🗑 Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function narrSave(){
+  const text=document.getElementById('narr-preview')?.textContent||'';
+  if(!text||text==='Fill in the fields above to generate your narrative.'){ showToast('Nothing to save yet.'); return; }
+  const hist=loadNarrHistory();
+  hist.unshift({ ts:Date.now(), type:narrVal('narr-type')||'emergency', preview:text.slice(0,120), text });
+  saveNarrHistory(hist);
+  updateNarrHistCount();
+  showToast('Narrative saved to history.');
+}
+
+function narrCopyItem(idx){
+  const hist=loadNarrHistory();
+  if(!hist[idx]) return;
+  navigator.clipboard.writeText(hist[idx].text).then(()=>showToast('Copied!')).catch(()=>{ const ta=document.createElement('textarea'); ta.value=hist[idx].text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('Copied!'); });
+}
+
+function narrDeleteItem(idx){
+  const hist=loadNarrHistory(); hist.splice(idx,1); saveNarrHistory(hist); renderNarrHistory(); updateNarrHistCount();
+}
+
+function initNarrative(){
+  initNarrHospitals();
+  initNarrMedDL();
+  renderNarrChips('nf-symptoms',NARR_SYMPTOMS,narrSelectedSymptoms);
+  renderNarrChips('nf-pmh',NARR_PMH,narrSelectedPMH);
+  // Response quick-select chips
+  const respEl=document.getElementById('nf-response-chips');
+  if(respEl){
+    respEl.innerHTML=NARR_RESPONSES.map(r=>`<button type="button" class="narr-chip" data-val="${r}">${r}</button>`).join('');
+    respEl.querySelectorAll('.narr-chip').forEach(chip=>{
+      chip.addEventListener('click',()=>{
+        const ta=document.getElementById('nf-response-text');
+        if(ta){ ta.value=chip.dataset.val; buildNarrative(); }
+      });
+    });
+  }
+  updateNarrHistCount();
+
+  // Wire template type change
+  document.getElementById('narr-type')?.addEventListener('change', narrUpdateTemplate);
+
+  // Wire complaint other
+  document.getElementById('nf-complaint')?.addEventListener('change', e=>{
+    const oth=document.getElementById('nf-complaint-other');
+    if(oth) oth.style.display=e.target.value==='__other'?'':'none';
+    buildNarrative();
+  });
+
+  // Pain slider
+  const painSlider=document.getElementById('nf-pain');
+  const painVal=document.getElementById('nf-pain-val');
+  const noPainChk=document.getElementById('nf-no-pain');
+  painSlider?.addEventListener('input',()=>{ if(painVal) painVal.textContent=painSlider.value; if(noPainChk&&parseInt(painSlider.value)>0) noPainChk.checked=false; buildNarrative(); });
+  noPainChk?.addEventListener('change',()=>{ if(painSlider&&noPainChk.checked) painSlider.value='0'; if(painVal&&noPainChk.checked) painVal.textContent='0'; buildNarrative(); });
+
+  // Med add button
+  document.getElementById('btn-narr-add-med')?.addEventListener('click',()=>{
+    const inp=document.getElementById('nf-med-input');
+    const v=(inp?.value||'').trim();
+    if(v&&!narrMeds.includes(v)){ narrMeds.push(v); if(inp) inp.value=''; renderMedTags(); buildNarrative(); }
+  });
+  document.getElementById('nf-med-input')?.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); document.getElementById('btn-narr-add-med')?.click(); } });
+
+  // Wire all other inputs
+  document.getElementById('tab-narrative')?.querySelectorAll('input,select,textarea').forEach(el=>{
+    const evt=el.type==='checkbox'||el.type==='radio'?'change':'input';
+    el.addEventListener(evt, buildNarrative);
+  });
+
+  // Copy button
+  document.getElementById('btn-narr-copy')?.addEventListener('click',()=>{
+    const text=document.getElementById('narr-preview')?.textContent||'';
+    if(!text||text==='Fill in the fields above to generate your narrative.'){ showToast('Nothing to copy yet.'); return; }
+    navigator.clipboard.writeText(text).then(()=>showToast('Narrative copied!')).catch(()=>{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('Copied!'); });
+  });
+
+  // Save button
+  document.getElementById('btn-narr-save-hist')?.addEventListener('click', narrSave);
+
+  // Clear button
+  document.getElementById('btn-narr-clear')?.addEventListener('click', narrClear);
+
+  // History toggle
+  document.getElementById('btn-narr-hist-toggle')?.addEventListener('click',()=>{
+    const panel=document.getElementById('narr-hist-panel');
+    if(!panel) return;
+    const hidden=panel.style.display==='none';
+    panel.style.display=hidden?'':'none';
+    if(hidden) renderNarrHistory();
+  });
+  document.getElementById('btn-narr-hist-close')?.addEventListener('click',()=>{
+    const p=document.getElementById('narr-hist-panel'); if(p) p.style.display='none';
+  });
+
+  buildNarrative();
 }
 </script>
 </body>
