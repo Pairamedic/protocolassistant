@@ -748,6 +748,17 @@
       </div>
     </div>
 
+    <!-- ── ENCOUNTER NOTES ── -->
+    <div class="narr-sec">
+      <div class="narr-sec-hd" style="color:rgba(196,181,253,1)">📝 Encounter Notes</div>
+      <div class="narr-sec-body">
+        <div class="narr-field">
+          <label class="narr-lbl">Additional Encounter Notes</label>
+          <textarea id="nf-encounter-notes" class="narr-textarea" rows="3" placeholder="Non-clinical notes related to the encounter (scene conditions, behavioral concerns, family involvement, crew observations, etc.)…"></textarea>
+        </div>
+      </div>
+    </div>
+
     <!-- ── PREVIEW ── -->
     <div class="narr-preview-wrap">
       <div class="narr-preview-hd">
@@ -1055,8 +1066,9 @@ function initCombo(opts){
         const el=items2[focusedIdx];
         handleSelect({label:el.dataset.label, value:el.dataset.val});
       } else if(opts.multi && inp.value.trim()){
-        const custom = inp.value.trim();
-        if(opts.selectedSet) opts.selectedSet.add(custom);
+        inp.value.trim().split(/\s*,\s*/).filter(Boolean).forEach(part=>{
+          if(opts.selectedSet) opts.selectedSet.add(part.trim());
+        });
         inp.value='';
         renderDrop('');
         renderTags(opts.tagsId, opts.selectedSet, opts.onRemove||null);
@@ -1281,11 +1293,11 @@ function buildNarrative(){
   if(isMoveActive('ambulate')) txParts.push('PATIENT ASSISTED IN AMBULATING TO STRETCHER');
   if(isMoveActive('carried')) txParts.push('PATIENT CARRIED TO STRETCHER');
   const pos=narrVal('nf-position'); if(pos) txParts.push(`PATIENT SECURED TO STRETCHER IN ${uc(pos)} POSITION`);
-  if(isMoveActive('backboard')) txParts.push('SPINAL PRECAUTIONS TAKEN, LONG BACKBOARD APPLIED');
-  if(isMoveActive('splint')) txParts.push('SPLINT APPLIED');
-  if(isMoveActive('tourniquet')) txParts.push('TOURNIQUET APPLIED');
-  if(isMoveActive('wound-packing')) txParts.push('WOUND PACKING PERFORMED');
-  if(isMoveActive('pressure-dressing')) txParts.push('PRESSURE DRESSING APPLIED');
+  if(isMonChipActive('backboard')) txParts.push('SPINAL PRECAUTIONS TAKEN, LONG BACKBOARD APPLIED');
+  if(isMonChipActive('splint')) txParts.push('SPLINT APPLIED');
+  if(isMonChipActive('tourniquet')) txParts.push('TOURNIQUET APPLIED');
+  if(isMonChipActive('wound-packing')) txParts.push('WOUND PACKING PERFORMED');
+  if(isMonChipActive('pressure-dressing')) txParts.push('PRESSURE DRESSING APPLIED');
   ['suction','opa','npa','bvm'].forEach(v=>{
     if(isAirActive(v)){
       const m={suction:'AIRWAY SUCTIONING PERFORMED',opa:'OPA INSERTED',npa:'NPA INSERTED',bvm:'BVM VENTILATION INITIATED'};
@@ -1305,7 +1317,7 @@ function buildNarrative(){
   if(narrChk('nf-iv-deferred-chk')){
     txParts.push('PERIPHERAL IV ACCESS ATTEMPTED BUT UNSUCCESSFUL. IV ACCESS DEFERRED — UNABLE TO IDENTIFY SUITABLE PERIPHERAL VEIN. CLINICAL CONDITION DID NOT WARRANT INTRAOSSEOUS ACCESS');
   }
-  if(isMonChipActive('hemodynamic')) txParts.push('HEMODYNAMIC ASSESSMENT/MONITORING PERFORMED (BP, HR, RR, SPO2)');
+  if(isMonChipActive('hemodynamic')) txParts.push('CONTINUOUS HEMODYNAMIC MONITORING PERFORMED');
   if(isMonChipActive('bga')) txParts.push('BLOOD GLUCOSE ANALYSIS PERFORMED');
   if(isMonChipActive('c-collar')) txParts.push('CERVICAL COLLAR APPLIED');
   if(isMonChipActive('c-spine')) txParts.push('C-SPINE CLEARANCE PERFORMED — PATIENT CLEARED PER PROTOCOL');
@@ -1350,6 +1362,9 @@ function buildNarrative(){
     }
   }
 
+  const encounterNotes = narrVal('nf-encounter-notes');
+  const encounterLine = encounterNotes ? `ENCOUNTER NOTES - ${uc(encounterNotes)}` : '';
+
   let txDelayLine = '';
   if(narrChk('nf-tx-delay-chk')){
     const reason = narrVal('nf-tx-delay-reason');
@@ -1357,7 +1372,7 @@ function buildNarrative(){
     txDelayLine = `TRANSPORT DELAY — ${reason ? uc(reason) : 'DELAY NOTED'}${notes ? '. ' + uc(notes) : ''}.`;
   }
 
-  const narrative=[dispatchLine,respDelayLine,transferLines,hpiLine,assessLine,txLine,responseLine,txDelayLine,finalLine].filter(Boolean).join('\n\n');
+  const narrative=[dispatchLine,respDelayLine,transferLines,hpiLine,assessLine,txLine,responseLine,txDelayLine,encounterLine,finalLine].filter(Boolean).join('\n\n').replace(/\u2014/g,' - ');
   const el=document.getElementById('narr-preview');
   if(el) el.textContent=narrative;
 
@@ -1372,11 +1387,18 @@ function buildNarrative(){
   if(isMonChipActive('o2')){ const dev=narrVal('nf-o2-device'),rate=narrVal('nf-o2-rate'); pulInterventions.push(`O2 VIA ${uc(dev||'delivery device')}${rate?' AT '+rate+' LPM':''}`); }
   narrTxMeds.forEach(m=>pulInterventions.push(`${uc(m.name)}${m.dose?' '+uc(m.dose):''}`));
   if(isMonChipActive('cardiac-monitor')) pulInterventions.push('CARDIAC MONITORING');
+  if(isMonChipActive('etco2-monitor')) pulInterventions.push('ETCO2 MONITORING');
+  if(isMonChipActive('bga')) pulInterventions.push('BGL CHECKED');
+  if(isMonChipActive('hemodynamic')) pulInterventions.push('HEMODYNAMIC MONITORING');
   if(isMonChipActive('tourniquet')) pulInterventions.push('TOURNIQUET APPLIED');
   if(isMonChipActive('backboard')) pulInterventions.push('SPINAL PRECAUTIONS');
+  if(isMonChipActive('splint')) pulInterventions.push('SPLINT APPLIED');
+  if(isMonChipActive('wound-packing')) pulInterventions.push('WOUND PACKING');
+  if(isAirActive('ett')){ const sz=narrVal('nf-ett-size'); pulInterventions.push(`ET INTUBATION${sz?' ('+sz+'MM)':''}`); }
+  if(isAirActive('sga')) pulInterventions.push('SGA INSERTED');
   if(pulsaraParts.length||pulInterventions.length){
     let pulsaraText=pulsaraParts.join('');
-    if(pulInterventions.length) pulsaraText+=(pulsaraText?' — ':'')+pulInterventions.join(', ');
+    if(pulInterventions.length) pulsaraText+=(pulsaraText?' - ':'')+pulInterventions.join(', ');
     const pe=document.getElementById('pulsara-preview');
     if(pe) pe.textContent=pulsaraText||'—';
   } else {
