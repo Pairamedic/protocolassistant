@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>PCR Narrative — PAT</title>
+  <link rel="icon" type="image/svg+xml" href="star-of-life.svg" />
+  <link rel="apple-touch-icon" href="star-of-life.svg" />
+  <style>
+    /* ── CSS Variables ── */
+    :root {
+      --bg: #0b0d10;
+      --card: #141820;
+      --muted: #a7b0be;
+      --text: #e6eef8;
+      --accent: #5eead4;
+      --border: rgba(255,255,255,.1);
+      --input-bg: #0f131a;
+    }
+
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ── Spinner / Auth Loading ── */
+    #loading {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg); z-index: 999;
+      flex-direction: column; gap: 14px;
+    }
+    .spin {
+      display: inline-block; width: 32px; height: 32px;
+      border: 3px solid rgba(255,255,255,.12);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── App Shell ── */
+    #app { display: none; flex-direction: column; min-height: 100vh; }
+
+    /* ── Header ── */
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+      position: sticky; top: 0; z-index: 100;
+      height: 52px;
+      display: flex;
+      align-items: center;
+    }
+    .header-inner {
+      max-width: 900px; margin: 0 auto; width: 100%;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .header-pat-btn {
+      padding: 7px 13px;
+      border-radius: 10px;
+      border: 1px solid rgba(94,234,212,.35);
+      background: rgba(94,234,212,.08);
+      color: #5eead4;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: background .15s;
+    }
+    .header-pat-btn:hover { background: rgba(94,234,212,.15); }
+    .header-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .header-clear-btn {
+      background: rgba(248,113,113,.1);
+      border: 1px solid rgba(248,113,113,.3);
+      border-radius: 8px;
+      color: #f87171;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      padding: 7px 13px;
+      transition: background .15s;
+      white-space: nowrap;
+    }
+    .header-clear-btn:hover { background: rgba(248,113,113,.18); }
+
+    /* ── Content ── */
+    .page-content {
+      flex: 1;
+      padding: 16px;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: #1e2a1e;
+      border: 1px solid rgba(74,222,128,.3);
+      border-radius: 10px;
+      color: #4ade80;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 10px 20px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .2s, transform .2s;
+      z-index: 999;
+      white-space: nowrap;
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── Narrative Builder CSS ── */
+    .action-btn {
+      background: rgba(255,255,255,.07);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      padding: 8px 14px;
+      transition: background .15s;
+    }
+    .action-btn:hover { background: rgba(255,255,255,.12); }
+    .action-btn.save-btn {
+      background: var(--accent);
+      color: #0b0d10;
+      border-color: transparent;
+      font-weight: 600;
+    }
+    .action-btn.save-btn:hover { background: #4dd4c0; }
+
+    .narr-topbar{display:flex;gap:8px;align-items:center;padding:12px 0 8px;flex-wrap:wrap}
+    .narr-sec{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden}
+    .narr-sec-hd{font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;padding:10px 14px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.025);display:flex;align-items:center;gap:6px}
+    .narr-sec-body{padding:12px 14px;display:flex;flex-direction:column;gap:11px}
+    .narr-field{display:flex;flex-direction:column;gap:5px}
+    .narr-lbl{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.3px;text-transform:uppercase}
+    .narr-input,.narr-sel,.narr-textarea{background:var(--input-bg);border:1px solid var(--border);border-radius:9px;color:var(--text);padding:10px 12px;font-size:14px;width:100%;font-family:inherit}
+    .narr-input:focus,.narr-sel:focus,.narr-textarea:focus{border-color:var(--accent);outline:none}
+    .narr-textarea{resize:vertical;min-height:68px}
+    .narr-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .narr-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+    /* N/A button + number wrap */
+    .narr-num-wrap{display:flex;gap:6px;align-items:center}
+    .narr-num-wrap .narr-input{flex:1}
+    .narr-na-btn{flex:none;padding:9px 13px;border-radius:9px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s}
+    .narr-na-btn.active{border-color:rgba(248,113,113,.5);background:rgba(248,113,113,.1);color:#f87171}
+    /* Typeahead combo */
+    .narr-combo-wrap{position:relative}
+    .narr-combo-input-row{display:flex;gap:6px}
+    .narr-combo-input{background:var(--input-bg);border:1px solid var(--border);border-radius:9px;color:var(--text);padding:10px 12px;font-size:14px;width:100%;font-family:inherit;outline:none}
+    .narr-combo-input:focus{border-color:var(--accent)}
+    .narr-combo-drop{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:10px;z-index:50;max-height:220px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.5);display:none}
+    .narr-combo-drop.open{display:block}
+    .narr-combo-item{padding:10px 13px;font-size:13px;cursor:pointer;color:var(--text);border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:8px}
+    .narr-combo-item:last-child{border-bottom:none}
+    .narr-combo-item:hover,.narr-combo-item.focused{background:rgba(94,234,212,.08);color:var(--accent)}
+    .narr-combo-item.selected-item{color:var(--accent)}
+    .narr-combo-item .ci-check{width:14px;height:14px;border-radius:3px;border:1px solid var(--border);flex:none;display:inline-flex;align-items:center;justify-content:center;font-size:10px}
+    .narr-combo-item.selected-item .ci-check{background:var(--accent);border-color:var(--accent);color:#0b0d10}
+    /* Tags row */
+    .narr-tag-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;min-height:0}
+    .narr-tag{display:flex;align-items:center;gap:5px;background:rgba(94,234,212,.1);border:1px solid rgba(94,234,212,.3);border-radius:20px;padding:4px 10px;font-size:12px;color:var(--accent);max-width:100%}
+    .narr-tag span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .narr-tag button{background:none;border:none;color:rgba(94,234,212,.6);cursor:pointer;font-size:13px;line-height:1;padding:0;flex:none}
+    /* Segmented pills for response type */
+    .narr-seg{display:flex;gap:0;border:1px solid var(--border);border-radius:9px;overflow:hidden}
+    .narr-seg-btn{flex:1;padding:10px 6px;background:none;border:none;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;border-right:1px solid var(--border)}
+    .narr-seg-btn:last-child{border-right:none}
+    .narr-seg-btn.active{background:rgba(94,234,212,.12);color:var(--accent)}
+    @media(max-width:520px){
+      #narr-type-seg{flex-wrap:wrap;border-radius:12px}
+      #narr-type-seg .narr-seg-btn{flex:none;width:50%;box-sizing:border-box;border-right:1px solid var(--border)!important;border-bottom:1px solid var(--border)}
+      #narr-type-seg .narr-seg-btn:nth-child(even){border-right:none!important}
+      #narr-type-seg .narr-seg-btn:nth-child(3),#narr-type-seg .narr-seg-btn:nth-child(4){border-bottom:none}
+    }
+    /* Monitoring chips */
+    .narr-mon-chips{display:flex;flex-wrap:wrap;gap:6px}
+    .narr-mon-chip{padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);font-size:13px;cursor:pointer;transition:all .15s;text-align:left}
+    .narr-mon-chip.active{border-color:rgba(94,234,212,.5);background:rgba(94,234,212,.08);color:var(--accent)}
+    /* Med typeahead */
+    .narr-med-dose-row{display:flex;gap:6px;margin-top:6px;display:none}
+    .narr-med-dose-input{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:9px;color:var(--text);padding:9px 12px;font-size:13px;font-family:inherit;outline:none}
+    .narr-med-dose-input:focus{border-color:var(--accent)}
+    .narr-add-btn{background:var(--accent);border:none;border-radius:9px;color:#0b0d10;font-size:13px;font-weight:700;padding:9px 16px;cursor:pointer;white-space:nowrap}
+    .narr-add-btn:active{opacity:.85}
+    /* Trauma regions */
+    .narr-trauma-regions{display:flex;flex-wrap:wrap;gap:6px}
+    .narr-trauma-reg-btn{padding:8px 13px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);font-size:13px;cursor:pointer;transition:all .15s}
+    .narr-trauma-reg-btn.active{border-color:rgba(248,113,113,.5);background:rgba(248,113,113,.08);color:#f87171}
+    .narr-trauma-findings{margin-top:8px;display:flex;flex-direction:column;gap:6px}
+    .narr-trauma-region-row{background:rgba(248,113,113,.05);border:1px solid rgba(248,113,113,.2);border-radius:9px;padding:8px 10px;display:flex;flex-direction:column;gap:4px}
+    .narr-trauma-region-lbl{font-size:11px;font-weight:700;color:#f87171;text-transform:uppercase;letter-spacing:.3px;display:flex;justify-content:space-between;align-items:center}
+    .narr-trauma-region-lbl button{background:none;border:none;color:rgba(248,113,113,.5);cursor:pointer;font-size:13px;padding:0}
+    .narr-trauma-region-input{background:var(--input-bg);border:1px solid rgba(248,113,113,.2);border-radius:7px;color:var(--text);padding:8px 10px;font-size:13px;width:100%;font-family:inherit;outline:none}
+    .narr-trauma-region-input:focus{border-color:#f87171}
+    /* Preview */
+    .narr-preview-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:10px}
+    .narr-preview-hd{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+    #narr-preview{padding:14px;font-family:inherit;font-size:13px;line-height:1.75;color:var(--text);white-space:pre-wrap;word-break:break-word;margin:0;min-height:80px;background:none}
+    .narr-hist-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    .narr-hist-hd{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+    .narr-hist-item{display:flex;flex-direction:column;gap:3px;padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer}
+    .narr-hist-item:last-child{border-bottom:none}
+    .narr-hist-item:hover{background:rgba(255,255,255,.03)}
+    .narr-hist-meta{font-size:11px;color:var(--muted)}
+    .narr-hist-text{font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .narr-hist-actions{display:flex;gap:6px;margin-top:4px}
+    .narr-hist-btn{padding:5px 11px;border-radius:7px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:11px;cursor:pointer}
+    .narr-hist-btn.del{color:rgba(248,113,113,.8);border-color:rgba(248,113,113,.3)}
+    .narr-inline-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .narr-inline-lbl{font-size:12px;color:var(--muted);white-space:nowrap}
+    .narr-inline-input{background:var(--input-bg);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:7px 10px;font-size:13px;font-family:inherit;outline:none}
+    .narr-inline-input:focus{border-color:var(--accent)}
+    .narr-inline-sel{background:var(--input-bg);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:7px 10px;font-size:13px;font-family:inherit;outline:none}
+    .narr-inline-sel:focus{border-color:var(--accent)}
+    @media(max-width:580px){.narr-row{grid-template-columns:1fr}.narr-row3{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+
+<!-- Auth Loading -->
+<div id="loading">
+  <div class="spin"></div>
+  <span style="color:var(--muted);font-size:14px">Checking session…</span>
+</div>
+
+<!-- Main App -->
+<div id="app">
+  <header>
+    <div class="header-inner">
+      <a href="ProtocolAssistant.html" class="header-pat-btn">← PAT</a>
+      <span class="header-title">📝 PCR Narrative</span>
+      <button class="header-clear-btn" id="btn-narr-clear">🗑 Clear</button>
+    </div>
+  </header>
+
+  <div class="page-content">
+
+    <!-- Topbar: type selector + history -->
+    <div class="narr-topbar">
+      <div class="narr-seg" id="narr-type-seg" style="flex:1">
+        <button class="narr-seg-btn active" data-type="emergency">🚨 Emergency</button>
+        <button class="narr-seg-btn" data-type="transfer">🚑 Transfer</button>
+        <button class="narr-seg-btn" data-type="transport">🏥 Transport</button>
+        <button class="narr-seg-btn" data-type="refusal">📋 Refusal</button>
+      </div>
+      <button class="action-btn" id="btn-narr-hist-toggle">📂 History (<span id="narr-hist-ct">0</span>)</button>
+    </div>
+
+    <!-- History panel -->
+    <div class="narr-hist-wrap" id="narr-hist-panel" style="display:none;margin-bottom:10px">
+      <div class="narr-hist-hd"><span>📂 Saved Narratives</span><button class="narr-hist-btn" id="btn-narr-hist-close">✕ Close</button></div>
+      <div id="narr-hist-list"><div style="padding:14px;text-align:center;color:var(--muted);font-size:13px">No saved narratives yet.</div></div>
+    </div>
+
+    <!-- ── DISPATCH ── -->
+    <div class="narr-sec">
+      <div class="narr-sec-hd" style="color:var(--accent)">📡 Dispatch</div>
+      <div class="narr-sec-body">
+        <div class="narr-row">
+          <div class="narr-field">
+            <label class="narr-lbl">Chief Complaint</label>
+            <div class="narr-combo-wrap" id="combo-complaint">
+              <div class="narr-combo-input-row">
+                <input type="text" class="narr-combo-input" id="nf-complaint-input" placeholder="Type or select complaint…" autocomplete="off">
+              </div>
+              <div class="narr-combo-drop" id="combo-complaint-drop"></div>
+              <div class="narr-tag-row" id="nf-complaint-tags"></div>
+            </div>
+          </div>
+          <div class="narr-field">
+            <label class="narr-lbl">Response Type</label>
+            <div class="narr-seg" id="narr-response-seg">
+              <button class="narr-seg-btn active" data-val="emergent">Emergent</button>
+              <button class="narr-seg-btn" data-val="nonemergent">Non-Emergent</button>
+              <button class="narr-seg-btn" data-val="staged">Staged</button>
+            </div>
+            <input type="hidden" id="nf-response" value="emergent">
+          </div>
+        </div>
+        <label style="display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer;padding:4px 0">
+          <input type="checkbox" id="nf-trauma-call" style="width:17px;height:17px;accent-color:#f87171;cursor:pointer;flex:none">
+          <span style="color:var(--text)">🚧 Trauma Call</span>
+        </label>
+        <!-- Response delay -->
+        <div class="narr-field">
+          <label style="display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer;padding:2px 0">
+            <input type="checkbox" id="nf-resp-delay-chk" style="width:17px;height:17px;accent-color:rgba(251,191,36,1);cursor:pointer;flex:none">
+            <span style="color:var(--text)">⏱ Response Delay</span>
+          </label>
+          <div id="nf-resp-delay-detail" style="display:none;flex-direction:column;gap:7px">
+            <select id="nf-resp-delay-reason" class="narr-input">
+              <option value="">— Select reason —</option>
+              <option>Staff assembly delay</option>
+              <option>Traffic / road conditions</option>
+              <option>Weather conditions</option>
+              <option>Scene staging (law enforcement request)</option>
+              <option>Unit unavailability</option>
+              <option>Scene access difficulty</option>
+              <option>Vehicle / mechanical issue</option>
+              <option>Extended dispatch time</option>
+              <option>Other</option>
+            </select>
+            <input type="text" id="nf-resp-delay-notes" class="narr-input" placeholder="Additional delay details (optional)">
+          </div>
+        </div>
+        <div class="narr-field narr-transfer-only" style="display:none">
+          <label class="narr-lbl">Sending Facility</label>
+          <div class="narr-num-wrap">
+            <input type="text" id="nf-sending-fac" class="narr-input" placeholder="e.g. UAMS Medical Center">
+            <button class="narr-na-btn" data-for="nf-sending-fac">N/A</button>
+          </div>
+        </div>
+        <div class="narr-field narr-transfer-only" style="display:none">
+          <label class="narr-lbl">Reason for Transfer</label>
+          <div class="narr-num-wrap">
+            <input type="text" id="nf-transfer-reason" class="narr-input" placeholder="e.g. Higher level of care for STEMI">
+            <button class="narr-na-btn" data-for="nf-transfer-reason">N/A</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── HPI ── -->
+    <div class="narr-sec">
+      <div class="narr-sec-hd" style="color:rgba(94,234,212,1)">📋 History of Present Illness</div>
+      <div class="narr-sec-body">
+        <div class="narr-row">
+          <div class="narr-field">
+            <label class="narr-lbl">Onset Time</label>
+            <div class="narr-num-wrap">
+              <input type="text" id="nf-onset-time" class="narr-input" placeholder="e.g. 10:00 AM, 2 hrs ago">
+              <button class="narr-na-btn" data-for="nf-onset-time">N/A</button>
+            </div>
+          </div>
+          <div class="narr-field">
+            <label class="narr-lbl">Duration</label>
+            <div class="narr-num-wrap">
+              <input type="text" id="nf-duration" class="narr-input" placeholder="e.g. 3 days, 45 min">
+              <button class="narr-na-btn" data-for="nf-duration">N/A</button>
+            </div>
+          </div>
+        </div>
+        <div class="narr-field">
+          <label class="narr-lbl">Patient Activity at Onset</label>
+          <div class="narr-num-wrap">
+            <input type="text" id="nf-activity" class="narr-input" placeholder="e.g. at rest, walking, sleeping">
+            <button class="narr-na-btn" data-for="nf-activity">N/A</button>
+          </div>
+        </div>
+        <div class="narr-row">
+          <div class="narr-field">
+            <label class="narr-lbl">Pain Score</label>
+            <div class="narr-num-wrap">
+              <input type="number" id="nf-pain" class="narr-input" min="0" max="10" placeholder="0 – 10" inputmode="numeric" style="max-width:100px">
+              <button class="narr-na-btn" id="nf-pain-na">N/A</button>
+              <button class="narr-na-btn" id="nf-pain-denied" style="font-size:11px">Denied</button>
+            </div>
+          </div>
+        </div>
+        <div class="narr-field">
+          <label class="narr-lbl">Associated Symptoms</label>
+          <div class="narr-combo-wrap" id="combo-symptoms">
+            <div class="narr-combo-input-row">
+              <input type="text" class="narr-combo-input" id="nf-symptom-input" placeholder="Search or type a symptom…" autocomplete="off">
+            </div>
+            <div class="narr-combo-drop" id="combo-symptoms-drop"></div>
+            <div class="narr-tag-row" id="nf-symptom-tags"></div>
+          </div>
+        </div>
+        <div class="narr-field">
+          <label class="narr-lbl">Past Medical History</label>
+          <div class="narr-combo-wrap" id="combo-pmh">
+            <div class="narr-combo-input-row">
+              <input type="text" class="narr-combo-input" id="nf-pmh-input" placeholder="Search or type PMH…" autocomplete="off">
+            </div>
+            <div class="narr-combo-drop" id="combo-pmh-drop"></div>
+            <div class="narr-tag-row" id="nf-pmh-tags"></div>
+          </div>
+        </div>
+        <div class="narr-field">
+          <label class="narr-lbl">Patient's Home Medications</label>
+          <div class="narr-combo-wrap" id="combo-home-meds">
+            <div class="narr-combo-input-row">
+              <input type="text" class="narr-combo-input" id="nf-homemd-input" placeholder="Type a medication…" autocomplete="off">
+              <button class="narr-add-btn" id="btn-add-homemd">Add</button>
+            </div>
+            <div class="narr-combo-drop" id="combo-home-meds-drop"></div>
+            <div class="narr-tag-row" id="nf-homemd-tags"></div>
+          </div>
+        </div>
+        <div class="narr-field">
+          <label class="narr-lbl">Additional HPI Notes</label>
+          <textarea id="nf-hpi-notes" class="narr-textarea" rows="2" placeholder="Additional relevant history…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ASSESSMENT FINDINGS ── -->
+    <div class="narr-sec">
+      <div class="narr-sec-hd" style="color:rgba(94,234,212,1)">🩺 Assessment Findings</div>
+      <div class="narr-sec-body">
+        <div class="narr-row">
+          <div class="narr-field">
+            <label class="narr-lbl">Airway</label>
+            <select id="nf-airway" class="narr-input">
+              <option value="">— Select —</option>
+              <option>patent and maintained</option><option>compromised</option>
+              <option>maintained with OPA</option><option>maintained with NPA</option>
+              <option>managed with BVM</option><option>secured via endotracheal intubation</option>
+              <option>secured via supraglottic airway</option>
+            </select>
+          </div>
+          <div class="narr-field">
+            <label class="narr-lbl">Lung Sounds</label>
+            <select id="nf-lungs" class="narr-input">
+              <option value="">— Select —</option>
+              <option>present and clear bilaterally</option><option>diminished bilaterally</option>
+              <option>diminished on the left</option><option>diminished on the right</option>
+              <option>absent bilaterally</option><option>wheezing bilaterally</option>
+              <option>crackles bilaterally</option><option>rhonchi bilaterally</option>
+            </select>
+          </div>
+        </div>
+        <div class="narr-row">
+          <div class="narr-field">
+            <label class="narr-lbl">Mental Status</label>
+            <select id="nf-mental" class="narr-input">
+              <option value="">— Select —</option>
+              <option>alert and oriented x4</option><option>alert and oriented x3</option>
+              <option>alert and oriented x2</option><option>alert and oriented x1</option>
+              <option>confused / disoriented</option><option>obtunded</option><option>unresponsive</option>
+            </select>
+          </div>
+          <div class="narr-field">
+            <label class="narr-lbl">Skin</label>
+            <select id="nf-skin" class="narr-input">
+              <option value="">— Select —</option>
+              <option>warm, dry, and intact</option><option>warm and diaphoretic</option>
+              <option>pale and diaphoretic</option><option>pale and cool</option>
+              <option>flushed and warm</option><option>cyanotic</option><option>jaundiced</option>
+            </select>
+          </div>
+        </div>
+        <div class="narr-row3">
+          <div class="narr-field">
+            <label class="narr-lbl">BGL (mg/dL)</label>
+            <div class="narr-num-wrap">
+              <input type="number" id="nf-bgl" class="narr-input" placeholder="e.g. 120" inputmode="numeric">
+              <button class="narr-na-btn" data-for="nf-bgl">N/A</button>
+            </div>
+          </div>
+          <div class="narr-field">
+            <label class="narr-lbl">SpO2 (%)</label>
+            <div class="narr-num-wrap">
+              <input type="number" id="nf-spo2" class="narr-input" placeholder="e.g. 98" inputmode="numeric" min="0" max="100">
+              <button class="narr-na-btn" data-for="nf-spo2">N/A</button>
+            </div>
+          </div>
+          <div class="narr-field">
+            <label class="narr-lbl">EtCO2 (mmHg)</label>
+            <div class="narr-num-wrap">
+              <input type="number" id="nf-etco2" class="narr-input" placeholder="e.g. 38" inputmode="numeric">
+              <button class="narr-na-btn" data-for="nf-etco2">N/A</button>
+            </div>
+          </div>
+        </div>
+        <div class="narr-field">
+          <label class="narr-lbl">GCS</label>
+          <div class="narr-num-wrap">
+            <input type="number" id="nf-gcs" class="narr-input" placeholder="3–15" inputmode="numeric" min="3" max="15" style="max-width:100px">
+            <button class="narr-na-btn" data-for="nf-gcs">N/A</button>
+          </div>
+        </div>
+        <!-- Trauma section -->
+        <div id="narr-trauma-sec" style="display:none">
+          <div style="font-size:11px;font-weight:700;color:#f87171;letter-spacing:.3px;text-transform:uppercase;margin-bottom:8px">Trauma — Body Regions</div>
+          <div class="narr-trauma-regions" id="narr-trauma-regions">
+            <button type="button" class="narr-trauma-reg-btn" data-region="Head/Face">Head/Face</button>
+            <button type="button" class="narr-trauma-reg-btn" data-region="Neck">Neck</button>
+            <button type="button" class="narr-trauma-reg-btn" data-region="Chest">Chest</button>
+            <button type="button" class="narr-trauma-reg-btn" data-region="Abdomen">Abdomen</button>
+            <button type="button" class="narr-trauma-reg-btn" data-region="Pelvis/Back">Pelvis/Back</button>
+            <button type="button" class="narr-trauma-reg-btn" data-region="Left Arm">Left Arm</button>
+            <button type="button" class="narr-trauma-reg-btn" data-region="Right Arm">Right Arm</button>
+            <button type="button" class="narr-trauma-reg-btn" data-region="Left Leg">Left Leg</button>
+            <button type="button" class="narr-trauma-reg-btn" data-region="Right Leg">Right Leg</button>
+            <button type="button" class="narr-trauma-reg-btn" data-region="Other">Other</button>
+          </div>
+          <div class="narr-trauma-findings" id="narr-trauma-findings"></div>
+        </div>
+        <div class="narr-field">
+          <label class="narr-lbl">Additional Assessment Notes</label>
+          <textarea id="nf-assessment-notes" class="narr-textarea" rows="2" placeholder="Additional pertinent findings…"></textarea>
+        </div>
+        <div style="font-size:12px;color:var(--muted);font-style:italic;padding:2px 0">All other assessment findings as documented throughout EHR.</div>
+      </div>
+    </div>
+
+    <!-- ── TREATMENT ── -->
+    <div class="narr-sec">
+      <div class="narr-sec-hd" style="color:rgba(74,222,128,1)">💊 Treatment</div>
+      <div class="narr-sec-body">
+        <!-- Movement & Positioning -->
+        <div class="narr-field">
+          <label class="narr-lbl">Movement / Positioning</label>
+          <div class="narr-mon-chips" id="narr-move-chips">
+            <button type="button" class="narr-mon-chip" data-val="ambulate">Assisted to stretcher</button>
+            <button type="button" class="narr-mon-chip" data-val="carried">Carried to stretcher</button>
+            <button type="button" class="narr-mon-chip" data-val="backboard">Backboard / spinal precautions</button>
+            <button type="button" class="narr-mon-chip" data-val="splint">Splint applied</button>
+            <button type="button" class="narr-mon-chip" data-val="tourniquet">Tourniquet applied</button>
+            <button type="button" class="narr-mon-chip" data-val="wound-packing">Wound packing</button>
+            <button type="button" class="narr-mon-chip" data-val="pressure-dressing">Pressure dressing</button>
+          </div>
+        </div>
+        <!-- Position select -->
+        <div class="narr-field">
+          <label class="narr-lbl">Position on Stretcher</label>
+          <select id="nf-position" class="narr-input">
+            <option value="">— If applicable —</option>
+            <option>semi-Fowler</option><option>supine</option><option>lateral recumbent</option>
+            <option>Trendelenburg</option><option>upright</option><option>prone</option>
+          </select>
+        </div>
+        <!-- Airway adjuncts -->
+        <div class="narr-field">
+          <label class="narr-lbl">Airway / Ventilation</label>
+          <div class="narr-mon-chips" id="narr-air-chips">
+            <button type="button" class="narr-mon-chip" data-val="suction">Suctioning</button>
+            <button type="button" class="narr-mon-chip" data-val="opa">OPA</button>
+            <button type="button" class="narr-mon-chip" data-val="npa">NPA</button>
+            <button type="button" class="narr-mon-chip" data-val="bvm">BVM ventilation</button>
+            <button type="button" class="narr-mon-chip" data-val="ett">ET Intubation</button>
+            <button type="button" class="narr-mon-chip" data-val="sga">Supraglottic airway</button>
+            <button type="button" class="narr-mon-chip" data-val="cric">Surgical airway (cric)</button>
+          </div>
+          <!-- ET Intubation detail -->
+          <div id="nf-ett-detail" style="display:none;margin-top:8px">
+            <div class="narr-inline-row" style="flex-wrap:wrap;gap:8px">
+              <span class="narr-inline-lbl">Tube size:</span>
+              <input type="number" id="nf-ett-size" class="narr-inline-input" placeholder="7.5" style="width:75px" inputmode="decimal" step="0.5">
+              <span class="narr-inline-lbl">mm</span>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--text)">
+                <input type="checkbox" id="nf-ett-etco2" style="width:15px;height:15px;accent-color:var(--accent);flex:none">
+                <span>EtCO2/capnography confirmed</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <!-- IV / IO Access -->
+        <div class="narr-field">
+          <label style="display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer;padding:2px 0">
+            <input type="checkbox" id="nf-iv-chk" style="width:17px;height:17px;accent-color:var(--accent);cursor:pointer;flex:none">
+            <span style="color:var(--text)">IV / IO access established</span>
+          </label>
+          <div id="nf-iv-detail" style="display:none;margin-top:6px">
+            <div class="narr-inline-row" style="flex-wrap:wrap;gap:6px">
+              <input type="text" id="nf-iv-gauge" class="narr-inline-input" placeholder="gauge" style="width:65px">
+              <span class="narr-inline-lbl">G</span>
+              <select id="nf-iv-fluid" class="narr-inline-sel">
+                <option>NS 0.9%</option><option>LR</option><option>D5W</option><option>TKO/KVO</option><option>IO</option>
+              </select>
+              <input type="text" id="nf-iv-site" class="narr-inline-input" placeholder="site (e.g. LAC, RAC)" style="flex:1;min-width:120px">
+            </div>
+          </div>
+          <!-- IV deferred / unsuccessful -->
+          <label style="display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer;padding:6px 0 2px;color:var(--muted)">
+            <input type="checkbox" id="nf-iv-deferred-chk" style="width:16px;height:16px;accent-color:#f87171;cursor:pointer;flex:none">
+            <span>IV access deferred / unsuccessful</span>
+          </label>
+        </div>
+        <!-- Interventions -->
+        <div class="narr-field">
+          <label class="narr-lbl">Interventions</label>
+          <div class="narr-mon-chips" id="narr-mon-chips">
+            <button type="button" class="narr-mon-chip" data-val="hemodynamic">Hemodynamic Monitoring</button>
+            <button type="button" class="narr-mon-chip" data-val="bga">Blood Glucose Analysis</button>
+            <button type="button" class="narr-mon-chip" data-val="c-collar">C-Collar Applied</button>
+            <button type="button" class="narr-mon-chip" data-val="c-spine">C-Spine Clearance</button>
+            <button type="button" class="narr-mon-chip" data-val="12lead">12-Lead EKG</button>
+            <button type="button" class="narr-mon-chip" data-val="cardiac-monitor">Cardiac Monitoring / 4-Lead</button>
+            <button type="button" class="narr-mon-chip" data-val="etco2-monitor">EtCO2 Monitoring</button>
+            <button type="button" class="narr-mon-chip" data-val="12lead-tx">12-Lead Transmitted</button>
+            <button type="button" class="narr-mon-chip" data-val="pulsara">Pulsara Notification</button>
+            <button type="button" class="narr-mon-chip" data-val="o2">Oxygen Administered</button>
+          </div>
+          <!-- 12-Lead interpretation -->
+          <div id="nf-12lead-detail" style="display:none;margin-top:6px">
+            <div class="narr-num-wrap">
+              <input type="text" id="nf-12lead-interp" class="narr-input" placeholder="Interpretation (e.g. NSR, no acute ST changes)">
+              <button class="narr-na-btn" data-for="nf-12lead-interp">N/A</button>
+            </div>
+          </div>
+          <!-- Pulsara detail -->
+          <div id="nf-pulsara-detail" style="display:none;margin-top:6px">
+            <div class="narr-inline-row">
+              <span class="narr-inline-lbl">Transmitted</span>
+              <input type="number" id="nf-pulsara-min" class="narr-inline-input" placeholder="min" style="width:60px" inputmode="numeric">
+              <span class="narr-inline-lbl">min prior to arrival</span>
+            </div>
+          </div>
+          <!-- Oxygen detail -->
+          <div id="nf-o2-detail" style="display:none;margin-top:6px">
+            <div class="narr-inline-row">
+              <span class="narr-inline-lbl">Device:</span>
+              <select id="nf-o2-device" class="narr-inline-sel">
+                <option>nasal cannula</option><option>non-rebreather mask</option>
+                <option>BVM</option><option>CPAP</option><option>high-flow NC</option>
+              </select>
+              <span class="narr-inline-lbl">Rate:</span>
+              <input type="number" id="nf-o2-rate" class="narr-inline-input" placeholder="LPM" style="width:70px" inputmode="numeric">
+              <span class="narr-inline-lbl">LPM</span>
+            </div>
+          </div>
+        </div>
+        <!-- Medications -->
+        <div class="narr-field">
+          <label class="narr-lbl">Medications Administered</label>
+          <div class="narr-combo-wrap" id="combo-tx-meds">
+            <div class="narr-combo-input-row">
+              <input type="text" class="narr-combo-input" id="nf-txmed-input" placeholder="Search EASI meds…" autocomplete="off">
+            </div>
+            <div class="narr-combo-drop" id="combo-tx-meds-drop"></div>
+            <!-- Dose confirmation row -->
+            <div id="narr-med-dose-row" style="display:none;margin-top:7px;gap:6px;align-items:center;flex-wrap:wrap" class="narr-inline-row">
+              <input type="text" id="nf-txmed-dose" class="narr-med-dose-input" placeholder="Confirm dose (e.g. 4mg IV)" style="flex:1;min-width:150px">
+              <button class="narr-add-btn" id="btn-add-txmed">+ Add</button>
+              <button type="button" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0 4px;line-height:1" id="btn-cancel-txmed">✕</button>
+            </div>
+            <div class="narr-tag-row" id="nf-txmed-tags"></div>
+          </div>
+        </div>
+        <div class="narr-field">
+          <label class="narr-lbl">Additional Treatment Notes</label>
+          <textarea id="nf-tx-notes" class="narr-textarea" rows="2" placeholder="Additional interventions…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RESPONSE TO TREATMENT ── -->
+    <div class="narr-sec">
+      <div class="narr-sec-hd" style="color:rgba(74,222,128,1)">📈 Response to Treatment</div>
+      <div class="narr-sec-body">
+        <div class="narr-field">
+          <label class="narr-lbl">Quick Select</label>
+          <div class="narr-mon-chips" id="nf-response-chips"></div>
+        </div>
+        <div class="narr-field">
+          <textarea id="nf-response-text" class="narr-textarea" rows="3" placeholder="Describe patient response to treatment…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TRANSPORT ── -->
+    <div class="narr-sec" id="nsec-transport">
+      <div class="narr-sec-hd" style="color:rgba(251,146,60,1)">🏥 Transport &amp; Destination</div>
+      <div class="narr-sec-body">
+        <div class="narr-field">
+          <label class="narr-lbl">Destination Facility</label>
+          <div class="narr-combo-wrap" id="combo-destination">
+            <div class="narr-combo-input-row">
+              <input type="text" class="narr-combo-input" id="nf-destination-input" placeholder="Search hospital…" autocomplete="off">
+            </div>
+            <div class="narr-combo-drop" id="combo-destination-drop"></div>
+            <div class="narr-tag-row" id="nf-destination-tags"></div>
+            <input type="hidden" id="nf-destination" value="">
+          </div>
+        </div>
+        <div class="narr-row">
+          <div class="narr-field">
+            <label class="narr-lbl">Arrival Method</label>
+            <select id="nf-arrival-method" class="narr-input">
+              <option value="">— Select —</option>
+              <option>transported in on stretcher</option><option>walked in</option>
+              <option>transported via wheelchair</option>
+            </select>
+          </div>
+          <div class="narr-field">
+            <label class="narr-lbl">Moved to</label>
+            <select id="nf-dest-area" class="narr-input">
+              <option value="">— Select —</option>
+              <option>designated ER bed</option><option>trauma bay</option><option>ICU room</option>
+              <option>labor and delivery room</option><option>observation room</option>
+              <option>cardiac care unit</option><option>designated room</option>
+            </select>
+          </div>
+        </div>
+        <div class="narr-field">
+          <label class="narr-lbl">Left in Care Of</label>
+          <div class="narr-inline-row" style="flex-wrap:wrap;gap:6px;align-items:center">
+            <input type="text" id="nf-care-of-name" class="narr-inline-input" placeholder="Name (e.g. Smith, J.)" style="flex:1;min-width:130px" autocomplete="off" list="care-of-suggestions">
+            <datalist id="care-of-suggestions"></datalist>
+            <select id="nf-care-of-cred" class="narr-inline-sel" style="flex:none">
+              <option value="">Credential</option>
+              <option>RN</option><option>Charge RN</option><option>MD</option><option>DO</option>
+              <option>PA-C</option><option>APRN/NP</option><option>EMT-P</option><option>EMT</option>
+              <option>Receiving EMS Crew</option>
+            </select>
+            <button class="narr-na-btn" id="nf-care-of-cred-na">N/A cred</button>
+          </div>
+        </div>
+        <!-- Transport / on-scene delay -->
+        <div class="narr-field">
+          <label style="display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer;padding:2px 0">
+            <input type="checkbox" id="nf-tx-delay-chk" style="width:17px;height:17px;accent-color:rgba(251,191,36,1);cursor:pointer;flex:none">
+            <span style="color:var(--text)">⏱ Transport / On-Scene Delay</span>
+          </label>
+          <div id="nf-tx-delay-detail" style="display:none;flex-direction:column;gap:7px">
+            <select id="nf-tx-delay-reason" class="narr-input">
+              <option value="">— Select reason —</option>
+              <option>ED overcrowding / diversion</option>
+              <option>Extended extrication</option>
+              <option>Extended on-scene stabilization</option>
+              <option>Awaiting ALS intercept</option>
+              <option>Awaiting law enforcement clearance</option>
+              <option>Awaiting accepting physician</option>
+              <option>Air transport unavailable / weather</option>
+              <option>Patient initially refused — later consented</option>
+              <option>Extended transfer of care wait</option>
+              <option>Other</option>
+            </select>
+            <input type="text" id="nf-tx-delay-notes" class="narr-input" placeholder="Additional delay details (optional)">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── REFUSAL ── -->
+    <div class="narr-sec" id="nsec-refusal" style="display:none">
+      <div class="narr-sec-hd" style="color:rgba(248,113,113,1)">📋 Refusal of Care</div>
+      <div class="narr-sec-body">
+        <label style="display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer">
+          <input type="checkbox" id="nf-competency" checked style="width:17px;height:17px;accent-color:var(--accent);cursor:pointer;flex:none">
+          <span style="color:var(--text)">Patient A&amp;Ox4 — demonstrated decision-making capacity</span>
+        </label>
+        <div class="narr-field">
+          <label class="narr-lbl">Risks of Refusal Explained</label>
+          <textarea id="nf-refusal-risks" class="narr-textarea" rows="2" placeholder="e.g. risk of heart attack, internal bleeding, stroke, death without evaluation…"></textarea>
+        </div>
+        <div class="narr-row">
+          <div class="narr-field">
+            <label class="narr-lbl">Witness Name</label>
+            <input type="text" id="nf-witness-name" class="narr-input" placeholder="Witness full name">
+          </div>
+          <div class="narr-field">
+            <label class="narr-lbl">Witness Role</label>
+            <input type="text" id="nf-witness-role" class="narr-input" placeholder="e.g. family member">
+          </div>
+        </div>
+        <label style="display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer">
+          <input type="checkbox" id="nf-return-precautions" checked style="width:17px;height:17px;accent-color:var(--accent);cursor:pointer;flex:none">
+          <span style="color:var(--text)">Return precautions explained — patient verbalized understanding</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer">
+          <input type="checkbox" id="nf-refusal-signed" checked style="width:17px;height:17px;accent-color:var(--accent);cursor:pointer;flex:none">
+          <span style="color:var(--text)">Patient signed refusal form</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- ── PREVIEW ── -->
+    <div class="narr-preview-wrap">
+      <div class="narr-preview-hd">
+        <span>📄 Narrative Preview</span>
+        <div style="display:flex;gap:6px">
+          <button class="action-btn save-btn" id="btn-narr-copy">📋 Copy</button>
+          <button class="action-btn" id="btn-narr-save-hist">💾 Save</button>
+        </div>
+      </div>
+      <pre id="narr-preview">Fill in the fields above to generate your narrative.</pre>
+    </div>
+
+  </div><!-- /.page-content -->
+</div><!-- /#app -->
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script>
+'use strict';
+
+/* ════════════════════════════════════════
+   SECURITY
+   ════════════════════════════════════════ */
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (e.key === 'F12') { e.preventDefault(); return; }
+  if ((e.ctrlKey || e.metaKey) && !e.shiftKey && k === 'u') { e.preventDefault(); return; }
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && (k === 'i' || k === 'j' || k === 'c')) e.preventDefault();
+});
+
+/* ════════════════════════════════════════
+   FIREBASE AUTH + ADMIN CHECK
+   ════════════════════════════════════════ */
+firebase.initializeApp({
+  apiKey: "AIzaSyAcnp4uXeOgzuzIHpO5UL6Eq9fvhVHFs7Y",
+  authDomain: "emsprotocolapp.firebaseapp.com",
+  projectId: "emsprotocolapp",
+  appId: "1:498482397906:web:5517abc5d83cf6cf15e30b"
+});
+
+const ADMIN_EMAILS = new Set(['eliasacaldwellnrp@gmail.com']);
+const fbAuth = firebase.auth();
+
+fbAuth.onAuthStateChanged(user => {
+  if (!user) {
+    window.location.replace('index.html?returnTo=narrative.html');
+    return;
+  }
+  if (!ADMIN_EMAILS.has(user.email)) {
+    window.location.replace('ProtocolAssistant.html');
+    return;
+  }
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  initNarrative();
+});
+
+/* ════════════════════════════════════════
+   TOAST
+   ════════════════════════════════════════ */
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+/* ══════════════════════════════════════════════════════
+   PCR NARRATIVE BUILDER — data + logic
+   ══════════════════════════════════════════════════════ */
+
+const NARR_HOSPITALS = [
+  {n:'Jefferson Regional Medical Center',c:'Pine Bluff, AR',d:0},
+  {n:'National Park Medical Center',c:'Hot Springs, AR',d:5},
+  {n:'CHI St. Vincent – Pine Bluff',c:'Pine Bluff, AR',d:6},
+  {n:'Southeast Arkansas Medical Center',c:'Pine Bluff, AR',d:7},
+  {n:'Chicot Memorial Medical Center',c:'Lake Village, AR',d:38},
+  {n:'UAMS Medical Center',c:'Little Rock, AR',d:42},
+  {n:'CHI St. Vincent Infirmary',c:'Little Rock, AR',d:43},
+  {n:'Baptist Health Medical Center – Little Rock',c:'Little Rock, AR',d:44},
+  {n:'Arkansas Children\'s Hospital',c:'Little Rock, AR',d:44},
+  {n:'Baptist Health Medical Center – Stuttgart',c:'Stuttgart, AR',d:45},
+  {n:'Baptist Health Medical Center – North Little Rock',c:'North Little Rock, AR',d:48},
+  {n:'Desha County Hospital',c:'McGehee, AR',d:50},
+  {n:'CHI St. Vincent Doctors Hospital',c:'Sherwood, AR',d:52},
+  {n:'Drew Memorial Health System',c:'Monticello, AR',d:55},
+  {n:'Saline Memorial Hospital',c:'Benton, AR',d:58},
+  {n:'Ouachita County Medical Center',c:'Camden, AR',d:60},
+  {n:'Ashley County Medical Center',c:'Crossett, AR',d:72},
+  {n:'National Park Medical Center',c:'Hot Springs, AR',d:76},
+  {n:'CHI St. Vincent – Hot Springs',c:'Hot Springs, AR',d:78},
+  {n:'Conway Regional Medical Center',c:'Conway, AR',d:84},
+  {n:'CHI St. Vincent – Morrilton',c:'Morrilton, AR',d:92},
+  {n:'White County Medical Center',c:'Searcy, AR',d:95},
+  {n:'Delta Regional Medical Center',c:'Greenville, MS',d:98},
+  {n:'St. Bernards Medical Center',c:'Jonesboro, AR',d:108},
+  {n:'NEA Baptist Memorial Hospital',c:'Jonesboro, AR',d:110},
+  {n:'Baptist Memorial Hospital – Memphis',c:'Memphis, TN',d:128},
+  {n:'Regional One Health',c:'Memphis, TN',d:130},
+  {n:'Methodist Le Bonheur Healthcare',c:'Memphis, TN',d:132},
+  {n:'Willis-Knighton Medical Center',c:'Shreveport, LA',d:133},
+  {n:'LSU Health Shreveport',c:'Shreveport, LA',d:135},
+  {n:'Ochsner LSU Health – Shreveport',c:'Shreveport, LA',d:137},
+  {n:'Wadley Regional Medical Center',c:'Texarkana, TX',d:145},
+  {n:'Sparks Regional Medical Center',c:'Fort Smith, AR',d:158},
+  {n:'Mercy Hospital Fort Smith',c:'Fort Smith, AR',d:160},
+  {n:'CHRISTUS Mother Frances Hospital',c:'Tyler, TX',d:188},
+  {n:'Washington Regional Medical Center',c:'Fayetteville, AR',d:192},
+  {n:'UAMS Northwest Regional Campus',c:'Fayetteville, AR',d:193},
+];
+
+// EASI Protocols 2026 — administered medications with default doses
+const NARR_TX_MEDS = [
+  {n:'Aspirin',d:'324mg PO'},
+  {n:'Nitroglycerin',d:'0.4mg SL'},
+  {n:'Epinephrine (1:1,000)',d:'0.3mg IM'},
+  {n:'Epinephrine (1:10,000)',d:'0.1mg IV'},
+  {n:'Naloxone (Narcan)',d:'0.4–2mg IV/IM/IN'},
+  {n:'Albuterol',d:'2.5mg nebulized'},
+  {n:'Ipratropium',d:'0.5mg nebulized'},
+  {n:'Ondansetron (Zofran)',d:'4mg IV/IM'},
+  {n:'Acetaminophen',d:'1,000mg IV'},
+  {n:'Ketorolac',d:'15–30mg IV/IM'},
+  {n:'Fentanyl',d:'mcg IV/IM/IN'},
+  {n:'Morphine',d:'mg IV'},
+  {n:'Ketamine (analgesic)',d:'0.1–0.3mg/kg IV'},
+  {n:'Ketamine (induction)',d:'1–2mg/kg IV'},
+  {n:'Ketamine (high-dose IM)',d:'5mg/kg IM'},
+  {n:'Midazolam (Versed)',d:'mg IV/IM/IN'},
+  {n:'Diazepam',d:'5–10mg IV/IM'},
+  {n:'Lorazepam (Ativan)',d:'1–2mg IV/IM'},
+  {n:'Dextrose 50%',d:'25g (50mL) IV'},
+  {n:'Dextrose 10%',d:'250mL IV'},
+  {n:'Glucagon',d:'1mg IM'},
+  {n:'Adenosine',d:'6mg IV rapid push'},
+  {n:'Amiodarone',d:'300mg IV'},
+  {n:'Lidocaine',d:'1–1.5mg/kg IV'},
+  {n:'Atropine',d:'0.5–1mg IV'},
+  {n:'Calcium Gluconate',d:'1–2g IV'},
+  {n:'Magnesium Sulfate',d:'1–2g IV'},
+  {n:'Sodium Bicarbonate',d:'1mEq/kg IV'},
+  {n:'Diphenhydramine (Benadryl)',d:'25–50mg IV/IM'},
+  {n:'Methylprednisolone (Solu-Medrol)',d:'125mg IV/IM'},
+  {n:'Dexamethasone',d:'10mg IV/IM'},
+  {n:'Dopamine',d:'mcg/kg/min IV drip'},
+  {n:'Norepinephrine',d:'mcg/kg/min IV drip'},
+  {n:'Normal Saline Bolus',d:'500mL IV'},
+  {n:'Lactated Ringers Bolus',d:'500mL IV'},
+  {n:'Tranexamic Acid (TXA)',d:'1g IV'},
+  {n:'Succinylcholine',d:'1.5mg/kg IV'},
+  {n:'Rocuronium',d:'1.2mg/kg IV'},
+  {n:'Etomidate',d:'0.3mg/kg IV'},
+  {n:'Vecuronium',d:'0.1mg/kg IV'},
+  {n:'Thiamine',d:'100mg IV/IM'},
+  {n:'Oxytocin',d:'10–20 units IM'},
+  {n:'Nifedipine',d:'10mg PO'},
+  {n:'Magnesium Sulfate (OB/eclampsia)',d:'2–4g IV'},
+  {n:'Nicardipine',d:'mcg/kg/min IV drip'},
+];
+
+const NARR_HOME_MEDS = [
+  'Aspirin','Metoprolol','Lisinopril','Amlodipine','Atorvastatin','Warfarin (Coumadin)',
+  'Eliquis (Apixaban)','Xarelto (Rivaroxaban)','Clopidogrel (Plavix)','Furosemide (Lasix)',
+  'Metformin','Insulin','Glipizide','Omeprazole','Pantoprazole','Gabapentin',
+  'Hydrocodone','Oxycodone','Tramadol','Prednisone','Albuterol (home)','Montelukast',
+  'Levothyroxine','Sertraline','Fluoxetine','Escitalopram','Lorazepam','Alprazolam',
+  'Amiodarone','Digoxin','Spironolactone','Hydralazine','Carvedilol',
+  'Semaglutide (Ozempic)','Jardiance','Farxiga','Eliquis','Plavix',
+];
+
+const NARR_SYMPTOMS = [
+  'Chest pain','Shortness of breath','Nausea','Vomiting','Dizziness','Diaphoresis',
+  'Syncope','Near-syncope','Palpitations','Weakness','Fatigue','Headache',
+  'Fever','Chills','Altered mental status','Confusion','Abdominal pain',
+  'Back pain','Neck pain','Numbness/tingling','Cough','Wheezing','Edema',
+  'Anxiety','Tremors','Blurred vision','Slurred speech','Facial droop',
+  'Arm/leg weakness','Seizure activity','Loss of bowel/bladder control',
+  'Hematemesis','Melena','Hematuria','Bloody stool',
+];
+
+const NARR_PMH = [
+  'Hypertension','Diabetes (Type 1)','Diabetes (Type 2)','Coronary Artery Disease',
+  'History of MI','Congestive Heart Failure','COPD','Asthma','Stroke/CVA',
+  'Renal Disease','Dialysis dependent','Seizure Disorder','Atrial Fibrillation',
+  'Peripheral Vascular Disease','Obesity','Cancer','HIV/AIDS',
+  'Psychiatric disorder','Substance use disorder','GERD','Hypothyroidism',
+  'Hyperthyroidism','Liver disease','Blood clotting disorder','Anemia',
+  'Sickle Cell Disease','PTSD','Dementia','Alzheimer\'s Disease',
+  'No significant PMH',
+];
+
+const NARR_COMPLAINTS = [
+  'Chest Pain','Difficulty Breathing','Respiratory Distress','Stroke / CVA',
+  'Seizure','Cardiac Arrest','Altered Mental Status','Abdominal Pain',
+  'Diabetic Emergency','Allergic Reaction / Anaphylaxis','MVA','Fall',
+  'Trauma','OB Emergency','Overdose / Toxic Exposure','Behavioral Emergency',
+  'General Illness / Sick Person','Syncope','Headache','Back Pain',
+  'Extremity Injury','Hemorrhage / Bleeding','Cardiac Arrhythmia',
+  'Hypertension','Hypotension / Shock','Sepsis','Hypothermia','Heat Emergency',
+  'Eye Injury','Burn','Drowning / Near-Drowning','Choking / Airway Obstruction',
+  'Obstetric — Active Labor','Psychiatric Emergency','Pediatric Emergency',
+];
+
+const NARR_RESPONSES = [
+  'Pt reported relief following treatment.',
+  'Pt tolerated treatment well with no adverse effects.',
+  'No improvement noted en route.',
+  'Pt condition remained stable throughout transport.',
+  'Pt denied any complaint at time of transport.',
+  'Pt condition deteriorated en route — receiving facility notified.',
+  'Pt reported partial improvement following treatment.',
+];
+
+// State
+let narrTxMeds = [];
+let narrHomeMeds = [];
+let narrSelectedSymptoms = new Set();
+let narrSelectedPMH = new Set();
+let narrComplaint = '';
+let narrDestination = '';
+let narrTraumaRegions = {};
+let narrPainNA = false;
+let narrPainDenied = false;
+let narrResponseType = 'emergency';
+
+function narrVal(id){ return (document.getElementById(id)?.value||'').trim(); }
+function narrChk(id){ return document.getElementById(id)?.checked||false; }
+function uc(s){ return (s||'').toUpperCase(); }
+
+/* ── Typeahead Combo helper ─────────────────────── */
+function initCombo(opts){
+  const inp = document.getElementById(opts.inputId);
+  const drop = document.getElementById(opts.dropId);
+  if(!inp||!drop) return;
+
+  const items = opts.items.map(i => typeof i==='string' ? {label:i,value:i} : i);
+  let focusedIdx = -1;
+
+  function renderDrop(filter=''){
+    const f = filter.toLowerCase();
+    const filtered = f ? items.filter(i=>i.label.toLowerCase().includes(f)||((i.sublabel||'').toLowerCase().includes(f))) : items;
+    drop.innerHTML = filtered.length ? filtered.map((it,idx)=>{
+      const sel = opts.selectedSet ? opts.selectedSet.has(it.value||it.label) : false;
+      return `<div class="narr-combo-item${sel?' selected-item':''}" data-idx="${idx}" data-val="${(it.value||it.label).replace(/"/g,'&quot;')}" data-label="${(it.label).replace(/"/g,'&quot;')}">
+        ${opts.multi?`<span class="ci-check">${sel?'✓':''}</span>`:''}
+        <span>${it.label}${it.sublabel?`<span style="color:var(--muted);font-size:11px;margin-left:6px">${it.sublabel}</span>`:''}</span>
+      </div>`;
+    }).join('') : `<div class="narr-combo-item" style="color:var(--muted);cursor:default">No matches — press Enter to add</div>`;
+    focusedIdx = -1;
+    drop.querySelectorAll('.narr-combo-item').forEach((el,i)=>{
+      el.addEventListener('mousedown',e=>{
+        e.preventDefault();
+        const val = el.dataset.val, label = el.dataset.label;
+        if(!val||val==='') return;
+        handleSelect({label, value:val});
+      });
+    });
+  }
+
+  function handleSelect(item){
+    if(opts.multi){
+      const s = opts.selectedSet;
+      if(s.has(item.value)){ s.delete(item.value); } else { s.add(item.value); }
+      inp.value = '';
+      renderDrop('');
+      renderTags(opts.tagsId, opts.selectedSet, opts.onRemove||null);
+      if(opts.onSelect) opts.onSelect(item);
+      buildNarrative();
+    } else {
+      inp.value = item.label;
+      if(opts.singleHidden){
+        const h = document.getElementById(opts.singleHidden);
+        if(h) h.value = item.value;
+      }
+      drop.classList.remove('open');
+      if(opts.onSelect) opts.onSelect(item);
+      buildNarrative();
+    }
+  }
+
+  inp.addEventListener('focus', ()=>{ renderDrop(inp.value); drop.classList.add('open'); });
+  inp.addEventListener('input', ()=>{ renderDrop(inp.value); drop.classList.add('open'); });
+  inp.addEventListener('keydown', e=>{
+    const items2 = drop.querySelectorAll('.narr-combo-item[data-val]');
+    if(e.key==='ArrowDown'){ e.preventDefault(); focusedIdx=Math.min(focusedIdx+1,items2.length-1); items2.forEach((el,i)=>el.classList.toggle('focused',i===focusedIdx)); }
+    else if(e.key==='ArrowUp'){ e.preventDefault(); focusedIdx=Math.max(focusedIdx-1,0); items2.forEach((el,i)=>el.classList.toggle('focused',i===focusedIdx)); }
+    else if(e.key==='Enter'){
+      e.preventDefault();
+      if(focusedIdx>=0&&items2[focusedIdx]){
+        const el=items2[focusedIdx];
+        handleSelect({label:el.dataset.label, value:el.dataset.val});
+      } else if(opts.multi && inp.value.trim()){
+        const custom = inp.value.trim();
+        if(opts.selectedSet) opts.selectedSet.add(custom);
+        inp.value='';
+        renderDrop('');
+        renderTags(opts.tagsId, opts.selectedSet, opts.onRemove||null);
+        buildNarrative();
+      } else if(!opts.multi && inp.value.trim()){
+        handleSelect({label:inp.value.trim(),value:inp.value.trim()});
+      }
+    } else if(e.key==='Escape'){ drop.classList.remove('open'); }
+  });
+  inp.addEventListener('blur', ()=>{ setTimeout(()=>drop.classList.remove('open'),150); });
+}
+
+function renderTags(containerId, selectedSet, onRemoveCb){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  const items = [...selectedSet];
+  el.innerHTML = items.map(v=>`<div class="narr-tag"><span>${v}</span><button type="button" onclick="narrRemoveTag('${containerId}','${v.replace(/'/g,"\\'")}')">✕</button></div>`).join('');
+}
+
+function narrRemoveTag(containerId, value){
+  if(containerId==='nf-symptom-tags') narrSelectedSymptoms.delete(value);
+  else if(containerId==='nf-pmh-tags') narrSelectedPMH.delete(value);
+  renderTags(containerId, containerId==='nf-symptom-tags'?narrSelectedSymptoms:narrSelectedPMH, null);
+  buildNarrative();
+}
+
+function renderHomeMedTags(){
+  const el = document.getElementById('nf-homemd-tags'); if(!el) return;
+  el.innerHTML = narrHomeMeds.map((m,i)=>`<div class="narr-tag"><span>${m}</span><button type="button" onclick="narrHomeMeds.splice(${i},1);renderHomeMedTags();buildNarrative()">✕</button></div>`).join('');
+}
+
+function renderTxMedTags(){
+  const el = document.getElementById('nf-txmed-tags'); if(!el) return;
+  el.innerHTML = narrTxMeds.map((m,i)=>`<div class="narr-tag" style="border-color:rgba(74,222,128,.35);background:rgba(74,222,128,.08);color:#4ade80"><span>${m.name} ${m.dose}</span><button type="button" onclick="narrTxMeds.splice(${i},1);renderTxMedTags();buildNarrative()" style="color:rgba(74,222,128,.5)">✕</button></div>`).join('');
+}
+
+/* ── Monitoring chip toggles ────────────────────── */
+function initMonChips(containerId){
+  document.getElementById(containerId)?.querySelectorAll('.narr-mon-chip').forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      chip.classList.toggle('active');
+      if(chip.dataset.val==='pulsara'){
+        const d=document.getElementById('nf-pulsara-detail');
+        if(d) d.style.display=chip.classList.contains('active')?'':'none';
+      }
+      buildNarrative();
+    });
+  });
+}
+
+function isMonActive(containerId, val){
+  const el = document.querySelector(`#${containerId} .narr-mon-chip[data-val="${val}"]`);
+  return el ? el.classList.contains('active') : false;
+}
+
+function isMoveActive(val){ return isMonActive('narr-move-chips',val); }
+function isAirActive(val){ return document.querySelector(`#narr-air-chips .narr-mon-chip[data-val="${val}"]`)?.classList.contains('active')||false; }
+function isMonChipActive(val){ return isMonActive('narr-mon-chips',val); }
+
+/* ── Trauma region handler ──────────────────────── */
+function initTraumaRegions(){
+  document.getElementById('narr-trauma-regions')?.querySelectorAll('.narr-trauma-reg-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const region = btn.dataset.region;
+      if(btn.classList.contains('active')){
+        btn.classList.remove('active');
+        delete narrTraumaRegions[region];
+      } else {
+        btn.classList.add('active');
+        if(narrTraumaRegions[region]===undefined) narrTraumaRegions[region]='';
+      }
+      renderTraumaFindings();
+      buildNarrative();
+    });
+  });
+}
+
+function renderTraumaFindings(){
+  const el = document.getElementById('narr-trauma-findings'); if(!el) return;
+  el.innerHTML = Object.keys(narrTraumaRegions).map(region=>`
+    <div class="narr-trauma-region-row">
+      <div class="narr-trauma-region-lbl">
+        ${region}
+        <button type="button" onclick="narrRemoveTraumaRegion('${region}')">✕</button>
+      </div>
+      <input type="text" class="narr-trauma-region-input" placeholder="Describe injury findings…"
+        value="${(narrTraumaRegions[region]||'').replace(/"/g,'&quot;')}"
+        oninput="narrTraumaRegions['${region}']=this.value;buildNarrative()">
+    </div>`).join('');
+}
+
+function narrRemoveTraumaRegion(region){
+  delete narrTraumaRegions[region];
+  const btn = document.querySelector(`.narr-trauma-reg-btn[data-region="${region}"]`);
+  if(btn) btn.classList.remove('active');
+  renderTraumaFindings();
+  buildNarrative();
+}
+
+/* ── N/A button handlers ───────────────────────── */
+function initNABtns(){
+  document.querySelectorAll('.narr-na-btn[data-for]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const inp = document.getElementById(btn.dataset.for);
+      if(!inp) return;
+      if(btn.classList.contains('active')){
+        btn.classList.remove('active');
+        inp.disabled = false;
+        inp.value = '';
+      } else {
+        btn.classList.add('active');
+        inp.disabled = true;
+        inp.value = '';
+      }
+      buildNarrative();
+    });
+  });
+  // Pain-specific buttons
+  const painNA = document.getElementById('nf-pain-na');
+  const painDenied = document.getElementById('nf-pain-denied');
+  const painInp = document.getElementById('nf-pain');
+  painNA?.addEventListener('click',()=>{
+    narrPainDenied = false; narrPainNA = !narrPainNA;
+    painNA.classList.toggle('active', narrPainNA);
+    if(painDenied) painDenied.classList.remove('active');
+    if(painInp){ painInp.disabled = narrPainNA; if(narrPainNA) painInp.value=''; }
+    buildNarrative();
+  });
+  painDenied?.addEventListener('click',()=>{
+    narrPainNA = false; narrPainDenied = !narrPainDenied;
+    painDenied.classList.toggle('active', narrPainDenied);
+    if(painNA) painNA.classList.remove('active');
+    if(painInp){ painInp.disabled = narrPainDenied; if(narrPainDenied) painInp.value=''; }
+    buildNarrative();
+  });
+}
+
+/* ── Narrative builder ─────────────────────────── */
+function buildNarrative(){
+  const type = narrResponseType;
+
+  const complaint = narrComplaint || narrVal('nf-complaint-input') || '[COMPLAINT]';
+
+  const respVal = narrVal('nf-response')||'emergent';
+  const respText = respVal==='nonemergent'?'NON-EMERGENT':respVal==='staged'?'STAGED':'EMERGENT WITH LIGHTS AND SIRENS';
+
+  let dispatchLine = type==='transfer'
+    ? `DISPATCH — EMS REQUESTED FOR INTERFACILITY TRANSFER OF ${uc(complaint)} PATIENT. EMS RESPONDED ${respText}.`
+    : `DISPATCH — EMS DISPATCHED FOR ${uc(complaint)}. EMS RESPONDED ${respText}.`;
+
+  let respDelayLine = '';
+  if(narrChk('nf-resp-delay-chk')){
+    const reason = narrVal('nf-resp-delay-reason');
+    const notes  = narrVal('nf-resp-delay-notes');
+    respDelayLine = `RESPONSE DELAY — ${reason ? uc(reason) : 'DELAY NOTED'}${notes ? '. ' + uc(notes) : ''}.`;
+  }
+
+  let transferLines='';
+  if(type==='transfer'){
+    const sf=narrVal('nf-sending-fac'), tr=narrVal('nf-transfer-reason');
+    const sfNA = document.getElementById('nf-sending-fac')?.disabled;
+    const trNA = document.getElementById('nf-transfer-reason')?.disabled;
+    if(sf||tr) transferLines=`\nSENDING FACILITY — PATIENT RECEIVED AT ${sfNA?'N/A':uc(sf)||'[SENDING FACILITY]'}.${(tr&&!trNA)?' PATIENT TRANSFERRED FOR '+uc(tr)+'.':''}`;
+  }
+
+  const onsetNA = document.getElementById('nf-onset-time')?.disabled;
+  const durNA = document.getElementById('nf-duration')?.disabled;
+  const actNA = document.getElementById('nf-activity')?.disabled;
+  const onset = onsetNA ? '' : narrVal('nf-onset-time');
+  const duration = durNA ? '' : narrVal('nf-duration');
+  const activity = actNA ? '' : narrVal('nf-activity');
+
+  let painText;
+  if(narrPainDenied) painText='PATIENT DENIED PAIN';
+  else if(narrPainNA) painText='PAIN SCALE NOT APPLICABLE';
+  else {
+    const pv = narrVal('nf-pain');
+    painText = pv!=='' ? `PAIN WAS RATED ${pv}/10` : '';
+  }
+
+  const symptoms = [...narrSelectedSymptoms];
+  const pmh = [...narrSelectedPMH];
+  const homeMeds = [...narrHomeMeds];
+  const hpiNotes = narrVal('nf-hpi-notes');
+  let hpiParts=[];
+  if(activity) hpiParts.push(`PATIENT WAS ${uc(activity)} WHEN SYMPTOMS BEGAN`);
+  if(onset) hpiParts.push(`ONSET NOTED AT ${uc(onset)}`);
+  if(duration) hpiParts.push(`DURATION ${uc(duration)}`);
+  if(painText) hpiParts.push(painText);
+  if(symptoms.length) hpiParts.push(`ASSOCIATED SYMPTOMS INCLUDED ${symptoms.map(uc).join(', ')}`);
+  if(pmh.length) hpiParts.push(`HISTORY OF ${pmh.map(uc).join(', ')}`);
+  if(homeMeds.length) hpiParts.push(`PATIENT TAKES ${homeMeds.map(uc).join(', ')}`);
+  if(hpiNotes) hpiParts.push(uc(hpiNotes));
+  const hpiLine=`HISTORY OF PRESENT ILLNESS — ${hpiParts.length?hpiParts.join('. ')+'.':'[HPI]'}`;
+
+  const airway=narrVal('nf-airway'), lungs=narrVal('nf-lungs'), mental=narrVal('nf-mental'), skin=narrVal('nf-skin');
+  const ecg12=isMonChipActive('12lead');
+  const ecg12NA=document.getElementById('nf-12lead-interp')?.disabled;
+  const ecg12Interp=ecg12NA?'':narrVal('nf-12lead-interp');
+  const assessNotes=narrVal('nf-assessment-notes');
+  let assessParts=[];
+  if(airway) assessParts.push(`AIRWAY ${uc(airway)}`);
+  if(lungs) assessParts.push(`LUNG SOUNDS ${uc(lungs)}`);
+  if(mental) assessParts.push(`MENTAL STATUS ${uc(mental)}`);
+  if(skin) assessParts.push(`SKIN ${uc(skin)}`);
+  if(ecg12) assessParts.push(`12-LEAD EKG OBTAINED${ecg12Interp?' — INTERPRETATION: '+uc(ecg12Interp):''}`);
+  if(painText) assessParts.push(painText);
+  assessParts.push(`PATIENT COMPLAINT ${uc(complaint)}`);
+  const traumaKeys = Object.keys(narrTraumaRegions);
+  if(traumaKeys.length){
+    const traumaParts = traumaKeys.map(r=>{
+      const f = narrTraumaRegions[r];
+      return f ? `${uc(r)}: ${uc(f)}` : uc(r);
+    });
+    assessParts.push(`TRAUMA FINDINGS — ${traumaParts.join('; ')}`);
+  }
+  if(assessNotes) assessParts.push(uc(assessNotes));
+  assessParts.push('ALL OTHER ASSESSMENT FINDINGS AS DOCUMENTED THROUGHOUT EHR');
+  const assessLine=`PERTINENT ASSESSMENT FINDINGS — ${assessParts.join('. ')}.`;
+
+  const txParts=[];
+  if(isMoveActive('ambulate')) txParts.push('PATIENT ASSISTED IN AMBULATING TO STRETCHER');
+  if(isMoveActive('carried')) txParts.push('PATIENT CARRIED TO STRETCHER');
+  const pos=narrVal('nf-position'); if(pos) txParts.push(`PATIENT SECURED TO STRETCHER IN ${uc(pos)} POSITION`);
+  if(isMoveActive('backboard')) txParts.push('SPINAL PRECAUTIONS TAKEN, LONG BACKBOARD APPLIED');
+  if(isMoveActive('splint')) txParts.push('SPLINT APPLIED');
+  if(isMoveActive('tourniquet')) txParts.push('TOURNIQUET APPLIED');
+  if(isMoveActive('wound-packing')) txParts.push('WOUND PACKING PERFORMED');
+  if(isMoveActive('pressure-dressing')) txParts.push('PRESSURE DRESSING APPLIED');
+  ['suction','opa','npa','bvm'].forEach(v=>{
+    if(isAirActive(v)){
+      const m={suction:'AIRWAY SUCTIONING PERFORMED',opa:'OPA INSERTED',npa:'NPA INSERTED',bvm:'BVM VENTILATION INITIATED'};
+      txParts.push(m[v]);
+    }
+  });
+  if(isAirActive('ett')){
+    const sz=narrVal('nf-ett-size'), etco2=narrChk('nf-ett-etco2');
+    txParts.push(`ENDOTRACHEAL INTUBATION PERFORMED${sz?' WITH '+sz+'MM ETT':''}${etco2?', PLACEMENT CONFIRMED VIA ETCO2/CAPNOGRAPHY':''}`);
+  }
+  if(isAirActive('sga')) txParts.push('SUPRAGLOTTIC AIRWAY INSERTED');
+  if(isAirActive('cric')) txParts.push('SURGICAL CRICOTHYROTOMY PERFORMED');
+  if(narrChk('nf-iv-chk')){
+    const g=narrVal('nf-iv-gauge'),f=narrVal('nf-iv-fluid'),s=narrVal('nf-iv-site');
+    txParts.push(`${g?g+'G ':''}IV ACCESS ESTABLISHED${f?' WITH '+uc(f):''}${s?' IN '+uc(s):''}, PATENT, FLUSHED WITH 10 ML 0.9% NS`);
+  }
+  if(narrChk('nf-iv-deferred-chk')){
+    txParts.push('PERIPHERAL IV ACCESS ATTEMPTED BUT UNSUCCESSFUL. IV ACCESS DEFERRED — UNABLE TO IDENTIFY SUITABLE PERIPHERAL VEIN. CLINICAL CONDITION DID NOT WARRANT INTRAOSSEOUS ACCESS');
+  }
+  if(isMonChipActive('hemodynamic')) txParts.push('HEMODYNAMIC ASSESSMENT/MONITORING PERFORMED (BP, HR, RR, SPO2)');
+  if(isMonChipActive('bga')) txParts.push('BLOOD GLUCOSE ANALYSIS PERFORMED');
+  if(isMonChipActive('c-collar')) txParts.push('CERVICAL COLLAR APPLIED');
+  if(isMonChipActive('c-spine')) txParts.push('C-SPINE CLEARANCE PERFORMED — PATIENT CLEARED PER PROTOCOL');
+  if(isMonChipActive('cardiac-monitor')) txParts.push('CONTINUOUS CARDIAC MONITORING INITIATED VIA 4-LEAD');
+  if(isMonChipActive('etco2-monitor')) txParts.push('END-TIDAL CO2 MONITORING INITIATED');
+  if(isMonChipActive('12lead-tx')) txParts.push('12-LEAD EKG TRANSMITTED');
+  if(isMonChipActive('pulsara')){ const m=narrVal('nf-pulsara-min'); txParts.push(`12-LEAD TRANSMITTED VIA PULSARA ${m||'___'} MINUTES PRIOR TO ARRIVAL`); }
+  if(isMonChipActive('o2')){
+    const dev=narrVal('nf-o2-device'), rate=narrVal('nf-o2-rate');
+    txParts.push(`OXYGEN ADMINISTERED VIA ${uc(dev)}${rate?' AT '+rate+' LPM':''}`);
+  }
+  narrTxMeds.forEach(m=>txParts.push(`${uc(m.name)} ${uc(m.dose)} ADMINISTERED`));
+  const txNotes=narrVal('nf-tx-notes'); if(txNotes) txParts.push(uc(txNotes));
+  const txLine=txParts.length?`TREATMENT — ${txParts.join('. ')}.`:'';
+
+  const responseText=narrVal('nf-response-text');
+  const responseLine=responseText?`RESPONSE TO TREATMENT — ${uc(responseText)}`:'';
+
+  let finalLine='';
+  if(type==='refusal'){
+    const comp=narrChk('nf-competency'), risks=narrVal('nf-refusal-risks');
+    const wName=narrVal('nf-witness-name'), wRole=narrVal('nf-witness-role');
+    const retPrec=narrChk('nf-return-precautions'), signed=narrChk('nf-refusal-signed');
+    let rParts=[];
+    if(comp) rParts.push('PATIENT WAS ALERT AND ORIENTED X4 AND DEMONSTRATED DECISION-MAKING CAPACITY');
+    rParts.push('TREATMENT AND TRANSPORT WERE OFFERED AND REFUSED BY THE PATIENT');
+    if(risks) rParts.push(`RISKS OF REFUSAL WERE EXPLAINED INCLUDING ${uc(risks)}`);
+    if(wName) rParts.push(`${uc(wName)}${wRole?', '+uc(wRole):''} PRESENT AS WITNESS`);
+    if(retPrec) rParts.push('RETURN PRECAUTIONS EXPLAINED — PATIENT VERBALIZED UNDERSTANDING');
+    if(signed) rParts.push('PATIENT SIGNED REFUSAL FORM');
+    finalLine=`PATIENT REFUSAL — ${rParts.join('. ')}.`;
+  } else {
+    const dest=narrDestination||narrVal('nf-destination-input')||'';
+    const method=narrVal('nf-arrival-method'), area=narrVal('nf-dest-area');
+    const careOfName=narrVal('nf-care-of-name');
+    const careOfCredEl=document.getElementById('nf-care-of-cred');
+    const careOfCredNA=document.getElementById('nf-care-of-cred-na')?.classList.contains('active');
+    const careOfCred=careOfCredNA?'':careOfCredEl?.value||'';
+    const careOf=careOfName?(uc(careOfName)+(careOfCred?', '+uc(careOfCred):'')):'';
+    if(dest||method||area||careOf){
+      finalLine=`DESTINATION — UPON ARRIVAL AT ${uc(dest)||'[FACILITY]'}, PATIENT ${uc(method)||'TRANSPORTED IN ON STRETCHER'}. PATIENT MOVED TO ${uc(area)||'DESIGNATED BED'}. PATIENT LEFT IN CARE OF ${careOf||'[RECEIVING STAFF]'}.`;
+    }
+  }
+
+  let txDelayLine = '';
+  if(narrChk('nf-tx-delay-chk')){
+    const reason = narrVal('nf-tx-delay-reason');
+    const notes  = narrVal('nf-tx-delay-notes');
+    txDelayLine = `TRANSPORT DELAY — ${reason ? uc(reason) : 'DELAY NOTED'}${notes ? '. ' + uc(notes) : ''}.`;
+  }
+
+  const narrative=[dispatchLine,respDelayLine,transferLines,hpiLine,assessLine,txLine,responseLine,txDelayLine,finalLine].filter(Boolean).join('\n\n');
+  const el=document.getElementById('narr-preview');
+  if(el) el.textContent=narrative;
+  return narrative;
+}
+
+function narrUpdateTemplate(){
+  document.querySelectorAll('.narr-transfer-only').forEach(el=>el.style.display=narrResponseType==='transfer'?'':'none');
+  const refusal=narrResponseType==='refusal';
+  const transport=document.getElementById('nsec-transport');
+  const refusalSec=document.getElementById('nsec-refusal');
+  if(transport) transport.style.display=refusal?'none':'';
+  if(refusalSec) refusalSec.style.display=refusal?'':'none';
+  buildNarrative();
+}
+
+function narrClear(){
+  if(!confirm('Clear the current narrative?')) return;
+  document.querySelectorAll('.page-content input[type=text],.page-content input[type=number],.page-content textarea,.page-content select').forEach(el=>{ el.value=''; el.disabled=false; });
+  document.querySelectorAll('.page-content input[type=checkbox]').forEach(el=>{ el.checked=false; });
+  ['nf-competency','nf-return-precautions','nf-refusal-signed'].forEach(id=>{ const e=document.getElementById(id); if(e) e.checked=true; });
+  document.querySelectorAll('.page-content .narr-na-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.page-content .narr-mon-chip').forEach(c=>c.classList.remove('active'));
+  document.querySelectorAll('.page-content .narr-trauma-reg-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('nf-12lead-detail').style.display='none';
+  document.getElementById('nf-ett-detail').style.display='none';
+  document.getElementById('nf-o2-detail').style.display='none';
+  document.getElementById('nf-iv-detail').style.display='none';
+  document.getElementById('narr-med-dose-row').style.display='none';
+  document.getElementById('narr-trauma-sec').style.display='none';
+  document.getElementById('nf-pulsara-detail').style.display='none';
+  document.getElementById('nf-resp-delay-detail').style.display='none';
+  document.getElementById('nf-tx-delay-detail').style.display='none';
+  narrSelectedSymptoms.clear(); narrSelectedPMH.clear();
+  narrTxMeds=[]; narrHomeMeds=[]; narrComplaint=''; narrDestination='';
+  narrTraumaRegions={}; narrPainNA=false; narrPainDenied=false;
+  renderTags('nf-symptom-tags', narrSelectedSymptoms, null);
+  renderTags('nf-pmh-tags', narrSelectedPMH, null);
+  renderHomeMedTags(); renderTxMedTags();
+  document.getElementById('nf-complaint-tags').innerHTML='';
+  document.getElementById('nf-destination-tags').innerHTML='';
+  document.getElementById('narr-trauma-findings').innerHTML='';
+  buildNarrative();
+}
+
+const NARR_HIST_KEY='pat-narr-history';
+function loadNarrHistory(){ try{ return JSON.parse(localStorage.getItem(NARR_HIST_KEY)||'[]'); }catch(e){ return []; } }
+function saveNarrHistory(arr){ localStorage.setItem(NARR_HIST_KEY,JSON.stringify(arr.slice(0,60))); }
+
+function updateNarrHistCount(){
+  const el=document.getElementById('narr-hist-ct'); if(el) el.textContent=loadNarrHistory().length;
+}
+
+function renderNarrHistory(){
+  const list=document.getElementById('narr-hist-list'); if(!list) return;
+  const hist=loadNarrHistory();
+  if(!hist.length){ list.innerHTML='<div style="padding:14px;text-align:center;color:var(--muted);font-size:13px">No saved narratives yet.</div>'; return; }
+  list.innerHTML=hist.map((item,i)=>{
+    const d=new Date(item.ts);
+    const dstr=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    return `<div class="narr-hist-item">
+      <div class="narr-hist-meta">${dstr} · ${item.type||'Emergency'}</div>
+      <div class="narr-hist-text">${item.preview||''}</div>
+      <div class="narr-hist-actions">
+        <button class="narr-hist-btn" onclick="narrCopyItem(${i})">📋 Copy</button>
+        <button class="narr-hist-btn del" onclick="narrDeleteItem(${i})">🗑 Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function narrSave(){
+  const text=document.getElementById('narr-preview')?.textContent||'';
+  if(!text||text==='Fill in the fields above to generate your narrative.'){ showToast('Nothing to save yet.'); return; }
+  const hist=loadNarrHistory();
+  hist.unshift({ts:Date.now(),type:narrResponseType,preview:text.slice(0,120),text});
+  saveNarrHistory(hist); updateNarrHistCount(); showToast('Narrative saved.');
+}
+
+function narrCopyItem(idx){
+  const hist=loadNarrHistory(); if(!hist[idx]) return;
+  navigator.clipboard.writeText(hist[idx].text).then(()=>showToast('Copied!')).catch(()=>{ const ta=document.createElement('textarea'); ta.value=hist[idx].text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('Copied!'); });
+}
+
+function narrDeleteItem(idx){
+  const hist=loadNarrHistory(); hist.splice(idx,1); saveNarrHistory(hist); renderNarrHistory(); updateNarrHistCount();
+}
+
+function narrRestoreDraft(){
+  try{
+    const draft = JSON.parse(localStorage.getItem('pat-narr-draft')||'null');
+    if(draft){
+      const el = document.getElementById('narr-preview');
+      if(el) el.textContent = draft.text;
+      showToast('Draft restored — preview updated.');
+      document.getElementById('narr-draft-banner')?.remove();
+    }
+  }catch(e){}
+}
+
+function initNarrative(){
+  // Template type segmented buttons
+  document.getElementById('narr-type-seg')?.querySelectorAll('.narr-seg-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('#narr-type-seg .narr-seg-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      narrResponseType = btn.dataset.type;
+      narrUpdateTemplate();
+    });
+  });
+
+  // Response type segmented
+  document.getElementById('narr-response-seg')?.querySelectorAll('.narr-seg-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('#narr-response-seg .narr-seg-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const h=document.getElementById('nf-response'); if(h) h.value=btn.dataset.val;
+      buildNarrative();
+    });
+  });
+
+  // Complaint combo (single-select)
+  initCombo({
+    inputId:'nf-complaint-input', dropId:'combo-complaint-drop',
+    items: NARR_COMPLAINTS,
+    multi: false,
+    onSelect: item=>{ narrComplaint=item.value; document.getElementById('nf-complaint-tags').innerHTML=`<div class="narr-tag"><span>${item.label}</span><button type="button" onclick="narrComplaint='';document.getElementById('nf-complaint-input').value='';document.getElementById('nf-complaint-tags').innerHTML='';buildNarrative()">✕</button></div>`; },
+  });
+
+  // Symptom combo (multi)
+  initCombo({
+    inputId:'nf-symptom-input', dropId:'combo-symptoms-drop',
+    items: NARR_SYMPTOMS, multi: true,
+    selectedSet: narrSelectedSymptoms, tagsId:'nf-symptom-tags',
+  });
+
+  // PMH combo (multi)
+  initCombo({
+    inputId:'nf-pmh-input', dropId:'combo-pmh-drop',
+    items: NARR_PMH, multi: true,
+    selectedSet: narrSelectedPMH, tagsId:'nf-pmh-tags',
+  });
+
+  // Home medications
+  const homeInp = document.getElementById('nf-homemd-input');
+  initCombo({
+    inputId:'nf-homemd-input', dropId:'combo-home-meds-drop',
+    items: NARR_HOME_MEDS, multi: false,
+    onSelect: item=>{
+      const v=(item.label||'').trim();
+      if(v&&!narrHomeMeds.includes(v)){ narrHomeMeds.push(v); if(homeInp) homeInp.value=''; renderHomeMedTags(); buildNarrative(); }
+    },
+  });
+  document.getElementById('btn-add-homemd')?.addEventListener('click',()=>{
+    const v=(homeInp?.value||'').trim();
+    if(v&&!narrHomeMeds.includes(v)){ narrHomeMeds.push(v); if(homeInp) homeInp.value=''; renderHomeMedTags(); buildNarrative(); }
+  });
+  homeInp?.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); document.getElementById('btn-add-homemd')?.click(); } });
+
+  // TX meds combo
+  const txMedInp = document.getElementById('nf-txmed-input');
+  const txMedDoseRow = document.getElementById('narr-med-dose-row');
+  const txMedDoseInp = document.getElementById('nf-txmed-dose');
+  let pendingMedName = '', pendingMedDose = '';
+
+  initCombo({
+    inputId:'nf-txmed-input', dropId:'combo-tx-meds-drop',
+    items: NARR_TX_MEDS.map(m=>({label:m.n, sublabel:m.d, value:m.n})),
+    multi: false,
+    onSelect: item=>{
+      const med = NARR_TX_MEDS.find(m=>m.n===item.value);
+      pendingMedName = item.value;
+      pendingMedDose = med?med.d:'';
+      if(txMedInp) txMedInp.value='';
+      if(txMedDoseInp) txMedDoseInp.value = pendingMedDose;
+      if(txMedDoseRow){ txMedDoseRow.style.display='flex'; txMedDoseInp?.focus(); }
+    },
+  });
+
+  document.getElementById('btn-add-txmed')?.addEventListener('click',()=>{
+    const dose = (txMedDoseInp?.value||'').trim();
+    if(pendingMedName){
+      narrTxMeds.push({name:pendingMedName, dose:dose});
+      pendingMedName=''; pendingMedDose='';
+      if(txMedDoseInp) txMedDoseInp.value='';
+      if(txMedDoseRow) txMedDoseRow.style.display='none';
+      renderTxMedTags(); buildNarrative();
+    }
+  });
+  txMedDoseInp?.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); document.getElementById('btn-add-txmed')?.click(); } });
+  document.getElementById('btn-cancel-txmed')?.addEventListener('click',()=>{
+    pendingMedName=''; pendingMedDose='';
+    if(txMedDoseInp) txMedDoseInp.value='';
+    if(txMedDoseRow) txMedDoseRow.style.display='none';
+  });
+
+  // Destination combo
+  initCombo({
+    inputId:'nf-destination-input', dropId:'combo-destination-drop',
+    items: NARR_HOSPITALS.sort((a,b)=>a.d-b.d).map(h=>({label:h.n, sublabel:`${h.c} · ~${h.d} mi`, value:h.n})),
+    multi: false,
+    onSelect: item=>{
+      narrDestination=item.value;
+      document.getElementById('nf-destination').value=item.value;
+      document.getElementById('nf-destination-tags').innerHTML=`<div class="narr-tag"><span>${item.label}</span><button type="button" onclick="narrDestination='';document.getElementById('nf-destination-input').value='';document.getElementById('nf-destination-tags').innerHTML='';buildNarrative()">✕</button></div>`;
+    },
+  });
+
+  // Monitoring + movement chips
+  initMonChips('narr-mon-chips');
+  initMonChips('narr-move-chips');
+  // Airway chips
+  document.querySelectorAll('#narr-air-chips .narr-mon-chip').forEach(chip=>{
+    chip.addEventListener('click',()=>{ chip.classList.toggle('active'); buildNarrative(); });
+  });
+
+  // ETT chip — show/hide tube size detail
+  document.querySelector('#narr-air-chips .narr-mon-chip[data-val="ett"]')?.addEventListener('click',()=>{
+    const active=document.querySelector('#narr-air-chips .narr-mon-chip[data-val="ett"]')?.classList.contains('active');
+    document.getElementById('nf-ett-detail').style.display=active?'':'none';
+  });
+
+  // Monitoring chip special expand handlers (12lead, pulsara, o2)
+  document.getElementById('narr-mon-chips')?.addEventListener('click',e=>{
+    const chip=e.target.closest('.narr-mon-chip'); if(!chip) return;
+    const active=chip.classList.contains('active');
+    if(chip.dataset.val==='12lead'){
+      document.getElementById('nf-12lead-detail').style.display=active?'':'none';
+    }
+    if(chip.dataset.val==='o2'){
+      document.getElementById('nf-o2-detail').style.display=active?'':'none';
+    }
+  });
+
+  // Trauma toggle
+  document.getElementById('nf-trauma-call')?.addEventListener('change',e=>{
+    document.getElementById('narr-trauma-sec').style.display=e.target.checked?'':'none';
+    if(!e.target.checked){ narrTraumaRegions={}; renderTraumaFindings(); document.querySelectorAll('.narr-trauma-reg-btn').forEach(b=>b.classList.remove('active')); }
+    buildNarrative();
+  });
+  initTraumaRegions();
+
+  // IV detail toggle
+  document.getElementById('nf-iv-chk')?.addEventListener('change',e=>{
+    document.getElementById('nf-iv-detail').style.display=e.target.checked?'flex':'none';
+    buildNarrative();
+  });
+
+  // Response delay toggle
+  document.getElementById('nf-resp-delay-chk')?.addEventListener('change',e=>{
+    document.getElementById('nf-resp-delay-detail').style.display=e.target.checked?'flex':'none';
+    buildNarrative();
+  });
+
+  // Transport delay toggle
+  document.getElementById('nf-tx-delay-chk')?.addEventListener('change',e=>{
+    document.getElementById('nf-tx-delay-detail').style.display=e.target.checked?'flex':'none';
+    buildNarrative();
+  });
+
+  // N/A cred button
+  document.getElementById('nf-care-of-cred-na')?.addEventListener('click',function(){
+    this.classList.toggle('active');
+    const sel=document.getElementById('nf-care-of-cred');
+    if(sel){ sel.disabled=this.classList.contains('active'); if(sel.disabled) sel.value=''; }
+    buildNarrative();
+  });
+
+  // Save "Left in Care Of" names to localStorage for future suggestions
+  function updateCareOfSuggestions(){
+    const dl=document.getElementById('care-of-suggestions'); if(!dl) return;
+    const saved=JSON.parse(localStorage.getItem('narr_care_of_names')||'[]');
+    dl.innerHTML=saved.map(n=>`<option value="${n.replace(/"/g,'&quot;')}">`).join('');
+  }
+  document.getElementById('nf-care-of-name')?.addEventListener('blur',function(){
+    const name=this.value.trim(); if(!name) return;
+    const saved=JSON.parse(localStorage.getItem('narr_care_of_names')||'[]');
+    if(!saved.includes(name)){ saved.unshift(name); saved.splice(20); localStorage.setItem('narr_care_of_names',JSON.stringify(saved)); }
+    updateCareOfSuggestions();
+  });
+  updateCareOfSuggestions();
+
+  // N/A buttons
+  initNABtns();
+
+  // Response quick-select chips
+  const respEl=document.getElementById('nf-response-chips');
+  if(respEl){
+    respEl.innerHTML=NARR_RESPONSES.map(r=>`<button type="button" class="narr-mon-chip" data-val="${r}">${r}</button>`).join('');
+    respEl.querySelectorAll('.narr-mon-chip').forEach(chip=>{
+      chip.addEventListener('click',()=>{
+        const ta=document.getElementById('nf-response-text');
+        if(ta){ ta.value=chip.dataset.val; buildNarrative(); }
+      });
+    });
+  }
+
+  // Wire all plain inputs/selects/textareas to rebuild
+  document.querySelector('.page-content')?.querySelectorAll('input:not([type=checkbox]):not([type=button]),select,textarea').forEach(el=>{
+    el.addEventListener('input', buildNarrative);
+  });
+  document.querySelector('.page-content')?.querySelectorAll('input[type=checkbox]').forEach(el=>{
+    el.addEventListener('change', buildNarrative);
+  });
+
+  // Copy button
+  document.getElementById('btn-narr-copy')?.addEventListener('click',()=>{
+    const text=document.getElementById('narr-preview')?.textContent||'';
+    if(!text||text==='Fill in the fields above to generate your narrative.'){ showToast('Nothing to copy yet.'); return; }
+    navigator.clipboard.writeText(text).then(()=>showToast('Narrative copied!')).catch(()=>{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('Copied!'); });
+  });
+
+  document.getElementById('btn-narr-save-hist')?.addEventListener('click', narrSave);
+  document.getElementById('btn-narr-clear')?.addEventListener('click', narrClear);
+
+  document.getElementById('btn-narr-hist-toggle')?.addEventListener('click',()=>{
+    const panel=document.getElementById('narr-hist-panel'); if(!panel) return;
+    const hidden=panel.style.display==='none';
+    panel.style.display=hidden?'':'none';
+    if(hidden) renderNarrHistory();
+  });
+  document.getElementById('btn-narr-hist-close')?.addEventListener('click',()=>{
+    const p=document.getElementById('narr-hist-panel'); if(p) p.style.display='none';
+  });
+
+  updateNarrHistCount();
+  buildNarrative();
+
+  // Auto-save draft every 30 seconds
+  setInterval(()=>{
+    const text = document.getElementById('narr-preview')?.textContent||'';
+    if(text && text !== 'Fill in the fields above to generate your narrative.'){
+      localStorage.setItem('pat-narr-draft', JSON.stringify({ts: Date.now(), text}));
+    }
+  }, 30000);
+
+  // Restore draft on load
+  try{
+    const draft = JSON.parse(localStorage.getItem('pat-narr-draft')||'null');
+    if(draft && draft.text && draft.text !== 'Fill in the fields above to generate your narrative.'){
+      const d = new Date(draft.ts);
+      const dstr = d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' ' + d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+      const banner = document.createElement('div');
+      banner.id = 'narr-draft-banner';
+      banner.style.cssText = 'background:rgba(94,234,212,.1);border:1px solid rgba(94,234,212,.3);border-radius:9px;padding:10px 13px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:var(--text)';
+      banner.innerHTML = `<span>📝 Unsaved draft from ${dstr}</span><div style="display:flex;gap:6px"><button onclick="narrRestoreDraft()" style="background:var(--accent);border:none;border-radius:7px;color:#0b0d10;font-size:12px;font-weight:700;padding:5px 12px;cursor:pointer">Restore</button><button onclick="document.getElementById('narr-draft-banner').remove();localStorage.removeItem('pat-narr-draft')" style="background:none;border:1px solid var(--border);border-radius:7px;color:var(--muted);font-size:12px;padding:5px 10px;cursor:pointer">Dismiss</button></div>`;
+      const content = document.querySelector('.page-content');
+      if(content) content.insertBefore(banner, content.firstChild);
+    }
+  }catch(e){}
+}
+</script>
+</body>
+</html>
