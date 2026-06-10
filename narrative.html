@@ -1092,6 +1092,7 @@ let narrVoiceRecordingReason = '';
 function narrVal(id){ return (document.getElementById(id)?.value||'').trim(); }
 function narrChk(id){ return document.getElementById(id)?.checked||false; }
 function uc(s){ return (s||'').toUpperCase(); }
+function uct(s){ return uc(s).replace(/\.+\s*$/, ''); }
 
 function _narrCallType(complaint){
   const c=(complaint||'').toLowerCase();
@@ -1323,7 +1324,7 @@ function buildNarrative(){
   if(narrChk('nf-resp-delay-chk')){
     const reason = narrVal('nf-resp-delay-reason');
     const notes  = narrVal('nf-resp-delay-notes');
-    respDelayLine = `RESPONSE DELAY — ${reason ? uc(reason) : 'DELAY NOTED'}${notes ? '. ' + uc(notes) : ''}.`;
+    respDelayLine = `RESPONSE DELAY — ${reason ? uc(reason) : 'DELAY NOTED'}${notes ? '. ' + uct(notes) : ''}.`;
   }
 
   let transferLines='';
@@ -1360,10 +1361,10 @@ function buildNarrative(){
   if(onset) hpiParts.push(`ONSET NOTED AT ${uc(onset)}`);
   if(duration) hpiParts.push(`DURATION ${uc(duration)}`);
   if(painText) hpiParts.push(painText);
-  if(symptoms.length) hpiParts.push(`ASSOCIATED SYMPTOMS INCLUDED ${symptoms.map(uc).join(', ')}`);
-  if(pmh.length) hpiParts.push(`HISTORY OF ${pmh.map(uc).join(', ')}`);
-  if(homeMeds.length) hpiParts.push(`PATIENT TAKES ${homeMeds.map(uc).join(', ')}`);
-  if(hpiNotes) hpiParts.push(uc(hpiNotes));
+  if(symptoms.length) hpiParts.push(`ASSOCIATED SYMPTOMS INCLUDED ${symptoms.map(uct).join(', ')}`);
+  if(pmh.length) hpiParts.push(`HISTORY OF ${pmh.map(uct).join(', ')}`);
+  if(homeMeds.length) hpiParts.push(`PATIENT TAKES ${homeMeds.map(uct).join(', ')}`);
+  if(hpiNotes) hpiParts.push(uct(hpiNotes));
   const _ctHPI=_narrCallType(complaint);
   if(_ctHPI.isStroke){
     const _lkwUnk=document.getElementById('qp-lkw-unknown')?.checked;
@@ -1394,7 +1395,7 @@ function buildNarrative(){
     });
     assessParts.push(`TRAUMA FINDINGS — ${traumaParts.join('; ')}`);
   }
-  if(assessNotes) assessParts.push(uc(assessNotes));
+  if(assessNotes) assessParts.push(uct(assessNotes));
   assessParts.push('ALL OTHER ASSESSMENT FINDINGS AS DOCUMENTED THROUGHOUT EHR');
   const assessLine=`PERTINENT ASSESSMENT FINDINGS — ${assessParts.join('. ')}.`;
 
@@ -1438,11 +1439,11 @@ function buildNarrative(){
     if(m.name==='Oxygen') txParts.push(`OXYGEN ADMINISTERED VIA ${uc(m.dose)}`);
     else txParts.push(`${uc(m.name)} ${uc(m.dose)} ADMINISTERED`);
   });
-  const txNotes=narrVal('nf-tx-notes'); if(txNotes) txParts.push(uc(txNotes));
+  const txNotes=narrVal('nf-tx-notes'); if(txNotes) txParts.push(uct(txNotes));
   const txLine=txParts.length?`TREATMENT — ${txParts.join('. ')}.`:'';
 
   const responseText=narrVal('nf-response-text');
-  const responseLine=responseText?`RESPONSE TO TREATMENT — ${uc(responseText)}`:'';
+  const responseLine=responseText?`RESPONSE TO TREATMENT — ${uct(responseText)}`:'';
 
   let finalLine='';
   if(type==='refusal'){
@@ -1452,7 +1453,7 @@ function buildNarrative(){
     let rParts=[];
     if(comp) rParts.push('PATIENT WAS ALERT AND ORIENTED X4 AND DEMONSTRATED DECISION-MAKING CAPACITY');
     rParts.push('TREATMENT AND TRANSPORT WERE OFFERED AND REFUSED BY THE PATIENT');
-    if(risks) rParts.push(`RISKS OF REFUSAL WERE EXPLAINED INCLUDING ${uc(risks)}`);
+    if(risks) rParts.push(`RISKS OF REFUSAL WERE EXPLAINED INCLUDING ${uct(risks)}`);
     if(wName) rParts.push(`${uc(wName)}${wRole?', '+uc(wRole):''} PRESENT AS WITNESS`);
     if(retPrec) rParts.push('RETURN PRECAUTIONS EXPLAINED - PATIENT VERBALIZED UNDERSTANDING');
     if(signed) rParts.push('PATIENT SIGNED REFUSAL FORM');
@@ -1480,16 +1481,16 @@ function buildNarrative(){
   }
 
   const encounterNotes = narrVal('nf-encounter-notes');
-  const encounterLine = encounterNotes ? `ENCOUNTER NOTES - ${uc(encounterNotes)}` : '';
+  const encounterLine = encounterNotes ? `ENCOUNTER NOTES - ${uct(encounterNotes)}` : '';
 
   let txDelayLine = '';
   if(narrChk('nf-tx-delay-chk')){
     const reason = narrVal('nf-tx-delay-reason');
     const notes  = narrVal('nf-tx-delay-notes');
-    txDelayLine = `TRANSPORT DELAY — ${reason ? uc(reason) : 'DELAY NOTED'}${notes ? '. ' + uc(notes) : ''}.`;
+    txDelayLine = `TRANSPORT DELAY — ${reason ? uc(reason) : 'DELAY NOTED'}${notes ? '. ' + uct(notes) : ''}.`;
   }
 
-  const narrative=[dispatchLine,respDelayLine,transferLines,hpiLine,assessLine,txLine,responseLine,txDelayLine,encounterLine,finalLine].filter(Boolean).join('\n\n').replace(/\u2014/g,' - ');
+  const narrative=[dispatchLine,respDelayLine,transferLines,hpiLine,assessLine,txLine,responseLine,txDelayLine,encounterLine,finalLine].filter(Boolean).join('\n\n').replace(/\u2014/g,' - ').replace(/\.{2,}/g,'.');
   const el=document.getElementById('narr-preview');
   if(el) el.textContent=narrative;
 
