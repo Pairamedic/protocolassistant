@@ -572,6 +572,12 @@
 .narr-seg-btn{flex:1;padding:10px 6px;background:none;border:none;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;border-right:1px solid var(--border)}
 .narr-seg-btn:last-child{border-right:none}
 .narr-seg-btn.active{background:rgba(94,234,212,.12);color:var(--accent)}
+@media(max-width:520px){
+  #narr-type-seg{flex-wrap:wrap;border-radius:12px}
+  #narr-type-seg .narr-seg-btn{flex:none;width:50%;box-sizing:border-box;border-right:1px solid var(--border)!important;border-bottom:1px solid var(--border)}
+  #narr-type-seg .narr-seg-btn:nth-child(even){border-right:none!important}
+  #narr-type-seg .narr-seg-btn:nth-child(3),#narr-type-seg .narr-seg-btn:nth-child(4){border-bottom:none}
+}
 /* Monitoring chips */
 .narr-mon-chips{display:flex;flex-wrap:wrap;gap:6px}
 .narr-mon-chip{padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);font-size:13px;cursor:pointer;transition:all .15s;text-align:left}
@@ -1004,19 +1010,6 @@
               <button class="narr-na-btn" data-for="nf-gcs">N/A</button>
             </div>
           </div>
-          <!-- 12-Lead -->
-          <div class="narr-field">
-            <label style="display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer;padding:2px 0">
-              <input type="checkbox" id="nf-ecg12-chk" style="width:17px;height:17px;accent-color:var(--accent);cursor:pointer;flex:none">
-              <span style="color:var(--text)">12-Lead EKG obtained</span>
-            </label>
-            <div id="nf-ecg12-interp-wrap" style="display:none;margin-top:5px">
-              <div class="narr-num-wrap">
-                <input type="text" id="nf-ecg12-interp" class="narr-input" placeholder="Interpretation (e.g. NSR, no acute ST changes)">
-                <button class="narr-na-btn" data-for="nf-ecg12-interp">N/A</button>
-              </div>
-            </div>
-          </div>
           <!-- Trauma section -->
           <div id="narr-trauma-sec" style="display:none">
             <div style="font-size:11px;font-weight:700;color:#f87171;letter-spacing:.3px;text-transform:uppercase;margin-bottom:8px">Trauma — Body Regions</div>
@@ -1052,7 +1045,6 @@
             <div class="narr-mon-chips" id="narr-move-chips">
               <button type="button" class="narr-mon-chip" data-val="ambulate">Assisted to stretcher</button>
               <button type="button" class="narr-mon-chip" data-val="carried">Carried to stretcher</button>
-              <button type="button" class="narr-mon-chip" data-val="c-collar">C-Collar applied</button>
               <button type="button" class="narr-mon-chip" data-val="backboard">Backboard / spinal precautions</button>
               <button type="button" class="narr-mon-chip" data-val="splint">Splint applied</button>
               <button type="button" class="narr-mon-chip" data-val="tourniquet">Tourniquet applied</button>
@@ -1069,12 +1061,84 @@
               <option>Trendelenburg</option><option>upright</option><option>prone</option>
             </select>
           </div>
-          <!-- O2 -->
+          <!-- Airway adjuncts -->
+          <div class="narr-field">
+            <label class="narr-lbl">Airway / Ventilation</label>
+            <div class="narr-mon-chips" id="narr-air-chips">
+              <button type="button" class="narr-mon-chip" data-val="suction">Suctioning</button>
+              <button type="button" class="narr-mon-chip" data-val="opa">OPA</button>
+              <button type="button" class="narr-mon-chip" data-val="npa">NPA</button>
+              <button type="button" class="narr-mon-chip" data-val="bvm">BVM ventilation</button>
+              <button type="button" class="narr-mon-chip" data-val="ett">ET Intubation</button>
+              <button type="button" class="narr-mon-chip" data-val="sga">Supraglottic airway</button>
+              <button type="button" class="narr-mon-chip" data-val="cric">Surgical airway (cric)</button>
+            </div>
+            <!-- ET Intubation detail -->
+            <div id="nf-ett-detail" style="display:none;margin-top:8px">
+              <div class="narr-inline-row" style="flex-wrap:wrap;gap:8px">
+                <span class="narr-inline-lbl">Tube size:</span>
+                <input type="number" id="nf-ett-size" class="narr-inline-input" placeholder="7.5" style="width:75px" inputmode="decimal" step="0.5">
+                <span class="narr-inline-lbl">mm</span>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--text)">
+                  <input type="checkbox" id="nf-ett-etco2" style="width:15px;height:15px;accent-color:var(--accent);flex:none">
+                  <span>EtCO2/capnography confirmed</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <!-- IV / IO Access -->
           <div class="narr-field">
             <label style="display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer;padding:2px 0">
-              <input type="checkbox" id="nf-o2-chk" style="width:17px;height:17px;accent-color:var(--accent);cursor:pointer;flex:none">
-              <span style="color:var(--text)">Oxygen administered</span>
+              <input type="checkbox" id="nf-iv-chk" style="width:17px;height:17px;accent-color:var(--accent);cursor:pointer;flex:none">
+              <span style="color:var(--text)">IV / IO access established</span>
             </label>
+            <div id="nf-iv-detail" style="display:none;margin-top:6px">
+              <div class="narr-inline-row" style="flex-wrap:wrap;gap:6px">
+                <input type="text" id="nf-iv-gauge" class="narr-inline-input" placeholder="gauge" style="width:65px">
+                <span class="narr-inline-lbl">G</span>
+                <select id="nf-iv-fluid" class="narr-inline-sel">
+                  <option>NS 0.9%</option><option>LR</option><option>D5W</option><option>TKO/KVO</option><option>IO</option>
+                </select>
+                <input type="text" id="nf-iv-site" class="narr-inline-input" placeholder="site (e.g. LAC, RAC)" style="flex:1;min-width:120px">
+              </div>
+            </div>
+            <!-- IV deferred / unsuccessful -->
+            <label style="display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer;padding:6px 0 2px;color:var(--muted)">
+              <input type="checkbox" id="nf-iv-deferred-chk" style="width:16px;height:16px;accent-color:#f87171;cursor:pointer;flex:none">
+              <span>IV access deferred / unsuccessful</span>
+            </label>
+          </div>
+          <!-- Interventions -->
+          <div class="narr-field">
+            <label class="narr-lbl">Interventions</label>
+            <div class="narr-mon-chips" id="narr-mon-chips">
+              <button type="button" class="narr-mon-chip" data-val="hemodynamic">Hemodynamic Monitoring</button>
+              <button type="button" class="narr-mon-chip" data-val="bga">Blood Glucose Analysis</button>
+              <button type="button" class="narr-mon-chip" data-val="c-collar">C-Collar Applied</button>
+              <button type="button" class="narr-mon-chip" data-val="c-spine">C-Spine Clearance</button>
+              <button type="button" class="narr-mon-chip" data-val="12lead">12-Lead EKG</button>
+              <button type="button" class="narr-mon-chip" data-val="cardiac-monitor">Cardiac Monitoring / 4-Lead</button>
+              <button type="button" class="narr-mon-chip" data-val="etco2-monitor">EtCO2 Monitoring</button>
+              <button type="button" class="narr-mon-chip" data-val="12lead-tx">12-Lead Transmitted</button>
+              <button type="button" class="narr-mon-chip" data-val="pulsara">Pulsara Notification</button>
+              <button type="button" class="narr-mon-chip" data-val="o2">Oxygen Administered</button>
+            </div>
+            <!-- 12-Lead interpretation -->
+            <div id="nf-12lead-detail" style="display:none;margin-top:6px">
+              <div class="narr-num-wrap">
+                <input type="text" id="nf-12lead-interp" class="narr-input" placeholder="Interpretation (e.g. NSR, no acute ST changes)">
+                <button class="narr-na-btn" data-for="nf-12lead-interp">N/A</button>
+              </div>
+            </div>
+            <!-- Pulsara detail -->
+            <div id="nf-pulsara-detail" style="display:none;margin-top:6px">
+              <div class="narr-inline-row">
+                <span class="narr-inline-lbl">Transmitted</span>
+                <input type="number" id="nf-pulsara-min" class="narr-inline-input" placeholder="min" style="width:60px" inputmode="numeric">
+                <span class="narr-inline-lbl">min prior to arrival</span>
+              </div>
+            </div>
+            <!-- Oxygen detail -->
             <div id="nf-o2-detail" style="display:none;margin-top:6px">
               <div class="narr-inline-row">
                 <span class="narr-inline-lbl">Device:</span>
@@ -1085,54 +1149,6 @@
                 <span class="narr-inline-lbl">Rate:</span>
                 <input type="number" id="nf-o2-rate" class="narr-inline-input" placeholder="LPM" style="width:70px" inputmode="numeric">
                 <span class="narr-inline-lbl">LPM</span>
-              </div>
-            </div>
-          </div>
-          <!-- Airway adjuncts -->
-          <div class="narr-field">
-            <label class="narr-lbl">Airway / Ventilation</label>
-            <div class="narr-mon-chips">
-              <button type="button" class="narr-mon-chip" data-val="suction">Suctioning</button>
-              <button type="button" class="narr-mon-chip" data-val="opa">OPA</button>
-              <button type="button" class="narr-mon-chip" data-val="npa">NPA</button>
-              <button type="button" class="narr-mon-chip" data-val="bvm">BVM ventilation</button>
-              <button type="button" class="narr-mon-chip" data-val="ett">ET intubation</button>
-              <button type="button" class="narr-mon-chip" data-val="sga">Supraglottic airway</button>
-              <button type="button" class="narr-mon-chip" data-val="cric">Surgical airway (cric)</button>
-            </div>
-          </div>
-          <!-- IV Access -->
-          <div class="narr-field">
-            <label style="display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer;padding:2px 0">
-              <input type="checkbox" id="nf-iv-chk" style="width:17px;height:17px;accent-color:var(--accent);cursor:pointer;flex:none">
-              <span style="color:var(--text)">IV / IO access established</span>
-            </label>
-            <div id="nf-iv-detail" style="display:none;margin-top:6px;display:none">
-              <div class="narr-inline-row">
-                <input type="text" id="nf-iv-gauge" class="narr-inline-input" placeholder="gauge" style="width:65px">
-                <span class="narr-inline-lbl">G</span>
-                <select id="nf-iv-fluid" class="narr-inline-sel">
-                  <option>NS 0.9%</option><option>LR</option><option>D5W</option><option>TKO/KVO</option><option>IO</option>
-                </select>
-                <input type="text" id="nf-iv-site" class="narr-inline-input" placeholder="site (e.g. LAC, RAC)" style="flex:1">
-              </div>
-            </div>
-          </div>
-          <!-- Monitoring -->
-          <div class="narr-field">
-            <label class="narr-lbl">Assessment &amp; Monitoring</label>
-            <div class="narr-mon-chips" id="narr-mon-chips">
-              <button type="button" class="narr-mon-chip" data-val="hemodynamic">Hemodynamic monitoring</button>
-              <button type="button" class="narr-mon-chip" data-val="cardiac-monitor">Cardiac monitor</button>
-              <button type="button" class="narr-mon-chip" data-val="etco2-monitor">EtCO2 monitoring</button>
-              <button type="button" class="narr-mon-chip" data-val="12lead-tx">12-Lead transmitted</button>
-              <button type="button" class="narr-mon-chip" data-val="pulsara">Pulsara notification</button>
-            </div>
-            <div id="nf-pulsara-detail" style="display:none;margin-top:6px">
-              <div class="narr-inline-row">
-                <span class="narr-inline-lbl">Transmitted</span>
-                <input type="number" id="nf-pulsara-min" class="narr-inline-input" placeholder="min" style="width:60px" inputmode="numeric">
-                <span class="narr-inline-lbl">min prior to arrival</span>
               </div>
             </div>
           </div>
@@ -1209,12 +1225,18 @@
             </div>
           </div>
           <div class="narr-field">
-            <label class="narr-lbl">Left in Care of</label>
-            <select id="nf-care-of" class="narr-input">
-              <option value="">— Select —</option>
-              <option>RN at bedside</option><option>charge RN</option><option>ER physician</option>
-              <option>PA at bedside</option><option>NP at bedside</option><option>receiving EMS crew</option>
-            </select>
+            <label class="narr-lbl">Left in Care Of</label>
+            <div class="narr-inline-row" style="flex-wrap:wrap;gap:6px;align-items:center">
+              <input type="text" id="nf-care-of-name" class="narr-inline-input" placeholder="Name (e.g. Smith, J.)" style="flex:1;min-width:130px" autocomplete="off" list="care-of-suggestions">
+              <datalist id="care-of-suggestions"></datalist>
+              <select id="nf-care-of-cred" class="narr-inline-sel" style="flex:none">
+                <option value="">Credential</option>
+                <option>RN</option><option>Charge RN</option><option>MD</option><option>DO</option>
+                <option>PA-C</option><option>APRN/NP</option><option>EMT-P</option><option>EMT</option>
+                <option>Receiving EMS Crew</option>
+              </select>
+              <button class="narr-na-btn" id="nf-care-of-cred-na">N/A cred</button>
+            </div>
           </div>
           <!-- Transport / on-scene delay -->
           <div class="narr-field">
@@ -3234,9 +3256,9 @@ function buildNarrative(){
   // Assessment — routine vitals (BGL, SpO2, EtCO2, GCS) excluded from narrative
   // since they are documented in the EHR vitals section; only pertinent findings included
   const airway=narrVal('nf-airway'), lungs=narrVal('nf-lungs'), mental=narrVal('nf-mental'), skin=narrVal('nf-skin');
-  const ecg12=narrChk('nf-ecg12-chk');
-  const ecg12NA=document.getElementById('nf-ecg12-interp')?.disabled;
-  const ecg12Interp=ecg12NA?'':narrVal('nf-ecg12-interp');
+  const ecg12=isMonChipActive('12lead');
+  const ecg12NA=document.getElementById('nf-12lead-interp')?.disabled;
+  const ecg12Interp=ecg12NA?'':narrVal('nf-12lead-interp');
   const assessNotes=narrVal('nf-assessment-notes');
   let assessParts=[];
   if(airway) assessParts.push(`AIRWAY ${uc(airway)}`);
@@ -3265,35 +3287,46 @@ function buildNarrative(){
   if(isMoveActive('ambulate')) txParts.push('PATIENT ASSISTED IN AMBULATING TO STRETCHER');
   if(isMoveActive('carried')) txParts.push('PATIENT CARRIED TO STRETCHER');
   const pos=narrVal('nf-position'); if(pos) txParts.push(`PATIENT SECURED TO STRETCHER IN ${uc(pos)} POSITION`);
-  if(isMoveActive('c-collar')) txParts.push('CERVICAL COLLAR APPLIED');
   if(isMoveActive('backboard')) txParts.push('SPINAL PRECAUTIONS TAKEN, LONG BACKBOARD APPLIED');
   if(isMoveActive('splint')) txParts.push('SPLINT APPLIED');
   if(isMoveActive('tourniquet')) txParts.push('TOURNIQUET APPLIED');
   if(isMoveActive('wound-packing')) txParts.push('WOUND PACKING PERFORMED');
   if(isMoveActive('pressure-dressing')) txParts.push('PRESSURE DRESSING APPLIED');
-  // O2
-  if(narrChk('nf-o2-chk')){
-    const dev=narrVal('nf-o2-device'), rate=narrVal('nf-o2-rate');
-    txParts.push(`OXYGEN ADMINISTERED VIA ${uc(dev)}${rate?' AT '+rate+' LPM':''}`);
-  }
   // Airway adjuncts
-  ['suction','opa','npa','bvm','ett','sga','cric'].forEach(v=>{
+  ['suction','opa','npa','bvm'].forEach(v=>{
     if(isAirActive(v)){
-      const m={suction:'AIRWAY SUCTIONING PERFORMED',opa:'OPA INSERTED',npa:'NPA INSERTED',bvm:'BVM VENTILATION INITIATED',ett:'ENDOTRACHEAL INTUBATION PERFORMED',sga:'SUPRAGLOTTIC AIRWAY INSERTED',cric:'SURGICAL CRICOTHYROTOMY PERFORMED'};
+      const m={suction:'AIRWAY SUCTIONING PERFORMED',opa:'OPA INSERTED',npa:'NPA INSERTED',bvm:'BVM VENTILATION INITIATED'};
       txParts.push(m[v]);
     }
   });
-  // IV
+  if(isAirActive('ett')){
+    const sz=narrVal('nf-ett-size'), etco2=narrChk('nf-ett-etco2');
+    txParts.push(`ENDOTRACHEAL INTUBATION PERFORMED${sz?' WITH '+sz+'MM ETT':''}${etco2?', PLACEMENT CONFIRMED VIA ETCO2/CAPNOGRAPHY':''}`);
+  }
+  if(isAirActive('sga')) txParts.push('SUPRAGLOTTIC AIRWAY INSERTED');
+  if(isAirActive('cric')) txParts.push('SURGICAL CRICOTHYROTOMY PERFORMED');
+  // IV / IO
   if(narrChk('nf-iv-chk')){
     const g=narrVal('nf-iv-gauge'),f=narrVal('nf-iv-fluid'),s=narrVal('nf-iv-site');
-    txParts.push(`${g?g+'G ':''}IV ACCESS ESTABLISHED${f?' WITH '+uc(f):''}${s?' IN '+uc(s):''}`);
+    txParts.push(`${g?g+'G ':''}IV ACCESS ESTABLISHED${f?' WITH '+uc(f):''}${s?' IN '+uc(s):''}, PATENT, FLUSHED WITH 10 ML 0.9% NS`);
   }
-  // Monitoring
-  if(isMonChipActive('hemodynamic')) txParts.push('HEMODYNAMIC ASSESSMENT COMPLETED (BP, HR, RR, SPO2)');
-  if(isMonChipActive('cardiac-monitor')) txParts.push('CONTINUOUS CARDIAC MONITORING INITIATED');
+  if(narrChk('nf-iv-deferred-chk')){
+    txParts.push('PERIPHERAL IV ACCESS ATTEMPTED BUT UNSUCCESSFUL. IV ACCESS DEFERRED — UNABLE TO IDENTIFY SUITABLE PERIPHERAL VEIN. CLINICAL CONDITION DID NOT WARRANT INTRAOSSEOUS ACCESS');
+  }
+  // Interventions
+  if(isMonChipActive('hemodynamic')) txParts.push('HEMODYNAMIC ASSESSMENT/MONITORING PERFORMED (BP, HR, RR, SPO2)');
+  if(isMonChipActive('bga')) txParts.push('BLOOD GLUCOSE ANALYSIS PERFORMED');
+  if(isMonChipActive('c-collar')) txParts.push('CERVICAL COLLAR APPLIED');
+  if(isMonChipActive('c-spine')) txParts.push('C-SPINE CLEARANCE PERFORMED — PATIENT CLEARED PER PROTOCOL');
+  if(isMonChipActive('cardiac-monitor')) txParts.push('CONTINUOUS CARDIAC MONITORING INITIATED VIA 4-LEAD');
   if(isMonChipActive('etco2-monitor')) txParts.push('END-TIDAL CO2 MONITORING INITIATED');
   if(isMonChipActive('12lead-tx')) txParts.push('12-LEAD EKG TRANSMITTED');
   if(isMonChipActive('pulsara')){ const m=narrVal('nf-pulsara-min'); txParts.push(`12-LEAD TRANSMITTED VIA PULSARA ${m||'___'} MINUTES PRIOR TO ARRIVAL`); }
+  // Oxygen (chip-driven)
+  if(isMonChipActive('o2')){
+    const dev=narrVal('nf-o2-device'), rate=narrVal('nf-o2-rate');
+    txParts.push(`OXYGEN ADMINISTERED VIA ${uc(dev)}${rate?' AT '+rate+' LPM':''}`);
+  }
   // Medications
   narrTxMeds.forEach(m=>txParts.push(`${uc(m.name)} ${uc(m.dose)} ADMINISTERED`));
   const txNotes=narrVal('nf-tx-notes'); if(txNotes) txParts.push(uc(txNotes));
@@ -3319,9 +3352,14 @@ function buildNarrative(){
     finalLine=`PATIENT REFUSAL — ${rParts.join('. ')}.`;
   } else {
     const dest=narrDestination||narrVal('nf-destination-input')||'';
-    const method=narrVal('nf-arrival-method'), area=narrVal('nf-dest-area'), careOf=narrVal('nf-care-of');
+    const method=narrVal('nf-arrival-method'), area=narrVal('nf-dest-area');
+    const careOfName=narrVal('nf-care-of-name');
+    const careOfCredEl=document.getElementById('nf-care-of-cred');
+    const careOfCredNA=document.getElementById('nf-care-of-cred-na')?.classList.contains('active');
+    const careOfCred=careOfCredNA?'':careOfCredEl?.value||'';
+    const careOf=careOfName?(uc(careOfName)+(careOfCred?', '+uc(careOfCred):'')):'';
     if(dest||method||area||careOf){
-      finalLine=`DESTINATION — UPON ARRIVAL AT ${uc(dest)||'[FACILITY]'}, PATIENT ${uc(method)||'TRANSPORTED IN ON STRETCHER'}. PATIENT MOVED TO ${uc(area)||'DESIGNATED BED'}. PATIENT LEFT IN CARE OF ${uc(careOf)||'[RECEIVING STAFF]'}.`;
+      finalLine=`DESTINATION — UPON ARRIVAL AT ${uc(dest)||'[FACILITY]'}, PATIENT ${uc(method)||'TRANSPORTED IN ON STRETCHER'}. PATIENT MOVED TO ${uc(area)||'DESIGNATED BED'}. PATIENT LEFT IN CARE OF ${careOf||'[RECEIVING STAFF]'}.`;
     }
   }
 
@@ -3357,7 +3395,8 @@ function narrClear(){
   document.querySelectorAll('#tab-narrative .narr-na-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('#tab-narrative .narr-mon-chip').forEach(c=>c.classList.remove('active'));
   document.querySelectorAll('#tab-narrative .narr-trauma-reg-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('nf-ecg12-interp-wrap').style.display='none';
+  document.getElementById('nf-12lead-detail').style.display='none';
+  document.getElementById('nf-ett-detail').style.display='none';
   document.getElementById('nf-o2-detail').style.display='none';
   document.getElementById('nf-iv-detail').style.display='none';
   document.getElementById('narr-med-dose-row').style.display='none';
@@ -3543,10 +3582,28 @@ function initNarrative(){
   // Monitoring + movement chips
   initMonChips('narr-mon-chips');
   initMonChips('narr-move-chips');
-  // Airway adjuncts (use same initMonChips approach — they share the .narr-mon-chip class in second group)
+  // Airway chips (narr-air-chips) + any others not in the above groups
   document.querySelectorAll('#tab-narrative .narr-mon-chip').forEach(chip=>{
     if(!chip.closest('#narr-mon-chips') && !chip.closest('#narr-move-chips')){
       chip.addEventListener('click',()=>{ chip.classList.toggle('active'); buildNarrative(); });
+    }
+  });
+
+  // ETT chip → show/hide tube size detail
+  document.querySelector('#narr-air-chips .narr-mon-chip[data-val="ett"]')?.addEventListener('click',()=>{
+    const active=document.querySelector('#narr-air-chips .narr-mon-chip[data-val="ett"]')?.classList.contains('active');
+    document.getElementById('nf-ett-detail').style.display=active?'':'none';
+  });
+
+  // Monitoring chip special expand handlers (12lead, pulsara, o2)
+  document.getElementById('narr-mon-chips')?.addEventListener('click',e=>{
+    const chip=e.target.closest('.narr-mon-chip'); if(!chip) return;
+    const active=chip.classList.contains('active');
+    if(chip.dataset.val==='12lead'){
+      document.getElementById('nf-12lead-detail').style.display=active?'':'none';
+    }
+    if(chip.dataset.val==='o2'){
+      document.getElementById('nf-o2-detail').style.display=active?'':'none';
     }
   });
 
@@ -3557,18 +3614,6 @@ function initNarrative(){
     buildNarrative();
   });
   initTraumaRegions();
-
-  // 12-lead interpretation toggle
-  document.getElementById('nf-ecg12-chk')?.addEventListener('change',e=>{
-    document.getElementById('nf-ecg12-interp-wrap').style.display=e.target.checked?'':'none';
-    buildNarrative();
-  });
-
-  // O2 detail toggle
-  document.getElementById('nf-o2-chk')?.addEventListener('change',e=>{
-    document.getElementById('nf-o2-detail').style.display=e.target.checked?'':'none';
-    buildNarrative();
-  });
 
   // IV detail toggle
   document.getElementById('nf-iv-chk')?.addEventListener('change',e=>{
@@ -3587,6 +3632,28 @@ function initNarrative(){
     document.getElementById('nf-tx-delay-detail').style.display=e.target.checked?'flex':'none';
     buildNarrative();
   });
+
+  // N/A cred button for "Left in Care Of"
+  document.getElementById('nf-care-of-cred-na')?.addEventListener('click',function(){
+    this.classList.toggle('active');
+    const sel=document.getElementById('nf-care-of-cred');
+    if(sel){ sel.disabled=this.classList.contains('active'); if(sel.disabled) sel.value=''; }
+    buildNarrative();
+  });
+
+  // Save "Left in Care Of" names to localStorage for future suggestions
+  function updateCareOfSuggestions(){
+    const dl=document.getElementById('care-of-suggestions'); if(!dl) return;
+    const saved=JSON.parse(localStorage.getItem('narr_care_of_names')||'[]');
+    dl.innerHTML=saved.map(n=>`<option value="${n.replace(/"/g,'&quot;')}">`).join('');
+  }
+  document.getElementById('nf-care-of-name')?.addEventListener('blur',function(){
+    const name=this.value.trim(); if(!name) return;
+    const saved=JSON.parse(localStorage.getItem('narr_care_of_names')||'[]');
+    if(!saved.includes(name)){ saved.unshift(name); saved.splice(20); localStorage.setItem('narr_care_of_names',JSON.stringify(saved)); }
+    updateCareOfSuggestions();
+  });
+  updateCareOfSuggestions();
 
   // N/A buttons
   initNABtns();
