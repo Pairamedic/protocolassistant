@@ -958,7 +958,7 @@
       <div id="forms-no-service" class="hidden" style="padding:40px 20px;text-align:center">
         <div style="font-size:36px;margin-bottom:12px">🗂</div>
         <div style="font-size:16px;font-weight:700;margin-bottom:8px">No Forms Configured</div>
-        <div style="font-size:14px;color:var(--muted);line-height:1.6">Forms are not configured for this service.<br>Switch to <strong style="color:var(--text)">EASI Protocols – 2026</strong> to access equipment checks and shift forms.</div>
+        <div style="font-size:14px;color:var(--muted);line-height:1.6">No forms are configured for this service.</div>
       </div>
 
       <!-- EASI-only forms container -->
@@ -4843,8 +4843,9 @@
     });
     renderProtocols(_lastTerms);
     renderMeds(_lastTerms);
-    // Re-render checklist if forms panel is open
-    if(typeof renderShiftChecklist === 'function') renderShiftChecklist();
+    // Re-render checklist only if the forms panel is currently open (avoids TDZ crash during init)
+    const _fp = document.getElementById('panel-shift');
+    if(_fp && !_fp.classList.contains('hidden')) renderShiftChecklist();
   }
   document.querySelectorAll('.provider-level-btn').forEach(btn => {
     btn.addEventListener('click', () => applyProviderLevel(btn.dataset.level));
