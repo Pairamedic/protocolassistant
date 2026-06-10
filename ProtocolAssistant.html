@@ -6061,27 +6061,64 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     const unit = document.getElementById('shift-unit')?.value || s.unit || '';
     const date = new Date().toLocaleDateString();
     const lvlLabel = {emt:'EMT',aemt:'AEMT',paramedic:'Paramedic'}[_providerLevel]||'Paramedic';
-    let out = `EASI EMS — EQUIPMENT CHECK\nUnit: ${unit}  Date: ${date}  Provider Level: ${lvlLabel}\n${'='.repeat(45)}\n\n`;
-    SHIFT_SECTIONS.forEach((sec, si) => {
+    const notes = document.getElementById('shift-notes')?.value || s.notes || '';
+
+    const secHtml = SHIFT_SECTIONS.map((sec, si) => {
       const visItems = sec.items.filter(_itemVisible);
-      if(!visItems.length) return;
-      const checked = visItems.filter((item,ii_full)=>{
-        const ii = sec.items.indexOf(item);
-        return s[`${si}_${ii}`]?.checked;
-      }).length;
-      out += `${sec.title.toUpperCase()} (${checked}/${visItems.length})\n`;
-      sec.items.forEach((item, ii) => {
-        if(!_itemVisible(item)) return;
+      if(!visItems.length) return '';
+      const checkedCount = sec.items.filter((item,ii)=> _itemVisible(item) && s[`${si}_${ii}`]?.checked).length;
+      const rows = sec.items.map((item, ii) => {
+        if(!_itemVisible(item)) return '';
         const entry = s[`${si}_${ii}`]||{};
-        out += `  [${entry.checked?'✓':' '}] ${_itemText(item)}${entry.checked&&entry.time?' — '+entry.time:''}\n`;
-      });
-      out += '\n';
-    });
-    if(s.notes) out += `NOTES:\n${s.notes}\n`;
-    const blob = new Blob([out], {type:'text/plain'});
+        const txt = _itemText(item);
+        const minLvl = (typeof item==='object') ? item.lvl : 'emt';
+        const badge = (minLvl && minLvl!=='emt') ? `<span style="font-size:9px;padding:1px 4px;border-radius:3px;margin-left:4px;background:${minLvl==='paramedic'?'#bbf7d0':'#fed7aa'};color:${minLvl==='paramedic'?'#166534':'#7c2d12'}">${minLvl==='paramedic'?'Paramedic':'AEMT'}</span>` : '';
+        const chk = entry.checked ? '&#10003;' : '';
+        const t = entry.checked && entry.time ? `<div style="font-size:9px;color:#666;margin-top:1px">${entry.time}</div>` : '';
+        return `<tr class="${entry.checked?'done-row':''}"><td class="chk-cell">${chk}</td><td class="item-name">${txt}${badge}${t}</td></tr>`;
+      }).join('');
+      return `<div class="section">
+        <div class="section-head">${sec.title} <span style="font-weight:400;font-size:10px;opacity:.75">(${checkedCount}/${visItems.length})</span></div>
+        <table><thead><tr><th class="chk-cell">✓</th><th class="item-name">Item</th></tr></thead><tbody>${rows}</tbody></table>
+      </div>`;
+    }).join('');
+
+    const notesHtml = notes ? `<div class="section" style="grid-column:1/-1"><div class="section-head">Notes</div><div style="padding:8px 10px;font-size:11px;white-space:pre-wrap">${notes.replace(/</g,'&lt;')}</div></div>` : '';
+
+    const html=`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<title>Equipment Check — ${unit||'Unit'} — ${date}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#111;background:#fff;padding:10px}
+  h1{font-size:15px;font-weight:700;text-align:center;text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid #111;padding-bottom:4px;margin-bottom:8px}
+  .header-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px 16px;margin-bottom:10px;border:1px solid #888;padding:6px 8px}
+  .hf{display:flex;align-items:center;gap:4px}
+  .hf label{font-weight:700;white-space:nowrap}
+  .hf span{border-bottom:1px solid #555;flex:1;min-width:60px;padding:0 2px}
+  .sections-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .section{border:1px solid #888;break-inside:avoid}
+  .section-head{background:#333;color:#fff;font-weight:700;text-transform:uppercase;font-size:10px;letter-spacing:.5px;padding:3px 6px}
+  table{width:100%;border-collapse:collapse}
+  th{background:#eee;font-weight:700;font-size:10px;padding:2px 4px;border:1px solid #ccc;text-align:left}
+  td{padding:2px 4px;border:1px solid #ddd;vertical-align:top}
+  tr:nth-child(even) td{background:#f9f9f9}
+  .done-row td{color:#555}
+  .chk-cell{width:20px;text-align:center;font-weight:700;color:#166534}
+  @media print{body{padding:4px}.sections-grid{grid-template-columns:repeat(2,1fr)}}
+</style></head><body>
+<h1>EASI EMS — Equipment Check</h1>
+<div class="header-grid">
+  <div class="hf"><label>Unit #:</label><span>${unit}</span></div>
+  <div class="hf"><label>Date:</label><span>${date}</span></div>
+  <div class="hf"><label>Provider Level:</label><span>${lvlLabel}</span></div>
+</div>
+<div class="sections-grid">${secHtml}${notesHtml}</div>
+</body></html>`;
+
+    const blob = new Blob([html], {type:'text/html'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `shift-checklist-${unit||'export'}-${new Date().toISOString().slice(0,10)}.txt`;
+    a.download = `equipment-check-${unit||'export'}-${new Date().toISOString().slice(0,10)}.html`;
     a.click();
   };
   window.resetShiftChecklist = function(){
@@ -6207,32 +6244,88 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   window.exportUCO = function(){
     const s=_ucoState();
     const get=id=>document.getElementById(id)?.value||s[id]||'';
-    const line=(l,v)=>`${l.padEnd(22)}: ${v||'—'}`;
-    let out = `EMERGENCY AMBULANCE SERVICE, INC.\nEMT CHECK OFF\n${'='.repeat(50)}\n`;
-    out += `${line('Unit',get('uco-unit'))}   ${line('Mileage',get('uco-mileage'))}\n`;
-    out += `${line('Date',get('uco-date'))}   ${line('EMT',get('uco-emt'))}\n\n`;
-    UCO_SECTIONS.forEach(sec=>{
-      out += `${sec.title.toUpperCase()}\n${'-'.repeat(40)}\n`;
-      out += `${'ITEM'.padEnd(35)} OK  NOTED PROBLEMS\n`;
-      sec.items.forEach((item,ii)=>{
-        const si=UCO_SECTIONS.indexOf(sec);
+    const esc=v=>(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+
+    const secHtml = UCO_SECTIONS.map((sec,si)=>{
+      const rows = sec.items.map((item,ii)=>{
         const e=s[`uco_${si}_${ii}`]||{};
-        out += `${item.padEnd(35)} ${e.ok?'[✓]':'[ ]'}  ${e.prob||''}\n`;
-      });
-      out += '\n';
-    });
-    out += `\nADDITIONAL INFORMATION\n${'-'.repeat(40)}\n`;
-    out += `${line('Repairs/Body Damage',get('uco-repairs'))}\n`;
-    out += `${line('Map Book',get('uco-mapbook'))}  ${line('PB/JC Maps',get('uco-map-pbjc'))}\n`;
-    out += `${line('SC/LC Maps',get('uco-map-sclc'))}  ${line('England/LC',get('uco-map-eng'))}\n`;
-    out += `${line('Warren/BC',get('uco-map-warren'))}  ${line('Rison/CC',get('uco-map-rison'))}\n`;
-    out += `${line('Fuel Card',get('uco-fuelcard'))}  ${line('JRMC Card',get('uco-jrmc'))}\n`;
-    out += `${line('Fire Extinguisher',get('uco-extinguisher'))}  ${line('Tire Chains',get('uco-chains'))}\n\n`;
-    out += `${line('Signature',get('uco-sig'))}   Maintenance Request: ${s.maintReq||'—'}\n`;
-    const blob=new Blob([out],{type:'text/plain'});
+        return `<tr>
+          <td class="item-name">${item}</td>
+          <td class="ok-cell">${e.ok?'&#10003;':''}</td>
+          <td class="prob-cell">${esc(e.prob)}</td>
+        </tr>`;
+      }).join('');
+      return `<div class="section">
+        <div class="section-head">${sec.title}</div>
+        <table><thead><tr><th class="item-name">Item</th><th class="ok-cell">OK</th><th class="prob-cell">Noted Problems</th></tr></thead>
+        <tbody>${rows}</tbody></table>
+      </div>`;
+    }).join('');
+
+    const halfFields = UCO_FOOTER_FIELDS.filter(f=>f.half);
+    const fullFields = UCO_FOOTER_FIELDS.filter(f=>f.full&&f.id!=='uco-sig');
+    const addlRows = halfFields.map(f=>`<div class="af"><label>${f.label}</label><span>${esc(get(f.id))}</span></div>`).join('');
+    const fullRows = fullFields.map(f=>`<div class="af full"><label>${f.label}</label><span>${esc(get(f.id))}</span></div>`).join('');
+
+    const html=`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<title>EMT Check Off — ${esc(get('uco-unit'))} — ${esc(get('uco-date'))}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#111;background:#fff;padding:10px}
+  h1{font-size:15px;font-weight:700;text-align:center;text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid #111;padding-bottom:4px;margin-bottom:2px}
+  .org{text-align:center;font-size:11px;color:#555;margin-bottom:8px}
+  .header-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px 12px;margin-bottom:10px;border:1px solid #888;padding:6px 8px}
+  .hf{display:flex;align-items:center;gap:4px}
+  .hf label{font-weight:700;white-space:nowrap}
+  .hf span{border-bottom:1px solid #555;flex:1;min-width:40px;padding:0 2px}
+  .sections-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px}
+  .section{border:1px solid #888;break-inside:avoid}
+  .section-head{background:#333;color:#fff;font-weight:700;text-transform:uppercase;font-size:10px;letter-spacing:.5px;padding:3px 6px}
+  table{width:100%;border-collapse:collapse}
+  th{background:#eee;font-weight:700;font-size:10px;padding:2px 4px;border:1px solid #ccc;text-align:left}
+  td{padding:2px 4px;border:1px solid #ddd;vertical-align:top}
+  tr:nth-child(even) td{background:#f9f9f9}
+  .ok-cell{width:22px;text-align:center;font-weight:700;color:#166534}
+  .prob-cell{width:38%}
+  .addl{border:1px solid #888;padding:6px 8px;margin-bottom:8px}
+  .addl-head{background:#333;color:#fff;font-weight:700;text-transform:uppercase;font-size:10px;letter-spacing:.5px;padding:3px 6px;margin:-6px -8px 6px}
+  .addl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px 12px}
+  .af{display:flex;align-items:center;gap:4px}
+  .af.full{grid-column:1/-1}
+  .af label{font-weight:700;white-space:nowrap;font-size:10px}
+  .af span{border-bottom:1px solid #555;flex:1;padding:0 2px;min-width:40px}
+  .sig-row{display:flex;gap:24px;align-items:flex-end;border:1px solid #888;padding:6px 8px}
+  .sig-row .sf{flex:1;display:flex;align-items:center;gap:6px}
+  .sig-row label{font-weight:700;font-size:10px;white-space:nowrap}
+  .sig-row span{border-bottom:1px solid #555;flex:1;padding:0 2px}
+  .maint{display:flex;align-items:center;gap:8px;font-size:10px;font-weight:700}
+  .maint-val{border:1px solid #555;padding:2px 10px;font-weight:700;font-size:11px}
+  @media print{body{padding:4px}.sections-grid{grid-template-columns:repeat(2,1fr)}}
+</style></head><body>
+<h1>EMT Check Off</h1>
+<div class="org">Emergency Ambulance Service, Inc.</div>
+<div class="header-grid">
+  <div class="hf"><label>Unit:</label><span>${esc(get('uco-unit'))}</span></div>
+  <div class="hf"><label>Mileage:</label><span>${esc(get('uco-mileage'))}</span></div>
+  <div class="hf"><label>Date:</label><span>${esc(get('uco-date'))}</span></div>
+  <div class="hf"><label>EMT:</label><span>${esc(get('uco-emt'))}</span></div>
+</div>
+<div class="sections-grid">${secHtml}</div>
+<div class="addl">
+  <div class="addl-head">Additional Information</div>
+  ${fullRows}
+  <div class="addl-grid" style="margin-top:4px">${addlRows}</div>
+</div>
+<div class="sig-row">
+  <div class="sf"><label>Signature:</label><span>${esc(get('uco-sig'))}</span></div>
+  <div class="maint">Maintenance Request: <span class="maint-val">${s.maintReq||'—'}</span></div>
+</div>
+</body></html>`;
+
+    const blob=new Blob([html],{type:'text/html'});
     const a=document.createElement('a');
     a.href=URL.createObjectURL(blob);
-    a.download=`uco-${get('uco-unit')||'export'}-${get('uco-date')||new Date().toISOString().slice(0,10)}.txt`;
+    a.download=`uco-${get('uco-unit')||'export'}-${get('uco-date')||new Date().toISOString().slice(0,10)}.html`;
     a.click();
   };
   window.resetUCO = function(){
