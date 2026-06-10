@@ -460,36 +460,7 @@
             </select>
           </div>
         </div>
-        <div class="narr-row3">
-          <div class="narr-field">
-            <label class="narr-lbl">BGL (mg/dL)</label>
-            <div class="narr-num-wrap">
-              <input type="number" id="nf-bgl" class="narr-input" placeholder="e.g. 120" inputmode="numeric">
-              <button class="narr-na-btn" data-for="nf-bgl">N/A</button>
-            </div>
-          </div>
-          <div class="narr-field">
-            <label class="narr-lbl">SpO2 (%)</label>
-            <div class="narr-num-wrap">
-              <input type="number" id="nf-spo2" class="narr-input" placeholder="e.g. 98" inputmode="numeric" min="0" max="100">
-              <button class="narr-na-btn" data-for="nf-spo2">N/A</button>
-            </div>
-          </div>
-          <div class="narr-field">
-            <label class="narr-lbl">EtCO2 (mmHg)</label>
-            <div class="narr-num-wrap">
-              <input type="number" id="nf-etco2" class="narr-input" placeholder="e.g. 38" inputmode="numeric">
-              <button class="narr-na-btn" data-for="nf-etco2">N/A</button>
-            </div>
-          </div>
-        </div>
-        <div class="narr-field">
-          <label class="narr-lbl">GCS</label>
-          <div class="narr-num-wrap">
-            <input type="number" id="nf-gcs" class="narr-input" placeholder="3–15" inputmode="numeric" min="3" max="15" style="max-width:100px">
-            <button class="narr-na-btn" data-for="nf-gcs">N/A</button>
-          </div>
-        </div>
+
         <!-- Trauma section -->
         <div id="narr-trauma-sec" style="display:none">
           <div style="font-size:11px;font-weight:700;color:#f87171;letter-spacing:.3px;text-transform:uppercase;margin-bottom:8px">Trauma — Body Regions</div>
@@ -525,11 +496,6 @@
           <div class="narr-mon-chips" id="narr-move-chips">
             <button type="button" class="narr-mon-chip" data-val="ambulate">Assisted to stretcher</button>
             <button type="button" class="narr-mon-chip" data-val="carried">Carried to stretcher</button>
-            <button type="button" class="narr-mon-chip" data-val="backboard">Backboard / spinal precautions</button>
-            <button type="button" class="narr-mon-chip" data-val="splint">Splint applied</button>
-            <button type="button" class="narr-mon-chip" data-val="tourniquet">Tourniquet applied</button>
-            <button type="button" class="narr-mon-chip" data-val="wound-packing">Wound packing</button>
-            <button type="button" class="narr-mon-chip" data-val="pressure-dressing">Pressure dressing</button>
           </div>
         </div>
         <!-- Position select -->
@@ -602,6 +568,11 @@
             <button type="button" class="narr-mon-chip" data-val="12lead-tx">12-Lead Transmitted</button>
             <button type="button" class="narr-mon-chip" data-val="pulsara">Pulsara Notification</button>
             <button type="button" class="narr-mon-chip" data-val="o2">Oxygen Administered</button>
+            <button type="button" class="narr-mon-chip" data-val="backboard">Backboard / Spinal Precautions</button>
+            <button type="button" class="narr-mon-chip" data-val="splint">Splint Applied</button>
+            <button type="button" class="narr-mon-chip" data-val="tourniquet">Tourniquet Applied</button>
+            <button type="button" class="narr-mon-chip" data-val="wound-packing">Wound Packing</button>
+            <button type="button" class="narr-mon-chip" data-val="pressure-dressing">Pressure Dressing</button>
           </div>
           <!-- 12-Lead interpretation -->
           <div id="nf-12lead-detail" style="display:none;margin-top:6px">
@@ -787,6 +758,14 @@
         </div>
       </div>
       <pre id="narr-preview">Fill in the fields above to generate your narrative.</pre>
+    </div>
+
+    <div class="narr-preview-wrap" style="margin-top:8px">
+      <div class="narr-preview-hd">
+        <span>🔔 Pulsara Note</span>
+        <button class="action-btn save-btn" id="btn-pulsara-copy">📋 Copy</button>
+      </div>
+      <pre id="pulsara-preview" style="font-size:13px;min-height:40px">Fill in complaint and treatment fields above.</pre>
     </div>
 
   </div><!-- /.page-content -->
@@ -1381,6 +1360,30 @@ function buildNarrative(){
   const narrative=[dispatchLine,respDelayLine,transferLines,hpiLine,assessLine,txLine,responseLine,txDelayLine,finalLine].filter(Boolean).join('\n\n');
   const el=document.getElementById('narr-preview');
   if(el) el.textContent=narrative;
+
+  // Pulsara snippet: complaint + key interventions only
+  const pulsaraParts=[];
+  if(complaint) pulsaraParts.push(complaint.toUpperCase());
+  const pulInterventions=[];
+  if(isMonChipActive('12lead')) pulInterventions.push('12-LEAD EKG OBTAINED');
+  if(isMonChipActive('12lead-tx')) pulInterventions.push('12-LEAD TRANSMITTED');
+  if(isMonChipActive('pulsara')){ const m=narrVal('nf-pulsara-min'); pulInterventions.push(`PULSARA ACTIVATED${m?' ('+m+' MIN PRIOR TO ARRIVAL)':''}`); }
+  if(narrChk('nf-iv-chk')){ const g=narrVal('nf-iv-gauge'); pulInterventions.push(`IV ACCESS${g?' ('+g+'G)':''} ESTABLISHED`); }
+  if(isMonChipActive('o2')){ const dev=narrVal('nf-o2-device'),rate=narrVal('nf-o2-rate'); pulInterventions.push(`O2 VIA ${uc(dev||'delivery device')}${rate?' AT '+rate+' LPM':''}`); }
+  narrTxMeds.forEach(m=>pulInterventions.push(`${uc(m.name)}${m.dose?' '+uc(m.dose):''}`));
+  if(isMonChipActive('cardiac-monitor')) pulInterventions.push('CARDIAC MONITORING');
+  if(isMonChipActive('tourniquet')) pulInterventions.push('TOURNIQUET APPLIED');
+  if(isMonChipActive('backboard')) pulInterventions.push('SPINAL PRECAUTIONS');
+  if(pulsaraParts.length||pulInterventions.length){
+    let pulsaraText=pulsaraParts.join('');
+    if(pulInterventions.length) pulsaraText+=(pulsaraText?' — ':'')+pulInterventions.join(', ');
+    const pe=document.getElementById('pulsara-preview');
+    if(pe) pe.textContent=pulsaraText||'—';
+  } else {
+    const pe=document.getElementById('pulsara-preview');
+    if(pe) pe.textContent='Fill in complaint and treatment fields above.';
+  }
+
   return narrative;
 }
 
@@ -1688,6 +1691,12 @@ function initNarrative(){
     const text=document.getElementById('narr-preview')?.textContent||'';
     if(!text||text==='Fill in the fields above to generate your narrative.'){ showToast('Nothing to copy yet.'); return; }
     navigator.clipboard.writeText(text).then(()=>showToast('Narrative copied!')).catch(()=>{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('Copied!'); });
+  });
+
+  document.getElementById('btn-pulsara-copy')?.addEventListener('click',()=>{
+    const text=document.getElementById('pulsara-preview')?.textContent||'';
+    if(!text||text==='Fill in complaint and treatment fields above.'){ showToast('Nothing to copy yet.'); return; }
+    navigator.clipboard.writeText(text).then(()=>showToast('Pulsara note copied!')).catch(()=>{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('Copied!'); });
   });
 
   document.getElementById('btn-narr-save-hist')?.addEventListener('click', narrSave);
