@@ -605,6 +605,7 @@
               <option>NS 0.9%</option><option>LR</option><option>D5W</option><option>TKO/KVO</option>
             </select>
             <input type="text" id="nf-iv-site" class="narr-inline-input" placeholder="Site (e.g. LAC, RAC)" style="flex:1;min-width:110px">
+            <button type="button" id="btn-iv-unsuccessful" style="padding:5px 10px;border-radius:6px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:12px;cursor:pointer;white-space:nowrap">&#10007; Unsuccessful</button>
             <button class="narr-add-btn" id="btn-add-iv">+ Add</button>
           </div>
           <div class="narr-tag-row" id="nf-iv-tags"></div>
@@ -1210,7 +1211,14 @@ function renderHomeMedTags(){
 
 function renderIVTags(){
   const el=document.getElementById('nf-iv-tags'); if(!el) return;
-  el.innerHTML=narrIVAccesses.map((iv,i)=>`<div class="narr-tag" style="border-color:rgba(94,234,212,.35);background:rgba(94,234,212,.08);color:#5eead4"><span>${iv.type} ${iv.gauge?iv.gauge+'G ':''}- ${iv.fluid}${iv.site?' @ '+iv.site:''}</span><button type="button" onclick="narrIVAccesses.splice(${i},1);renderIVTags();buildNarrative()" style="color:rgba(94,234,212,.5)">&#10005;</button></div>`).join('');
+  el.innerHTML=narrIVAccesses.map((iv,i)=>{
+    const ok=iv.success!==false;
+    const col=ok?'rgba(94,234,212,1)':'rgba(248,113,113,1)';
+    const bg=ok?'rgba(94,234,212,.08)':'rgba(248,113,113,.08)';
+    const border=ok?'rgba(94,234,212,.35)':'rgba(248,113,113,.35)';
+    const label=ok?'✓':'✗';
+    return `<div class="narr-tag" style="border-color:${border};background:${bg};color:${col}"><span>${label} ${iv.type} ${iv.gauge?iv.gauge+'G ':''}- ${iv.fluid}${iv.site?' @ '+iv.site:''}</span><button type="button" onclick="narrIVAccesses.splice(${i},1);renderIVTags();buildNarrative()" style="color:${col};opacity:.6">&#10005;</button></div>`;
+  }).join('');
 }
 
 function renderTxMedTags(){
@@ -1436,14 +1444,17 @@ function buildNarrative(){
   if(isAirActive('sga')) txParts.push('SUPRAGLOTTIC AIRWAY INSERTED');
   if(isAirActive('cric')) txParts.push('SURGICAL CRICOTHYROTOMY PERFORMED');
   narrIVAccesses.forEach(iv=>{
+    const _ivOk=iv.success!==false;
     if(iv.type==='IO'){
-      txParts.push(`INTRAOSSEOUS ACCESS ESTABLISHED${iv.site?' IN '+uc(iv.site):''}, PATENT`);
+      if(_ivOk) txParts.push(`INTRAOSSEOUS ACCESS ESTABLISHED${iv.site?' IN '+uc(iv.site):''}, PATENT`);
+      else txParts.push(`INTRAOSSEOUS ACCESS ATTEMPTED${iv.gauge?' ('+iv.gauge+'G)':''}${iv.site?' IN '+uc(iv.site):''} — UNSUCCESSFUL`);
     } else {
-      txParts.push(`${iv.gauge?iv.gauge+'G ':''}IV ACCESS ESTABLISHED${iv.fluid?' WITH '+uc(iv.fluid):''}${iv.site?' IN '+uc(iv.site):''}, PATENT, FLUSHED WITH 10 ML 0.9% NS`);
+      if(_ivOk) txParts.push(`${iv.gauge?iv.gauge+'G ':''}IV ACCESS ESTABLISHED${iv.fluid?' WITH '+uc(iv.fluid):''}${iv.site?' IN '+uc(iv.site):''}, PATENT, FLUSHED WITH 10 ML 0.9% NS`);
+      else txParts.push(`${iv.gauge?iv.gauge+'G ':''}IV ACCESS ATTEMPTED${iv.site?' IN '+uc(iv.site):''} — UNSUCCESSFUL`);
     }
   });
   if(narrChk('nf-iv-deferred-chk')){
-    txParts.push('PERIPHERAL IV ACCESS ATTEMPTED BUT UNSUCCESSFUL. IV ACCESS DEFERRED — UNABLE TO IDENTIFY SUITABLE PERIPHERAL VEIN. CLINICAL CONDITION DID NOT WARRANT INTRAOSSEOUS ACCESS');
+    txParts.push('PERIPHERAL IV ACCESS ATTEMPTED BUT UNSUCCESSFUL. IV ACCESS DEFERRED — UNABLE TO IDENTIFY SUITABLE PERIPHERAL VEIN. CLINICAL PRESENTATION DID NOT WARRANT INTRAOSSEOUS ACCESS');
   }
   if(isMonChipActive('hemodynamic')) txParts.push('CONTINUOUS HEMODYNAMIC MONITORING PERFORMED');
   if(isMonChipActive('bga')) txParts.push('BLOOD GLUCOSE ANALYSIS PERFORMED');
@@ -1985,14 +1996,29 @@ function initNarrative(){
   initTraumaRegions();
 
   // Add IV/IO entry
+  // Wire unsuccessful toggle for IV entry
+  let _ivUnsuccessful=false;
+  document.getElementById('btn-iv-unsuccessful')?.addEventListener('click',()=>{
+    _ivUnsuccessful=!_ivUnsuccessful;
+    const btn=document.getElementById('btn-iv-unsuccessful');
+    if(btn){
+      btn.style.background=_ivUnsuccessful?'rgba(248,113,113,.15)':'transparent';
+      btn.style.color=_ivUnsuccessful?'rgba(248,113,113,1)':'var(--muted)';
+      btn.style.borderColor=_ivUnsuccessful?'rgba(248,113,113,.6)':'var(--border)';
+    }
+  });
   document.getElementById('btn-add-iv')?.addEventListener('click',()=>{
     const type=document.getElementById('nf-iv-type')?.value||'IV';
     const gauge=(document.getElementById('nf-iv-gauge')?.value||'').trim();
     const fluid=document.getElementById('nf-iv-fluid')?.value||'NS 0.9%';
     const site=(document.getElementById('nf-iv-site')?.value||'').trim();
-    narrIVAccesses.push({type,gauge,fluid,site});
+    narrIVAccesses.push({type,gauge,fluid,site,success:!_ivUnsuccessful});
     document.getElementById('nf-iv-gauge').value='';
     document.getElementById('nf-iv-site').value='';
+    // reset unsuccessful toggle
+    _ivUnsuccessful=false;
+    const btn=document.getElementById('btn-iv-unsuccessful');
+    if(btn){ btn.style.background='transparent'; btn.style.color='var(--muted)'; btn.style.borderColor='var(--border)'; }
     renderIVTags(); buildNarrative();
   });
   document.getElementById('nf-iv-site')?.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); document.getElementById('btn-add-iv')?.click(); } });
