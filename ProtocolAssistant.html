@@ -994,7 +994,8 @@
               <button class="btn" onclick="exportShiftChecklist()" style="flex:1;font-size:13px;padding:10px">📤 Export</button>
               <button class="btn" onclick="resetShiftChecklist()" style="flex:1;font-size:13px;padding:10px;color:#f87171;border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.06)">🗑 Reset</button>
             </div>
-            <div id="forms-save-status" style="font-size:11px;color:var(--muted);margin-top:8px;text-align:right;min-height:14px"></div>
+            <div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4">On mobile, tap Export to share directly via email or Messages. On desktop, open the downloaded file in your browser to print or attach to an email.</div>
+            <div id="forms-save-status" style="font-size:11px;color:var(--muted);margin-top:4px;text-align:right;min-height:14px"></div>
           </div>
           <div id="shift-sections"></div>
           <div class="card" style="margin-top:12px;margin-bottom:20px">
@@ -1021,6 +1022,7 @@
               <button class="btn" onclick="exportUCO()" style="flex:1;font-size:13px;padding:10px">📤 Export</button>
               <button class="btn" onclick="resetUCO()" style="flex:1;font-size:13px;padding:10px;color:#f87171;border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.06)">🗑 Reset</button>
             </div>
+            <div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4">On mobile, tap Export to share directly via email or Messages. On desktop, open the downloaded file in your browser to print or attach to an email.</div>
           </div>
           <div id="uco-sections"></div>
         </div>
@@ -1045,6 +1047,7 @@
               <button class="btn" onclick="exportStockSheet()" style="flex:1;font-size:13px;padding:10px">📤 Export</button>
               <button class="btn" onclick="resetStockSheet()" style="flex:1;font-size:13px;padding:10px;color:#f87171;border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.06)">🗑 Reset</button>
             </div>
+            <div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4">On mobile, tap Export to share directly via email or Messages. On desktop, open the downloaded file in your browser to print or attach to an email.</div>
           </div>
           <div id="ss-sections"></div>
         </div>
@@ -6056,6 +6059,19 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     document.getElementById('shift-sec-'+si).classList.toggle('shift-done', total>0&&checked===total);
   };
 
+  // Shared export helper: Web Share API on mobile, download fallback on desktop
+  async function _shareOrDownload(html, filename, title){
+    const blob = new Blob([html], {type:'text/html'});
+    const file = new File([blob], filename, {type:'text/html'});
+    if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+      try{ await navigator.share({files:[file], title}); return; }catch(e){ if(e.name==='AbortError') return; }
+    }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+  }
+
   window.exportShiftChecklist = function(){
     const s = _shiftState();
     const unit = document.getElementById('shift-unit')?.value || s.unit || '';
@@ -6115,11 +6131,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
 <div class="sections-grid">${secHtml}${notesHtml}</div>
 </body></html>`;
 
-    const blob = new Blob([html], {type:'text/html'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `equipment-check-${unit||'export'}-${new Date().toISOString().slice(0,10)}.html`;
-    a.click();
+    _shareOrDownload(html, `equipment-check-${unit||'export'}-${new Date().toISOString().slice(0,10)}.html`, 'Equipment Check');
   };
   window.resetShiftChecklist = function(){
     if(!confirm('Clear all checkmarks, unit number, and notes for this checklist?')) return;
@@ -6322,11 +6334,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
 </div>
 </body></html>`;
 
-    const blob=new Blob([html],{type:'text/html'});
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download=`uco-${get('uco-unit')||'export'}-${get('uco-date')||new Date().toISOString().slice(0,10)}.html`;
-    a.click();
+    _shareOrDownload(html, `uco-${get('uco-unit')||'export'}-${get('uco-date')||new Date().toISOString().slice(0,10)}.html`, 'EMT Check Off');
   };
   window.resetUCO = function(){
     if(!confirm('Clear all Unit Check Off entries?')) return;
@@ -6556,11 +6564,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
 <div class="sections-grid">${secHtml}</div>
 </body></html>`;
 
-    const blob=new Blob([html],{type:'text/html'});
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download=`stock-sheet-${unit||'export'}-${date||new Date().toISOString().slice(0,10)}.html`;
-    a.click();
+    _shareOrDownload(html, `stock-sheet-${unit||'export'}-${date||new Date().toISOString().slice(0,10)}.html`, 'EASI Equipment Check');
   };
   window.resetStockSheet = function(){
     if(!confirm('Clear all Stock Sheet entries?')) return;
