@@ -3925,30 +3925,28 @@
           _blocks.push({type:'plain', ...it});
         }
       }
-      // Step count for card header (non-branch items across all blocks)
+      // Step count: sequential across all blocks, matching flat render
       const _stepCount = _blocks.reduce((n, b) => {
-        if(b.steps) return n + b.steps.filter(it => !it.isBranch).length;
-        if(b.isBranch) return n;
-        // label block — count body if non-empty
+        if(b.type === 'treat') return n + b.steps.filter(it => !it.isBranch).length;
+        if(b.type === 'plain') return b.isBranch ? n : n + 1;
         if(b.type === 'label'){ const m2 = b.dc.match(_SEC_RE); return n + (m2 && b.dc.slice(m2[0].length).trim() ? 1 : 0); }
-        return n + 1;
+        return n + (b.isBranch ? 0 : 1);
       }, 0);
 
-      // ── Phase 2: style maps ────────────────────────────────────────────────
-      const _PSTY = {
-        assessment:       {c:'rgba(94,234,212,1)',  bg:'rgba(94,234,212,.07)',  bd:'rgba(94,234,212,.25)'},
-        indication:       {c:'rgba(167,139,250,1)', bg:'rgba(167,139,250,.07)', bd:'rgba(167,139,250,.25)'},
-        contraindication: {c:'rgba(248,113,113,1)', bg:'rgba(248,113,113,.06)', bd:'rgba(248,113,113,.25)'},
-        reversible:       {c:'rgba(251,146,60,1)',  bg:'rgba(251,146,60,.07)',  bd:'rgba(251,146,60,.28)'},
-        note:             {c:'rgba(148,163,184,1)', bg:'rgba(148,163,184,.06)', bd:'rgba(148,163,184,.2)'},
-        sign:             {c:'rgba(96,165,250,1)',  bg:'rgba(96,165,250,.06)',  bd:'rgba(96,165,250,.2)'},
-        symptom:          {c:'rgba(96,165,250,1)',  bg:'rgba(96,165,250,.06)',  bd:'rgba(96,165,250,.2)'},
-        warning:          {c:'rgba(248,113,113,1)', bg:'rgba(248,113,113,.06)', bd:'rgba(248,113,113,.25)'},
-        caution:          {c:'rgba(251,191,36,1)',  bg:'rgba(251,191,36,.07)',  bd:'rgba(251,191,36,.25)'},
-        consideration:    {c:'rgba(248,113,113,1)', bg:'rgba(248,113,113,.06)', bd:'rgba(248,113,113,.25)'},
-        scene:            {c:'rgba(94,234,212,1)',  bg:'rgba(94,234,212,.07)',  bd:'rgba(94,234,212,.25)'},
+      // ── Phase 2: section-label accent colors (subheading text only, no containers) ──
+      const _SLBL = {
+        assessment:       'rgba(94,234,212,.95)',
+        indication:       'rgba(167,139,250,.95)',
+        contraindication: 'rgba(248,113,113,.95)',
+        reversible:       'rgba(251,146,60,.95)',
+        note:             'rgba(148,163,184,.95)',
+        sign:             'rgba(96,165,250,.95)',
+        symptom:          'rgba(96,165,250,.95)',
+        warning:          'rgba(248,113,113,.95)',
+        caution:          'rgba(251,191,36,.95)',
+        consideration:    'rgba(248,113,113,.95)',
+        scene:            'rgba(94,234,212,.95)',
       };
-      const _TSTY = {c:'rgba(74,222,128,1)', bg:'rgba(74,222,128,.06)', bd:'rgba(74,222,128,.22)'};
 
       // ── Phase 2: per-step renderer — numFn provides a local counter, falls back to global _sn ──
       function _rs(it, numFn){
@@ -3981,35 +3979,32 @@
           ${rl}<div class="step-content"><span class="k">${num}</span> ${sh}</div></div>`;
       }
 
-      // ── Phase 2: render blocks (all use local per-container numbering) ─────
+      // ── Phase 2: flat rendering — no containers, sequential numbering ────────
       const stepsHtml = _blocks.map(b => {
         if(b.type === 'label'){
-          const m = b.dc.match(_SEC_RE); if(!m){ let _fn=()=>++_sn; return _rs(b,_fn); }
+          const m = b.dc.match(_SEC_RE); if(!m){ return _rs(b, ()=>++_sn); }
           const rawLabel = m[1].toLowerCase();
-          // Rename Note/NOTE → "Special Considerations"
           const lbl = /^note$/i.test(m[1]) ? 'Special Considerations'
                     : /^consider/i.test(m[1]) ? 'Considerations'
                     : m[1].charAt(0).toUpperCase() + m[1].slice(1).replace(/\s+causes?$/i,' Causes');
           const body = b.dc.slice(m[0].length).trim();
-          const sk = (rawLabel.startsWith('required') || rawLabel.startsWith('primary') || rawLabel.startsWith('secondary') || rawLabel.startsWith('vital') || rawLabel.startsWith('history') || rawLabel.startsWith('gcs')) ? 'assessment'
+          const sk = (rawLabel.startsWith('required')||rawLabel.startsWith('primary')||rawLabel.startsWith('secondary')||rawLabel.startsWith('vital')||rawLabel.startsWith('history')||rawLabel.startsWith('gcs')) ? 'assessment'
                    : rawLabel.startsWith('contra')   ? 'contraindication'
                    : rawLabel.startsWith('consider') ? 'consideration'
                    : rawLabel.startsWith('indic')    ? 'indication'
                    : rawLabel.startsWith('reversi')  ? 'reversible'
                    : rawLabel.split(/\s/)[0].replace(/s$/,'');
-          const st = _PSTY[sk] || _PSTY.note;
+          const color = _SLBL[sk] || _SLBL.note;
+          const subhead = `<div style="font-size:10px;font-weight:800;letter-spacing:.65px;text-transform:uppercase;color:${color};margin:10px 0 3px;display:flex;align-items:center;gap:5px"><span style="width:2px;height:10px;background:${color};border-radius:1px;flex:none;opacity:.75"></span>${sanitizeText(lbl)}</div>`;
           const bodyRole = b.explicitRole ? b.role : null;
-          // Local 1-based numbering within this section container
-          let _csn = 0; const _numFn = () => ++_csn;
-          const bodyHtml = body ? _rs({role:bodyRole, clean:body, dc:body, descriptor:b.descriptor, isBranch:false}, _numFn) : '';
-          return `<div class="proto-sec" style="border-color:${st.bd};margin-bottom:8px"><div class="proto-sec-label" style="color:${st.c};background:${st.bg};border-bottom-color:${st.bd}">${sanitizeText(lbl)}</div><div class="proto-sec-body" style="padding:4px 4px 4px">${bodyHtml}</div></div>`;
+          const bodyHtml = body ? _rs({role:bodyRole, clean:body, dc:body, descriptor:b.descriptor, isBranch:false}, ()=>++_sn) : '';
+          return subhead + bodyHtml;
         }
         if(b.type === 'treat'){
-          let _csn = 0; const _numFn = () => ++_csn;
-          return `<div class="proto-sec" style="border-color:${_TSTY.bd};margin-bottom:8px"><div class="proto-sec-label" style="color:${_TSTY.c};background:${_TSTY.bg};border-bottom-color:${_TSTY.bd}">Treatment</div><div class="proto-sec-body" style="padding:6px 4px 4px">${b.steps.map(it=>_rs(it,_numFn)).join('')}</div></div>`;
+          return b.steps.map(it => _rs(it, ()=>++_sn)).join('');
         }
-        // type:'plain' — render as regular numbered step, no container
-        let _fn = () => ++_sn; return _rs(b, _fn);
+        // type:'plain' — regular numbered step
+        return _rs(b, ()=>++_sn);
       }).join('');
       return `
       <div class="card${on?' fav-on':''}" id="pcard-${eid}">
