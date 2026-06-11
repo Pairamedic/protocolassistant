@@ -14,5 +14,13 @@ service cloud.firestore {
       allow write: if request.auth != null &&
                       request.auth.token.email == 'eliasacaldwellnrp@gmail.com';
     }
+
+    // ToS acceptance log — user can create/update their own record;
+    // only admin can read the full collection
+    match /tos_acceptances/{uid} {
+      allow create, update: if request.auth != null && request.auth.uid == uid;
+      allow read: if request.auth != null &&
+                     request.auth.token.email == 'eliasacaldwellnrp@gmail.com';
+    }
   }
 }
