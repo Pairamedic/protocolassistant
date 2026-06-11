@@ -271,84 +271,7 @@
       <div id="narr-hist-list"><div style="padding:14px;text-align:center;color:var(--muted);font-size:13px">No saved narratives yet.</div></div>
     </div>
 
-    <!-- ── QUICK PULSARA ── -->
-    <div class="narr-sec" id="nsec-quick-pulsara">
-      <div class="narr-sec-hd" style="color:rgba(251,191,36,1)">&#128276; Quick Pulsara</div>
-      <div class="narr-sec-body">
-        <div class="narr-field">
-          <label class="narr-lbl">Chief Complaint</label>
-          <div class="narr-combo-wrap" id="combo-qp-complaint">
-            <div class="narr-combo-input-row">
-              <input type="text" class="narr-combo-input" id="qp-complaint-input" placeholder="Type or select complaint…" autocomplete="off">
-            </div>
-            <div class="narr-combo-drop" id="combo-qp-complaint-drop"></div>
-            <div class="narr-tag-row" id="qp-complaint-tags"></div>
-          </div>
-        </div>
-        <div id="qp-bt-section" style="display:none">
-          <label class="narr-lbl" style="display:block;margin-bottom:6px">Blood Thinner / Anticoagulant</label>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button type="button" class="narr-mon-chip" id="qp-bt-yes">Yes</button>
-            <button type="button" class="narr-mon-chip" id="qp-bt-no">No</button>
-          </div>
-          <div id="qp-bt-med-wrap" style="display:none;margin-top:7px">
-            <input type="text" id="qp-bt-med" class="narr-input" placeholder="Medication name (e.g. Eliquis, Warfarin)">
-          </div>
-        </div>
-        <div id="qp-lkw-section" style="display:none">
-          <div class="narr-field">
-            <label class="narr-lbl">Last Known Well (LKW)</label>
-            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-              <input type="time" id="qp-lkw-time" class="narr-inline-input" style="width:120px">
-              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--muted)">
-                <input type="checkbox" id="qp-lkw-unknown" style="width:15px;height:15px;accent-color:#fbbf24;flex:none">
-                <span>Unknown</span>
-              </label>
-            </div>
-          </div>
-        </div>
-        <div class="narr-row">
-          <div class="narr-field">
-            <label class="narr-lbl">Onset Time</label>
-            <input type="text" id="qp-onset-time" class="narr-input" placeholder="e.g. 10:00 AM, 2 hrs ago">
-          </div>
-          <div class="narr-field">
-            <label class="narr-lbl">Duration</label>
-            <input type="text" id="qp-duration" class="narr-input" placeholder="e.g. 3 days, 45 min">
-          </div>
-        </div>
-        <div class="narr-field">
-          <label class="narr-lbl">Pain Score</label>
-          <div class="narr-num-wrap">
-            <input type="number" id="qp-pain" class="narr-input" min="0" max="10" placeholder="0 – 10" inputmode="numeric" style="max-width:100px">
-            <button class="narr-na-btn" id="qp-pain-na">N/A</button>
-            <button class="narr-na-btn" id="qp-pain-denied" style="font-size:11px">Denied</button>
-          </div>
-          <div id="qp-pain-loc-wrap" style="display:none;margin-top:7px">
-            <div class="narr-mon-chips" id="qp-pain-loc-chips" style="margin-bottom:6px">
-              <button type="button" class="narr-mon-chip" data-val="chest">Chest</button>
-              <button type="button" class="narr-mon-chip" data-val="abdomen">Abdomen</button>
-              <button type="button" class="narr-mon-chip" data-val="back">Back</button>
-              <button type="button" class="narr-mon-chip" data-val="head">Head</button>
-              <button type="button" class="narr-mon-chip" data-val="extremity">Extremity</button>
-            </div>
-            <div class="narr-num-wrap">
-              <input type="text" id="qp-pain-location" class="narr-input" placeholder="Describe pain location…">
-              <button class="narr-na-btn" id="qp-pain-loc-na">N/A</button>
-            </div>
-          </div>
-        </div>
-                <div class="narr-preview-wrap" style="margin-top:4px">
-          <div class="narr-preview-hd">
-            <span>&#128276; Pulsara Note</span>
-            <button class="action-btn save-btn" id="btn-qp-pulsara-copy">&#128203; Copy</button>
-          </div>
-          <pre id="qp-pulsara-preview" style="font-size:13px;min-height:40px">Enter complaint to generate Pulsara note.</pre>
-        </div>
-      </div>
-    </div>
-
-        <!-- ── DISPATCH ── -->
+    <!-- ── DISPATCH ── -->
     <div class="narr-sec">
       <div class="narr-sec-hd" style="color:var(--accent)">📡 Dispatch</div>
       <div class="narr-sec-body">
@@ -400,7 +323,7 @@
           </div>
         </div>
         <div class="narr-field narr-transfer-only" style="display:none">
-          <label class="narr-lbl">Sending Facility</label>
+          <label class="narr-lbl">Transferring Facility</label>
           <div class="narr-num-wrap">
             <input type="text" id="nf-sending-fac" class="narr-input" placeholder="e.g. UAMS Medical Center">
             <button class="narr-na-btn" data-for="nf-sending-fac">N/A</button>
@@ -451,6 +374,32 @@
               <button class="narr-na-btn" id="nf-pain-na">N/A</button>
               <button class="narr-na-btn" id="nf-pain-denied" style="font-size:11px">Denied</button>
             </div>
+          </div>
+        </div>
+        <!-- Pain location (shown when pain > 0) -->
+        <div id="nf-pain-loc-wrap" style="display:none;margin-top:4px">
+          <label class="narr-lbl">Pain Location</label>
+          <div class="narr-mon-chips" id="nf-pain-loc-chips" style="margin-bottom:6px">
+            <button type="button" class="narr-mon-chip" data-val="chest">Chest</button>
+            <button type="button" class="narr-mon-chip" data-val="abdomen">Abdomen</button>
+            <button type="button" class="narr-mon-chip" data-val="back">Back</button>
+            <button type="button" class="narr-mon-chip" data-val="head">Head</button>
+            <button type="button" class="narr-mon-chip" data-val="extremity">Extremity</button>
+          </div>
+          <div class="narr-num-wrap">
+            <input type="text" id="nf-pain-location" class="narr-input" placeholder="Describe pain location…">
+            <button class="narr-na-btn" id="nf-pain-loc-na">N/A</button>
+          </div>
+        </div>
+        <!-- Last Known Well (optional — for stroke, altered mental status, etc.) -->
+        <div class="narr-field">
+          <label class="narr-lbl">Last Known Well (if applicable)</label>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input type="time" id="nf-lkw-time" class="narr-inline-input" style="width:120px">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--muted)">
+              <input type="checkbox" id="nf-lkw-unknown" style="width:15px;height:15px;accent-color:var(--accent);flex:none">
+              <span>Unknown</span>
+            </label>
           </div>
         </div>
         <div class="narr-field">
@@ -634,7 +583,6 @@
             <button type="button" class="narr-mon-chip" data-val="cardiac-monitor">Cardiac Monitoring / 4-Lead</button>
             <button type="button" class="narr-mon-chip" data-val="etco2-monitor">EtCO2 Monitoring</button>
             <button type="button" class="narr-mon-chip" data-val="12lead-tx">12-Lead Transmitted</button>
-            <button type="button" class="narr-mon-chip" data-val="pulsara">Pulsara Notification</button>
             <button type="button" class="narr-mon-chip" data-val="backboard">Backboard / Spinal Precautions</button>
             <button type="button" class="narr-mon-chip" data-val="splint">Splint Applied</button>
             <button type="button" class="narr-mon-chip" data-val="tourniquet">Tourniquet Applied</button>
@@ -658,14 +606,6 @@
             <div class="narr-num-wrap">
               <input type="text" id="nf-12lead-interp" class="narr-input" placeholder="Interpretation (e.g. NSR, no acute ST changes)">
               <button class="narr-na-btn" data-for="nf-12lead-interp">N/A</button>
-            </div>
-          </div>
-          <!-- Pulsara detail -->
-          <div id="nf-pulsara-detail" style="display:none;margin-top:6px">
-            <div class="narr-inline-row">
-              <span class="narr-inline-lbl">Transmitted</span>
-              <input type="number" id="nf-pulsara-min" class="narr-inline-input" placeholder="min" style="width:60px" inputmode="numeric">
-              <span class="narr-inline-lbl">min prior to arrival</span>
             </div>
           </div>
 
@@ -867,13 +807,6 @@
       <pre id="narr-preview">Fill in the fields above to generate your narrative.</pre>
     </div>
 
-    <div class="narr-preview-wrap" style="margin-top:8px">
-      <div class="narr-preview-hd">
-        <span>🔔 Pulsara Note</span>
-        <button class="action-btn save-btn" id="btn-pulsara-copy">📋 Copy</button>
-      </div>
-      <pre id="pulsara-preview" style="font-size:13px;min-height:40px">Fill in complaint and treatment fields above.</pre>
-    </div>
 
   </div><!-- /.page-content -->
 </div><!-- /#app -->
@@ -1096,7 +1029,6 @@ let narrTraumaRegions = {};
 let narrPainNA = false;
 let narrPainDenied = false;
 let narrResponseType = 'emergency';
-let narrBloodThinnerAnswer = ''; // 'yes' | 'no' | ''
 let narrVoiceRecording = ''; // 'obtained' | 'not-obtained' | ''
 let narrVoiceRecordingReason = '';
 
@@ -1104,13 +1036,6 @@ function narrVal(id){ return (document.getElementById(id)?.value||'').trim(); }
 function narrChk(id){ return document.getElementById(id)?.checked||false; }
 function uc(s){ return (s||'').toUpperCase(); }
 function uct(s){ return uc(s).replace(/\.+\s*$/, ''); }
-
-function _narrCallType(complaint){
-  const c=(complaint||'').toLowerCase();
-  const isStroke=/stroke|\bcva\b|\btia\b|cerebrovascular/.test(c);
-  const isTrauma=/trauma|\bfall\b|\bmvc\b|\bmva\b|motor vehicle|\bassault\b|\bgsw\b|stab|penetrating|accident|shooting|gunshot/.test(c);
-  return {isStroke, isTrauma, needsBT:isStroke||isTrauma};
-}
 
 /* ── Typeahead Combo helper ─────────────────────── */
 function initCombo(opts){
@@ -1231,10 +1156,6 @@ function initMonChips(containerId){
   document.getElementById(containerId)?.querySelectorAll('.narr-mon-chip').forEach(chip=>{
     chip.addEventListener('click',()=>{
       chip.classList.toggle('active');
-      if(chip.dataset.val==='pulsara'){
-        const d=document.getElementById('nf-pulsara-detail');
-        if(d) d.style.display=chip.classList.contains('active')?'':'none';
-      }
       if(chip.dataset.val==='ett'){
         document.getElementById('nf-ett-detail').style.display=chip.classList.contains('active')?'':'none';
       }
@@ -1355,7 +1276,7 @@ function buildNarrative(){
     const sf=narrVal('nf-sending-fac'), tr=narrVal('nf-transfer-reason');
     const sfNA = document.getElementById('nf-sending-fac')?.disabled;
     const trNA = document.getElementById('nf-transfer-reason')?.disabled;
-    if(sf||tr) transferLines=`\nSENDING FACILITY — PATIENT RECEIVED AT ${sfNA?'N/A':uc(sf)||'[SENDING FACILITY]'}.${(tr&&!trNA)?' PATIENT TRANSFERRED FOR '+uc(tr)+'.':''}`;
+    if(sf||tr) transferLines=`\nTRANSFERRING FACILITY — PATIENT WAS ADMITTED AT ${sfNA?'N/A':uc(sf)||'[TRANSFERRING FACILITY]'}.${(tr&&!trNA)?' PATIENT TRANSFERRED FOR '+uc(tr)+'.':''}`;
   }
 
   const onsetNA = document.getElementById('nf-onset-time')?.disabled;
@@ -1369,9 +1290,9 @@ function buildNarrative(){
   if(narrPainDenied) painText='PATIENT DENIED PAIN';
   else if(narrPainNA) painText='PAIN SCALE NOT APPLICABLE';
   else {
-    const pv = narrVal('nf-pain') || narrVal('qp-pain');
-    const _painLocNA = document.getElementById('qp-pain-loc-na')?.classList.contains('active');
-    const _painLoc = _painLocNA ? '' : narrVal('qp-pain-location');
+    const pv = narrVal('nf-pain');
+    const _painLocNA = document.getElementById('nf-pain-loc-na')?.classList.contains('active');
+    const _painLoc = _painLocNA ? '' : narrVal('nf-pain-location');
     painText = pv!=='' ? `PAIN WAS RATED ${pv}/10${_painLoc?' IN '+uc(_painLoc):''}` : '';
   }
 
@@ -1388,13 +1309,10 @@ function buildNarrative(){
   if(pmh.length) hpiParts.push(`HISTORY OF ${pmh.map(uct).join(', ')}`);
   if(homeMeds.length) hpiParts.push(`PATIENT TAKES ${homeMeds.map(uct).join(', ')}`);
   if(hpiNotes) hpiParts.push(uct(hpiNotes));
-  const _ctHPI=_narrCallType(complaint);
-  if(_ctHPI.isStroke){
-    const _lkwUnk=document.getElementById('qp-lkw-unknown')?.checked;
-    const _lkwT=narrVal('qp-lkw-time');
-    if(_lkwUnk) hpiParts.push('LAST KNOWN WELL - UNKNOWN');
-    else if(_lkwT) hpiParts.push(`LAST KNOWN WELL - ${_lkwT}`);
-  }
+  const _lkwUnk=document.getElementById('nf-lkw-unknown')?.checked;
+  const _lkwT=narrVal('nf-lkw-time');
+  if(_lkwUnk) hpiParts.push('LAST KNOWN WELL - UNKNOWN');
+  else if(_lkwT) hpiParts.push(`LAST KNOWN WELL - ${_lkwT}`);
   const hpiLine=`HISTORY OF PRESENT ILLNESS — ${hpiParts.length?hpiParts.join('. ')+'.':'[HPI]'}`;
 
   const airway=narrVal('nf-airway'), lungs=narrVal('nf-lungs'), mental=narrVal('nf-mental'), skin=narrVal('nf-skin');
@@ -1463,7 +1381,6 @@ function buildNarrative(){
   if(isMonChipActive('cardiac-monitor')) txParts.push('CONTINUOUS CARDIAC MONITORING INITIATED VIA 4-LEAD');
   if(isMonChipActive('etco2-monitor')) txParts.push('END-TIDAL CO2 MONITORING INITIATED');
   if(isMonChipActive('12lead-tx')) txParts.push('12-LEAD EKG TRANSMITTED');
-  if(isMonChipActive('pulsara')){ const m=narrVal('nf-pulsara-min'); txParts.push(`12-LEAD TRANSMITTED VIA PULSARA ${m||'___'} MINUTES PRIOR TO ARRIVAL`); }
   narrTxMeds.forEach(m=>{
     if(m.name==='Oxygen') txParts.push(`OXYGEN ADMINISTERED VIA ${uc(m.dose)}`);
     else txParts.push(`${uc(m.name)} ${uc(m.dose)} ADMINISTERED`);
@@ -1531,55 +1448,6 @@ function buildNarrative(){
   const el=document.getElementById('narr-preview');
   if(el) el.textContent=narrative;
 
-  // Pulsara snippet: complaint + key interventions only
-  const _pulCallType=_narrCallType(complaint);
-  const pulsaraParts=[];
-  if(_pulCallType.isStroke){
-    const _pulLkwUnk=document.getElementById('qp-lkw-unknown')?.checked;
-    const _pulLkwT=narrVal('qp-lkw-time');
-    if(_pulLkwUnk) pulsaraParts.push('LKW UNKNOWN');
-    else if(_pulLkwT) pulsaraParts.push(`LKW ${_pulLkwT}`);
-  }
-  if(complaint&&complaint!=='[COMPLAINT]') pulsaraParts.push(complaint.toUpperCase());
-  if(_pulCallType.needsBT){
-    if(narrBloodThinnerAnswer==='yes'){
-      const _btMed=narrVal('qp-bt-med');
-      pulsaraParts.push(`ON ${_btMed?uc(_btMed)+' ':''}ANTICOAGULANT`);
-    } else if(narrBloodThinnerAnswer==='no'){
-      pulsaraParts.push('NO BLOOD THINNER/ANTICOAGULANT MADE KNOWN TO EMS');
-    }
-  }
-  const pulInterventions=[];
-  if(isMonChipActive('12lead')) pulInterventions.push('12-LEAD EKG OBTAINED');
-  if(isMonChipActive('12lead-tx')) pulInterventions.push('12-LEAD TRANSMITTED');
-  if(isMonChipActive('pulsara')){ const m=narrVal('nf-pulsara-min'); pulInterventions.push(`PULSARA ACTIVATED${m?' ('+m+' MIN PRIOR TO ARRIVAL)':''}`); }
-  narrIVAccesses.forEach(iv=>{
-    if(iv.type==='IO') pulInterventions.push('IO ACCESS ESTABLISHED');
-    else pulInterventions.push(`IV ACCESS${iv.gauge?' ('+iv.gauge+'G)':''} ESTABLISHED`);
-  });
-  narrTxMeds.forEach(m=>{
-    if(m.name==='Oxygen') pulInterventions.push(`O2 VIA ${uc(m.dose)}`);
-    else pulInterventions.push(`${uc(m.name)}${m.dose?' '+uc(m.dose):''}`);
-  });
-  if(isMonChipActive('cardiac-monitor')) pulInterventions.push('CARDIAC MONITORING');
-  if(isMonChipActive('etco2-monitor')) pulInterventions.push('ETCO2 MONITORING');
-  if(isMonChipActive('bga')) pulInterventions.push('BGL CHECKED');
-  if(isMonChipActive('hemodynamic')) pulInterventions.push('HEMODYNAMIC MONITORING');
-  if(isMonChipActive('tourniquet')) pulInterventions.push('TOURNIQUET APPLIED');
-  if(isMonChipActive('backboard')) pulInterventions.push('SPINAL PRECAUTIONS');
-  if(isMonChipActive('splint')) pulInterventions.push('SPLINT APPLIED');
-  if(isMonChipActive('wound-packing')) pulInterventions.push('WOUND PACKING');
-  if(isAirActive('ett')){ const sz=narrVal('nf-ett-size'); pulInterventions.push(`ET INTUBATION${sz?' ('+sz+'MM)':''}`); }
-  if(isAirActive('sga')) pulInterventions.push('SGA INSERTED');
-  pulInterventions.push('SEE ATTACHED PHOTOS FOR VITAL SIGNS');
-  {
-    let _pulText=pulsaraParts.join(' - ');
-    if(pulInterventions.length) _pulText+=(_pulText?' - ':'')+pulInterventions.join(', ');
-    const _pe=document.getElementById('pulsara-preview');
-    if(_pe) _pe.textContent=_pulText||'Fill in complaint and treatment fields above.';
-    const _qpe=document.getElementById('qp-pulsara-preview');
-    if(_qpe) _qpe.textContent=_pulText||'Enter complaint to generate Pulsara note.';
-  }
   return narrative;
 }
 
@@ -1605,20 +1473,15 @@ function narrClear(){
   document.getElementById('nf-ett-detail').style.display='none';
   document.getElementById('narr-med-dose-row').style.display='none';
   document.getElementById('narr-trauma-sec').style.display='none';
-  document.getElementById('nf-pulsara-detail').style.display='none';
   document.getElementById('nf-resp-delay-detail').style.display='none';
   document.getElementById('nf-tx-delay-detail').style.display='none';
   narrSelectedSymptoms.clear(); narrSelectedPMH.clear();
   narrTxMeds=[]; narrIVAccesses=[]; narrHomeMeds=[]; narrComplaint=''; narrDestination='';
   narrTraumaRegions={}; narrPainNA=false; narrPainDenied=false;
-  narrBloodThinnerAnswer=''; narrVoiceRecording=''; narrVoiceRecordingReason='';
-  document.querySelectorAll('#qp-bt-yes,#qp-bt-no,#qp-vr-yes,#qp-vr-no').forEach(b=>b.classList.remove('active'));
+  narrVoiceRecording=''; narrVoiceRecordingReason='';
+  document.querySelectorAll('#qp-vr-yes,#qp-vr-no').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('#qp-vr-reason-chips .narr-mon-chip').forEach(b=>b.classList.remove('active'));
-  document.getElementById('qp-bt-section').style.display='none';
-  document.getElementById('qp-lkw-section').style.display='none';
-  document.getElementById('qp-bt-med-wrap').style.display='none';
   document.getElementById('qp-vr-reason-wrap').style.display='none';
-  document.getElementById('qp-complaint-tags').innerHTML='';
   renderTags('nf-symptom-tags', narrSelectedSymptoms, null);
   renderTags('nf-pmh-tags', narrSelectedPMH, null);
   renderHomeMedTags(); renderTxMedTags(); renderIVTags();
@@ -1704,80 +1567,22 @@ function initNarrative(){
     });
   });
 
-  // QP helper functions
-  function _updateQPSections(complaint){
-    const ct=_narrCallType(complaint);
-    document.getElementById('qp-bt-section').style.display=ct.needsBT?'':'none';
-    document.getElementById('qp-lkw-section').style.display=ct.isStroke?'':'none';
-    if(!ct.needsBT){
-      narrBloodThinnerAnswer='';
-      document.querySelectorAll('#qp-bt-yes,#qp-bt-no').forEach(b=>b.classList.remove('active'));
-      document.getElementById('qp-bt-med-wrap').style.display='none';
-    }
-  }
-  function _syncQPComplaint(item){
-    document.getElementById('qp-complaint-input').value='';
-    document.getElementById('qp-complaint-tags').innerHTML=item.value?`<div class="narr-tag"><span>${item.label}</span><button type="button" onclick="_clearComplaint()">✕</button></div>`:'';
-    _updateQPSections(item.value);
-  }
   function _clearComplaint(){
     narrComplaint='';
     document.getElementById('nf-complaint-input').value='';
     document.getElementById('nf-complaint-tags').innerHTML='';
-    document.getElementById('qp-complaint-input').value='';
-    document.getElementById('qp-complaint-tags').innerHTML='';
-    narrBloodThinnerAnswer='';
-    document.querySelectorAll('#qp-bt-yes,#qp-bt-no').forEach(b=>b.classList.remove('active'));
-    document.getElementById('qp-bt-section').style.display='none';
-    document.getElementById('qp-lkw-section').style.display='none';
-    document.getElementById('qp-bt-med-wrap').style.display='none';
     buildNarrative();
   }
 
-  // Complaint combo (single-select) - main Dispatch section
+  // Complaint combo (single-select)
   initCombo({
     inputId:'nf-complaint-input', dropId:'combo-complaint-drop',
     items: NARR_COMPLAINTS,
     multi: false,
-    onSelect: item=>{ narrComplaint=item.value; document.getElementById('nf-complaint-tags').innerHTML=`<div class="narr-tag"><span>${item.label}</span><button type="button" onclick="_clearComplaint()">✕</button></div>`; _syncQPComplaint(item); },
+    onSelect: item=>{ narrComplaint=item.value; document.getElementById('nf-complaint-tags').innerHTML=`<div class="narr-tag"><span>${item.label}</span><button type="button" onclick="_clearComplaint()">✕</button></div>`; buildNarrative(); },
   });
 
-  // QP Complaint combo (synced to narrComplaint)
-  initCombo({
-    inputId:'qp-complaint-input', dropId:'combo-qp-complaint-drop',
-    items: NARR_COMPLAINTS,
-    multi: false,
-    onSelect: item=>{
-      narrComplaint=item.value;
-      document.getElementById('nf-complaint-input').value='';
-      document.getElementById('nf-complaint-tags').innerHTML=`<div class="narr-tag"><span>${item.label}</span><button type="button" onclick="_clearComplaint()">✕</button></div>`;
-      _syncQPComplaint(item);
-      buildNarrative();
-    },
-  });
 
-  // Blood thinner Y/N buttons
-  document.getElementById('qp-bt-yes')?.addEventListener('click',()=>{
-    narrBloodThinnerAnswer = narrBloodThinnerAnswer==='yes' ? '' : 'yes';
-    document.getElementById('qp-bt-yes').classList.toggle('active', narrBloodThinnerAnswer==='yes');
-    document.getElementById('qp-bt-no').classList.remove('active');
-    document.getElementById('qp-bt-med-wrap').style.display = narrBloodThinnerAnswer==='yes' ? '' : 'none';
-    buildNarrative();
-  });
-  document.getElementById('qp-bt-no')?.addEventListener('click',()=>{
-    narrBloodThinnerAnswer = narrBloodThinnerAnswer==='no' ? '' : 'no';
-    document.getElementById('qp-bt-no').classList.toggle('active', narrBloodThinnerAnswer==='no');
-    document.getElementById('qp-bt-yes').classList.remove('active');
-    document.getElementById('qp-bt-med-wrap').style.display='none';
-    buildNarrative();
-  });
-
-  // QP Pulsara copy button
-  document.getElementById('btn-qp-pulsara-copy')?.addEventListener('click',()=>{
-    const text=document.getElementById('qp-pulsara-preview')?.textContent||'';
-    if(!text||text==='Enter complaint to generate Pulsara note.'){ showToast('Nothing to copy yet.'); return; }
-    navigator.clipboard.writeText(text).then(()=>showToast('Pulsara note copied!')).catch(()=>{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('Copied!'); });
-  });
 
   // Voice recording buttons (Refusal section)
   document.getElementById('qp-vr-yes')?.addEventListener('click',()=>{
@@ -1807,68 +1612,6 @@ function initNarrative(){
   });
 
   // QP → main form sync: onset, duration, pain
-  let _qpSyncing = false;
-  function _qpSync(qpId, mainId){
-    const qpEl=document.getElementById(qpId), mainEl=document.getElementById(mainId);
-    if(!qpEl||!mainEl) return;
-    qpEl.addEventListener('input',()=>{ if(_qpSyncing) return; _qpSyncing=true; mainEl.value=qpEl.value; _qpSyncing=false; buildNarrative(); });
-    mainEl.addEventListener('input',()=>{ if(_qpSyncing) return; _qpSyncing=true; qpEl.value=mainEl.value; _qpSyncing=false; });
-  }
-  _qpSync('qp-onset-time','nf-onset-time');
-  _qpSync('qp-duration','nf-duration');
-  _qpSync('qp-pain','nf-pain');
-
-  // QP pain score: show/hide location and sync N/A state
-  document.getElementById('qp-pain')?.addEventListener('input',function(){
-    const v=parseFloat(this.value);
-    const wrap=document.getElementById('qp-pain-loc-wrap');
-    if(wrap) wrap.style.display=(!isNaN(v)&&v>0)?'':'none';
-  });
-  document.getElementById('nf-pain')?.addEventListener('input',function(){
-    const v=parseFloat(this.value);
-    const wrap=document.getElementById('qp-pain-loc-wrap');
-    if(wrap) wrap.style.display=(!isNaN(v)&&v>0)?'':'none';
-  });
-
-  // QP N/A and Denied pain buttons — delegate to main buttons
-  document.getElementById('qp-pain-na')?.addEventListener('click',()=>{
-    document.getElementById('nf-pain-na')?.click();
-    const isNA=document.getElementById('nf-pain-na')?.classList.contains('active');
-    document.getElementById('qp-pain-na')?.classList.toggle('active',!!isNA);
-    document.getElementById('qp-pain-denied')?.classList.remove('active');
-    const qpP=document.getElementById('qp-pain');
-    if(qpP){ qpP.disabled=!!isNA; if(isNA) qpP.value=''; }
-    document.getElementById('qp-pain-loc-wrap').style.display='none';
-    buildNarrative();
-  });
-  document.getElementById('qp-pain-denied')?.addEventListener('click',()=>{
-    document.getElementById('nf-pain-denied')?.click();
-    const isDenied=document.getElementById('nf-pain-denied')?.classList.contains('active');
-    document.getElementById('qp-pain-denied')?.classList.toggle('active',!!isDenied);
-    document.getElementById('qp-pain-na')?.classList.remove('active');
-    const qpP=document.getElementById('qp-pain');
-    if(qpP){ qpP.disabled=!!isDenied; if(isDenied) qpP.value=''; }
-    document.getElementById('qp-pain-loc-wrap').style.display='none';
-    buildNarrative();
-  });
-
-  // QP pain location chips (pre-fill text input)
-  document.querySelectorAll('#qp-pain-loc-chips .narr-mon-chip').forEach(chip=>{
-    chip.addEventListener('click',()=>{
-      const inp=document.getElementById('qp-pain-location');
-      if(inp) inp.value=chip.dataset.val;
-      buildNarrative();
-    });
-  });
-
-  // QP pain location N/A button
-  document.getElementById('qp-pain-loc-na')?.addEventListener('click',function(){
-    this.classList.toggle('active');
-    const inp=document.getElementById('qp-pain-location');
-    if(inp){ inp.disabled=this.classList.contains('active'); if(inp.disabled) inp.value=''; }
-    buildNarrative();
-  });
-
   // Symptom combo (multi)
   initCombo({
     inputId:'nf-symptom-input', dropId:'combo-symptoms-drop',
@@ -2087,11 +1830,7 @@ function initNarrative(){
     navigator.clipboard.writeText(text).then(()=>showToast('Narrative copied!')).catch(()=>{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('Copied!'); });
   });
 
-  document.getElementById('btn-pulsara-copy')?.addEventListener('click',()=>{
-    const text=document.getElementById('pulsara-preview')?.textContent||'';
-    if(!text||text==='Fill in complaint and treatment fields above.'){ showToast('Nothing to copy yet.'); return; }
-    navigator.clipboard.writeText(text).then(()=>showToast('Pulsara note copied!')).catch(()=>{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('Copied!'); });
-  });
+
 
   document.getElementById('btn-narr-save-hist')?.addEventListener('click', narrSave);
   document.getElementById('btn-narr-clear')?.addEventListener('click', narrClear);
