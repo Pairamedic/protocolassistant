@@ -343,20 +343,11 @@
     <div class="narr-sec">
       <div class="narr-sec-hd" style="color:rgba(94,234,212,1)">📋 History of Present Illness</div>
       <div class="narr-sec-body">
-        <div class="narr-row">
-          <div class="narr-field">
-            <label class="narr-lbl">Onset Time</label>
-            <div class="narr-num-wrap">
-              <input type="text" id="nf-onset-time" class="narr-input" placeholder="e.g. 10:00 AM, 2 hrs ago">
-              <button class="narr-na-btn" data-for="nf-onset-time">N/A</button>
-            </div>
-          </div>
-          <div class="narr-field">
-            <label class="narr-lbl">Duration</label>
-            <div class="narr-num-wrap">
-              <input type="text" id="nf-duration" class="narr-input" placeholder="e.g. 3 days, 45 min">
-              <button class="narr-na-btn" data-for="nf-duration">N/A</button>
-            </div>
+        <div class="narr-field">
+          <label class="narr-lbl">Onset / Duration</label>
+          <div class="narr-num-wrap">
+            <input type="text" id="nf-onset-duration" class="narr-input" placeholder="e.g. today at 10:00 AM, approx. 2 hrs ago">
+            <button class="narr-na-btn" data-for="nf-onset-duration">N/A</button>
           </div>
         </div>
         <div class="narr-field">
@@ -519,16 +510,21 @@
         <!-- Movement & Positioning -->
         <div class="narr-field">
           <label class="narr-lbl">Movement / Positioning</label>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;letter-spacing:.04em">SCENE</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;letter-spacing:.04em">SCENE — to stretcher</div>
           <div class="narr-mon-chips" id="narr-move-chips">
             <button type="button" class="narr-mon-chip" data-val="ambulate">Assisted to stretcher</button>
-            <button type="button" class="narr-mon-chip" data-val="carried">Carried to stretcher</button>
+            <button type="button" class="narr-mon-chip" data-val="draw-sheet">Draw sheet to stretcher</button>
+            <button type="button" class="narr-mon-chip" data-val="slide-board">Slide board to stretcher</button>
+            <button type="button" class="narr-mon-chip" data-val="carry">Direct carry to stretcher</button>
+            <button type="button" class="narr-mon-chip" data-val="stair-chair">Stair chair to stretcher</button>
           </div>
-          <div style="font-size:11px;color:var(--muted);margin:8px 0 4px;letter-spacing:.04em">DESTINATION</div>
+          <div style="font-size:11px;color:var(--muted);margin:8px 0 4px;letter-spacing:.04em">DESTINATION — from stretcher</div>
           <div class="narr-mon-chips" id="narr-dest-move-chips">
-            <button type="button" class="narr-mon-chip" data-val="dest-ambulate">Ambulated from stretcher</button>
+            <button type="button" class="narr-mon-chip" data-val="dest-ambulate">Assisted from stretcher</button>
             <button type="button" class="narr-mon-chip" data-val="dest-draw-sheet">Draw sheet to bed</button>
             <button type="button" class="narr-mon-chip" data-val="dest-slide-board">Slide board to bed</button>
+            <button type="button" class="narr-mon-chip" data-val="dest-carry">Direct carry to bed</button>
+            <button type="button" class="narr-mon-chip" data-val="dest-stair-chair">Stair chair from stretcher</button>
           </div>
         </div>
         <!-- Position select -->
@@ -575,6 +571,7 @@
             <button type="button" class="narr-mon-chip" data-val="ett">ET Intubation</button>
             <button type="button" class="narr-mon-chip" data-val="sga">Supraglottic Airway</button>
             <button type="button" class="narr-mon-chip" data-val="cric">Surgical Airway (Cric)</button>
+            <button type="button" class="narr-mon-chip" data-val="hemodynamic-assess">Hemodynamic Assessment</button>
             <button type="button" class="narr-mon-chip" data-val="hemodynamic">Hemodynamic Monitoring</button>
             <button type="button" class="narr-mon-chip" data-val="bga">Blood Glucose Analysis</button>
             <button type="button" class="narr-mon-chip" data-val="c-collar">C-Collar Applied</button>
@@ -1279,11 +1276,9 @@ function buildNarrative(){
     if(sf||tr) transferLines=`\nTRANSFERRING FACILITY — PATIENT WAS ADMITTED AT ${sfNA?'N/A':uc(sf)||'[TRANSFERRING FACILITY]'}.${(tr&&!trNA)?' PATIENT TRANSFERRED FOR '+uc(tr)+'.':''}`;
   }
 
-  const onsetNA = document.getElementById('nf-onset-time')?.disabled;
-  const durNA = document.getElementById('nf-duration')?.disabled;
+  const onsetDurNA = document.getElementById('nf-onset-duration')?.disabled;
   const actNA = document.getElementById('nf-activity')?.disabled;
-  const onset = onsetNA ? '' : narrVal('nf-onset-time');
-  const duration = durNA ? '' : narrVal('nf-duration');
+  const onsetDuration = onsetDurNA ? '' : narrVal('nf-onset-duration');
   const activity = actNA ? '' : narrVal('nf-activity');
 
   let painText;
@@ -1302,8 +1297,7 @@ function buildNarrative(){
   const hpiNotes = narrVal('nf-hpi-notes');
   let hpiParts=[];
   if(activity) hpiParts.push(`PATIENT WAS ${uc(activity)} WHEN SYMPTOMS BEGAN`);
-  if(onset) hpiParts.push(`ONSET NOTED AT ${uc(onset)}`);
-  if(duration) hpiParts.push(`DURATION ${uc(duration)}`);
+  if(onsetDuration) hpiParts.push(`ONSET / DURATION — ${uct(onsetDuration)}`);
   if(painText) hpiParts.push(painText);
   if(symptoms.length) hpiParts.push(`ASSOCIATED SYMPTOMS INCLUDED ${symptoms.map(uct).join(', ')}`);
   if(pmh.length) hpiParts.push(`HISTORY OF ${pmh.map(uct).join(', ')}`);
@@ -1341,8 +1335,11 @@ function buildNarrative(){
   const assessLine=`PERTINENT ASSESSMENT FINDINGS — ${assessParts.join('. ')}.`;
 
   const txParts=[];
-  if(isMoveActive('ambulate')) txParts.push('PATIENT ASSISTED IN AMBULATING TO STRETCHER');
-  if(isMoveActive('carried')) txParts.push('PATIENT CARRIED TO STRETCHER');
+  if(isMoveActive('ambulate'))    txParts.push('PATIENT ASSISTED IN AMBULATING TO STRETCHER');
+  if(isMoveActive('draw-sheet'))  txParts.push('PATIENT MOVED TO STRETCHER VIA DRAW SHEET');
+  if(isMoveActive('slide-board')) txParts.push('PATIENT MOVED TO STRETCHER VIA SLIDE BOARD');
+  if(isMoveActive('carry'))       txParts.push('PATIENT DIRECTLY CARRIED TO STRETCHER');
+  if(isMoveActive('stair-chair')) txParts.push('PATIENT TRANSPORTED TO STRETCHER VIA STAIR CHAIR');
   const pos=narrVal('nf-position'); if(pos) txParts.push(`PATIENT SECURED TO STRETCHER IN ${uc(pos)} POSITION`);
   if(isMonChipActive('backboard')) txParts.push('SPINAL PRECAUTIONS TAKEN, LONG BACKBOARD APPLIED');
   if(isMonChipActive('splint')) txParts.push('SPLINT APPLIED');
@@ -1374,6 +1371,7 @@ function buildNarrative(){
   if(narrChk('nf-iv-deferred-chk')){
     txParts.push('PERIPHERAL IV ACCESS ATTEMPTED BUT UNSUCCESSFUL. IV ACCESS DEFERRED — UNABLE TO IDENTIFY SUITABLE PERIPHERAL VEIN. CLINICAL PRESENTATION DID NOT WARRANT INTRAOSSEOUS ACCESS');
   }
+  if(isMonChipActive('hemodynamic-assess')) txParts.push('HEMODYNAMIC ASSESSMENT PERFORMED INCLUDING BP, HR, RR, AND SPO2');
   if(isMonChipActive('hemodynamic')) txParts.push('CONTINUOUS HEMODYNAMIC MONITORING PERFORMED INCLUDING BP, HR, RR, AND SPO2');
   if(isMonChipActive('bga')) txParts.push('BLOOD GLUCOSE ANALYSIS PERFORMED');
   if(isMonChipActive('c-collar')) txParts.push('CERVICAL COLLAR APPLIED');
@@ -1423,13 +1421,18 @@ function buildNarrative(){
     const careOf=careOfName?(uc(careOfName)+(careOfCred?', '+uc(careOfCred):'')):'';
     if(dest||method||area||careOf){
       let _movedSentence;
-      const _destDrawSheet=isMonActive('narr-dest-move-chips','dest-draw-sheet');
-      const _destSlideBoard=isMonActive('narr-dest-move-chips','dest-slide-board');
-      const _destAmbulate=isMonActive('narr-dest-move-chips','dest-ambulate');
-      if(_destDrawSheet) _movedSentence=`PATIENT MOVED FROM STRETCHER TO ${uc(area)||'DESIGNATED BED'} VIA DRAW SHEET.`;
-      else if(_destSlideBoard) _movedSentence=`PATIENT MOVED FROM STRETCHER TO ${uc(area)||'DESIGNATED BED'} VIA SLIDE BOARD.`;
-      else if(_destAmbulate) _movedSentence=`PATIENT ASSISTED IN AMBULATING FROM STRETCHER TO ${uc(area)||'DESIGNATED BED'}.`;
-      else _movedSentence=`PATIENT MOVED TO ${uc(area)||'DESIGNATED BED'}.`;
+      const _dA=isMonActive('narr-dest-move-chips','dest-ambulate');
+      const _dDs=isMonActive('narr-dest-move-chips','dest-draw-sheet');
+      const _dSb=isMonActive('narr-dest-move-chips','dest-slide-board');
+      const _dC=isMonActive('narr-dest-move-chips','dest-carry');
+      const _dSc=isMonActive('narr-dest-move-chips','dest-stair-chair');
+      const _bed=uc(area)||'DESIGNATED BED';
+      if(_dA)  _movedSentence=`PATIENT ASSISTED IN AMBULATING FROM STRETCHER TO ${_bed}.`;
+      else if(_dDs) _movedSentence=`PATIENT MOVED FROM STRETCHER TO ${_bed} VIA DRAW SHEET.`;
+      else if(_dSb) _movedSentence=`PATIENT MOVED FROM STRETCHER TO ${_bed} VIA SLIDE BOARD.`;
+      else if(_dC)  _movedSentence=`PATIENT DIRECTLY CARRIED FROM STRETCHER TO ${_bed}.`;
+      else if(_dSc) _movedSentence=`PATIENT TRANSPORTED FROM STRETCHER TO ${_bed} VIA STAIR CHAIR.`;
+      else _movedSentence=`PATIENT MOVED TO ${_bed}.`;
       finalLine=`DESTINATION — UPON ARRIVAL AT ${uc(dest)||'[FACILITY]'}, PATIENT ${uc(method)||'TRANSPORTED IN ON STRETCHER'}. ${_movedSentence} PATIENT LEFT IN CARE OF ${careOf||'[RECEIVING STAFF]'}.`;
     }
   }
