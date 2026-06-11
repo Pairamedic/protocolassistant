@@ -128,6 +128,7 @@
 
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script>
     firebase.initializeApp({
       apiKey: "AIzaSyAcnp4uXeOgzuzIHpO5UL6Eq9fvhVHFs7Y",
@@ -138,7 +139,10 @@
       appId: "1:498482397906:web:5517abc5d83cf6cf15e30b"
     });
     const fbAuth = firebase.auth();
+    const fbDb  = firebase.firestore();
     const $ = id => document.getElementById(id);
+
+    let _pendingTos = null; // holds ToS data until auth confirms UID
 
     function destAfterLogin(){
       const p = new URLSearchParams(window.location.search).get('returnTo');
@@ -146,8 +150,18 @@
       return (p && allowed.includes(p)) ? p : 'ProtocolAssistant.html';
     }
 
-    fbAuth.onAuthStateChanged(user => {
+    fbAuth.onAuthStateChanged(async user => {
       if(user){
+        if(_pendingTos){
+          try{
+            await fbDb.collection('tos_acceptances').doc(user.uid).set({
+              ..._pendingTos,
+              email: user.email || '',
+              uid:   user.uid,
+            });
+          }catch(_){}
+          _pendingTos = null;
+        }
         window.location.replace(destAfterLogin());
       } else {
         $('loading').style.display = 'none';
@@ -232,7 +246,9 @@
           const first=$('tos-first').value.trim(), last=$('tos-last').value.trim(), phone=$('tos-phone').value.trim();
           if(!first||!last||!phone){ $('tos-err').textContent='Please fill in all fields.'; return; }
           if(!agreeChk.checked){ $('tos-err').textContent='You must agree to the terms to continue.'; return; }
-          localStorage.setItem('pat_tos_v1', JSON.stringify({first,last,phone,ts:Date.now()}));
+          const tosRecord = {first,last,phone,ts:Date.now()};
+          localStorage.setItem('pat_tos_v1', JSON.stringify(tosRecord));
+          _pendingTos = tosRecord;
           $('tos-overlay').classList.add('hidden');
           // Let Firebase auth state listener show the right card
           $('loading').style.display='flex';
