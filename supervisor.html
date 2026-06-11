@@ -126,6 +126,7 @@
     .tab-panel.active { display: block; }
 
     /* ── Roster Header Bar ── */
+    .roster-card.hidden, .section-header.hidden { display: none !important; }
     .roster-topbar {
       display: flex;
       align-items: center;
@@ -574,6 +575,8 @@
         <button class="action-btn save-btn" id="btn-save">💾 Save</button>
         <button class="action-btn" id="btn-export">🖨 Export</button>
         <button class="action-btn" id="btn-import">📄 Import</button>
+        <input type="search" id="roster-search" placeholder="Search unit # or name…" autocomplete="off"
+          style="flex:1;min-width:140px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:8px 10px;outline:none;font-family:inherit">
       </div>
       <div id="roster-rows-container"></div>
     </div>
@@ -693,7 +696,7 @@
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
       <div>
         <div style="font-size:16px;font-weight:800;color:var(--text)">Import Shift Roster</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:2px">Paste or upload a plain-text roster</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">Paste a plain-text roster or Scanner Pro OCR scan</div>
       </div>
       <button onclick="closeImportModal()" style="background:rgba(255,255,255,.08);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:18px;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
     </div>
@@ -859,6 +862,25 @@ function lookupByName(name) {
     const full = (emp.first + ' ' + emp.last).toLowerCase();
     return first === q || nick.toLowerCase() === q || full === q;
   }) || null;
+}
+
+/** Lookup employee by OCR-extracted name (tries first, last, nickname) */
+function lookupByOCRName(raw) {
+  if (!raw) return null;
+  const q = raw.toLowerCase().trim();
+  // exact first name
+  let found = EMPLOYEES.find(e => e.first.replace(/\s*\(.*?\)/,'').toLowerCase() === q);
+  if (found) return found;
+  // nickname
+  found = EMPLOYEES.find(e => {
+    const nick = (e.first.match(/\(([^)]+)\)/) || [])[1] || '';
+    return nick.toLowerCase() === q;
+  });
+  if (found) return found;
+  // exact last name
+  found = EMPLOYEES.find(e => e.last.toLowerCase() === q);
+  if (found) return found;
+  return null;
 }
 
 /** Format employee display name (strip parens for roster display) */
@@ -1310,6 +1332,10 @@ function renderDirectory() {
    TABS
    ════════════════════════════════════════ */
 function initTabs() {
+  // Roster search
+  document.getElementById('roster-search')?.addEventListener('input', e => filterRoster(e.target.value));
+  document.getElementById('roster-search')?.addEventListener('search', e => filterRoster(e.target.value));
+
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1339,6 +1365,32 @@ function initGlobalDismiss() {
 /* ════════════════════════════════════════
    ROSTER TEXT IMPORT
    ════════════════════════════════════════ */
+
+/* ════════════════════════════════════════
+   ROSTER FILTER (unit # or name search)
+   ════════════════════════════════════════ */
+function filterRoster(query) {
+  const q = (query || '').toLowerCase().trim();
+  document.querySelectorAll('.roster-card').forEach(card => {
+    if (!q) { card.classList.remove('hidden'); return; }
+    const id = +card.dataset.rowId;
+    const rd = rowData[id] || {};
+    const unit = (rd.unit || ROSTER_ROWS.find(r=>r.id===id)?.defaultUnit || '').toLowerCase();
+    const lead = (rd.lead || '').toLowerCase();
+    const sec  = (rd.secondary || '').toLowerCase();
+    card.classList.toggle('hidden', !(unit.includes(q) || lead.includes(q) || sec.includes(q)));
+  });
+  // Hide section headers whose cards are all hidden
+  document.querySelectorAll('.section-header').forEach(hdr => {
+    let sib = hdr.nextElementSibling;
+    let hasVisible = false;
+    while (sib && !sib.classList.contains('section-header')) {
+      if (!sib.classList.contains('hidden')) { hasVisible = true; break; }
+      sib = sib.nextElementSibling;
+    }
+    hdr.classList.toggle('hidden', !hasVisible && !!q);
+  });
+}
 function openImportModal() {
   document.getElementById('import-modal').style.display = 'flex';
   document.body.style.overflow = 'hidden';
@@ -1363,6 +1415,188 @@ function parseTimeLabel(str) {
   m = str.match(/^(\d{4})$/);           if (m) { const h=parseInt(m[1].slice(0,2)); return h===0?'12AM':h<12?`${h}AM`:h===12?'12PM':`${h-12}PM`; }
   m = str.match(/^(\d{2})$/);           if (m) { const h=parseInt(m[1]); return h<12?`${h}AM`:h===12?'12PM':`${h-12}PM`; }
   return null;
+}
+
+/* Detect Scanner-Pro / raw-OCR format (no key-value separators, mostly uppercase lines) */
+function isOCRFormat(text) {
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 2);
+  const kvCount = lines.filter(l => /\t|  {2}/.test(l) || /^(unit|lead|secondary|shift|dispatcher)\s*[:#]/i.test(l)).length;
+  return kvCount < 2 && lines.length > 3;
+}
+
+function importRosterFromOCR(text) {
+  const JUNK = /created in scanner pro|scanner pro|^nner pro$|^in scanner$|^anner$|^pro$|^in$/i;
+  const DATE_RX = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
+
+  const STATION_MAP = {
+    starcity:'Star City','star city':'Star City',
+    warren:'Warren',
+    rson:'Rison',rison:'Rison',
+    dewitt:'DeWitt','de witt':'DeWitt',
+    clarendon:'Clarendon',
+    england:'England',
+  };
+
+  const PB_HEADERS = {
+    'supervisor st':'SUPERVISOR','supervisorst':'SUPERVISOR','supervisor':'SUPERVISOR',
+    'bls 6am':'BLS 6AM','bls6am':'BLS 6AM',
+    'bls 8am':'BLS 8AM','bls8am':'BLS 8AM',
+    'bls 6pm':'BLS 6PM','bls6pm':'BLS 6PM','bls 6p':'BLS 6PM','bls6p':'BLS 6PM',
+    'als 6am':'ALS 6AM','als6am':'ALS 6AM',
+    'als 7am':'ALS 7AM','als7am':'ALS 7AM',
+    'als 8am':'ALS 8AM','als8am':'ALS 8AM',
+    'als 9am':'ALS 9AM','als9am':'ALS 9AM',
+    'orientation student':'ORIENTATION / STUDENT',
+    'orientationstudent':'ORIENTATION / STUDENT',
+    'orientation':'ORIENTATION / STUDENT',
+  };
+
+  function isStation(line) {
+    const k = line.toLowerCase().replace(/\s/g,'');
+    return STATION_MAP[k] || STATION_MAP[line.toLowerCase()] || null;
+  }
+  function isPBHeader(line) {
+    const k = line.toLowerCase().trim();
+    return PB_HEADERS[k.replace(/\s+/g,'')] || PB_HEADERS[k] || null;
+  }
+  function isUnitNum(line) { return /^\d{3,4}$/.test(line.trim()); }
+  function isRedacted(line) { return /^X{3,}$/i.test(line.trim()); }
+
+  function toTitleCase(s) {
+    return s.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+  }
+  function expandName(rawName) {
+    const clean = rawName.trim();
+    if (!clean || isRedacted(clean)) return {name:'', phone:''};
+    const emp = lookupByOCRName(clean);
+    if (emp) return {name: displayName(emp), phone: emp.phone || ''};
+    return {name: toTitleCase(clean), phone: ''};
+  }
+  function applyNames(rowId, names) {
+    if (!names.length) return;
+    ensureRowData(rowId);
+    const l = expandName(names[0]);
+    const s = names[1] ? expandName(names[1]) : null;
+    if (l.name) { rowData[rowId].lead = l.name; if(l.phone) rowData[rowId].leadPhone = l.phone; }
+    if (s && s.name) { rowData[rowId].secondary = s.name; if(s.phone) rowData[rowId].secondaryPhone = s.phone; }
+  }
+
+  const pbUsed = new Set();
+  function findPBRow(label) {
+    return ROSTER_ROWS.find(r => r.section==='Pine Bluff' && r.label===label && !pbUsed.has(r.id))
+        || ROSTER_ROWS.find(r => r.section==='Pine Bluff' && r.label===label);
+  }
+  const remoteUsed = new Set();
+  function findRemoteRow(station) {
+    const sec = station;
+    let pool = ROSTER_ROWS.filter(r => r.section===sec);
+    return pool.find(r => !remoteUsed.has(r.id)) || pool[0] || null;
+  }
+  const dispUsed = new Set();
+  function findDispRow() {
+    return ROSTER_ROWS.find(r => r.section==='Dispatch' && !dispUsed.has(r.id)) || null;
+  }
+
+  let phase = 'pb'; // 'pb' | 'remote' | 'dispatch'
+  let pbLabel = null, pbNames = [];
+  let remUnit = null, remNames = [], remStation = null;
+  let dispNames = [];
+  let imported = 0;
+
+  function flushPB() {
+    if (!pbLabel) { pbNames = []; return; }
+    if (pbNames.length) {
+      const row = findPBRow(pbLabel);
+      if (row) {
+        pbUsed.add(row.id);
+        applyNames(row.id, pbNames);
+        if (!rowData[row.id].unit) rowData[row.id].unit = row.defaultUnit;
+        imported++;
+      }
+    }
+    pbLabel = null; pbNames = [];
+  }
+  function flushRemote() {
+    if (!remStation && !remUnit) { remNames = []; return; }
+    const row = remStation ? findRemoteRow(remStation) : null;
+    if (row && remNames.length) {
+      remoteUsed.add(row.id);
+      applyNames(row.id, remNames);
+      if (remUnit) rowData[row.id].unit = remUnit;
+      imported++;
+    }
+    remUnit = null; remNames = []; remStation = null;
+  }
+  function flushDisp() {
+    if (!dispNames.length) return;
+    const row = findDispRow();
+    if (row) {
+      dispUsed.add(row.id);
+      ensureRowData(row.id);
+      const l = expandName(dispNames[0]);
+      if (l.name) { rowData[row.id].lead = l.name; if(l.phone) rowData[row.id].leadPhone = l.phone; }
+      imported++;
+    }
+    dispNames = [];
+  }
+
+  const lines = text.split('\n').map(l => l.replace(/[\r\ufffc]/g,'').trim()).filter(l=>l.length>0);
+
+  for (const line of lines) {
+    if (JUNK.test(line) || DATE_RX.test(line) || line.length <= 1) continue;
+
+    // DISPATCH keyword
+    if (/^dispatch$/i.test(line)) {
+      flushPB(); flushRemote();
+      phase = 'dispatch'; continue;
+    }
+
+    if (phase === 'pb') {
+      const pbH = isPBHeader(line);
+      if (pbH) { flushPB(); pbLabel = pbH; continue; }
+      // If we hit a unit number, switch to remote phase
+      if (isUnitNum(line)) { flushPB(); phase='remote'; remUnit=line; remNames=[]; remStation=null; continue; }
+      if (!pbLabel) continue;
+      // Station names aren't names
+      if (isStation(line)) continue;
+      // "2 Students" → notes only
+      if (/^\d+ students?$/i.test(line)) { pbNames.push(line); continue; }
+      if (!isRedacted(line) && pbNames.length < 2) pbNames.push(line);
+      continue;
+    }
+
+    if (phase === 'remote') {
+      if (isUnitNum(line)) { flushRemote(); remUnit=line; remNames=[]; remStation=null; continue; }
+      const stn = isStation(line);
+      if (stn) {
+        remStation = stn;
+        if (remNames.length) flushRemote();
+        continue;
+      }
+      if (!isRedacted(line) && remNames.length < 2) remNames.push(line);
+      else if (remNames.length >= 2) {
+        // extra non-station line — flush what we have without station, restart
+        flushRemote();
+        if (!isRedacted(line)) remNames.push(line);
+      }
+      continue;
+    }
+
+    if (phase === 'dispatch') {
+      if (isUnitNum(line)) { flushDisp(); continue; }
+      if (isStation(line)) continue;
+      const n = line.trim();
+      if (n && !isRedacted(n)) {
+        dispNames.push(n);
+        flushDisp(); // one dispatcher per dispatch row
+      }
+      continue;
+    }
+  }
+
+  flushPB(); flushRemote(); flushDisp();
+  buildRosterDOM();
+  return imported;
 }
 
 function importRosterFromText(text) {
@@ -1504,7 +1738,7 @@ function importRosterFromText(text) {
 function doImport() {
   const text = document.getElementById('import-textarea').value.trim();
   if (!text) { showToast('Paste or upload a roster first.'); return; }
-  const count = importRosterFromText(text);
+  const count = isOCRFormat(text) ? importRosterFromOCR(text) : importRosterFromText(text);
   const resultEl = document.getElementById('import-result');
   if (count === 0) {
     resultEl.style.color = '#f59e0b';
