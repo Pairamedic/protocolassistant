@@ -4761,7 +4761,7 @@
         return terms.every(t => hay.includes(t));
       });
     }
-    const internal = filtered.filter(c=>c.group!=='clinical');
+    const internal = _adminMode ? filtered.filter(c=>c.group!=='clinical') : [];
     const clinical = filtered.filter(c=>c.group==='clinical');
     const BADGE_STYLES = {
       accent:'rgba(94,234,212,.12)|var(--accent)|rgba(94,234,212,.3)',
@@ -5686,6 +5686,9 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       $('#btn-settings').style.display = 'block';
       _adminMode = ADMIN_EMAILS.has(user.email);
       if(_adminMode){ $('#btn-admin').classList.remove('hidden'); $('#btn-supervisor').classList.remove('hidden'); $('#btn-narrative').classList.remove('hidden'); }
+      // Internal contacts tab only visible to admin
+      const _internalPill = document.querySelector('.contact-nav-btn[data-section="contacts-internal"]');
+      if(_internalPill){ if(!_adminMode) _internalPill.style.display='none'; }
       // Load user preferences (currentService, favs) — NOT service protocol data
       try{
         const doc = await fbDb.collection('users').doc(user.uid)
