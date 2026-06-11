@@ -617,7 +617,20 @@
             <div class="narr-combo-drop" id="combo-tx-meds-drop"></div>
             <!-- Dose confirmation row -->
             <div id="narr-med-dose-row" style="display:none;margin-top:7px;gap:6px;align-items:center;flex-wrap:wrap" class="narr-inline-row">
-              <input type="text" id="nf-txmed-dose" class="narr-med-dose-input" placeholder="Confirm dose (e.g. 4mg IV)" style="flex:1;min-width:150px">
+              <input type="text" id="nf-txmed-dose" class="narr-med-dose-input" placeholder="Dose (e.g. 4mg)" style="width:110px;flex:none">
+              <select id="nf-txmed-route" class="narr-inline-sel" style="flex:none">
+                <option value="IV">IV</option>
+                <option value="IM">IM</option>
+                <option value="IN">IN (intranasal)</option>
+                <option value="PO">PO (oral)</option>
+                <option value="SL">SL (sublingual)</option>
+                <option value="nebulized">Nebulized</option>
+                <option value="SubQ">SubQ</option>
+                <option value="PR">PR (rectal)</option>
+                <option value="IO">IO</option>
+                <option value="ETT">ETT</option>
+                <option value="IV drip">IV drip</option>
+              </select>
               <button class="narr-add-btn" id="btn-add-txmed">+ Add</button>
               <button type="button" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0 4px;line-height:1" id="btn-cancel-txmed">✕</button>
             </div>
@@ -912,6 +925,39 @@ const NARR_HOSPITALS = [
 ];
 
 // EASI Protocols 2026 — administered medications with default doses
+/** Parse a med's default dose string into {amount, route} for pre-filling */
+function parseMedDefaults(doseStr) {
+  // Route tokens to scan for (order matters — longer matches first)
+  const ROUTE_TOKENS = [
+    {pat:/IV\s+drip/i, val:'IV drip'},
+    {pat:/IV\/IM\/IN/i, val:'IV'},   // first preferred route
+    {pat:/IV\/IM/i, val:'IV'},
+    {pat:/IV\/IN/i, val:'IV'},
+    {pat:/IM\/IN/i, val:'IM'},
+    {pat:/nebulized/i, val:'nebulized'},
+    {pat:/neb/i, val:'nebulized'},
+    {pat:/SubQ|SC/i, val:'SubQ'},
+    {pat:/ETT/i, val:'ETT'},
+    {pat:/PR/i, val:'PR'},
+    {pat:/SL/i, val:'SL'},
+    {pat:/PO/i, val:'PO'},
+    {pat:/IM/i, val:'IM'},
+    {pat:/IN/i, val:'IN'},
+    {pat:/IV/i, val:'IV'},
+    {pat:/IO/i, val:'IO'},
+  ];
+  let route = '';
+  let amount = doseStr || '';
+  for (const {pat, val} of ROUTE_TOKENS) {
+    if (pat.test(amount)) {
+      if (!route) route = val;
+      amount = amount.replace(pat, '').replace(/\s*\/\s*$/, '').replace(/\s{2,}/g, ' ').trim();
+    }
+  }
+  amount = amount.replace(/\s*\/$/, '').trim();
+  return { amount, route };
+}
+
 const NARR_TX_MEDS = [
   {n:'Oxygen',d:''},
   {n:'Aspirin',d:'324mg PO'},
@@ -1665,8 +1711,14 @@ function initNarrative(){
         if(txMedDoseRow) txMedDoseRow.style.display='none';
         if(o2row){ o2row.style.display='flex'; document.getElementById('nf-o2-confirm-device')?.focus(); }
       } else {
-        pendingMedDose = med?med.d:'';
-        if(txMedDoseInp) txMedDoseInp.value = pendingMedDose;
+        const parsed = parseMedDefaults(med?med.d:'');
+        pendingMedDose = parsed.amount;
+        if(txMedDoseInp) txMedDoseInp.value = parsed.amount;
+        const routeSel = document.getElementById('nf-txmed-route');
+        if(routeSel && parsed.route){
+          const opt = [...routeSel.options].find(o => o.value === parsed.route);
+          if(opt) routeSel.value = parsed.route;
+        }
         if(txMedDoseRow){ txMedDoseRow.style.display='flex'; txMedDoseInp?.focus(); }
         if(o2row) o2row.style.display='none';
       }
@@ -1674,9 +1726,11 @@ function initNarrative(){
   });
 
   document.getElementById('btn-add-txmed')?.addEventListener('click',()=>{
-    const dose = (txMedDoseInp?.value||'').trim();
+    const amount = (txMedDoseInp?.value||'').trim();
+    const route  = document.getElementById('nf-txmed-route')?.value||'';
+    const dose   = amount && route ? `${amount} ${route}` : amount || route;
     if(pendingMedName){
-      narrTxMeds.push({name:pendingMedName, dose:dose});
+      narrTxMeds.push({name:pendingMedName, dose});
       pendingMedName=''; pendingMedDose='';
       if(txMedDoseInp) txMedDoseInp.value='';
       if(txMedDoseRow) txMedDoseRow.style.display='none';
@@ -1684,9 +1738,11 @@ function initNarrative(){
     }
   });
   txMedDoseInp?.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); document.getElementById('btn-add-txmed')?.click(); } });
+  document.getElementById('nf-txmed-route')?.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); document.getElementById('btn-add-txmed')?.click(); } });
   document.getElementById('btn-cancel-txmed')?.addEventListener('click',()=>{
     pendingMedName=''; pendingMedDose='';
     if(txMedDoseInp) txMedDoseInp.value='';
+    const routeSel=document.getElementById('nf-txmed-route'); if(routeSel) routeSel.value='IV';
     if(txMedDoseRow) txMedDoseRow.style.display='none';
     document.getElementById('narr-o2-confirm-row').style.display='none';
   });
