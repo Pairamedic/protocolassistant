@@ -631,6 +631,7 @@
                 <option value="ETT">ETT</option>
                 <option value="IV drip">IV drip</option>
               </select>
+              <input type="text" id="nf-txmed-indication" class="narr-med-dose-input" placeholder="Indication (e.g. hypertension)" style="flex:1;min-width:140px">
               <button class="narr-add-btn" id="btn-add-txmed">+ Add</button>
               <button type="button" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0 4px;line-height:1" id="btn-cancel-txmed">✕</button>
             </div>
@@ -959,52 +960,53 @@ function parseMedDefaults(doseStr) {
 }
 
 const NARR_TX_MEDS = [
-  {n:'Oxygen',d:''},
-  {n:'Aspirin',d:'324mg PO'},
-  {n:'Nitroglycerin',d:'0.4mg SL'},
-  {n:'Epinephrine (1:1,000)',d:'0.3mg IM'},
-  {n:'Epinephrine (1:10,000)',d:'0.1mg IV'},
-  {n:'Naloxone (Narcan)',d:'0.4–2mg IV/IM/IN'},
-  {n:'Albuterol',d:'2.5mg nebulized'},
-  {n:'Ipratropium',d:'0.5mg nebulized'},
-  {n:'Ondansetron (Zofran)',d:'4mg IV/IM'},
-  {n:'Acetaminophen',d:'1,000mg IV'},
-  {n:'Ketorolac',d:'15–30mg IV/IM'},
-  {n:'Fentanyl',d:'mcg IV/IM/IN'},
-  {n:'Morphine',d:'mg IV'},
-  {n:'Ketamine (analgesic)',d:'0.1–0.3mg/kg IV'},
-  {n:'Ketamine (induction)',d:'1–2mg/kg IV'},
-  {n:'Ketamine (high-dose IM)',d:'5mg/kg IM'},
-  {n:'Midazolam (Versed)',d:'mg IV/IM/IN'},
-  {n:'Diazepam',d:'5–10mg IV/IM'},
-  {n:'Lorazepam (Ativan)',d:'1–2mg IV/IM'},
-  {n:'Dextrose 50%',d:'25g (50mL) IV'},
-  {n:'Dextrose 10%',d:'250mL IV'},
-  {n:'Glucagon',d:'1mg IM'},
-  {n:'Adenosine',d:'6mg IV rapid push'},
-  {n:'Amiodarone',d:'300mg IV'},
-  {n:'Lidocaine',d:'1–1.5mg/kg IV'},
-  {n:'Atropine',d:'0.5–1mg IV'},
-  {n:'Calcium Gluconate',d:'1–2g IV'},
-  {n:'Magnesium Sulfate',d:'1–2g IV'},
-  {n:'Sodium Bicarbonate',d:'1mEq/kg IV'},
-  {n:'Diphenhydramine (Benadryl)',d:'25–50mg IV/IM'},
-  {n:'Methylprednisolone (Solu-Medrol)',d:'125mg IV/IM'},
-  {n:'Dexamethasone',d:'10mg IV/IM'},
-  {n:'Dopamine',d:'mcg/kg/min IV drip'},
-  {n:'Norepinephrine',d:'mcg/kg/min IV drip'},
-  {n:'Normal Saline Bolus',d:'500mL IV'},
-  {n:'Lactated Ringers Bolus',d:'500mL IV'},
-  {n:'Tranexamic Acid (TXA)',d:'1g IV'},
-  {n:'Succinylcholine',d:'1.5mg/kg IV'},
-  {n:'Rocuronium',d:'1.2mg/kg IV'},
-  {n:'Etomidate',d:'0.3mg/kg IV'},
-  {n:'Vecuronium',d:'0.1mg/kg IV'},
-  {n:'Thiamine',d:'100mg IV/IM'},
-  {n:'Oxytocin',d:'10–20 units IM'},
-  {n:'Nifedipine',d:'10mg PO'},
-  {n:'Magnesium Sulfate (OB/eclampsia)',d:'2–4g IV'},
-  {n:'Nicardipine',d:'mcg/kg/min IV drip'},
+  {n:'Oxygen',              d:'',                        i:'hypoxia / respiratory distress'},
+  {n:'Aspirin',             d:'324mg PO',                i:'chest pain / suspected ACS'},
+  {n:'Nitroglycerin',       d:'0.4mg SL',                i:'chest pain / ACS / hypertension'},
+  {n:'Labetalol',           d:'10–20mg IV',              i:'hypertension'},
+  {n:'Epinephrine (1:1,000)',d:'0.3mg IM',               i:'anaphylaxis / allergic reaction'},
+  {n:'Epinephrine (1:10,000)',d:'0.1mg IV',              i:'cardiac arrest'},
+  {n:'Naloxone (Narcan)',   d:'0.4–2mg IV/IM/IN',        i:'suspected opioid overdose'},
+  {n:'Albuterol',           d:'2.5mg nebulized',         i:'bronchospasm / respiratory distress'},
+  {n:'Ipratropium',         d:'0.5mg nebulized',         i:'bronchospasm'},
+  {n:'Ondansetron (Zofran)',d:'4mg IV/IM',               i:'nausea / vomiting'},
+  {n:'Acetaminophen',       d:'1,000mg IV',              i:'pain / fever'},
+  {n:'Ketorolac',           d:'15–30mg IV/IM',           i:'pain'},
+  {n:'Fentanyl',            d:'mcg IV/IM/IN',            i:'pain'},
+  {n:'Morphine',            d:'mg IV',                   i:'pain'},
+  {n:'Ketamine (analgesic)',d:'0.1–0.3mg/kg IV',         i:'pain'},
+  {n:'Ketamine (induction)',d:'1–2mg/kg IV',             i:'RSI / sedation'},
+  {n:'Ketamine (high-dose IM)',d:'5mg/kg IM',            i:'excited delirium / chemical restraint'},
+  {n:'Midazolam (Versed)',  d:'mg IV/IM/IN',             i:'seizure / sedation'},
+  {n:'Diazepam',            d:'5–10mg IV/IM',            i:'seizure'},
+  {n:'Lorazepam (Ativan)',  d:'1–2mg IV/IM',             i:'seizure'},
+  {n:'Dextrose 50%',        d:'25g (50mL) IV',           i:'hypoglycemia'},
+  {n:'Dextrose 10%',        d:'250mL IV',                i:'hypoglycemia'},
+  {n:'Glucagon',            d:'1mg IM',                  i:'hypoglycemia'},
+  {n:'Adenosine',           d:'6mg IV rapid push',       i:'SVT / tachyarrhythmia'},
+  {n:'Amiodarone',          d:'300mg IV',                i:'ventricular tachycardia / V-fib'},
+  {n:'Lidocaine',           d:'1–1.5mg/kg IV',           i:'cardiac arrhythmia'},
+  {n:'Atropine',            d:'0.5–1mg IV',              i:'bradycardia'},
+  {n:'Calcium Gluconate',   d:'1–2g IV',                 i:'hyperkalemia / calcium channel blocker OD'},
+  {n:'Magnesium Sulfate',   d:'1–2g IV',                 i:'torsades / refractory V-fib'},
+  {n:'Sodium Bicarbonate',  d:'1mEq/kg IV',              i:'metabolic acidosis / TCA overdose'},
+  {n:'Diphenhydramine (Benadryl)',d:'25–50mg IV/IM',     i:'allergic reaction / anaphylaxis'},
+  {n:'Methylprednisolone (Solu-Medrol)',d:'125mg IV/IM', i:'respiratory distress / allergic reaction'},
+  {n:'Dexamethasone',       d:'10mg IV/IM',              i:'respiratory distress / allergic reaction'},
+  {n:'Dopamine',            d:'mcg/kg/min IV drip',      i:'hypotension / cardiogenic shock'},
+  {n:'Norepinephrine',      d:'mcg/kg/min IV drip',      i:'hypotension / septic shock'},
+  {n:'Normal Saline Bolus', d:'500mL IV',                i:'hypotension / volume replacement'},
+  {n:'Lactated Ringers Bolus',d:'500mL IV',              i:'hypotension / volume replacement'},
+  {n:'Tranexamic Acid (TXA)',d:'1g IV',                  i:'hemorrhage control'},
+  {n:'Succinylcholine',     d:'1.5mg/kg IV',             i:'RSI'},
+  {n:'Rocuronium',          d:'1.2mg/kg IV',             i:'RSI'},
+  {n:'Etomidate',           d:'0.3mg/kg IV',             i:'RSI / sedation'},
+  {n:'Vecuronium',          d:'0.1mg/kg IV',             i:'RSI / paralytic'},
+  {n:'Thiamine',            d:'100mg IV/IM',             i:'altered mental status / Wernicke encephalopathy'},
+  {n:'Oxytocin',            d:'10–20 units IM',          i:'postpartum hemorrhage'},
+  {n:'Nifedipine',          d:'10mg PO',                 i:'hypertensive emergency (OB)'},
+  {n:'Magnesium Sulfate (OB/eclampsia)',d:'2–4g IV',     i:'eclampsia / seizure prophylaxis'},
+  {n:'Nicardipine',         d:'mcg/kg/min IV drip',      i:'hypertensive emergency'},
 ];
 
 const NARR_HOME_MEDS = [
@@ -1191,7 +1193,7 @@ function renderIVTags(){
 
 function renderTxMedTags(){
   const el = document.getElementById('nf-txmed-tags'); if(!el) return;
-  el.innerHTML = narrTxMeds.map((m,i)=>`<div class="narr-tag" style="border-color:rgba(74,222,128,.35);background:rgba(74,222,128,.08);color:#4ade80"><span>${m.name} ${m.dose}</span><button type="button" onclick="narrTxMeds.splice(${i},1);renderTxMedTags();buildNarrative()" style="color:rgba(74,222,128,.5)">✕</button></div>`).join('');
+  el.innerHTML = narrTxMeds.map((m,i)=>`<div class="narr-tag" style="border-color:rgba(74,222,128,.35);background:rgba(74,222,128,.08);color:#4ade80"><span>${m.name}${m.dose?' '+m.dose:''}${m.indication?' — for '+m.indication:''}</span><button type="button" onclick="narrTxMeds.splice(${i},1);renderTxMedTags();buildNarrative()" style="color:rgba(74,222,128,.5)">✕</button></div>`).join('');
 }
 
 /* ── Monitoring chip toggles ────────────────────── */
@@ -1427,7 +1429,10 @@ function buildNarrative(){
   if(isMonChipActive('12lead-tx')) txParts.push('12-LEAD EKG TRANSMITTED');
   narrTxMeds.forEach(m=>{
     if(m.name==='Oxygen') txParts.push(`OXYGEN ADMINISTERED VIA ${uc(m.dose)}`);
-    else txParts.push(`${uc(m.name)} ${uc(m.dose)} ADMINISTERED`);
+    else {
+      const _ind = m.indication ? ` FOR ${uct(m.indication)}` : '';
+      txParts.push(`${uc(m.name)} ${uc(m.dose)} ADMINISTERED${_ind}`);
+    }
   });
   const txNotes=narrVal('nf-tx-notes'); if(txNotes) txParts.push(uct(txNotes));
   const txLine=txParts.length?`TREATMENT — ${txParts.join('. ')}.`:'';
@@ -1719,6 +1724,8 @@ function initNarrative(){
           const opt = [...routeSel.options].find(o => o.value === parsed.route);
           if(opt) routeSel.value = parsed.route;
         }
+        const indicInp = document.getElementById('nf-txmed-indication');
+        if(indicInp) indicInp.value = med?.i || '';
         if(txMedDoseRow){ txMedDoseRow.style.display='flex'; txMedDoseInp?.focus(); }
         if(o2row) o2row.style.display='none';
       }
@@ -1726,13 +1733,15 @@ function initNarrative(){
   });
 
   document.getElementById('btn-add-txmed')?.addEventListener('click',()=>{
-    const amount = (txMedDoseInp?.value||'').trim();
-    const route  = document.getElementById('nf-txmed-route')?.value||'';
-    const dose   = amount && route ? `${amount} ${route}` : amount || route;
+    const amount     = (txMedDoseInp?.value||'').trim();
+    const route      = document.getElementById('nf-txmed-route')?.value||'';
+    const indication = (document.getElementById('nf-txmed-indication')?.value||'').trim();
+    const dose       = amount && route ? `${amount} ${route}` : amount || route;
     if(pendingMedName){
-      narrTxMeds.push({name:pendingMedName, dose});
+      narrTxMeds.push({name:pendingMedName, dose, indication});
       pendingMedName=''; pendingMedDose='';
       if(txMedDoseInp) txMedDoseInp.value='';
+      const indicInp=document.getElementById('nf-txmed-indication'); if(indicInp) indicInp.value='';
       if(txMedDoseRow) txMedDoseRow.style.display='none';
       renderTxMedTags(); buildNarrative();
     }
@@ -1743,6 +1752,7 @@ function initNarrative(){
     pendingMedName=''; pendingMedDose='';
     if(txMedDoseInp) txMedDoseInp.value='';
     const routeSel=document.getElementById('nf-txmed-route'); if(routeSel) routeSel.value='IV';
+    const indicInp2=document.getElementById('nf-txmed-indication'); if(indicInp2) indicInp2.value='';
     if(txMedDoseRow) txMedDoseRow.style.display='none';
     document.getElementById('narr-o2-confirm-row').style.display='none';
   });
