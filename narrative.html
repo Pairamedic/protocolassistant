@@ -1374,7 +1374,7 @@ function buildNarrative(){
   if(narrChk('nf-iv-deferred-chk')){
     txParts.push('PERIPHERAL IV ACCESS ATTEMPTED BUT UNSUCCESSFUL. IV ACCESS DEFERRED — UNABLE TO IDENTIFY SUITABLE PERIPHERAL VEIN. CLINICAL PRESENTATION DID NOT WARRANT INTRAOSSEOUS ACCESS');
   }
-  if(isMonChipActive('hemodynamic')) txParts.push('CONTINUOUS HEMODYNAMIC MONITORING PERFORMED');
+  if(isMonChipActive('hemodynamic')) txParts.push('CONTINUOUS HEMODYNAMIC MONITORING PERFORMED INCLUDING BP, HR, RR, AND SPO2');
   if(isMonChipActive('bga')) txParts.push('BLOOD GLUCOSE ANALYSIS PERFORMED');
   if(isMonChipActive('c-collar')) txParts.push('CERVICAL COLLAR APPLIED');
   if(isMonChipActive('c-spine')) txParts.push('C-SPINE CLEARANCE PERFORMED — PATIENT CLEARED PER PROTOCOL');
