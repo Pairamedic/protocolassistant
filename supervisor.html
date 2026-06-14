@@ -604,6 +604,11 @@
         <button class="pill" data-role="EMR">EMR</button>
         <button class="pill" data-role="EVO">EVO</button>
       </div>
+      <div class="filter-pills" id="status-pills" style="margin-top:6px">
+        <button class="pill active" data-status="All">All Status</button>
+        <button class="pill" data-status="FULL TIME">Full Time</button>
+        <button class="pill" data-status="PRN">PRN</button>
+      </div>
       <div id="dir-results" class="dir-results"></div>
     </div>
 
@@ -1261,6 +1266,7 @@ function exportRoster() {
    ════════════════════════════════════════ */
 let dirStation = 'All';
 let dirRole = 'All';
+let dirStatus = 'All';
 let dirQuery = '';
 
 /** Check if employee role matches a role filter key */
@@ -1286,6 +1292,7 @@ function renderDirectory() {
       if (empStation !== filterStation) return false;
     }
     if (!roleMatches(emp.role, dirRole)) return false;
+    if (dirStatus !== 'All' && (emp.status || '').toUpperCase() !== dirStatus) return false;
     if (dirQuery.length >= 1) {
       const q = dirQuery.toLowerCase();
       const { raw, nick } = empTokens(emp);
@@ -1810,6 +1817,16 @@ function initApp() {
     if (!pill) return;
     dirRole = pill.dataset.role;
     document.querySelectorAll('#role-pills .pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    renderDirectory();
+  });
+
+  // Status filter pills (Full Time / PRN)
+  document.getElementById('status-pills').addEventListener('click', e => {
+    const pill = e.target.closest('.pill');
+    if (!pill) return;
+    dirStatus = pill.dataset.status;
+    document.querySelectorAll('#status-pills .pill').forEach(p => p.classList.remove('active'));
     pill.classList.add('active');
     renderDirectory();
   });
