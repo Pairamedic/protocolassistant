@@ -15,42 +15,36 @@
     *{box-sizing:border-box}
     html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:var(--bg);color:var(--text)}
     body{display:flex;align-items:center;justify-content:center;padding:16px;min-height:100vh}
-    .card{background:var(--card);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:28px 24px 32px;width:100%;max-width:420px}
-    .logo{text-align:center;margin-bottom:20px}
-    .logo h1{margin:10px 0 4px;font-size:22px;font-weight:700}
-    .logo p{margin:0;color:var(--muted);font-size:13px}
-    .fg{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+    .card{background:var(--card);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:24px 22px 28px;width:100%;max-width:400px}
+    .logo{text-align:center;margin-bottom:18px}
+    .logo h1{margin:8px 0 2px;font-size:20px;font-weight:700}
+    .fg{display:flex;flex-direction:column;gap:5px;margin-bottom:11px}
+    .name-row{display:flex;gap:8px;margin-bottom:11px}
+    .name-row .fg{flex:1;margin:0}
     label{font-size:13px;font-weight:500;color:var(--muted)}
-    input[type=email],input[type=password],input[type=text],input[type=tel]{background:#0f131a;border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:15px;padding:11px 14px;width:100%;outline:none;font-family:inherit;transition:border-color .15s}
+    input[type=email],input[type=password],input[type=text]{background:#0f131a;border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:15px;padding:10px 13px;width:100%;outline:none;font-family:inherit;transition:border-color .15s}
     input:focus{border-color:var(--accent)}
     .row{display:flex;gap:10px}
     .btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:var(--text);cursor:pointer;font-family:inherit;font-size:14px;padding:10px 16px;transition:background .15s}
     .btn:hover{background:rgba(255,255,255,.12)}
     .btn.primary{background:var(--accent);color:#0b0d10;border-color:transparent;font-weight:600}
     .btn.primary:hover{background:#4dd4c0}
-    .btn:disabled{opacity:.45;cursor:not-allowed}
     .msg{font-size:13px;min-height:18px;text-align:center;margin-top:8px}
-    .err{color:#f87171}
-    .ok{color:#4ade80}
-    .reset-btn{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline;display:block;margin:14px auto 0;font-family:inherit}
-    .remember-row{display:flex;align-items:center;gap:8px;margin-bottom:14px}
-    .remember-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex:none}
-    .remember-row label{font-size:13px;color:var(--muted);cursor:pointer;user-select:none;margin:0}
+    .err{color:#f87171}.ok{color:#4ade80}
+    .reset-btn{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline;display:block;margin:12px auto 0;font-family:inherit}
+    .check-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+    .check-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex:none}
+    .check-row label{font-size:13px;color:var(--muted);cursor:pointer;user-select:none;margin:0}
+    .agree-row{display:flex;align-items:flex-start;gap:9px;margin-bottom:13px;cursor:pointer}
+    .agree-row input[type=checkbox]{width:15px;height:15px;accent-color:var(--accent);cursor:pointer;flex:none;margin-top:2px}
+    .agree-row span{font-size:12px;color:var(--muted);line-height:1.45}
     .spinner{display:none;text-align:center;padding:20px;color:var(--muted);font-size:14px}
     .spin{display:inline-block;width:22px;height:22px;border:2px solid rgba(255,255,255,.15);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}
     @keyframes spin{to{transform:rotate(360deg)}}
-    /* ToS inline section */
-    #tos-section{margin-bottom:18px}
-    .tos-label{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#f59e0b;margin-bottom:8px}
-    .tos-body{font-size:12px;color:var(--muted);line-height:1.65;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:12px 14px;margin-bottom:14px;max-height:180px;overflow-y:auto}
-    .tos-body p{margin:0 0 9px}
-    .tos-body p:last-child{margin:0}
-    .tos-name-row{display:flex;gap:10px;margin-bottom:12px}
-    .tos-name-row .fg{flex:1;margin:0}
-    .tos-check-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;cursor:pointer}
-    .tos-check-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex:none;margin-top:2px}
-    .tos-check-row span{font-size:12px;color:var(--muted);line-height:1.5}
-    .divider{border:none;border-top:1px solid var(--border);margin:18px 0}
+    .disclaimer-box{margin-top:16px;border-top:1px solid var(--border);padding-top:14px}
+    .disclaimer-label{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#f59e0b;margin-bottom:7px}
+    .disclaimer-body{font-size:11.5px;color:var(--muted);line-height:1.6;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.06);border-radius:9px;padding:11px 13px;max-height:150px;overflow-y:auto}
+    .disclaimer-body p{margin:0 0 8px}.disclaimer-body p:last-child{margin:0}
   </style>
 </head>
 <body>
@@ -59,31 +53,17 @@
   </div>
 
   <div id="form-card" class="card" style="display:none">
+
     <div class="logo">
-      <img src="icon-180.png" alt="PAT" style="width:56px;height:56px;border-radius:14px" />
+      <img src="icon-180.png" alt="PAT" style="width:52px;height:52px;border-radius:13px" />
       <h1>PAT</h1>
-      <p style="margin:4px 0 2px;color:var(--muted);font-size:11px;letter-spacing:.6px;text-transform:uppercase;font-weight:600">Protocol Accessibility Tool</p>
-      <p style="margin:2px 0 0;color:#f59e0b;font-size:12px">By Aaron Caldwell, NRP</p>
+      <p style="font-size:11px;letter-spacing:.6px;text-transform:uppercase;font-weight:600;color:var(--muted);margin:2px 0 0">Protocol Accessibility Tool</p>
     </div>
 
-    <!-- ToS section — hidden after first acceptance -->
-    <div id="tos-section">
-      <div class="tos-label">Disclaimer &amp; Terms of Use</div>
-      <div class="tos-body">
-        <p>This application is intended as a reference tool for authorized EMS personnel only. By accessing PAT, you acknowledge and agree to the following:</p>
-        <p><strong style="color:#e6eef8">The accuracy of information contained in this application is not guaranteed.</strong> Protocols, drug dosages, and clinical guidelines are subject to change. Always defer to your current issued protocols, medical director guidance, and your own clinical judgment.</p>
-        <p>PAT does not replace formal EMS training, continuing education, or direct medical oversight. It is a supplemental reference only and should never be used as a sole basis for patient care decisions.</p>
-        <p>This application may contain operational and clinical information proprietary to your organization. Unauthorized distribution, reproduction, or sharing of content outside your organization is strictly prohibited.</p>
-      </div>
-      <div class="tos-name-row">
-        <div class="fg"><label>First Name</label><input id="tos-first" type="text" autocomplete="given-name" placeholder="First" /></div>
-        <div class="fg"><label>Last Name</label><input id="tos-last" type="text" autocomplete="family-name" placeholder="Last" /></div>
-      </div>
-      <label class="tos-check-row">
-        <input type="checkbox" id="tos-agree">
-        <span>I have read and understand the disclaimer above and agree to use PAT as a reference only.</span>
-      </label>
-      <hr class="divider">
+    <!-- Name fields — first-timers only -->
+    <div id="tos-names" class="name-row">
+      <div class="fg"><label>First Name</label><input id="tos-first" type="text" autocomplete="given-name" placeholder="First" /></div>
+      <div class="fg"><label>Last Name</label><input id="tos-last" type="text" autocomplete="family-name" placeholder="Last" /></div>
     </div>
 
     <div class="fg">
@@ -94,16 +74,38 @@
       <label>Password</label>
       <input id="pass" type="password" autocomplete="current-password" placeholder="Password" />
     </div>
-    <div class="remember-row">
+
+    <div class="check-row">
       <input type="checkbox" id="remember-me" checked />
       <label for="remember-me">Remember me</label>
     </div>
+
+    <!-- Agreement checkbox — first-timers only -->
+    <label id="tos-agree-row" class="agree-row">
+      <input type="checkbox" id="tos-agree">
+      <span>I have read and understand the disclaimer below and agree to use PAT as a supplemental reference only.</span>
+    </label>
+
     <div class="row">
       <button id="btn-login" class="btn primary" style="flex:2">Sign In</button>
       <button id="btn-register" class="btn" style="flex:1">Create Account</button>
     </div>
     <div id="msg" class="msg"></div>
     <button id="btn-reset" class="reset-btn">Forgot password?</button>
+
+    <!-- Disclaimer — first-timers only, shown at bottom -->
+    <div id="tos-disclaimer">
+      <div class="disclaimer-box">
+        <div class="disclaimer-label">Disclaimer &amp; Terms of Use</div>
+        <div class="disclaimer-body">
+          <p>This application is intended as a reference tool for authorized EMS personnel only.</p>
+          <p><strong style="color:#e6eef8">The accuracy of information in this application is not guaranteed.</strong> Protocols, drug dosages, and clinical guidelines are subject to change. Always defer to your current issued protocols, medical director guidance, and your own clinical judgment.</p>
+          <p>PAT does not replace formal EMS training, continuing education, or direct medical oversight. It is a supplemental reference only and should never be used as a sole basis for patient care decisions.</p>
+          <p>This application may contain operational and clinical information proprietary to your organization. Unauthorized distribution, reproduction, or sharing of content outside your organization is strictly prohibited.</p>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -125,6 +127,12 @@
     let _pendingTos = null;
     let _tosAccepted = !!localStorage.getItem('pat_tos_v1');
 
+    function hideTosElements(){
+      ['tos-names','tos-agree-row','tos-disclaimer'].forEach(id => {
+        const el = $(id); if(el) el.style.display = 'none';
+      });
+    }
+
     function destAfterLogin(){
       const p = new URLSearchParams(window.location.search).get('returnTo');
       const allowed = ['supervisor.html','ProtocolAssistant.html'];
@@ -136,9 +144,7 @@
         if(_pendingTos){
           try{
             await fbDb.collection('tos_acceptances').doc(user.uid).set({
-              ..._pendingTos,
-              email: user.email || '',
-              uid:   user.uid,
+              ..._pendingTos, email: user.email || '', uid: user.uid,
             });
           }catch(_){}
           _pendingTos = null;
@@ -147,21 +153,20 @@
       } else {
         $('loading').style.display = 'none';
         $('form-card').style.display = '';
-        // Hide ToS section for returning users
-        if(_tosAccepted) $('tos-section').style.display = 'none';
-        setTimeout(() => $('email').focus(), 50);
+        if(_tosAccepted) hideTosElements();
+        setTimeout(() => $(_tosAccepted ? 'email' : 'tos-first').focus(), 50);
       }
     });
 
     function errMsg(code){
       return ({
-        'auth/user-not-found':      'Incorrect email or password.',
-        'auth/wrong-password':      'Incorrect email or password.',
-        'auth/invalid-credential':  'Incorrect email or password.',
-        'auth/email-already-in-use':'An account with that email already exists.',
-        'auth/invalid-email':       'Please enter a valid email address.',
-        'auth/weak-password':       'Password must be at least 6 characters.',
-        'auth/too-many-requests':   'Too many attempts – try again later.',
+        'auth/user-not-found':       'Incorrect email or password.',
+        'auth/wrong-password':       'Incorrect email or password.',
+        'auth/invalid-credential':   'Incorrect email or password.',
+        'auth/email-already-in-use': 'An account with that email already exists.',
+        'auth/invalid-email':        'Please enter a valid email address.',
+        'auth/weak-password':        'Password must be at least 6 characters.',
+        'auth/too-many-requests':    'Too many attempts – try again later.',
         'auth/network-request-failed':'Network error – check your connection.',
       })[code] || 'Something went wrong. Try again.';
     }
@@ -174,14 +179,12 @@
 
     function tosValid(){
       if(_tosAccepted) return true;
-      return $('tos-agree').checked
-        && $('tos-first').value.trim()
-        && $('tos-last').value.trim();
+      return $('tos-agree').checked && $('tos-first').value.trim() && $('tos-last').value.trim();
     }
 
     function captureTos(){
       if(_tosAccepted) return;
-      const first=$('tos-first').value.trim(), last=$('tos-last').value.trim();
+      const first = $('tos-first').value.trim(), last = $('tos-last').value.trim();
       const tosRecord = {first, last, ts: Date.now()};
       localStorage.setItem('pat_tos_v1', JSON.stringify(tosRecord));
       _pendingTos = tosRecord;
@@ -191,7 +194,7 @@
     $('btn-login').addEventListener('click', async () => {
       const email = $('email').value.trim(), pass = $('pass').value;
       setMsg('');
-      if(!tosValid()){ setMsg('Please fill in your name and agree to the terms above.'); return; }
+      if(!tosValid()){ setMsg('Enter your name and agree to the terms below.'); return; }
       if(!email || !pass){ setMsg('Enter email and password.'); return; }
       captureTos();
       const persistence = $('remember-me').checked
@@ -206,7 +209,7 @@
     $('btn-register').addEventListener('click', async () => {
       const email = $('email').value.trim(), pass = $('pass').value;
       setMsg('');
-      if(!tosValid()){ setMsg('Please fill in your name and agree to the terms above.'); return; }
+      if(!tosValid()){ setMsg('Enter your name and agree to the terms below.'); return; }
       if(!email || !pass){ setMsg('Enter email and password.'); return; }
       captureTos();
       try{ await fbAuth.createUserWithEmailAndPassword(email, pass); }
