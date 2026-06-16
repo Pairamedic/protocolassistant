@@ -1,13 +1,16 @@
 {
-  "name": "Pairamedic",
-  "short_name": "Pairamedic",
-  "description": "Pairamedic — Protocol Accessibility Tool",
+  "name": "PAT – Protocol Accessibility Tool",
+  "short_name": "PAT",
+  "description": "EASI Ambulance Service — Protocol Accessibility Tool",
   "start_url": "ProtocolAssistant.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#0b0d10",
-  "theme_color": "#141820",
+  "theme_color": "#0b0d10",
   "icons": [
-    { "src": "star-of-life.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "star-of-life.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
   ]
 }
