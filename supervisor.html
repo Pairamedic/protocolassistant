@@ -538,6 +538,43 @@
     .import-file-label { display: inline-block; margin-top: 10px; font-size: 13px; color: var(--accent); cursor: pointer; text-decoration: underline; }
     #import-result { font-size: 13px; min-height: 18px; margin-top: 8px; }
 
+
+    /* ── FTO / Check-Off Module ── */
+    .fto-topbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+    .fto-new-btn{background:var(--accent);color:#0b0d10;border:none;border-radius:10px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+    .fto-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+    .fto-card-info{flex:1;min-width:0}
+    .fto-card-name{font-weight:700;font-size:15px}
+    .fto-card-meta{font-size:12px;color:var(--muted);margin-top:3px}
+    .fto-card-actions{display:flex;gap:7px;flex:none;flex-wrap:wrap}
+    .fto-action-btn{background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;padding:6px 12px;cursor:pointer;font-family:inherit;white-space:nowrap}
+    .fto-action-btn.danger{color:#f87171;border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.08)}
+    .fto-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px;line-height:1.8}
+    .fto-form-header{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px}
+    .fto-hdr-row{display:flex;gap:10px;flex-wrap:wrap}
+    .fto-field{display:flex;flex-direction:column;gap:4px;flex:1;min-width:110px}
+    .fto-field label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.3px;text-transform:uppercase}
+    .fto-field input,.fto-field select{background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;padding:8px 11px;outline:none;font-family:inherit;width:100%}
+    .fto-field input:focus,.fto-field select:focus{border-color:var(--accent)}
+    .fto-section{background:var(--card);border:1px solid var(--border);border-radius:13px;margin-bottom:10px;overflow:hidden}
+    .fto-sec-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 15px;cursor:pointer;user-select:none}
+    .fto-sec-title{font-weight:700;font-size:13px}
+    .fto-sec-arrow{color:var(--muted);font-size:13px;transition:transform .2s}
+    .fto-sec-arrow.open{transform:rotate(180deg)}
+    .fto-sec-body{padding:0 15px 10px;display:none}
+    .fto-sec-body.open{display:block}
+    .fto-skill-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+    .fto-skill-row:last-child{border:none}
+    .fto-skill-label{flex:1;font-size:13px;line-height:1.4}
+    .fto-status-btn{border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;min-width:96px;text-align:center;transition:all .15s;background:rgba(255,255,255,.06);color:var(--muted)}
+    .fto-status-btn.needs-work{background:rgba(251,191,36,.14);color:#fbbf24;border-color:rgba(251,191,36,.35)}
+    .fto-status-btn.competent{background:rgba(74,222,128,.11);color:#4ade80;border-color:rgba(74,222,128,.3)}
+    .fto-notes-area{width:100%;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;padding:12px;font-family:inherit;resize:vertical;min-height:110px;outline:none;box-sizing:border-box}
+    .fto-notes-area:focus{border-color:var(--accent)}
+    .fto-form-actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+    .fto-save-btn{background:var(--accent);color:#0b0d10;border:none;border-radius:10px;padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+    .fto-export-btn{background:rgba(99,102,241,.14);color:#a5b4fc;border:1px solid rgba(99,102,241,.3);border-radius:10px;padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+    .fto-back-btn{background:rgba(255,255,255,.07);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:14px;cursor:pointer;font-family:inherit}
   </style>
 </head>
 <body>
@@ -568,6 +605,7 @@
       <button class="tab-btn active" data-tab="roster">📋 Roster</button>
       <button class="tab-btn" data-tab="directory">📞 Directory</button>
       <button class="tab-btn" data-tab="report">📝 Report</button>
+      <button class="tab-btn" data-tab="fto">🎓 FTO / Check-Off</button>
     </div>
   </div>
 
@@ -695,6 +733,63 @@
 
       <!-- Copy area (shown after email attempt) -->
       <div id="rpt-copy-area" class="rpt-copy-area"></div>
+    </div>
+
+    <!-- ── TAB: FTO / CHECK-OFF ── -->
+    <div id="tab-fto" class="tab-panel">
+
+      <!-- List view -->
+      <div id="fto-list-view">
+        <div class="fto-topbar">
+          <span style="font-size:16px;font-weight:700;flex:1">FTO / Clinical Check-Offs</span>
+          <button class="fto-new-btn" onclick="ftoNewSession()">+ New Session</button>
+        </div>
+        <div id="fto-sessions-list"></div>
+      </div>
+
+      <!-- Form view -->
+      <div id="fto-form-view" style="display:none">
+        <div class="fto-form-header">
+          <div class="fto-hdr-row">
+            <div class="fto-field" style="flex:1.4"><label>First Name</label><input type="text" id="fto-first" placeholder="Trainee first name"></div>
+            <div class="fto-field" style="flex:1.4"><label>Last Name</label><input type="text" id="fto-last" placeholder="Trainee last name"></div>
+            <div class="fto-field" style="flex:1"><label>Date</label><input type="date" id="fto-date"></div>
+          </div>
+          <div class="fto-hdr-row" style="margin-top:10px">
+            <div class="fto-field"><label>Provider Level</label>
+              <select id="fto-level">
+                <option value="EMT">EMT</option>
+                <option value="AEMT">A-EMT (Advanced EMT)</option>
+                <option value="Paramedic">Paramedic</option>
+              </select>
+            </div>
+            <div class="fto-field"><label>Session Type</label>
+              <select id="fto-type">
+                <option value="FTO">FTO Ride-Along</option>
+                <option value="Clinical">Clinical Rotation</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div id="fto-skills-container"></div>
+
+        <div class="fto-section">
+          <div class="fto-sec-hdr" onclick="ftoToggleCat(this)" style="cursor:default">
+            <div class="fto-sec-title">📝 Clinical Notes</div>
+          </div>
+          <div class="fto-sec-body open">
+            <textarea id="fto-notes" class="fto-notes-area" placeholder="Notes on trainee performance — areas of strength, areas requiring improvement, specific calls or procedures observed..."></textarea>
+          </div>
+        </div>
+
+        <div class="fto-form-actions">
+          <button class="fto-back-btn" onclick="ftoBackToList()">← Back</button>
+          <button class="fto-save-btn" onclick="ftoSaveSession()">💾 Save</button>
+          <button class="fto-export-btn" onclick="ftoExportSession()">📄 Export Summary</button>
+        </div>
+      </div>
+
     </div>
 
   </div>
@@ -2441,6 +2536,429 @@ function initShiftReport(){
     if(e.target === document.getElementById('narc-modal')) closeNarcModal();
   });
 }
+
+/* ════════════════════════════════════════
+   FTO / CLINICAL CHECK-OFF MODULE
+   ════════════════════════════════════════ */
+const FTO_STORE = 'pat_fto_v1';
+let ftoSessions = [];
+let ftoCurrentId = null;
+
+const FTO_SKILL_CATS = {
+  EMT: [
+    { cat:'Patient Assessment', skills:[
+      {id:'scene-sizeup',   label:'Scene size-up (BSI, hazards, MOI/NOI, resources needed)'},
+      {id:'primary-assess', label:'Primary assessment (XABCDE)'},
+      {id:'secondary-assess',label:'Secondary assessment / head-to-toe exam'},
+      {id:'history',        label:'History taking (SAMPLE / OPQRST)'},
+      {id:'vitals',         label:'Vital signs (BP, HR, RR, SpO₂, pupils, skin)'},
+      {id:'glucose',        label:'Blood glucose monitoring'},
+      {id:'gcs',            label:'Glasgow Coma Scale'},
+      {id:'pain-assess',    label:'Pain assessment (scale, quality, radiation, onset)'},
+      {id:'ped-pat',        label:'Pediatric Assessment Triangle (PAT)'},
+    ]},
+    { cat:'Airway & Breathing', skills:[
+      {id:'airway-pos',    label:'Airway positioning (head-tilt chin-lift, jaw thrust)'},
+      {id:'opa',           label:'OPA — insertion & sizing'},
+      {id:'npa',           label:'NPA — insertion & sizing'},
+      {id:'suction',       label:'Suctioning (oropharyngeal & nasopharyngeal)'},
+      {id:'bvm-1',         label:'BVM ventilation — 1-rescuer'},
+      {id:'bvm-2',         label:'BVM ventilation — 2-rescuer'},
+      {id:'o2-nrb',        label:'Oxygen via non-rebreather mask'},
+      {id:'o2-nc',         label:'Oxygen via nasal cannula'},
+    ]},
+    { cat:'Circulation & Hemorrhage Control', skills:[
+      {id:'direct-pressure',label:'Direct pressure'},
+      {id:'tourniquet',     label:'Tourniquet application (CAT / SOFTT-W)'},
+      {id:'wound-packing',  label:'Wound packing (hemostatic gauze)'},
+      {id:'pressure-dress', label:'Pressure dressing application'},
+      {id:'shock-mgmt',     label:'Shock recognition & management'},
+      {id:'cpr-adult',      label:'Adult CPR (rate, depth, ratio, minimizing interruptions)'},
+      {id:'cpr-peds',       label:'Pediatric CPR (age-appropriate)'},
+      {id:'aed',            label:'AED operation & pad placement'},
+    ]},
+    { cat:'Trauma Management', skills:[
+      {id:'splint-long',    label:'Long bone splinting'},
+      {id:'splint-joint',   label:'Joint injury splinting'},
+      {id:'traction-splint',label:'Traction splint — femur fracture (Hare/Sager)'},
+      {id:'smr',            label:'Spinal motion restriction (C-collar, backboard/vacuum)'},
+      {id:'burns',          label:'Burns assessment (Rule of 9s, depth classification)'},
+      {id:'chest-seal',     label:'Chest seal application — open pneumothorax'},
+      {id:'amputation',     label:'Amputation / evisceration management'},
+    ]},
+    { cat:'Medical Emergencies', skills:[
+      {id:'stroke',         label:'Stroke recognition (BEFAST / Cincinnati)'},
+      {id:'ams',            label:'Altered mental status — assessment & management'},
+      {id:'diabetic',       label:'Diabetic emergency recognition & management'},
+      {id:'seizure',        label:'Seizure management & postictal care'},
+      {id:'anaphylaxis',    label:'Anaphylaxis / allergic reaction — recognition & management'},
+      {id:'chest-pain',     label:'Chest pain assessment (cardiac vs. non-cardiac)'},
+      {id:'resp-distress',  label:'Respiratory distress — assessment & management'},
+      {id:'overdose',       label:'Overdose / poisoning — assessment & management'},
+      {id:'obstetric',      label:'Obstetric emergencies / emergency delivery'},
+      {id:'behavioral',     label:'Behavioral emergencies / psychiatric assessment'},
+    ]},
+    { cat:'Operations & Documentation', skills:[
+      {id:'lifting',        label:'Lifting & moving (body mechanics, team lift)'},
+      {id:'stretcher',      label:'Stretcher operation & patient transfer'},
+      {id:'stair-chair',    label:'Stair chair use'},
+      {id:'radio',          label:'Radio communications & SBAR patient report'},
+      {id:'hospital-report',label:'Hospital handoff / bedside report'},
+      {id:'pcr',            label:'PCR documentation (accuracy, completeness, timeliness)'},
+      {id:'scene-mgmt',     label:'Scene management & crew coordination'},
+    ]},
+  ],
+  AEMT: [
+    { cat:'Vascular Access', skills:[
+      {id:'iv-upper',       label:'Peripheral IV — antecubital / forearm'},
+      {id:'iv-hand',        label:'Peripheral IV — hand / wrist'},
+      {id:'io-access',      label:'Intraosseous (IO) access — EZ-IO'},
+      {id:'fluid-admin',    label:'IV fluid administration & rate calculation'},
+      {id:'fluid-challenge',label:'Fluid challenge — administration & reassessment'},
+      {id:'iv-troubleshoot',label:'IV troubleshooting (infiltration, occlusion, positional)'},
+    ]},
+    { cat:'Advanced Airway (A-EMT)', skills:[
+      {id:'sga-insert',     label:'Supraglottic airway insertion (King LT / iGel)'},
+      {id:'sga-vent',       label:'Ventilation through SGA — mask seal & rate'},
+      {id:'sga-confirm',    label:'SGA placement confirmation (breath sounds, EtCO₂)'},
+      {id:'etco2-mon',      label:'Waveform capnography monitoring'},
+    ]},
+  ],
+  Paramedic: [
+    { cat:'Advanced Airway (Paramedic)', skills:[
+      {id:'eti',            label:'Endotracheal intubation — direct laryngoscopy'},
+      {id:'video-larynx',   label:'Video laryngoscopy (GlideScope / C-MAC)'},
+      {id:'rsi',            label:'RSI / medication-facilitated intubation'},
+      {id:'surgical-airway',label:'Surgical airway / needle cricothyrotomy'},
+      {id:'etco2-interp',   label:'Waveform capnography interpretation'},
+      {id:'post-intubation',label:'Post-intubation management & sedation'},
+    ]},
+    { cat:'Cardiac & Electrical Therapy', skills:[
+      {id:'12lead-acq',     label:'12-lead ECG acquisition & lead placement'},
+      {id:'12lead-interp',  label:'12-lead ECG interpretation (STEMI, LBBB)'},
+      {id:'rhythm-interp',  label:'Cardiac rhythm interpretation (sinus, AF, flutter, blocks, VT, VF)'},
+      {id:'manual-defib',   label:'Manual defibrillation (energy selection, safety check)'},
+      {id:'sync-cardio',    label:'Synchronized cardioversion'},
+      {id:'tcp',            label:'Transcutaneous pacing (capture verification)'},
+    ]},
+    { cat:'Advanced Procedures', skills:[
+      {id:'needle-decomp',  label:'Needle decompression — tension pneumothorax'},
+      {id:'adv-vascular',   label:'Advanced vascular access (EJ / central line assist)'},
+      {id:'drip-calc',      label:'Medication drip calculations (mcg/kg/min)'},
+      {id:'stemi-screen',   label:'STEMI recognition & fibrinolytic screening criteria'},
+    ]},
+  ],
+};
+
+const FTO_MEDS = {
+  EMT: [
+    'Oxygen',
+    'Aspirin',
+    'Oral Glucose',
+    'Albuterol (patient-assisted)',
+    'Nitroglycerin (patient-assisted)',
+    'Epinephrine Auto-Injector (patient-assisted)',
+    'Naloxone (Narcan) — intranasal',
+  ],
+  AEMT: [
+    'Albuterol',
+    'Ipratropium (Atrovent)',
+    'Epinephrine 1:1000 — IM',
+    'Diphenhydramine (Benadryl)',
+    'Naloxone (Narcan) — IV/IM/IN',
+    'Ondansetron (Zofran)',
+    'Dextrose 10%',
+    'Glucagon',
+    'Ketorolac (Toradol)',
+    'Acetaminophen (Tylenol) — IV',
+  ],
+  Paramedic: [
+    'Adenosine',
+    'Amiodarone',
+    'Atropine',
+    'Calcium Gluconate',
+    'Dopamine',
+    'Epinephrine 1:10,000 — IV/IO',
+    'Fentanyl',
+    'Labetalol',
+    'Lidocaine',
+    'Magnesium Sulfate',
+    'Metoprolol',
+    'Midazolam (Versed)',
+    'Morphine Sulfate',
+    'Nitrous Oxide',
+    'Nitroglycerin — IV drip',
+    'Sodium Bicarbonate',
+    'Solu-Medrol (Methylprednisolone)',
+    'Thiamine',
+    'Verapamil',
+  ],
+};
+
+function ftoGetMedsForLevel(lvl){
+  if(lvl==='EMT') return [...FTO_MEDS.EMT];
+  if(lvl==='AEMT') return [...FTO_MEDS.EMT,...FTO_MEDS.AEMT];
+  return [...FTO_MEDS.EMT,...FTO_MEDS.AEMT,...FTO_MEDS.Paramedic];
+}
+
+function ftoGetCatsForLevel(lvl){
+  const cats=[...FTO_SKILL_CATS.EMT];
+  if(lvl==='AEMT'||lvl==='Paramedic') cats.push(...FTO_SKILL_CATS.AEMT);
+  if(lvl==='Paramedic') cats.push(...FTO_SKILL_CATS.Paramedic);
+  return cats;
+}
+
+function ftoLoad(){
+  try{ ftoSessions=JSON.parse(localStorage.getItem(FTO_STORE)||'[]'); }catch(_){ ftoSessions=[]; }
+}
+function ftoSaveStore(){ localStorage.setItem(FTO_STORE,JSON.stringify(ftoSessions)); }
+
+function ftoRenderList(){
+  const el=document.getElementById('fto-sessions-list');
+  if(!el) return;
+  ftoLoad();
+  if(!ftoSessions.length){
+    el.innerHTML='<div class="fto-empty">No sessions yet.<br><span style="font-size:12px">Tap <strong>+ New Session</strong> to get started.</span></div>';
+    return;
+  }
+  const sorted=[...ftoSessions].sort((a,b)=>b.createdAt-a.createdAt);
+  el.innerHTML=sorted.map(s=>{
+    const lvlLabel=s.level==='AEMT'?'A-EMT':s.level||'EMT';
+    const typeLabel=s.sessionType==='Clinical'?'Clinical Rotation':'FTO Ride-Along';
+    const dateStr=s.date?new Date(s.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'No date';
+    const allSkills=ftoGetCatsForLevel(s.level||'EMT').flatMap(c=>c.skills);
+    const nComp=allSkills.filter(sk=>s.skills&&s.skills[sk.id]==='competent').length;
+    const nObs=allSkills.filter(sk=>s.skills&&s.skills[sk.id]&&s.skills[sk.id]!=='').length;
+    return `<div class="fto-card">
+      <div class="fto-card-info">
+        <div class="fto-card-name">${s.traineeFirst||''} ${s.traineeLast||''}`.trimEnd()+`</div>
+        <div class="fto-card-meta">${lvlLabel} &bull; ${typeLabel} &bull; ${dateStr}</div>
+        <div class="fto-card-meta" style="color:var(--accent)">${nComp} competent &bull; ${nObs} observed</div>
+      </div>
+      <div class="fto-card-actions">
+        <button class="fto-action-btn" onclick="ftoOpenSession('${s.id}')">Edit</button>
+        <button class="fto-action-btn" onclick="ftoExportById('${s.id}')">Export</button>
+        <button class="fto-action-btn danger" onclick="ftoDeleteSession('${s.id}')">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function ftoNewSession(){
+  const id='fto_'+Date.now();
+  const today=new Date().toISOString().slice(0,10);
+  ftoLoad();
+  ftoSessions.push({id,createdAt:Date.now(),updatedAt:Date.now(),
+    traineeFirst:'',traineeLast:'',level:'EMT',sessionType:'FTO',
+    date:today,skills:{},meds:{},notes:''});
+  ftoSaveStore();
+  ftoOpenSession(id);
+}
+
+function ftoOpenSession(id){
+  ftoLoad();
+  const s=ftoSessions.find(x=>x.id===id);
+  if(!s) return;
+  ftoCurrentId=id;
+  document.getElementById('fto-list-view').style.display='none';
+  document.getElementById('fto-form-view').style.display='';
+  document.getElementById('fto-first').value=s.traineeFirst||'';
+  document.getElementById('fto-last').value=s.traineeLast||'';
+  document.getElementById('fto-date').value=s.date||'';
+  document.getElementById('fto-level').value=s.level||'EMT';
+  document.getElementById('fto-type').value=s.sessionType||'FTO';
+  document.getElementById('fto-notes').value=s.notes||'';
+  ftoRenderSkills(s);
+}
+
+function ftoRenderSkills(s){
+  const container=document.getElementById('fto-skills-container');
+  if(!container) return;
+  const cats=ftoGetCatsForLevel(s.level||'EMT');
+  const meds=ftoGetMedsForLevel(s.level||'EMT');
+  const skillBlock=cats.map(cat=>{
+    const rows=cat.skills.map(sk=>{
+      const st=(s.skills&&s.skills[sk.id])||'';
+      const cls=st==='competent'?'competent':st==='needs-work'?'needs-work':'';
+      const lbl=st==='competent'?'✓ Competent':st==='needs-work'?'⚠ Needs Work':'— Not Observed';
+      return `<div class="fto-skill-row"><div class="fto-skill-label">${sk.label}</div><button class="fto-status-btn ${cls}" data-skill="${sk.id}" onclick="ftoToggleSkill(this)">${lbl}</button></div>`;
+    }).join('');
+    return `<div class="fto-section"><div class="fto-sec-hdr" onclick="ftoToggleCat(this)"><div class="fto-sec-title">${cat.cat}</div><div class="fto-sec-arrow">▼</div></div><div class="fto-sec-body">${rows}</div></div>`;
+  }).join('');
+  const medRows=meds.map(m=>{
+    const st=(s.meds&&s.meds[m])||'';
+    const cls=st==='competent'?'competent':st==='needs-work'?'needs-work':'';
+    const lbl=st==='competent'?'✓ Competent':st==='needs-work'?'⚠ Needs Work':'— Not Observed';
+    return `<div class="fto-skill-row"><div class="fto-skill-label">${m}</div><button class="fto-status-btn ${cls}" data-med="${m}" onclick="ftoToggleMed(this)">${lbl}</button></div>`;
+  }).join('');
+  const medBlock=`<div class="fto-section"><div class="fto-sec-hdr" onclick="ftoToggleCat(this)"><div class="fto-sec-title">💊 Medication Competency — EASI Formulary</div><div class="fto-sec-arrow">▼</div></div><div class="fto-sec-body">${medRows}</div></div>`;
+  container.innerHTML=skillBlock+medBlock;
+}
+
+function ftoToggleCat(hdr){
+  const body=hdr.nextElementSibling;
+  const arrow=hdr.querySelector('.fto-sec-arrow');
+  if(body) body.classList.toggle('open');
+  if(arrow) arrow.classList.toggle('open');
+}
+
+function _ftoNextState(btn){
+  const STATES=['','needs-work','competent'];
+  const LABELS={'':'— Not Observed','needs-work':'⚠ Needs Work','competent':'✓ Competent'};
+  const cur=btn.classList.contains('competent')?'competent':btn.classList.contains('needs-work')?'needs-work':'';
+  const next=STATES[(STATES.indexOf(cur)+1)%STATES.length];
+  btn.className='fto-status-btn'+(next?' '+next:'');
+  btn.textContent=LABELS[next];
+  return next;
+}
+
+function ftoToggleSkill(btn){
+  const next=_ftoNextState(btn);
+  const s=ftoSessions.find(x=>x.id===ftoCurrentId);
+  if(s){ if(!s.skills)s.skills={}; s.skills[btn.dataset.skill]=next; ftoSaveStore(); }
+}
+
+function ftoToggleMed(btn){
+  const next=_ftoNextState(btn);
+  const s=ftoSessions.find(x=>x.id===ftoCurrentId);
+  if(s){ if(!s.meds)s.meds={}; s.meds[btn.dataset.med]=next; ftoSaveStore(); }
+}
+
+function _ftoCapture(){
+  const s=ftoSessions.find(x=>x.id===ftoCurrentId);
+  if(!s) return;
+  s.traineeFirst=document.getElementById('fto-first').value.trim();
+  s.traineeLast=document.getElementById('fto-last').value.trim();
+  s.date=document.getElementById('fto-date').value;
+  s.level=document.getElementById('fto-level').value;
+  s.sessionType=document.getElementById('fto-type').value;
+  s.notes=document.getElementById('fto-notes').value;
+  s.updatedAt=Date.now();
+}
+
+function ftoSaveSession(){
+  _ftoCapture();
+  ftoSaveStore();
+  const s=ftoSessions.find(x=>x.id===ftoCurrentId);
+  if(s) ftoRenderSkills(s); // re-render in case level changed
+  showToast('Session saved ✓');
+}
+
+function ftoBackToList(){
+  _ftoCapture();
+  ftoSaveStore();
+  ftoCurrentId=null;
+  document.getElementById('fto-list-view').style.display='';
+  document.getElementById('fto-form-view').style.display='none';
+  ftoRenderList();
+}
+
+function ftoDeleteSession(id){
+  if(!confirm('Delete this check-off session? This cannot be undone.')) return;
+  ftoLoad();
+  ftoSessions=ftoSessions.filter(s=>s.id!==id);
+  ftoSaveStore();
+  ftoRenderList();
+}
+
+function ftoExportById(id){
+  ftoLoad();
+  const s=ftoSessions.find(x=>x.id===id);
+  if(s) _ftoExport(s);
+}
+
+function ftoExportSession(){
+  _ftoCapture();
+  ftoSaveStore();
+  const s=ftoSessions.find(x=>x.id===ftoCurrentId);
+  if(s) _ftoExport(s);
+}
+
+function _ftoExport(s){
+  const name=[s.traineeFirst,s.traineeLast].filter(Boolean).join(' ')||'Trainee';
+  const lvlLabel=s.level==='AEMT'?'Advanced EMT (A-EMT)':s.level==='Paramedic'?'Paramedic':'EMT';
+  const typeLabel=s.sessionType==='Clinical'?'Clinical Rotation':'FTO Ride-Along';
+  const dateStr=s.date?new Date(s.date+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}):'Date not recorded';
+  const cats=ftoGetCatsForLevel(s.level||'EMT');
+  const meds=ftoGetMedsForLevel(s.level||'EMT');
+  const SEP='─'.repeat(52);
+  const lines=[
+    'FTO / CLINICAL CHECK-OFF SUMMARY',
+    '='.repeat(52),
+    `Trainee:          ${name}`,
+    `Provider Level:   ${lvlLabel}`,
+    `Session Type:     ${typeLabel}`,
+    `Date:             ${dateStr}`,
+    `Supervising FTO:  Aaron Caldwell, NRP`,
+    '',
+    'SKILLS ASSESSED',
+    SEP,
+  ];
+  let nComp=0,nNW=0,nNO=0;
+  cats.forEach(cat=>{
+    const comp=[],nw=[];
+    cat.skills.forEach(sk=>{
+      const st=(s.skills&&s.skills[sk.id])||'';
+      if(st==='competent') comp.push(sk.label);
+      else if(st==='needs-work') nw.push(sk.label);
+      else nNO++;
+    });
+    if(comp.length||nw.length){
+      lines.push('');
+      lines.push(cat.cat.toUpperCase());
+      comp.forEach(l=>{ lines.push('  ✓  '+l); nComp++; });
+      nw.forEach(l=>{ lines.push('  ⚠  '+l); nNW++; });
+    }
+  });
+  if(!nComp&&!nNW) lines.push('  No skills were marked this session.');
+  lines.push('');
+  lines.push('MEDICATION COMPETENCY — EASI FORMULARY');
+  lines.push(SEP);
+  const mc=meds.filter(m=>s.meds&&s.meds[m]==='competent');
+  const mn=meds.filter(m=>s.meds&&s.meds[m]==='needs-work');
+  if(mc.length){ lines.push('Demonstrated competency:'); mc.forEach(m=>lines.push('  ✓  '+m)); }
+  if(mn.length){ lines.push('Requires additional review:'); mn.forEach(m=>lines.push('  ⚠  '+m)); }
+  if(!mc.length&&!mn.length) lines.push('  No medications assessed this session.');
+  lines.push('');
+  lines.push('SESSION SUMMARY');
+  lines.push(SEP);
+  const totalSk=cats.flatMap(c=>c.skills).length;
+  lines.push(`Skills assessed:   ${nComp+nNW} of ${totalSk}`);
+  lines.push(`Competent:         ${nComp}`);
+  lines.push(`Needs work:        ${nNW}`);
+  lines.push(`Not observed:      ${totalSk-nComp-nNW}`);
+  lines.push(`Medications:       ${mc.length} competent, ${mn.length} need review`);
+  if(s.notes&&s.notes.trim()){
+    lines.push('');
+    lines.push('CLINICAL NOTES');
+    lines.push(SEP);
+    lines.push(s.notes.trim());
+  }
+  lines.push('');
+  lines.push(SEP);
+  lines.push('Generated: '+new Date().toLocaleString());
+  lines.push('PAT — Protocol Accessibility Tool');
+  const blob=new Blob([lines.join('\n')],{type:'text/plain'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='FTO_'+((s.traineeFirst||'Trainee').replace(/\s+/g,'_'))+'_'+(s.date||'undated')+'.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Re-render skills when level select changes
+document.addEventListener('change', e=>{
+  if(e.target && e.target.id==='fto-level'){
+    const s=ftoSessions.find(x=>x.id===ftoCurrentId);
+    if(s){ s.level=e.target.value; ftoRenderSkills(s); }
+  }
+});
+
+// Render list when tab is clicked
+document.querySelectorAll('.tab-btn[data-tab="fto"]').forEach(btn=>{
+  btn.addEventListener('click',()=>{ ftoLoad(); ftoRenderList(); });
+});
 
 </script>
 <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});</script>
