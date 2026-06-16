@@ -11,24 +11,24 @@
   <meta name="apple-mobile-web-app-title" content="PAT" />
   <meta name="theme-color" content="#0b0d10" />
   <style>
-    :root{ --bg:#0b0d10; --card:#141820; --muted:#a7b0be; --text:#e6eef8; --accent:#5eead4; }
+    :root{ --bg:#0b0d10; --card:#141820; --muted:#a7b0be; --text:#e6eef8; --accent:#5eead4; --border:rgba(255,255,255,.1); }
     *{box-sizing:border-box}
     html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:var(--bg);color:var(--text)}
     body{display:flex;align-items:center;justify-content:center;padding:16px;min-height:100vh}
-    .card{background:var(--card);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:32px;width:100%;max-width:400px}
-    .logo{text-align:center;margin-bottom:24px}
-    .logo .icon{font-size:38px}
+    .card{background:var(--card);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:28px 24px 32px;width:100%;max-width:420px}
+    .logo{text-align:center;margin-bottom:20px}
     .logo h1{margin:10px 0 4px;font-size:22px;font-weight:700}
     .logo p{margin:0;color:var(--muted);font-size:13px}
-    .fg{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+    .fg{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
     label{font-size:13px;font-weight:500;color:var(--muted)}
-    input{background:#0f131a;border:1px solid rgba(255,255,255,.1);border-radius:10px;color:var(--text);font-size:15px;padding:11px 14px;width:100%;outline:none;font-family:inherit;transition:border-color .15s}
+    input[type=email],input[type=password],input[type=text],input[type=tel]{background:#0f131a;border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:15px;padding:11px 14px;width:100%;outline:none;font-family:inherit;transition:border-color .15s}
     input:focus{border-color:var(--accent)}
     .row{display:flex;gap:10px}
     .btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:var(--text);cursor:pointer;font-family:inherit;font-size:14px;padding:10px 16px;transition:background .15s}
     .btn:hover{background:rgba(255,255,255,.12)}
     .btn.primary{background:var(--accent);color:#0b0d10;border-color:transparent;font-weight:600}
     .btn.primary:hover{background:#4dd4c0}
+    .btn:disabled{opacity:.45;cursor:not-allowed}
     .msg{font-size:13px;min-height:18px;text-align:center;margin-top:8px}
     .err{color:#f87171}
     .ok{color:#4ade80}
@@ -39,25 +39,18 @@
     .spinner{display:none;text-align:center;padding:20px;color:var(--muted);font-size:14px}
     .spin{display:inline-block;width:22px;height:22px;border:2px solid rgba(255,255,255,.15);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}
     @keyframes spin{to{transform:rotate(360deg)}}
-    /* ToS overlay */
-    #tos-overlay{position:fixed;inset:0;z-index:999;background:#0b0d10;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
-    #tos-overlay.hidden{display:none}
-    .tos-card{background:#141820;border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:28px 24px 32px;width:100%;max-width:480px;margin:auto}
-    .tos-title{font-size:18px;font-weight:800;color:#e6eef8;margin-bottom:4px}
-    .tos-sub{font-size:12px;color:#f59e0b;font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:16px}
-    .tos-body{font-size:13px;color:#a7b0be;line-height:1.65;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px 16px;margin-bottom:18px;max-height:220px;overflow-y:auto}
-    .tos-body p{margin:0 0 10px}
+    /* ToS inline section */
+    #tos-section{margin-bottom:18px}
+    .tos-label{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#f59e0b;margin-bottom:8px}
+    .tos-body{font-size:12px;color:var(--muted);line-height:1.65;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:12px 14px;margin-bottom:14px;max-height:180px;overflow-y:auto}
+    .tos-body p{margin:0 0 9px}
     .tos-body p:last-child{margin:0}
-    .tos-field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
-    .tos-field label{font-size:12px;font-weight:600;color:#a7b0be;letter-spacing:.3px}
-    .tos-field input{background:#0f131a;border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#e6eef8;font-size:15px;padding:10px 13px;outline:none;font-family:inherit;transition:border-color .15s}
-    .tos-field input:focus{border-color:#5eead4}
-    .tos-check-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:18px;cursor:pointer}
-    .tos-check-row input[type=checkbox]{width:17px;height:17px;accent-color:#5eead4;cursor:pointer;flex:none;margin-top:2px}
-    .tos-check-row span{font-size:13px;color:#a7b0be;line-height:1.5}
-    .tos-btn{width:100%;padding:13px;border-radius:12px;border:none;background:#5eead4;color:#0b0d10;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s}
-    .tos-btn:disabled{background:rgba(94,234,212,.25);color:rgba(11,13,16,.5);cursor:not-allowed}
-    .tos-err{font-size:12px;color:#f87171;min-height:16px;margin-bottom:8px;text-align:center}
+    .tos-name-row{display:flex;gap:10px;margin-bottom:12px}
+    .tos-name-row .fg{flex:1;margin:0}
+    .tos-check-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;cursor:pointer}
+    .tos-check-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex:none;margin-top:2px}
+    .tos-check-row span{font-size:12px;color:var(--muted);line-height:1.5}
+    .divider{border:none;border-top:1px solid var(--border);margin:18px 0}
   </style>
 </head>
 <body>
@@ -67,11 +60,34 @@
 
   <div id="form-card" class="card" style="display:none">
     <div class="logo">
-      <div class="icon"><img src="star-of-life.svg" alt="" style="width:48px;height:48px" /></div>
+      <div><img src="star-of-life.svg" alt="" style="width:48px;height:48px" /></div>
       <h1>PAT</h1>
       <p style="margin:4px 0 2px;color:var(--muted);font-size:11px;letter-spacing:.6px;text-transform:uppercase;font-weight:600">Protocol Accessibility Tool</p>
       <p style="margin:2px 0 0;color:#f59e0b;font-size:12px">By Aaron Caldwell, NRP</p>
     </div>
+
+    <!-- ToS section — hidden after first acceptance -->
+    <div id="tos-section">
+      <div class="tos-label">Disclaimer &amp; Terms of Use</div>
+      <div class="tos-body">
+        <p>This application is intended as a reference tool for authorized EMS personnel only. By accessing PAT, you acknowledge and agree to the following:</p>
+        <p><strong style="color:#e6eef8">The accuracy of information contained in this application is not guaranteed.</strong> Protocols, drug dosages, and clinical guidelines are subject to change. Always defer to your current issued protocols, medical director guidance, and your own clinical judgment.</p>
+        <p>PAT does not replace formal EMS training, continuing education, or direct medical oversight. It is a supplemental reference only and should never be used as a sole basis for patient care decisions.</p>
+        <p>This application may contain operational and clinical information proprietary to your organization. Unauthorized distribution, reproduction, or sharing of content outside your organization is strictly prohibited.</p>
+        <p>Your use of this application constitutes acknowledgment that you have read, understood, and agree to these terms.</p>
+      </div>
+      <div class="tos-name-row">
+        <div class="fg"><label>First Name</label><input id="tos-first" type="text" autocomplete="given-name" placeholder="First" /></div>
+        <div class="fg"><label>Last Name</label><input id="tos-last" type="text" autocomplete="family-name" placeholder="Last" /></div>
+      </div>
+      <div class="fg" style="margin-bottom:12px"><label>Phone Number</label><input id="tos-phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="870-555-0000" /></div>
+      <label class="tos-check-row">
+        <input type="checkbox" id="tos-agree">
+        <span>I have read and understand the disclaimer above. I acknowledge that the accuracy of information in this app is not guaranteed and agree to use it as a reference only.</span>
+      </label>
+      <hr class="divider">
+    </div>
+
     <div class="fg">
       <label>Email</label>
       <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" />
@@ -92,42 +108,6 @@
     <button id="btn-reset" class="reset-btn">Forgot password?</button>
   </div>
 
-  <!-- First-load Terms of Service overlay -->
-  <div id="tos-overlay" class="hidden">
-    <div class="tos-card">
-      <div class="tos-title">Welcome to PAT</div>
-      <div class="tos-sub">Protocol Accessibility Tool — EASI Ambulance Service</div>
-      <div class="tos-body">
-        <p><strong style="color:#e6eef8">Disclaimer &amp; Terms of Use</strong></p>
-        <p>This application is intended as a reference tool for authorized EASI Ambulance Service personnel only. By accessing PAT, you acknowledge and agree to the following:</p>
-        <p><strong style="color:#f87171">The accuracy of information contained in this application is not guaranteed.</strong> Protocols, drug dosages, and clinical guidelines are subject to change. Always defer to your current issued protocols, medical director guidance, and your own clinical judgment.</p>
-        <p>PAT does not replace formal EMS training, continuing education, or direct medical oversight. It is a supplemental reference only and should never be used as a sole basis for patient care decisions.</p>
-        <p>This application contains proprietary operational and clinical information belonging to EASI Ambulance Service. Unauthorized distribution, reproduction, or sharing of content outside the organization is strictly prohibited.</p>
-        <p>Your use of this application constitutes acknowledgment that you have read, understood, and agree to these terms.</p>
-      </div>
-      <div class="narr-row" style="display:flex;gap:10px">
-        <div class="tos-field" style="flex:1">
-          <label>First Name</label>
-          <input id="tos-first" type="text" autocomplete="given-name" placeholder="First">
-        </div>
-        <div class="tos-field" style="flex:1">
-          <label>Last Name</label>
-          <input id="tos-last" type="text" autocomplete="family-name" placeholder="Last">
-        </div>
-      </div>
-      <div class="tos-field">
-        <label>Phone Number</label>
-        <input id="tos-phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="870-555-0000">
-      </div>
-      <label class="tos-check-row">
-        <input type="checkbox" id="tos-agree">
-        <span>I have read and understand the disclaimer above. I acknowledge that the accuracy of information in this app is not guaranteed and agree to use it as a reference only.</span>
-      </label>
-      <div class="tos-err" id="tos-err"></div>
-      <button class="tos-btn" id="tos-submit" disabled>Continue to PAT</button>
-    </div>
-  </div>
-
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -144,7 +124,8 @@
     const fbDb  = firebase.firestore();
     const $ = id => document.getElementById(id);
 
-    let _pendingTos = null; // holds ToS data until auth confirms UID
+    let _pendingTos = null;
+    let _tosAccepted = !!localStorage.getItem('pat_tos_v1');
 
     function destAfterLogin(){
       const p = new URLSearchParams(window.location.search).get('returnTo');
@@ -168,6 +149,8 @@
       } else {
         $('loading').style.display = 'none';
         $('form-card').style.display = '';
+        // Hide ToS section for returning users
+        if(_tosAccepted) $('tos-section').style.display = 'none';
         setTimeout(() => $('email').focus(), 50);
       }
     });
@@ -191,10 +174,29 @@
       el.textContent = txt;
     }
 
+    function tosValid(){
+      if(_tosAccepted) return true;
+      return $('tos-agree').checked
+        && $('tos-first').value.trim()
+        && $('tos-last').value.trim()
+        && $('tos-phone').value.trim();
+    }
+
+    function captureTos(){
+      if(_tosAccepted) return;
+      const first=$('tos-first').value.trim(), last=$('tos-last').value.trim(), phone=$('tos-phone').value.trim();
+      const tosRecord = {first, last, phone, ts: Date.now()};
+      localStorage.setItem('pat_tos_v1', JSON.stringify(tosRecord));
+      _pendingTos = tosRecord;
+      _tosAccepted = true;
+    }
+
     $('btn-login').addEventListener('click', async () => {
       const email = $('email').value.trim(), pass = $('pass').value;
       setMsg('');
+      if(!tosValid()){ setMsg('Please complete the disclaimer fields above.'); return; }
       if(!email || !pass){ setMsg('Enter email and password.'); return; }
+      captureTos();
       const persistence = $('remember-me').checked
         ? firebase.auth.Auth.Persistence.LOCAL
         : firebase.auth.Auth.Persistence.SESSION;
@@ -207,7 +209,9 @@
     $('btn-register').addEventListener('click', async () => {
       const email = $('email').value.trim(), pass = $('pass').value;
       setMsg('');
+      if(!tosValid()){ setMsg('Please complete the disclaimer fields above.'); return; }
       if(!email || !pass){ setMsg('Enter email and password.'); return; }
+      captureTos();
       try{ await fbAuth.createUserWithEmailAndPassword(email, pass); }
       catch(e){ setMsg(errMsg(e.code)); }
     });
@@ -230,33 +234,6 @@
       if((e.ctrlKey||e.metaKey) && !e.shiftKey && k === 'u'){ e.preventDefault(); return; }
       if((e.ctrlKey||e.metaKey) && e.shiftKey && (k==='i'||k==='j'||k==='c')) e.preventDefault();
     });
-
-    // ToS first-load gate
-    (function(){
-      if(!localStorage.getItem('pat_tos_v1')){
-        $('loading').style.display='none';
-        $('form-card').style.display='none';
-        $('tos-overlay').classList.remove('hidden');
-        const agreeChk=$('tos-agree'), submitBtn=$('tos-submit');
-        function validate(){
-          const ok=agreeChk.checked && $('tos-first').value.trim() && $('tos-last').value.trim() && $('tos-phone').value.trim();
-          submitBtn.disabled=!ok;
-        }
-        ['tos-first','tos-last','tos-phone'].forEach(id=>$('tos-'+id.split('-')[1])?.addEventListener('input',validate));
-        agreeChk.addEventListener('change',validate);
-        submitBtn.addEventListener('click',()=>{
-          const first=$('tos-first').value.trim(), last=$('tos-last').value.trim(), phone=$('tos-phone').value.trim();
-          if(!first||!last||!phone){ $('tos-err').textContent='Please fill in all fields.'; return; }
-          if(!agreeChk.checked){ $('tos-err').textContent='You must agree to the terms to continue.'; return; }
-          const tosRecord = {first,last,phone,ts:Date.now()};
-          localStorage.setItem('pat_tos_v1', JSON.stringify(tosRecord));
-          _pendingTos = tosRecord;
-          $('tos-overlay').classList.add('hidden');
-          // Let Firebase auth state listener show the right card
-          $('loading').style.display='flex';
-        });
-      }
-    })();
   </script>
 </body>
 </html>
