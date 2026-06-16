@@ -60,7 +60,7 @@
 
   <div id="form-card" class="card" style="display:none">
     <div class="logo">
-      <div><img src="star-of-life.svg" alt="" style="width:48px;height:48px" /></div>
+      <img src="icon-180.png" alt="PAT" style="width:56px;height:56px;border-radius:14px" />
       <h1>PAT</h1>
       <p style="margin:4px 0 2px;color:var(--muted);font-size:11px;letter-spacing:.6px;text-transform:uppercase;font-weight:600">Protocol Accessibility Tool</p>
       <p style="margin:2px 0 0;color:#f59e0b;font-size:12px">By Aaron Caldwell, NRP</p>
@@ -74,16 +74,14 @@
         <p><strong style="color:#e6eef8">The accuracy of information contained in this application is not guaranteed.</strong> Protocols, drug dosages, and clinical guidelines are subject to change. Always defer to your current issued protocols, medical director guidance, and your own clinical judgment.</p>
         <p>PAT does not replace formal EMS training, continuing education, or direct medical oversight. It is a supplemental reference only and should never be used as a sole basis for patient care decisions.</p>
         <p>This application may contain operational and clinical information proprietary to your organization. Unauthorized distribution, reproduction, or sharing of content outside your organization is strictly prohibited.</p>
-        <p>Your use of this application constitutes acknowledgment that you have read, understood, and agree to these terms.</p>
       </div>
       <div class="tos-name-row">
         <div class="fg"><label>First Name</label><input id="tos-first" type="text" autocomplete="given-name" placeholder="First" /></div>
         <div class="fg"><label>Last Name</label><input id="tos-last" type="text" autocomplete="family-name" placeholder="Last" /></div>
       </div>
-      <div class="fg" style="margin-bottom:12px"><label>Phone Number</label><input id="tos-phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="870-555-0000" /></div>
       <label class="tos-check-row">
         <input type="checkbox" id="tos-agree">
-        <span>I have read and understand the disclaimer above. I acknowledge that the accuracy of information in this app is not guaranteed and agree to use it as a reference only.</span>
+        <span>I have read and understand the disclaimer above and agree to use PAT as a reference only.</span>
       </label>
       <hr class="divider">
     </div>
@@ -178,14 +176,13 @@
       if(_tosAccepted) return true;
       return $('tos-agree').checked
         && $('tos-first').value.trim()
-        && $('tos-last').value.trim()
-        && $('tos-phone').value.trim();
+        && $('tos-last').value.trim();
     }
 
     function captureTos(){
       if(_tosAccepted) return;
-      const first=$('tos-first').value.trim(), last=$('tos-last').value.trim(), phone=$('tos-phone').value.trim();
-      const tosRecord = {first, last, phone, ts: Date.now()};
+      const first=$('tos-first').value.trim(), last=$('tos-last').value.trim();
+      const tosRecord = {first, last, ts: Date.now()};
       localStorage.setItem('pat_tos_v1', JSON.stringify(tosRecord));
       _pendingTos = tosRecord;
       _tosAccepted = true;
@@ -194,7 +191,7 @@
     $('btn-login').addEventListener('click', async () => {
       const email = $('email').value.trim(), pass = $('pass').value;
       setMsg('');
-      if(!tosValid()){ setMsg('Please complete the disclaimer fields above.'); return; }
+      if(!tosValid()){ setMsg('Please fill in your name and agree to the terms above.'); return; }
       if(!email || !pass){ setMsg('Enter email and password.'); return; }
       captureTos();
       const persistence = $('remember-me').checked
@@ -209,7 +206,7 @@
     $('btn-register').addEventListener('click', async () => {
       const email = $('email').value.trim(), pass = $('pass').value;
       setMsg('');
-      if(!tosValid()){ setMsg('Please complete the disclaimer fields above.'); return; }
+      if(!tosValid()){ setMsg('Please fill in your name and agree to the terms above.'); return; }
       if(!email || !pass){ setMsg('Enter email and password.'); return; }
       captureTos();
       try{ await fbAuth.createUserWithEmailAndPassword(email, pass); }
@@ -235,5 +232,6 @@
       if((e.ctrlKey||e.metaKey) && e.shiftKey && (k==='i'||k==='j'||k==='c')) e.preventDefault();
     });
   </script>
+  <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});</script>
 </body>
 </html>
