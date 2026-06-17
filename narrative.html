@@ -200,6 +200,10 @@
     .narr-mon-chips{display:flex;flex-wrap:wrap;gap:6px}
     .narr-mon-chip{padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);font-size:13px;cursor:pointer;transition:all .15s;text-align:left}
     .narr-mon-chip.active{border-color:rgba(94,234,212,.5);background:rgba(94,234,212,.08);color:var(--accent)}
+    .narr-mon-chip.intv-hidden{display:none!important}
+    .narr-intv-search{width:100%;background:var(--input-bg);border:1px solid var(--border);border-radius:9px;color:var(--text);padding:9px 12px;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;margin-bottom:8px}
+    .narr-intv-search:focus{border-color:var(--accent)}
+    .narr-intv-hint{font-size:11px;color:var(--muted);font-style:italic;padding:2px 0}
     /* Med typeahead */
     .narr-med-dose-row{display:flex;gap:6px;margin-top:6px;display:none}
     .narr-med-dose-input{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:9px;color:var(--text);padding:9px 12px;font-size:13px;font-family:inherit;outline:none}
@@ -362,31 +366,6 @@
             <button class="narr-na-btn" data-for="nf-activity">N/A</button>
           </div>
         </div>
-        <div class="narr-row">
-          <div class="narr-field">
-            <label class="narr-lbl">Pain Score</label>
-            <div class="narr-num-wrap">
-              <input type="number" id="nf-pain" class="narr-input" min="0" max="10" placeholder="0 – 10" inputmode="numeric" style="max-width:100px">
-              <button class="narr-na-btn" id="nf-pain-na">N/A</button>
-              <button class="narr-na-btn" id="nf-pain-denied" style="font-size:11px">Denied</button>
-            </div>
-          </div>
-        </div>
-        <!-- Pain location (shown when pain > 0) -->
-        <div id="nf-pain-loc-wrap" style="display:none;margin-top:4px">
-          <label class="narr-lbl">Pain Location</label>
-          <div class="narr-mon-chips" id="nf-pain-loc-chips" style="margin-bottom:6px">
-            <button type="button" class="narr-mon-chip" data-val="chest">Chest</button>
-            <button type="button" class="narr-mon-chip" data-val="abdomen">Abdomen</button>
-            <button type="button" class="narr-mon-chip" data-val="back">Back</button>
-            <button type="button" class="narr-mon-chip" data-val="head">Head</button>
-            <button type="button" class="narr-mon-chip" data-val="extremity">Extremity</button>
-          </div>
-          <div class="narr-num-wrap">
-            <input type="text" id="nf-pain-location" class="narr-input" placeholder="Describe pain location…">
-            <button class="narr-na-btn" id="nf-pain-loc-na">N/A</button>
-          </div>
-        </div>
         <!-- Last Known Well (optional — for stroke, altered mental status, etc.) -->
         <div class="narr-field">
           <label class="narr-lbl">Last Known Well (if applicable)</label>
@@ -483,6 +462,32 @@
           </div>
         </div>
 
+        <!-- Pain Assessment -->
+        <div class="narr-row">
+          <div class="narr-field">
+            <label class="narr-lbl">Pain Score</label>
+            <div class="narr-num-wrap">
+              <input type="number" id="nf-pain" class="narr-input" min="0" max="10" placeholder="0 – 10" inputmode="numeric" style="max-width:100px">
+              <button class="narr-na-btn" id="nf-pain-na">N/A — Denied</button>
+            </div>
+          </div>
+        </div>
+        <!-- Pain location (shown when pain > 0) -->
+        <div id="nf-pain-loc-wrap" style="display:none;margin-top:4px">
+          <label class="narr-lbl">Pain Location</label>
+          <div class="narr-mon-chips" id="nf-pain-loc-chips" style="margin-bottom:6px">
+            <button type="button" class="narr-mon-chip" data-val="chest">Chest</button>
+            <button type="button" class="narr-mon-chip" data-val="abdomen">Abdomen</button>
+            <button type="button" class="narr-mon-chip" data-val="back">Back</button>
+            <button type="button" class="narr-mon-chip" data-val="head">Head</button>
+            <button type="button" class="narr-mon-chip" data-val="extremity">Extremity</button>
+          </div>
+          <div class="narr-num-wrap">
+            <input type="text" id="nf-pain-location" class="narr-input" placeholder="Describe pain location…">
+            <button class="narr-na-btn" id="nf-pain-loc-na">N/A</button>
+          </div>
+        </div>
+
         <!-- Trauma section -->
         <div id="narr-trauma-sec" style="display:none">
           <div style="font-size:11px;font-weight:700;color:#f87171;letter-spacing:.3px;text-transform:uppercase;margin-bottom:8px">Trauma — Body Regions</div>
@@ -568,6 +573,7 @@
         <!-- Interventions -->
         <div class="narr-field">
           <label class="narr-lbl">Interventions</label>
+          <input type="text" id="narr-intv-search" class="narr-intv-search" placeholder="Search interventions… (e.g. airway, pacing, EKG)" autocomplete="off">
           <div class="narr-mon-chips" id="narr-mon-chips">
             <button type="button" class="narr-mon-chip" data-val="suction">Suctioning</button>
             <button type="button" class="narr-mon-chip" data-val="opa">OPA</button>
@@ -576,6 +582,10 @@
             <button type="button" class="narr-mon-chip" data-val="ett">ET Intubation</button>
             <button type="button" class="narr-mon-chip" data-val="sga">Supraglottic Airway</button>
             <button type="button" class="narr-mon-chip" data-val="cric">Surgical Airway (Cric)</button>
+            <button type="button" class="narr-mon-chip" data-val="needle-d">Needle Decompression</button>
+            <button type="button" class="narr-mon-chip" data-val="cardioversion">Synchronized Cardioversion</button>
+            <button type="button" class="narr-mon-chip" data-val="pacing">Transcutaneous Pacing</button>
+            <button type="button" class="narr-mon-chip" data-val="mediport">Mediport / Port Access</button>
             <button type="button" class="narr-mon-chip" data-val="hemodynamic-assess">Hemodynamic Assessment</button>
             <button type="button" class="narr-mon-chip" data-val="hemodynamic">Hemodynamic Monitoring</button>
             <button type="button" class="narr-mon-chip" data-val="bga">Blood Glucose Analysis</button>
@@ -1223,6 +1233,28 @@ function isMoveActive(val){ return isMonActive('narr-move-chips',val); }
 function isAirActive(val){ return isMonChipActive(val); }
 function isMonChipActive(val){ return isMonActive('narr-mon-chips',val); }
 
+function initInterventionSearch(){
+  const input = document.getElementById('narr-intv-search');
+  const container = document.getElementById('narr-mon-chips');
+  if(!input || !container) return;
+  function updateVisibility(){
+    const q = input.value.toLowerCase().trim();
+    container.querySelectorAll('.narr-mon-chip').forEach(chip=>{
+      const active = chip.classList.contains('active');
+      if(active){
+        chip.classList.remove('intv-hidden');
+      } else if(q.length === 0){
+        chip.classList.add('intv-hidden');
+      } else {
+        chip.classList.toggle('intv-hidden', !chip.textContent.toLowerCase().includes(q));
+      }
+    });
+  }
+  input.addEventListener('input', updateVisibility);
+  container.addEventListener('click', ()=>setTimeout(updateVisibility, 10));
+  updateVisibility();
+}
+
 /* ── Trauma region handler ──────────────────────── */
 function initTraumaRegions(){
   document.getElementById('narr-trauma-regions')?.querySelectorAll('.narr-trauma-reg-btn').forEach(btn=>{
@@ -1283,21 +1315,19 @@ function initNABtns(){
   });
   // Pain-specific buttons
   const painNA = document.getElementById('nf-pain-na');
-  const painDenied = document.getElementById('nf-pain-denied');
   const painInp = document.getElementById('nf-pain');
   painNA?.addEventListener('click',()=>{
-    narrPainDenied = false; narrPainNA = !narrPainNA;
+    narrPainNA = !narrPainNA;
+    narrPainDenied = false;
     painNA.classList.toggle('active', narrPainNA);
-    if(painDenied) painDenied.classList.remove('active');
-    if(painInp){ painInp.disabled = narrPainNA; if(narrPainNA) painInp.value=''; }
+    const locWrap = document.getElementById('nf-pain-loc-wrap');
+    if(painInp){ painInp.disabled = narrPainNA; if(narrPainNA){ painInp.value=''; if(locWrap) locWrap.style.display='none'; } }
     buildNarrative();
   });
-  painDenied?.addEventListener('click',()=>{
-    narrPainNA = false; narrPainDenied = !narrPainDenied;
-    painDenied.classList.toggle('active', narrPainDenied);
-    if(painNA) painNA.classList.remove('active');
-    if(painInp){ painInp.disabled = narrPainDenied; if(narrPainDenied) painInp.value=''; }
-    buildNarrative();
+  painInp?.addEventListener('input',function(){
+    const show = this.value !== '' && !narrPainNA && !narrPainDenied;
+    const locWrap = document.getElementById('nf-pain-loc-wrap');
+    if(locWrap) locWrap.style.display = show ? '' : 'none';
   });
 }
 
@@ -1335,8 +1365,7 @@ function buildNarrative(){
   const activity = actNA ? '' : narrVal('nf-activity');
 
   let painText;
-  if(narrPainDenied) painText='PATIENT DENIED PAIN';
-  else if(narrPainNA) painText='PAIN SCALE NOT APPLICABLE';
+  if(narrPainDenied || narrPainNA) painText='PATIENT DENIED PAIN';
   else {
     const pv = narrVal('nf-pain');
     const _painLocNA = document.getElementById('nf-pain-loc-na')?.classList.contains('active');
@@ -1351,7 +1380,6 @@ function buildNarrative(){
   let hpiParts=[];
   if(activity) hpiParts.push(`PATIENT WAS ${uc(activity)} WHEN SYMPTOMS BEGAN`);
   if(onsetDuration) hpiParts.push(`ONSET / DURATION — ${uct(onsetDuration)}`);
-  if(painText) hpiParts.push(painText);
   if(symptoms.length) hpiParts.push(`ASSOCIATED SYMPTOMS INCLUDED ${symptoms.map(uct).join(', ')}`);
   if(pmh.length) hpiParts.push(`HISTORY OF ${pmh.map(uct).join(', ')}`);
   if(homeMeds.length) hpiParts.push(`PATIENT TAKES ${homeMeds.map(uct).join(', ')}`);
@@ -1372,9 +1400,8 @@ function buildNarrative(){
   if(lungs && lungs!=='present and clear bilaterally') assessParts.push(`LUNG SOUNDS ${uc(lungs)}`);
   if(mental && mental!=='alert and oriented x4') assessParts.push(`MENTAL STATUS ${uc(mental)}`);
   if(skin && skin!=='warm, dry, and intact') assessParts.push(`SKIN ${uc(skin)}`);
-  if(ecg12) assessParts.push(`12-LEAD EKG OBTAINED${ecg12Interp?' — INTERPRETATION: '+uc(ecg12Interp):''}`);
-  if(painText) assessParts.push(painText);
   assessParts.push(`PATIENT COMPLAINT ${uc(complaint)}`);
+  if(painText) assessParts.push(painText);
   const traumaKeys = Object.keys(narrTraumaRegions);
   if(traumaKeys.length){
     const traumaParts = traumaKeys.map(r=>{
@@ -1431,7 +1458,12 @@ function buildNarrative(){
   if(isMonChipActive('c-spine')) txParts.push('C-SPINE CLEARANCE PERFORMED — PATIENT CLEARED PER PROTOCOL');
   if(isMonChipActive('cardiac-monitor')) txParts.push('CONTINUOUS CARDIAC MONITORING INITIATED VIA 4-LEAD');
   if(isMonChipActive('etco2-monitor')) txParts.push('END-TIDAL CO2 MONITORING INITIATED');
+  if(ecg12) txParts.push(`12-LEAD EKG OBTAINED${ecg12Interp?' — INTERPRETATION: '+uc(ecg12Interp):''}`);
   if(isMonChipActive('12lead-tx')) txParts.push('12-LEAD EKG TRANSMITTED');
+  if(isMonChipActive('needle-d')) txParts.push('NEEDLE DECOMPRESSION PERFORMED');
+  if(isMonChipActive('cardioversion')) txParts.push('SYNCHRONIZED CARDIOVERSION PERFORMED');
+  if(isMonChipActive('pacing')) txParts.push('TRANSCUTANEOUS PACING INITIATED');
+  if(isMonChipActive('mediport')) txParts.push('MEDIPORT/IMPLANTED PORT ACCESSED');
   narrTxMeds.forEach(m=>{
     if(m.name==='Oxygen') txParts.push(`OXYGEN ADMINISTERED VIA ${uc(m.dose)}`);
     else {
@@ -1530,6 +1562,7 @@ function narrClear(){
   document.querySelectorAll('.page-content .narr-trauma-reg-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('nf-12lead-detail').style.display='none';
   document.getElementById('nf-ett-detail').style.display='none';
+  document.getElementById('nf-pain-loc-wrap').style.display='none';
   document.getElementById('narr-med-dose-row').style.display='none';
   document.getElementById('narr-trauma-sec').style.display='none';
   document.getElementById('nf-resp-delay-detail').style.display='none';
@@ -1537,6 +1570,7 @@ function narrClear(){
   narrSelectedSymptoms.clear(); narrSelectedPMH.clear();
   narrTxMeds=[]; narrIVAccesses=[]; narrHomeMeds=[]; narrComplaint=''; narrDestination='';
   narrTraumaRegions={}; narrPainNA=false; narrPainDenied=false;
+  const _intvSearch=document.getElementById('narr-intv-search'); if(_intvSearch){ _intvSearch.value=''; initInterventionSearch(); }
   narrVoiceRecording=''; narrVoiceRecordingReason='';
   document.querySelectorAll('#qp-vr-yes,#qp-vr-no').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('#qp-vr-reason-chips .narr-mon-chip').forEach(b=>b.classList.remove('active'));
@@ -1792,6 +1826,7 @@ function initNarrative(){
 
   // Monitoring + movement chips (airway now merged into narr-mon-chips)
   initMonChips('narr-mon-chips');
+  initInterventionSearch();
   initMonChips('narr-move-chips');
   initMonChips('narr-dest-move-chips');
 
