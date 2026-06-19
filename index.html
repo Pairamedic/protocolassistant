@@ -135,7 +135,7 @@
 
     function destAfterLogin(){
       const p = new URLSearchParams(window.location.search).get('returnTo');
-      const allowed = ['supervisor.html','ProtocolAssistant.html'];
+      const allowed = ['supervisor.html','ProtocolAssistant.html','ClassManager.html'];
       return (p && allowed.includes(p)) ? p : 'ProtocolAssistant.html';
     }
 

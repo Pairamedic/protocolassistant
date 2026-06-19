@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Class Manager</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Class Manager" />
+  <meta name="theme-color" content="#0b0d10" />
+  <style>
+    :root{--bg:#0b0d10;--card:#141820;--muted:#a7b0be;--text:#e6eef8;--accent:#5eead4;--accent2:#93c5fd;--border:rgba(255,255,255,.1);--input-bg:#0f131a;--danger:#f87171;--warn:#fbbf24;--ok:#4ade80}
+    :root.light{--bg:#f1f5f9;--card:#ffffff;--muted:#64748b;--text:#0f172a;--accent:#0d9488;--accent2:#2563eb;--border:rgba(0,0,0,.1);--input-bg:#f8fafc}
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:var(--bg);color:var(--text);font-size:16px}
+    body{padding-bottom:env(safe-area-inset-bottom)}
+
+    /* HEADER */
+    header{position:sticky;top:0;background:linear-gradient(180deg,rgba(20,24,32,.98),rgba(20,24,32,.93));backdrop-filter:saturate(120%) blur(6px);z-index:20;border-bottom:1px solid rgba(255,255,255,.06)}
+    :root.light header{background:linear-gradient(180deg,rgba(241,245,249,.98),rgba(241,245,249,.93));border-bottom-color:rgba(0,0,0,.08)}
+    .wrap{max-width:960px;margin:0 auto;padding:0 16px}
+    .hdr-top{display:flex;align-items:center;justify-content:space-between;padding:12px 0 8px}
+    .hdr-title{font-weight:700;font-size:17px;display:flex;align-items:center;gap:8px}
+    .hdr-title span{font-size:12px;font-weight:500;color:var(--muted);letter-spacing:.4px}
+    .hdr-actions{display:flex;gap:8px;align-items:center}
+    .icon-btn{background:none;border:1px solid var(--border);border-radius:9px;color:var(--muted);cursor:pointer;font-size:15px;padding:5px 9px;line-height:1;font-family:inherit;transition:color .15s,border-color .15s}
+    .icon-btn:hover{color:var(--text);border-color:rgba(255,255,255,.25)}
+
+    /* TABS */
+    .tabs{display:flex;gap:6px;padding-bottom:10px;overflow-x:auto;scrollbar-width:none}
+    .tabs::-webkit-scrollbar{display:none}
+    .tab{flex:none;padding:8px 14px;border-radius:10px;background:var(--input-bg);border:1px solid var(--border);cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);white-space:nowrap;transition:all .15s;font-family:inherit}
+    .tab.active{background:rgba(94,234,212,.1);border-color:rgba(94,234,212,.35);color:var(--accent);font-weight:600}
+    :root.light .tab.active{background:rgba(13,148,136,.1);border-color:rgba(13,148,136,.3);color:var(--accent)}
+
+    /* MAIN */
+    main{max-width:960px;margin:0 auto;padding:18px 16px 40px}
+
+    /* VIEWS */
+    .view{display:none}
+    .view.active{display:block}
+
+    /* SECTION HEADERS */
+    .sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .sec-title{font-size:13px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+
+    /* STATS ROW */
+    .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
+    @media(min-width:600px){.stats{grid-template-columns:repeat(4,1fr)}}
+    .stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:4px}
+    .stat-val{font-size:24px;font-weight:700;line-height:1}
+    .stat-lbl{font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--muted)}
+
+    /* CARDS */
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:10px}
+    .card-sm{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:13px;margin-bottom:8px}
+
+    /* CLASS TYPE BADGES */
+    .ct-badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;border:1px solid;letter-spacing:.3px;text-transform:uppercase}
+    .ct-acls{background:rgba(96,165,250,.15);color:#60a5fa;border-color:rgba(96,165,250,.35)}
+    .ct-pals{background:rgba(192,132,252,.15);color:#c084fc;border-color:rgba(192,132,252,.35)}
+    .ct-bls{background:rgba(74,222,128,.15);color:#4ade80;border-color:rgba(74,222,128,.35)}
+    .ct-stb{background:rgba(248,113,113,.15);color:#f87171;border-color:rgba(248,113,113,.35)}
+    .ct-hsa{background:rgba(94,234,212,.15);color:#5eead4;border-color:rgba(94,234,212,.35)}
+    .ct-inst{background:rgba(251,191,36,.15);color:#fbbf24;border-color:rgba(251,191,36,.35)}
+    .ct-other{background:rgba(167,176,190,.15);color:#a7b0be;border-color:rgba(167,176,190,.35)}
+
+    /* LICENSE BADGES */
+    .lv-emt{background:rgba(59,130,246,.15);color:#60a5fa;border-color:rgba(59,130,246,.35)}
+    .lv-aemt{background:rgba(249,115,22,.15);color:#fb923c;border-color:rgba(249,115,22,.35)}
+    .lv-para{background:rgba(34,197,94,.15);color:#4ade80;border-color:rgba(34,197,94,.35)}
+    .lv-rn{background:rgba(192,132,252,.15);color:#c084fc;border-color:rgba(192,132,252,.35)}
+    .lv-md{background:rgba(251,191,36,.15);color:#fbbf24;border-color:rgba(251,191,36,.35)}
+    .lv-other{background:rgba(167,176,190,.15);color:#a7b0be;border-color:rgba(167,176,190,.35)}
+    .lv-badge{display:inline-block;padding:2px 7px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid}
+
+    /* CERT EXPIRY */
+    .exp-ok{color:var(--ok)}
+    .exp-warn{color:var(--warn)}
+    .exp-danger{color:var(--danger)}
+    .exp-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
+    .exp-dot.ok{background:var(--ok)}
+    .exp-dot.warn{background:var(--warn)}
+    .exp-dot.danger{background:var(--danger)}
+
+    /* INPUTS */
+    .fg{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+    .fg label{font-size:12px;font-weight:500;color:var(--muted)}
+    input[type=text],input[type=email],input[type=tel],input[type=number],input[type=date],input[type=password],select,textarea{background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;padding:10px 12px;width:100%;outline:none;font-family:inherit;transition:border-color .15s}
+    input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+    input::placeholder{color:rgba(167,176,190,.5)}
+    textarea{resize:vertical;min-height:72px}
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+    @media(max-width:480px){.row3{grid-template-columns:1fr 1fr}}
+
+    /* BUTTONS */
+    .btn{padding:10px 16px;border-radius:10px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);cursor:pointer;font-size:14px;font-family:inherit;font-weight:500;transition:background .15s,opacity .15s;display:inline-flex;align-items:center;gap:6px}
+    .btn:hover{background:rgba(255,255,255,.06)}
+    .btn:active{opacity:.75}
+    .btn.primary{background:rgba(94,234,212,.1);border-color:rgba(94,234,212,.35);color:var(--accent);font-weight:600}
+    .btn.primary:hover{background:rgba(94,234,212,.18)}
+    .btn.danger{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.35);color:#f87171}
+    .btn.sm{padding:7px 12px;font-size:13px;border-radius:8px}
+    .btn.full{width:100%;justify-content:center}
+
+    /* SEARCH */
+    .search-wrap{position:relative;margin-bottom:14px}
+    .search-wrap input{padding-left:38px;font-size:14px}
+    .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:14px}
+
+    /* MODALS */
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+    .overlay.hidden{display:none}
+    @media(min-width:600px){.overlay{align-items:center;padding:16px}}
+    .modal{background:var(--card);border:1px solid var(--border);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:600px;max-height:92vh;overflow-y:auto}
+    @media(min-width:600px){.modal{border-radius:20px;max-height:86vh}}
+    .modal-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+    .modal-title{font-weight:700;font-size:16px}
+    .close-btn{background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:2px 6px}
+    .close-btn:hover{color:var(--text)}
+
+    /* MODAL TABS */
+    .mtabs{display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:10px}
+    .mtab{background:none;border:none;color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;padding:4px 10px;border-radius:6px;font-family:inherit;transition:color .15s}
+    .mtab.active{color:var(--accent);background:rgba(94,234,212,.08)}
+
+    /* CLASS CARD */
+    .class-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;transition:border-color .15s}
+    .class-card:hover{border-color:rgba(94,234,212,.3)}
+    .class-card-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+    .class-meta{display:flex;flex-wrap:wrap;gap:8px;font-size:12px;color:var(--muted);align-items:center}
+    .class-meta-item{display:flex;align-items:center;gap:4px}
+
+    /* STUDENT CARD */
+    .stu-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:13px;margin-bottom:8px;cursor:pointer;transition:border-color .15s;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .stu-card:hover{border-color:rgba(94,234,212,.3)}
+    .stu-info{flex:1;min-width:0}
+    .stu-name{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .stu-sub{font-size:12px;color:var(--muted);margin-top:2px}
+
+    /* ROSTER ROW */
+    .roster-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+    .roster-row:last-child{border-bottom:none}
+    .roster-name{flex:1;min-width:0}
+    .roster-name .name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .roster-name .sub{font-size:11px;color:var(--muted)}
+
+    /* CERT CARD */
+    .cert-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .15s}
+    .cert-card:hover{border-color:rgba(94,234,212,.25)}
+    .cert-icon{width:38px;height:38px;border-radius:10px;background:rgba(94,234,212,.12);border:1px solid rgba(94,234,212,.2);display:flex;align-items:center;justify-content:center;font-size:18px;flex:none}
+    .cert-body{flex:1;min-width:0}
+    .cert-name{font-weight:600;font-size:14px}
+    .cert-sub{font-size:12px;color:var(--muted);margin-top:2px}
+    .cert-exp{font-size:12px;font-weight:600;margin-top:4px}
+
+    /* FINANCE */
+    .fin-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+    .fin-row:last-child{border-bottom:none}
+    .fin-amount{font-weight:700;font-size:15px}
+    .fin-amount.income{color:var(--ok)}
+    .fin-amount.expense{color:var(--danger)}
+    .fin-meta{font-size:12px;color:var(--muted);margin-top:2px}
+
+    /* EMPTY STATE */
+    .empty{text-align:center;padding:48px 20px;color:var(--muted)}
+    .empty-icon{font-size:40px;margin-bottom:12px;opacity:.5}
+    .empty-text{font-size:14px}
+
+    /* TOGGLE */
+    .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+    .toggle-row:last-child{border-bottom:none}
+    .toggle-lbl{font-size:14px}
+    .toggle-sub{font-size:12px;color:var(--muted)}
+    .toggle{position:relative;width:42px;height:24px;flex:none}
+    .toggle input{opacity:0;width:0;height:0}
+    .slider{position:absolute;inset:0;background:rgba(255,255,255,.15);border-radius:12px;cursor:pointer;transition:background .2s}
+    .slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .2s}
+    .toggle input:checked + .slider{background:var(--accent)}
+    .toggle input:checked + .slider::before{transform:translateX(18px)}
+
+    /* PHOTO PREVIEW */
+    .photo-prev{width:100%;max-height:200px;object-fit:contain;border-radius:10px;border:1px solid var(--border);margin-top:8px;display:none}
+    .photo-prev.show{display:block}
+
+    /* PROGRESS BAR */
+    .prog-bar{height:6px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:6px}
+    .prog-fill{height:100%;border-radius:3px;background:var(--accent);transition:width .3s}
+
+    /* SPINNER */
+    .spin{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.15);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* PAID BADGE */
+    .paid-badge{font-size:11px;font-weight:600;padding:2px 7px;border-radius:5px;border:1px solid}
+    .paid-y{background:rgba(74,222,128,.12);color:#4ade80;border-color:rgba(74,222,128,.3)}
+    .paid-n{background:rgba(248,113,113,.1);color:#f87171;border-color:rgba(248,113,113,.25)}
+
+    /* NOTICE */
+    .notice{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);border-radius:10px;padding:10px 13px;font-size:13px;color:#fbbf24;margin-bottom:14px}
+
+    /* DIVIDER */
+    .divider{height:1px;background:var(--border);margin:14px 0}
+
+    /* CHIP */
+    .chip{display:inline-block;padding:3px 8px;border-radius:6px;font-size:11px;background:var(--input-bg);border:1px solid var(--border);color:var(--muted);margin:2px}
+
+    /* SCROLL TABLE */
+    .tbl-wrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th{text-align:left;color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:6px 10px;border-bottom:1px solid var(--border)}
+    td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:rgba(255,255,255,.02)}
+
+    /* LOADING OVERLAY */
+    #loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:12px}
+    #loading-screen.hidden{display:none}
+    .load-title{font-weight:700;font-size:16px}
+    .load-sub{font-size:13px;color:var(--muted)}
+  </style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loading-screen">
+  <div class="spin" style="width:28px;height:28px;border-width:3px"></div>
+  <div class="load-title">Class Manager</div>
+  <div class="load-sub">Checking session…</div>
+</div>
+
+<!-- Header -->
+<header>
+  <div class="wrap">
+    <div class="hdr-top">
+      <div class="hdr-title">
+        🎓 Class Manager <span>Paramedic Instructor Portal</span>
+      </div>
+      <div class="hdr-actions">
+        <button class="icon-btn" id="theme-btn" title="Toggle theme">☀</button>
+        <button class="icon-btn" id="signout-btn" title="Sign out">⎋</button>
+      </div>
+    </div>
+    <nav class="tabs" id="tabs">
+      <button class="tab active" data-view="dashboard">📊 Dashboard</button>
+      <button class="tab" data-view="classes">📅 Classes</button>
+      <button class="tab" data-view="students">👥 Students</button>
+      <button class="tab" data-view="certs">🏅 Certifications</button>
+      <button class="tab" data-view="finances">💰 Finances</button>
+    </nav>
+  </div>
+</header>
+
+<!-- Main Content -->
+<main>
+
+  <!-- DASHBOARD -->
+  <section class="view active" id="view-dashboard">
+    <div class="stats" id="dash-stats">
+      <div class="stat-card"><div class="stat-val" id="stat-upcoming">—</div><div class="stat-lbl">Upcoming Classes</div></div>
+      <div class="stat-card"><div class="stat-val" id="stat-students">—</div><div class="stat-lbl">Total Students</div></div>
+      <div class="stat-card"><div class="stat-val" id="stat-revenue">—</div><div class="stat-lbl">Total Revenue</div></div>
+      <div class="stat-card"><div class="stat-val" id="stat-certs">—</div><div class="stat-lbl">Active Certs</div></div>
+    </div>
+    <div class="row2" style="gap:14px">
+      <div>
+        <div class="sec-hd"><div class="sec-title">Upcoming Classes</div></div>
+        <div id="dash-upcoming"></div>
+      </div>
+      <div>
+        <div class="sec-hd"><div class="sec-title">Expiring Soon</div></div>
+        <div id="dash-expiring"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLASSES -->
+  <section class="view" id="view-classes">
+    <div class="sec-hd">
+      <div class="sec-title">Scheduled Classes</div>
+      <button class="btn primary sm" id="new-class-btn">+ New Class</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <div class="search-wrap" style="flex:1;min-width:180px;margin:0">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="class-search" placeholder="Search classes…" />
+      </div>
+      <select id="class-filter-type" style="width:auto;flex:none;padding:10px 12px">
+        <option value="">All Types</option>
+        <option value="ACLS">ACLS</option>
+        <option value="PALS">PALS</option>
+        <option value="BLS">BLS</option>
+        <option value="Stop the Bleed">Stop the Bleed</option>
+        <option value="Heartsaver">Heartsaver</option>
+        <option value="Instructor Course">Instructor Course</option>
+        <option value="Other">Other</option>
+      </select>
+      <select id="class-filter-time" style="width:auto;flex:none;padding:10px 12px">
+        <option value="upcoming">Upcoming</option>
+        <option value="past">Past</option>
+        <option value="all">All</option>
+      </select>
+    </div>
+    <div id="classes-list"></div>
+  </section>
+
+  <!-- STUDENTS -->
+  <section class="view" id="view-students">
+    <div class="sec-hd">
+      <div class="sec-title">Student Profiles</div>
+      <button class="btn primary sm" id="new-student-btn">+ New Student</button>
+    </div>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="student-search" placeholder="Search by name, email, or license…" />
+    </div>
+    <div id="students-list"></div>
+  </section>
+
+  <!-- CERTIFICATIONS -->
+  <section class="view" id="view-certs">
+    <div class="sec-hd">
+      <div class="sec-title">My Certifications</div>
+      <button class="btn primary sm" id="new-cert-btn">+ Add Cert</button>
+    </div>
+    <div class="sec-hd" style="margin-top:6px"><div class="sec-title" style="color:var(--accent2)">Instructor Certifications</div></div>
+    <div id="inst-certs-list"></div>
+    <div class="divider"></div>
+    <div class="sec-hd"><div class="sec-title" style="color:var(--accent)">Personal Certifications</div></div>
+    <div id="personal-certs-list"></div>
+  </section>
+
+  <!-- FINANCES -->
+  <section class="view" id="view-finances">
+    <div class="stats" id="fin-stats">
+      <div class="stat-card"><div class="stat-val exp-ok" id="fin-income">—</div><div class="stat-lbl">Total Income</div></div>
+      <div class="stat-card"><div class="stat-val exp-danger" id="fin-expenses">—</div><div class="stat-lbl">Total Expenses</div></div>
+      <div class="stat-card"><div class="stat-val" id="fin-net">—</div><div class="stat-lbl">Net Profit</div></div>
+      <div class="stat-card"><div class="stat-val" id="fin-classes">—</div><div class="stat-lbl">Classes Taught</div></div>
+    </div>
+    <div class="row2" style="gap:14px">
+      <div>
+        <div class="sec-hd">
+          <div class="sec-title">Expenses</div>
+          <button class="btn sm" id="new-expense-btn">+ Add</button>
+        </div>
+        <div id="expenses-list"></div>
+      </div>
+      <div>
+        <div class="sec-hd"><div class="sec-title">Income by Class</div></div>
+        <div id="income-by-class"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ==================== MODALS ==================== -->
+
+<!-- NEW CLASS MODAL -->
+<div class="overlay hidden" id="modal-new-class">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-title">Schedule New Class</div>
+      <button class="close-btn" data-close="modal-new-class">×</button>
+    </div>
+    <div class="fg">
+      <label>Class Type *</label>
+      <select id="nc-type">
+        <option value="">Select type…</option>
+        <option value="ACLS">ACLS</option>
+        <option value="ACLS-EP">ACLS-EP</option>
+        <option value="PALS">PALS</option>
+        <option value="BLS">BLS</option>
+        <option value="Stop the Bleed">Stop the Bleed</option>
+        <option value="Heartsaver">Heartsaver</option>
+        <option value="Heartsaver AED">Heartsaver AED</option>
+        <option value="Instructor Course">Instructor Course</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="row2">
+      <div class="fg" style="margin:0">
+        <label>Date *</label>
+        <input type="date" id="nc-date" />
+      </div>
+      <div class="fg" style="margin:0">
+        <label>Time</label>
+        <input type="time" id="nc-time" />
+      </div>
+    </div>
+    <div class="fg" style="margin-top:12px">
+      <label>Location / Venue</label>
+      <input type="text" id="nc-location" placeholder="Address or facility name" />
+    </div>
+    <div class="row2">
+      <div class="fg" style="margin:0">
+        <label>Max Students</label>
+        <input type="number" id="nc-max" placeholder="e.g. 12" min="1" />
+      </div>
+      <div class="fg" style="margin:0">
+        <label>Default Charge ($)</label>
+        <input type="number" id="nc-charge" placeholder="0.00" min="0" step="0.01" />
+      </div>
+    </div>
+    <div class="fg" style="margin-top:12px">
+      <label>Notes</label>
+      <textarea id="nc-notes" placeholder="Any additional notes…"></textarea>
+    </div>
+    <div class="toggle-row" style="padding:10px 0;margin-bottom:14px">
+      <div><div class="toggle-lbl">Instructor Course</div><div class="toggle-sub">Adds AHA/Atlas account setup info to emails</div></div>
+      <label class="toggle"><input type="checkbox" id="nc-instructor-course"><span class="slider"></span></label>
+    </div>
+    <div id="nc-err" style="color:#f87171;font-size:13px;min-height:18px;margin-bottom:8px"></div>
+    <button class="btn primary full" id="nc-save-btn">Schedule Class</button>
+  </div>
+</div>
+
+<!-- CLASS DETAIL MODAL -->
+<div class="overlay hidden" id="modal-class-detail">
+  <div class="modal">
+    <div class="modal-hd">
+      <div>
+        <div class="modal-title" id="cd-title"></div>
+        <div style="margin-top:4px" id="cd-badges"></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn sm danger" id="cd-delete-btn">Delete</button>
+        <button class="close-btn" data-close="modal-class-detail">×</button>
+      </div>
+    </div>
+    <div id="cd-meta" class="class-meta" style="margin-bottom:14px"></div>
+    <div class="mtabs">
+      <button class="mtab active" data-mtab="cd" data-panel="cd-roster">Roster</button>
+      <button class="mtab" data-mtab="cd" data-panel="cd-email">Email Roster</button>
+      <button class="mtab" data-mtab="cd" data-panel="cd-notes">Notes</button>
+    </div>
+    <!-- Roster Panel -->
+    <div id="cd-roster">
+      <div class="sec-hd">
+        <div style="font-size:13px;color:var(--muted)" id="cd-roster-count">0 students</div>
+        <button class="btn primary sm" id="cd-add-student-btn">+ Add Student</button>
+      </div>
+      <div id="cd-roster-list"></div>
+    </div>
+    <!-- Email Panel -->
+    <div id="cd-email" style="display:none">
+      <div class="notice" id="cd-email-notice"></div>
+      <div class="fg">
+        <label>Subject</label>
+        <input type="text" id="email-subject" />
+      </div>
+      <div class="fg">
+        <label>Message Body</label>
+        <textarea id="email-body" style="min-height:180px"></textarea>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Variables: <code>{{class}}</code> <code>{{date}}</code> <code>{{time}}</code> <code>{{location}}</code></div>
+      <button class="btn primary full" id="send-email-btn">Open in Email Client</button>
+    </div>
+    <!-- Notes Panel -->
+    <div id="cd-notes" style="display:none">
+      <div class="fg">
+        <label>Class Notes</label>
+        <textarea id="cd-notes-text" style="min-height:140px" placeholder="Notes about this class, issues, reminders…"></textarea>
+      </div>
+      <button class="btn primary" id="cd-notes-save">Save Notes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD TO ROSTER MODAL -->
+<div class="overlay hidden" id="modal-add-roster">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-title">Add Student to Roster</div>
+      <button class="close-btn" data-close="modal-add-roster">×</button>
+    </div>
+    <div class="mtabs">
+      <button class="mtab active" data-mtab="ar" data-panel="ar-existing">Existing Student</button>
+      <button class="mtab" data-mtab="ar" data-panel="ar-new">New Student</button>
+    </div>
+    <!-- Search existing -->
+    <div id="ar-existing">
+      <div class="search-wrap" style="margin-bottom:8px">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="ar-search" placeholder="Search by name or email…" />
+      </div>
+      <div id="ar-results"></div>
+      <div id="ar-selected" class="hidden" style="border:1px solid rgba(94,234,212,.3);border-radius:10px;padding:12px;background:rgba(94,234,212,.05);margin-bottom:12px">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:6px">Selected</div>
+        <div id="ar-selected-name" style="font-weight:600"></div>
+      </div>
+      <div class="fg">
+        <label>Charge for this class ($)</label>
+        <input type="number" id="ar-charge-ex" placeholder="0.00" min="0" step="0.01" />
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-lbl">Mark as Paid</div>
+        <label class="toggle"><input type="checkbox" id="ar-paid-ex"><span class="slider"></span></label>
+      </div>
+      <div style="margin-top:12px"></div>
+      <div id="ar-ex-err" style="color:#f87171;font-size:13px;min-height:18px;margin-bottom:8px"></div>
+      <button class="btn primary full" id="ar-add-ex-btn">Add to Roster</button>
+    </div>
+    <!-- New student -->
+    <div id="ar-new" style="display:none">
+      <div class="row2">
+        <div class="fg" style="margin:0"><label>First Name *</label><input type="text" id="ar-first" /></div>
+        <div class="fg" style="margin:0"><label>Last Name *</label><input type="text" id="ar-last" /></div>
+      </div>
+      <div style="margin-top:10px" class="fg">
+        <label>License / Certification Level</label>
+        <select id="ar-level">
+          <option value="">Select level…</option>
+          <option value="EMT">EMT</option>
+          <option value="AEMT">AEMT</option>
+          <option value="Paramedic">Paramedic</option>
+          <option value="RN">RN</option>
+          <option value="MD/DO">MD/DO</option>
+          <option value="Layperson">Layperson</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Phone</label>
+        <input type="tel" id="ar-phone" placeholder="(555) 000-0000" />
+      </div>
+      <div class="fg">
+        <label>Email</label>
+        <input type="email" id="ar-email" placeholder="student@email.com" />
+      </div>
+      <div class="fg">
+        <label>Charge for this class ($)</label>
+        <input type="number" id="ar-charge-new" placeholder="0.00" min="0" step="0.01" />
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-lbl">Mark as Paid</div>
+        <label class="toggle"><input type="checkbox" id="ar-paid-new"><span class="slider"></span></label>
+      </div>
+      <div class="toggle-row" style="margin-bottom:12px">
+        <div><div class="toggle-lbl">Save as Student Profile</div><div class="toggle-sub">Creates a reusable profile for this student</div></div>
+        <label class="toggle"><input type="checkbox" id="ar-save-profile" checked><span class="slider"></span></label>
+      </div>
+      <div id="ar-new-err" style="color:#f87171;font-size:13px;min-height:18px;margin-bottom:8px"></div>
+      <button class="btn primary full" id="ar-add-new-btn">Add to Roster</button>
+    </div>
+  </div>
+</div>
+
+<!-- STUDENT PROFILE MODAL -->
+<div class="overlay hidden" id="modal-student">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-title" id="sp-title">Student Profile</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn sm danger" id="sp-delete-btn">Delete</button>
+        <button class="close-btn" data-close="modal-student">×</button>
+      </div>
+    </div>
+    <div class="mtabs">
+      <button class="mtab active" data-mtab="sp" data-panel="sp-info">Info</button>
+      <button class="mtab" data-mtab="sp" data-panel="sp-history">Class History</button>
+      <button class="mtab" data-mtab="sp" data-panel="sp-notes">Notes</button>
+    </div>
+    <!-- Info -->
+    <div id="sp-info">
+      <div class="row2">
+        <div class="fg" style="margin:0"><label>First Name</label><input type="text" id="sp-first" /></div>
+        <div class="fg" style="margin:0"><label>Last Name</label><input type="text" id="sp-last" /></div>
+      </div>
+      <div style="margin-top:10px" class="fg">
+        <label>License Level</label>
+        <select id="sp-level">
+          <option value="">Select…</option>
+          <option value="EMT">EMT</option>
+          <option value="AEMT">AEMT</option>
+          <option value="Paramedic">Paramedic</option>
+          <option value="RN">RN</option>
+          <option value="MD/DO">MD/DO</option>
+          <option value="Layperson">Layperson</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Phone</label>
+        <input type="tel" id="sp-phone" />
+      </div>
+      <div class="fg">
+        <label>Email</label>
+        <input type="email" id="sp-email" />
+      </div>
+      <button class="btn primary full" id="sp-save-btn">Save Changes</button>
+    </div>
+    <!-- History -->
+    <div id="sp-history" style="display:none">
+      <div id="sp-history-list"></div>
+      <div class="divider"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:14px">
+        <span style="color:var(--muted)">Total Charged</span>
+        <span id="sp-total" style="font-weight:700"></span>
+      </div>
+    </div>
+    <!-- Notes -->
+    <div id="sp-notes" style="display:none">
+      <div class="fg">
+        <label>Notes on this Student</label>
+        <textarea id="sp-notes-text" style="min-height:160px" placeholder="Observations, performance notes, contact history…"></textarea>
+      </div>
+      <button class="btn primary" id="sp-notes-save">Save Notes</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEW CERT MODAL -->
+<div class="overlay hidden" id="modal-new-cert">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-title" id="cert-modal-title">Add Certification</div>
+      <button class="close-btn" data-close="modal-new-cert">×</button>
+    </div>
+    <div class="fg">
+      <label>Category</label>
+      <select id="cert-category">
+        <option value="instructor">Instructor Certification</option>
+        <option value="nremt">NREMT</option>
+        <option value="state">State License/Certification</option>
+        <option value="aha">Personal AHA Certification</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>Certification Name / Type *</label>
+      <input type="text" id="cert-name" placeholder="e.g. ACLS Instructor, NREMT-P, Maryland Paramedic" />
+    </div>
+    <div class="fg" id="cert-state-field" style="display:none">
+      <label>State</label>
+      <input type="text" id="cert-state" placeholder="e.g. Maryland" />
+    </div>
+    <div class="fg">
+      <label>Certificate / License Number</label>
+      <input type="text" id="cert-number" placeholder="Optional" />
+    </div>
+    <div class="row2">
+      <div class="fg" style="margin:0">
+        <label>Issue Date</label>
+        <input type="date" id="cert-issue" />
+      </div>
+      <div class="fg" style="margin:0">
+        <label>Expiry Date</label>
+        <input type="date" id="cert-expiry" />
+      </div>
+    </div>
+    <div class="fg" style="margin-top:10px">
+      <label>Notes</label>
+      <textarea id="cert-notes" placeholder="Additional notes…"></textarea>
+    </div>
+    <div class="fg">
+      <label>Upload Photo / Scan</label>
+      <input type="file" id="cert-photo" accept="image/*,.pdf" style="padding:8px;font-size:13px" />
+      <img id="cert-photo-prev" class="photo-prev" alt="cert preview" />
+    </div>
+    <div id="cert-err" style="color:#f87171;font-size:13px;min-height:18px;margin-bottom:8px"></div>
+    <button class="btn primary full" id="cert-save-btn">Save Certification</button>
+  </div>
+</div>
+
+<!-- CERT DETAIL MODAL -->
+<div class="overlay hidden" id="modal-cert-detail">
+  <div class="modal">
+    <div class="modal-hd">
+      <div>
+        <div class="modal-title" id="certd-title"></div>
+        <div style="font-size:13px;color:var(--muted);margin-top:2px" id="certd-sub"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn sm danger" id="certd-delete-btn">Delete</button>
+        <button class="close-btn" data-close="modal-cert-detail">×</button>
+      </div>
+    </div>
+    <div id="certd-body"></div>
+    <div id="certd-photo-wrap" style="margin-top:14px;display:none">
+      <div class="sec-title" style="margin-bottom:8px">Certificate Photo</div>
+      <img id="certd-photo" style="max-width:100%;border-radius:10px;border:1px solid var(--border)" alt="cert" />
+      <div style="margin-top:8px;display:flex;gap:8px">
+        <a id="certd-export-btn" class="btn sm" download>⬇ Export Photo</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NEW EXPENSE MODAL -->
+<div class="overlay hidden" id="modal-new-expense">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-title">Add Expense</div>
+      <button class="close-btn" data-close="modal-new-expense">×</button>
+    </div>
+    <div class="fg">
+      <label>Type</label>
+      <select id="exp-type">
+        <option value="Supplies">Supplies / Materials</option>
+        <option value="Equipment">Equipment</option>
+        <option value="Venue">Venue / Space Rental</option>
+        <option value="Manikins">Manikins / AED Trainers</option>
+        <option value="Certification">Certification / Renewal Fee</option>
+        <option value="Marketing">Marketing / Advertising</option>
+        <option value="Travel">Travel</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>Description *</label>
+      <input type="text" id="exp-desc" placeholder="What was purchased/paid?" />
+    </div>
+    <div class="row2">
+      <div class="fg" style="margin:0">
+        <label>Amount ($) *</label>
+        <input type="number" id="exp-amount" placeholder="0.00" min="0" step="0.01" />
+      </div>
+      <div class="fg" style="margin:0">
+        <label>Date</label>
+        <input type="date" id="exp-date" />
+      </div>
+    </div>
+    <div class="fg" style="margin-top:10px">
+      <label>Link to Class (optional)</label>
+      <select id="exp-class">
+        <option value="">General expense (no class)</option>
+      </select>
+    </div>
+    <div id="exp-err" style="color:#f87171;font-size:13px;min-height:18px;margin-bottom:8px"></div>
+    <button class="btn primary full" id="exp-save-btn">Save Expense</button>
+  </div>
+</div>
+
+<!-- NEW/EDIT STUDENT MODAL (standalone) -->
+<div class="overlay hidden" id="modal-new-student">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-title">New Student Profile</div>
+      <button class="close-btn" data-close="modal-new-student">×</button>
+    </div>
+    <div class="row2">
+      <div class="fg" style="margin:0"><label>First Name *</label><input type="text" id="ns-first" /></div>
+      <div class="fg" style="margin:0"><label>Last Name *</label><input type="text" id="ns-last" /></div>
+    </div>
+    <div style="margin-top:10px" class="fg">
+      <label>License Level</label>
+      <select id="ns-level">
+        <option value="">Select level…</option>
+        <option value="EMT">EMT</option>
+        <option value="AEMT">AEMT</option>
+        <option value="Paramedic">Paramedic</option>
+        <option value="RN">RN</option>
+        <option value="MD/DO">MD/DO</option>
+        <option value="Layperson">Layperson</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>Phone</label>
+      <input type="tel" id="ns-phone" placeholder="(555) 000-0000" />
+    </div>
+    <div class="fg">
+      <label>Email</label>
+      <input type="email" id="ns-email" />
+    </div>
+    <div id="ns-err" style="color:#f87171;font-size:13px;min-height:18px;margin-bottom:8px"></div>
+    <button class="btn primary full" id="ns-save-btn">Create Profile</button>
+  </div>
+</div>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+// ============================================================
+// FIREBASE INIT
+// ============================================================
+firebase.initializeApp({
+  apiKey: "AIzaSyAcnp4uXeOgzuzIHpO5UL6Eq9fvhVHFs7Y",
+  authDomain: "emsprotocolapp.firebaseapp.com",
+  projectId: "emsprotocolapp",
+  storageBucket: "emsprotocolapp.firebasestorage.app",
+  messagingSenderId: "498482397906",
+  appId: "1:498482397906:web:5517abc5d83cf6cf15e30b"
+});
+const fbAuth = firebase.auth();
+const db = firebase.firestore();
+
+let UID = null;
+const col = name => db.collection(`users/${UID}/${name}`);
+
+// ============================================================
+// GLOBAL STATE
+// ============================================================
+let allClasses = [];
+let allStudents = [];
+let allRoster = [];
+let allCerts = [];
+let allExpenses = [];
+let currentClassId = null;
+let currentStudentId = null;
+let currentCertId = null;
+let arSelectedStudentId = null;
+
+// ============================================================
+// AUTH
+// ============================================================
+fbAuth.onAuthStateChanged(async user => {
+  if (!user) {
+    window.location.replace('index.html?returnTo=ClassManager.html');
+    return;
+  }
+  UID = user.uid;
+  document.getElementById('loading-screen').classList.add('hidden');
+  await loadAll();
+  renderDashboard();
+});
+
+async function loadAll() {
+  const [classes, students, roster, certs, expenses] = await Promise.all([
+    col('classes').orderBy('date','asc').get(),
+    col('students').orderBy('lastName','asc').get(),
+    col('roster').get(),
+    col('certs').get(),
+    col('expenses').orderBy('date','desc').get()
+  ]);
+  allClasses  = classes.docs.map(d => ({id:d.id,...d.data()}));
+  allStudents = students.docs.map(d => ({id:d.id,...d.data()}));
+  allRoster   = roster.docs.map(d => ({id:d.id,...d.data()}));
+  allCerts    = certs.docs.map(d => ({id:d.id,...d.data()}));
+  allExpenses = expenses.docs.map(d => ({id:d.id,...d.data()}));
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+const $ = id => document.getElementById(id);
+const fmt$ = n => '$'+(parseFloat(n)||0).toFixed(2);
+const today = () => new Date().toISOString().slice(0,10);
+
+function classTypeKey(type='') {
+  const t = type.toLowerCase();
+  if (t.includes('acls')) return 'acls';
+  if (t.includes('pals')) return 'pals';
+  if (t.includes('bls'))  return 'bls';
+  if (t.includes('bleed')) return 'stb';
+  if (t.includes('heartsaver')) return 'hsa';
+  if (t.includes('instructor')) return 'inst';
+  return 'other';
+}
+
+function ctBadge(type) {
+  const k = classTypeKey(type);
+  return `<span class="ct-badge ct-${k}">${type||'—'}</span>`;
+}
+
+function lvBadge(level) {
+  if (!level) return '';
+  const map = {EMT:'lv-emt',AEMT:'lv-aemt',Paramedic:'lv-para',RN:'lv-rn','MD/DO':'lv-md'};
+  const cls = map[level]||'lv-other';
+  return `<span class="lv-badge ${cls}">${level}</span>`;
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  const [y,m,day] = d.split('-');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${months[parseInt(m,10)-1]} ${parseInt(day,10)}, ${y}`;
+}
+
+function formatTime(t) {
+  if (!t) return '';
+  const [h,m] = t.split(':');
+  const hr = parseInt(h,10);
+  return `${hr%12||12}:${m} ${hr<12?'AM':'PM'}`;
+}
+
+function daysUntilExpiry(expiry) {
+  if (!expiry) return null;
+  return Math.ceil((new Date(expiry) - new Date()) / 86400000);
+}
+
+function expiryClass(expiry) {
+  const days = daysUntilExpiry(expiry);
+  if (days === null) return '';
+  if (days < 0) return 'danger';
+  if (days < 60) return 'warn';
+  return 'ok';
+}
+
+function expiryLabel(expiry) {
+  const days = daysUntilExpiry(expiry);
+  if (days === null) return '';
+  if (days < 0) return `Expired ${Math.abs(days)}d ago`;
+  if (days === 0) return 'Expires today!';
+  if (days < 60) return `Expires in ${days}d`;
+  return `Expires ${formatDate(expiry)}`;
+}
+
+function uid6() {
+  return Math.random().toString(36).slice(2,8);
+}
+
+// ============================================================
+// THEME
+// ============================================================
+(function(){
+  const stored = localStorage.getItem('cm_theme');
+  if (stored === 'light') document.documentElement.classList.add('light');
+})();
+
+$('theme-btn').addEventListener('click', () => {
+  document.documentElement.classList.toggle('light');
+  localStorage.setItem('cm_theme', document.documentElement.classList.contains('light') ? 'light' : 'dark');
+});
+
+$('signout-btn').addEventListener('click', () => {
+  if (confirm('Sign out?')) fbAuth.signOut();
+});
+
+// ============================================================
+// TAB NAVIGATION
+// ============================================================
+document.getElementById('tabs').querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    tab.classList.add('active');
+    $(`view-${tab.dataset.view}`).classList.add('active');
+    if (tab.dataset.view === 'classes')  renderClasses();
+    if (tab.dataset.view === 'students') renderStudents();
+    if (tab.dataset.view === 'certs')    renderCerts();
+    if (tab.dataset.view === 'finances') renderFinances();
+    if (tab.dataset.view === 'dashboard') renderDashboard();
+  });
+});
+
+// ============================================================
+// MODAL HELPERS
+// ============================================================
+document.querySelectorAll('[data-close]').forEach(btn => {
+  btn.addEventListener('click', () => closeModal(btn.dataset.close));
+});
+
+document.querySelectorAll('.overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) closeModal(overlay.id);
+  });
+});
+
+function openModal(id) { $(id).classList.remove('hidden'); }
+function closeModal(id) { $(id).classList.add('hidden'); }
+
+// Modal tab switching
+document.querySelectorAll('.mtab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const group = btn.dataset.mtab;
+    document.querySelectorAll(`.mtab[data-mtab="${group}"]`).forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    const allPanels = document.querySelectorAll(`.mtab[data-mtab="${group}"]`);
+    allPanels.forEach(t => { const p = $(t.dataset.panel); if(p) p.style.display='none'; });
+    const panel = $(btn.dataset.panel);
+    if (panel) panel.style.display = '';
+  });
+});
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard() {
+  const now = today();
+  const upcoming = allClasses.filter(c => c.date >= now);
+  const totalCharged = allRoster.reduce((s,r) => s+(parseFloat(r.charge)||0), 0);
+  const activeCerts = allCerts.filter(c => !c.expiry || c.expiry >= now).length;
+
+  $('stat-upcoming').textContent = upcoming.length;
+  $('stat-students').textContent = allStudents.length;
+  $('stat-revenue').textContent = fmt$(totalCharged);
+  $('stat-certs').textContent = activeCerts;
+
+  // Upcoming classes (next 3)
+  const upEl = $('dash-upcoming');
+  const next3 = upcoming.slice(0,3);
+  if (!next3.length) {
+    upEl.innerHTML = `<div class="empty"><div class="empty-text">No upcoming classes</div></div>`;
+  } else {
+    upEl.innerHTML = next3.map(c => {
+      const count = allRoster.filter(r => r.classId === c.id).length;
+      return `<div class="card-sm" style="cursor:pointer" onclick="openClassDetail('${c.id}')">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+          ${ctBadge(c.type)}
+          <span style="font-size:12px;color:var(--muted)">${count} student${count!==1?'s':''}</span>
+        </div>
+        <div style="font-size:13px;font-weight:600;margin-top:6px">${formatDate(c.date)}${c.time?' · '+formatTime(c.time):''}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">${c.location||'Location TBD'}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Expiring certs
+  const expEl = $('dash-expiring');
+  const expiring = allCerts
+    .filter(c => c.expiry)
+    .map(c => ({...c, days: daysUntilExpiry(c.expiry)}))
+    .filter(c => c.days !== null && c.days < 90)
+    .sort((a,b) => a.days - b.days)
+    .slice(0,4);
+
+  if (!expiring.length) {
+    expEl.innerHTML = `<div class="empty"><div class="empty-text">No certs expiring soon</div></div>`;
+  } else {
+    expEl.innerHTML = expiring.map(c => {
+      const cls = expiryClass(c.expiry);
+      return `<div class="card-sm" style="cursor:pointer" onclick="openCertDetail('${c.id}')">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-weight:600;font-size:13px">${c.name}</span>
+          <span class="exp-dot ${cls}"></span>
+        </div>
+        <div class="cert-exp exp-${cls}" style="font-size:12px;margin-top:4px">${expiryLabel(c.expiry)}</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+// ============================================================
+// CLASSES VIEW
+// ============================================================
+function renderClasses() {
+  const search = $('class-search').value.toLowerCase();
+  const typeFilter = $('class-filter-type').value;
+  const timeFilter = $('class-filter-time').value;
+  const now = today();
+
+  let filtered = allClasses.filter(c => {
+    if (typeFilter && c.type !== typeFilter) return false;
+    if (timeFilter === 'upcoming' && c.date < now) return false;
+    if (timeFilter === 'past' && c.date >= now) return false;
+    if (search && !(c.type||'').toLowerCase().includes(search) && !(c.location||'').toLowerCase().includes(search) && !(c.date||'').includes(search)) return false;
+    return true;
+  });
+
+  filtered.sort((a,b) => {
+    if (timeFilter === 'past') return b.date > a.date ? 1 : -1;
+    return a.date > b.date ? 1 : -1;
+  });
+
+  const el = $('classes-list');
+  if (!filtered.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">📅</div><div class="empty-text">No classes found</div></div>`;
+    return;
+  }
+  el.innerHTML = filtered.map(c => classCard(c)).join('');
+}
+
+function classCard(c) {
+  const count = allRoster.filter(r => r.classId === c.id).length;
+  const revenue = allRoster.filter(r => r.classId === c.id).reduce((s,r)=>s+(parseFloat(r.charge)||0),0);
+  return `<div class="class-card" onclick="openClassDetail('${c.id}')">
+    <div class="class-card-hd">
+      <div>${ctBadge(c.type)}${c.isInstructorCourse?'<span class="ct-badge ct-inst" style="margin-left:6px">Instructor</span>':''}</div>
+      <div style="text-align:right;font-size:13px;color:var(--ok);font-weight:600">${fmt$(revenue)}</div>
+    </div>
+    <div class="class-meta">
+      <span class="class-meta-item">📅 ${formatDate(c.date)}${c.time?' '+formatTime(c.time):''}</span>
+      <span class="class-meta-item">📍 ${c.location||'Location TBD'}</span>
+      <span class="class-meta-item">👥 ${count} student${count!==1?'s':''}</span>
+      ${c.maxStudents?`<span class="class-meta-item" style="color:var(--muted)">Max: ${c.maxStudents}</span>`:''}
+    </div>
+  </div>`;
+}
+
+['class-search','class-filter-type','class-filter-time'].forEach(id => {
+  $(id).addEventListener('input', renderClasses);
+  $(id).addEventListener('change', renderClasses);
+});
+
+// New Class
+$('new-class-btn').addEventListener('click', () => {
+  ['nc-type','nc-location','nc-notes'].forEach(id => $(id).value='');
+  $('nc-date').value = today();
+  $('nc-time').value = '';
+  $('nc-max').value = '';
+  $('nc-charge').value = '';
+  $('nc-instructor-course').checked = false;
+  $('nc-err').textContent = '';
+  openModal('modal-new-class');
+});
+
+$('nc-save-btn').addEventListener('click', async () => {
+  const type = $('nc-type').value;
+  const date = $('nc-date').value;
+  if (!type || !date) { $('nc-err').textContent = 'Class type and date are required.'; return; }
+  $('nc-save-btn').disabled = true;
+  $('nc-err').textContent = '';
+  try {
+    const data = {
+      type, date,
+      time: $('nc-time').value,
+      location: $('nc-location').value.trim(),
+      maxStudents: parseInt($('nc-max').value)||null,
+      defaultCharge: parseFloat($('nc-charge').value)||0,
+      notes: $('nc-notes').value.trim(),
+      isInstructorCourse: $('nc-instructor-course').checked,
+      createdAt: Date.now()
+    };
+    const ref = await col('classes').add(data);
+    allClasses.push({id:ref.id,...data});
+    allClasses.sort((a,b)=>a.date>b.date?1:-1);
+    closeModal('modal-new-class');
+    renderClasses();
+    renderDashboard();
+  } catch(e) {
+    $('nc-err').textContent = 'Error saving: '+e.message;
+  }
+  $('nc-save-btn').disabled = false;
+});
+
+// Open class detail
+window.openClassDetail = function(classId) {
+  currentClassId = classId;
+  const c = allClasses.find(x => x.id === classId);
+  if (!c) return;
+  $('cd-title').textContent = c.type;
+  $('cd-badges').innerHTML = ctBadge(c.type)+(c.isInstructorCourse?'<span class="ct-badge ct-inst" style="margin-left:6px">Instructor Course</span>':'');
+  $('cd-meta').innerHTML = `
+    <span class="class-meta-item">📅 ${formatDate(c.date)}${c.time?' '+formatTime(c.time):''}</span>
+    <span class="class-meta-item">📍 ${c.location||'Location TBD'}</span>
+    ${c.maxStudents?`<span class="class-meta-item">Max: ${c.maxStudents}</span>`:''}
+    ${c.defaultCharge?`<span class="class-meta-item" style="color:var(--ok)">Default: ${fmt$(c.defaultCharge)}</span>`:''}
+  `;
+  // Reset to roster tab
+  document.querySelectorAll('.mtab[data-mtab="cd"]').forEach((t,i) => t.classList.toggle('active', i===0));
+  ['cd-roster','cd-email','cd-notes'].forEach((id,i) => { $(id).style.display = i===0?'':'none'; });
+  // Notes
+  $('cd-notes-text').value = c.notes||'';
+  // Email
+  buildEmailPanel(c);
+  // Render roster
+  renderRoster(classId);
+  openModal('modal-class-detail');
+};
+
+function buildEmailPanel(c) {
+  const emails = allRoster.filter(r=>r.classId===c.id && r.email).map(r=>r.email);
+  $('cd-email-notice').textContent = emails.length
+    ? `${emails.length} student${emails.length!==1?'s':''} with email on roster`
+    : 'No student emails on roster yet.';
+  $('email-subject').value = `Upcoming ${c.type} Class – ${formatDate(c.date)}`;
+  let body = `Hello,\n\nThis is a reminder about your upcoming ${c.type} class.\n\nDate: ${formatDate(c.date)}\nTime: ${formatTime(c.time)||'TBD'}\nLocation: ${c.location||'TBD'}\n`;
+  if (c.isInstructorCourse) {
+    body += `\nSince this is an instructor course, please ensure you have:\n1. An AHA account at https://www.heart.org — create one if you haven't already.\n2. An Atlas account for instructor management — your AHA Training Center will provide instructions to set this up.\n\nPlease complete both before the class.\n`;
+  }
+  body += `\nPlease reply with any questions.\n\nThank you!`;
+  $('email-body').value = body;
+}
+
+$('send-email-btn').addEventListener('click', () => {
+  const c = allClasses.find(x=>x.id===currentClassId);
+  if (!c) return;
+  const emails = allRoster.filter(r=>r.classId===c.id && r.email).map(r=>r.email);
+  const subject = encodeURIComponent($('email-subject').value);
+  const body = encodeURIComponent($('email-body').value);
+  const to = emails.join(',');
+  window.open(`mailto:${to}?subject=${subject}&body=${body}`,'_blank');
+});
+
+$('cd-notes-save').addEventListener('click', async () => {
+  const notes = $('cd-notes-text').value.trim();
+  await col('classes').doc(currentClassId).update({notes});
+  const c = allClasses.find(x=>x.id===currentClassId);
+  if (c) c.notes = notes;
+  $('cd-notes-save').textContent = 'Saved ✓';
+  setTimeout(()=>{ $('cd-notes-save').textContent='Save Notes'; },2000);
+});
+
+$('cd-delete-btn').addEventListener('click', async () => {
+  if (!confirm('Delete this class and all roster entries?')) return;
+  await col('classes').doc(currentClassId).delete();
+  const rosterEntries = allRoster.filter(r=>r.classId===currentClassId);
+  await Promise.all(rosterEntries.map(r=>col('roster').doc(r.id).delete()));
+  allClasses = allClasses.filter(c=>c.id!==currentClassId);
+  allRoster = allRoster.filter(r=>r.classId!==currentClassId);
+  closeModal('modal-class-detail');
+  renderClasses();
+  renderDashboard();
+});
+
+// ============================================================
+// ROSTER
+// ============================================================
+function renderRoster(classId) {
+  const entries = allRoster.filter(r=>r.classId===classId);
+  const total = entries.reduce((s,r)=>s+(parseFloat(r.charge)||0),0);
+  $('cd-roster-count').textContent = `${entries.length} student${entries.length!==1?'s':''} · ${fmt$(total)} total`;
+
+  if (!entries.length) {
+    $('cd-roster-list').innerHTML = `<div class="empty" style="padding:24px 0"><div class="empty-text">No students on roster yet</div></div>`;
+    return;
+  }
+  $('cd-roster-list').innerHTML = entries.map(r => {
+    const stu = allStudents.find(s=>s.id===r.studentId)||{};
+    return `<div class="roster-row">
+      <div class="roster-name">
+        <div class="name">${r.name||((stu.firstName||'')+(stu.lastName?' '+stu.lastName:''))||'Unknown'}</div>
+        <div class="sub">${lvBadge(r.licenseLevel||stu.licenseLevel)} ${r.email||stu.email||''}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex:none">
+        ${r.charge?`<span style="font-size:13px;font-weight:600;color:var(--ok)">${fmt$(r.charge)}</span>`:''}
+        <span class="paid-badge ${r.paid?'paid-y':'paid-n'}" style="cursor:pointer" onclick="togglePaid('${r.id}')">${r.paid?'Paid':'Unpaid'}</span>
+        <button class="btn sm danger" onclick="removeFromRoster('${r.id}')">×</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.togglePaid = async function(rosterId) {
+  const r = allRoster.find(x=>x.id===rosterId);
+  if (!r) return;
+  r.paid = !r.paid;
+  await col('roster').doc(rosterId).update({paid:r.paid});
+  renderRoster(currentClassId);
+};
+
+window.removeFromRoster = async function(rosterId) {
+  if (!confirm('Remove from roster?')) return;
+  await col('roster').doc(rosterId).delete();
+  allRoster = allRoster.filter(r=>r.id!==rosterId);
+  renderRoster(currentClassId);
+  $('cd-meta').innerHTML; // refresh count
+};
+
+$('cd-add-student-btn').addEventListener('click', () => {
+  // Reset add roster modal
+  $('ar-search').value='';
+  $('ar-results').innerHTML='';
+  $('ar-selected').classList.add('hidden');
+  $('ar-charge-ex').value='';
+  $('ar-paid-ex').checked=false;
+  $('ar-first').value=''; $('ar-last').value='';
+  $('ar-level').value=''; $('ar-phone').value=''; $('ar-email').value='';
+  $('ar-charge-new').value='';
+  $('ar-paid-new').checked=false;
+  $('ar-save-profile').checked=true;
+  $('ar-ex-err').textContent='';
+  $('ar-new-err').textContent='';
+  arSelectedStudentId = null;
+  // Default charge from class
+  const c = allClasses.find(x=>x.id===currentClassId);
+  if (c && c.defaultCharge) {
+    $('ar-charge-ex').value = c.defaultCharge;
+    $('ar-charge-new').value = c.defaultCharge;
+  }
+  // Switch to existing tab
+  document.querySelectorAll('.mtab[data-mtab="ar"]').forEach((t,i)=>t.classList.toggle('active',i===0));
+  ['ar-existing','ar-new'].forEach((id,i)=>{ $(id).style.display=i===0?'':'none'; });
+  openModal('modal-add-roster');
+});
+
+// Search existing students
+$('ar-search').addEventListener('input', () => {
+  const q = $('ar-search').value.toLowerCase().trim();
+  if (!q) { $('ar-results').innerHTML=''; return; }
+  const results = allStudents.filter(s =>
+    (s.firstName+' '+s.lastName).toLowerCase().includes(q) ||
+    (s.email||'').toLowerCase().includes(q)
+  ).slice(0,6);
+  $('ar-results').innerHTML = results.map(s =>
+    `<div class="card-sm" style="cursor:pointer;margin-bottom:6px" onclick="selectArStudent('${s.id}')">
+      <div style="font-weight:600;font-size:14px">${s.firstName} ${s.lastName}</div>
+      <div style="font-size:12px;color:var(--muted)">${lvBadge(s.licenseLevel)} ${s.email||''}</div>
+    </div>`
+  ).join('') || `<div style="font-size:13px;color:var(--muted);padding:8px 0">No results</div>`;
+});
+
+window.selectArStudent = function(id) {
+  arSelectedStudentId = id;
+  const s = allStudents.find(x=>x.id===id);
+  $('ar-selected-name').textContent = `${s.firstName} ${s.lastName} — ${s.licenseLevel||'No level'}`;
+  $('ar-selected').classList.remove('hidden');
+  $('ar-results').innerHTML='';
+  $('ar-search').value='';
+};
+
+$('ar-add-ex-btn').addEventListener('click', async () => {
+  if (!arSelectedStudentId) { $('ar-ex-err').textContent='Select a student first.'; return; }
+  const existing = allRoster.find(r=>r.classId===currentClassId && r.studentId===arSelectedStudentId);
+  if (existing) { $('ar-ex-err').textContent='This student is already on the roster.'; return; }
+  const s = allStudents.find(x=>x.id===arSelectedStudentId);
+  const charge = parseFloat($('ar-charge-ex').value)||0;
+  const paid = $('ar-paid-ex').checked;
+  $('ar-add-ex-btn').disabled=true;
+  try {
+    const data = {
+      classId: currentClassId,
+      studentId: arSelectedStudentId,
+      name: `${s.firstName} ${s.lastName}`,
+      licenseLevel: s.licenseLevel||'',
+      email: s.email||'',
+      phone: s.phone||'',
+      charge, paid, addedAt: Date.now()
+    };
+    const ref = await col('roster').add(data);
+    allRoster.push({id:ref.id,...data});
+    closeModal('modal-add-roster');
+    renderRoster(currentClassId);
+    buildEmailPanel(allClasses.find(x=>x.id===currentClassId));
+  } catch(e) { $('ar-ex-err').textContent='Error: '+e.message; }
+  $('ar-add-ex-btn').disabled=false;
+});
+
+$('ar-add-new-btn').addEventListener('click', async () => {
+  const first = $('ar-first').value.trim();
+  const last = $('ar-last').value.trim();
+  if (!first||!last) { $('ar-new-err').textContent='First and last name required.'; return; }
+  $('ar-add-new-btn').disabled=true;
+  try {
+    let studentId = null;
+    if ($('ar-save-profile').checked) {
+      const stuData = {
+        firstName:first, lastName:last,
+        licenseLevel: $('ar-level').value,
+        phone: $('ar-phone').value.trim(),
+        email: $('ar-email').value.trim(),
+        notes:'', createdAt:Date.now()
+      };
+      const sRef = await col('students').add(stuData);
+      studentId = sRef.id;
+      allStudents.push({id:studentId,...stuData});
+    }
+    const data = {
+      classId:currentClassId,
+      studentId,
+      name:`${first} ${last}`,
+      licenseLevel:$('ar-level').value,
+      email:$('ar-email').value.trim(),
+      phone:$('ar-phone').value.trim(),
+      charge:parseFloat($('ar-charge-new').value)||0,
+      paid:$('ar-paid-new').checked,
+      addedAt:Date.now()
+    };
+    const ref = await col('roster').add(data);
+    allRoster.push({id:ref.id,...data});
+    closeModal('modal-add-roster');
+    renderRoster(currentClassId);
+    buildEmailPanel(allClasses.find(x=>x.id===currentClassId));
+  } catch(e) { $('ar-new-err').textContent='Error: '+e.message; }
+  $('ar-add-new-btn').disabled=false;
+});
+
+// ============================================================
+// STUDENTS VIEW
+// ============================================================
+function renderStudents() {
+  const q = $('student-search').value.toLowerCase().trim();
+  const filtered = allStudents.filter(s =>
+    !q || (s.firstName+' '+s.lastName).toLowerCase().includes(q) ||
+    (s.email||'').toLowerCase().includes(q) ||
+    (s.licenseLevel||'').toLowerCase().includes(q)
+  );
+  const el = $('students-list');
+  if (!filtered.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">👥</div><div class="empty-text">No students found</div></div>`;
+    return;
+  }
+  el.innerHTML = filtered.map(s => {
+    const classCount = allRoster.filter(r=>r.studentId===s.id).length;
+    return `<div class="stu-card" onclick="openStudentProfile('${s.id}')">
+      <div class="stu-info">
+        <div class="stu-name">${s.firstName} ${s.lastName}</div>
+        <div class="stu-sub">${lvBadge(s.licenseLevel)} ${s.phone||''} ${s.email||''}</div>
+      </div>
+      <div style="text-align:right;flex:none">
+        <div style="font-size:12px;color:var(--muted)">${classCount} class${classCount!==1?'es':''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+$('student-search').addEventListener('input', renderStudents);
+
+$('new-student-btn').addEventListener('click', () => {
+  ['ns-first','ns-last','ns-phone','ns-email'].forEach(id=>$(id).value='');
+  $('ns-level').value='';
+  $('ns-err').textContent='';
+  openModal('modal-new-student');
+});
+
+$('ns-save-btn').addEventListener('click', async () => {
+  const first = $('ns-first').value.trim();
+  const last  = $('ns-last').value.trim();
+  if (!first||!last) { $('ns-err').textContent='Name required.'; return; }
+  $('ns-save-btn').disabled=true;
+  try {
+    const data = {
+      firstName:first, lastName:last,
+      licenseLevel:$('ns-level').value,
+      phone:$('ns-phone').value.trim(),
+      email:$('ns-email').value.trim(),
+      notes:'', createdAt:Date.now()
+    };
+    const ref = await col('students').add(data);
+    allStudents.push({id:ref.id,...data});
+    allStudents.sort((a,b)=>a.lastName>b.lastName?1:-1);
+    closeModal('modal-new-student');
+    renderStudents();
+    renderDashboard();
+  } catch(e) { $('ns-err').textContent='Error: '+e.message; }
+  $('ns-save-btn').disabled=false;
+});
+
+window.openStudentProfile = function(studentId) {
+  currentStudentId = studentId;
+  const s = allStudents.find(x=>x.id===studentId);
+  if (!s) return;
+  $('sp-title').textContent = `${s.firstName} ${s.lastName}`;
+  $('sp-first').value = s.firstName||'';
+  $('sp-last').value  = s.lastName||'';
+  $('sp-level').value = s.licenseLevel||'';
+  $('sp-phone').value = s.phone||'';
+  $('sp-email').value = s.email||'';
+  $('sp-notes-text').value = s.notes||'';
+
+  // History
+  const entries = allRoster.filter(r=>r.studentId===studentId);
+  const total = entries.reduce((s,r)=>s+(parseFloat(r.charge)||0),0);
+  $('sp-total').textContent = fmt$(total);
+  if (!entries.length) {
+    $('sp-history-list').innerHTML = `<div class="empty" style="padding:20px 0"><div class="empty-text">No class history</div></div>`;
+  } else {
+    $('sp-history-list').innerHTML = entries.map(r => {
+      const c = allClasses.find(x=>x.id===r.classId)||{};
+      return `<div class="fin-row">
+        <div>
+          <div style="font-size:14px;font-weight:500">${c.type||'Class'}</div>
+          <div class="fin-meta">${formatDate(c.date)} · ${c.location||'—'}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="fin-amount income">${fmt$(r.charge)}</div>
+          <span class="paid-badge ${r.paid?'paid-y':'paid-n'}">${r.paid?'Paid':'Unpaid'}</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Reset tabs
+  document.querySelectorAll('.mtab[data-mtab="sp"]').forEach((t,i)=>t.classList.toggle('active',i===0));
+  ['sp-info','sp-history','sp-notes'].forEach((id,i)=>{ $(id).style.display=i===0?'':'none'; });
+  openModal('modal-student');
+};
+
+$('sp-save-btn').addEventListener('click', async () => {
+  const data = {
+    firstName:$('sp-first').value.trim(),
+    lastName:$('sp-last').value.trim(),
+    licenseLevel:$('sp-level').value,
+    phone:$('sp-phone').value.trim(),
+    email:$('sp-email').value.trim()
+  };
+  if (!data.firstName||!data.lastName) return;
+  await col('students').doc(currentStudentId).update(data);
+  const s = allStudents.find(x=>x.id===currentStudentId);
+  Object.assign(s,data);
+  $('sp-title').textContent = `${data.firstName} ${data.lastName}`;
+  $('sp-save-btn').textContent='Saved ✓';
+  setTimeout(()=>{ $('sp-save-btn').textContent='Save Changes'; },2000);
+});
+
+$('sp-notes-save').addEventListener('click', async () => {
+  const notes = $('sp-notes-text').value.trim();
+  await col('students').doc(currentStudentId).update({notes});
+  const s = allStudents.find(x=>x.id===currentStudentId);
+  if (s) s.notes = notes;
+  $('sp-notes-save').textContent='Saved ✓';
+  setTimeout(()=>{ $('sp-notes-save').textContent='Save Notes'; },2000);
+});
+
+$('sp-delete-btn').addEventListener('click', async () => {
+  if (!confirm('Delete this student profile?')) return;
+  await col('students').doc(currentStudentId).delete();
+  allStudents = allStudents.filter(s=>s.id!==currentStudentId);
+  closeModal('modal-student');
+  renderStudents();
+  renderDashboard();
+});
+
+// ============================================================
+// CERTIFICATIONS VIEW
+// ============================================================
+function renderCerts() {
+  const instructor = allCerts.filter(c=>c.category==='instructor');
+  const personal   = allCerts.filter(c=>c.category!=='instructor');
+
+  const instEl = $('inst-certs-list');
+  if (!instructor.length) {
+    instEl.innerHTML = `<div class="empty" style="padding:20px 0"><div class="empty-text">No instructor certifications added</div></div>`;
+  } else {
+    instEl.innerHTML = instructor.map(c=>certCard(c,'🎓')).join('');
+  }
+
+  const perEl = $('personal-certs-list');
+  if (!personal.length) {
+    perEl.innerHTML = `<div class="empty" style="padding:20px 0"><div class="empty-text">No personal certifications added</div></div>`;
+  } else {
+    perEl.innerHTML = personal.map(c=>{
+      const icon = {nremt:'🏥',state:'📋',aha:'❤️',other:'📄'}[c.category]||'📄';
+      return certCard(c,icon);
+    }).join('');
+  }
+}
+
+function certCard(c, icon) {
+  const cls = expiryClass(c.expiry);
+  const lbl = c.expiry ? expiryLabel(c.expiry) : 'No expiry set';
+  return `<div class="cert-card" onclick="openCertDetail('${c.id}')">
+    <div class="cert-icon">${icon}</div>
+    <div class="cert-body">
+      <div class="cert-name">${c.name}</div>
+      <div class="cert-sub">${c.certNumber?'#'+c.certNumber+' · ':''} ${c.state||''}</div>
+      <div class="cert-exp exp-${cls}">${lbl}</div>
+    </div>
+    <div><span class="exp-dot ${cls}"></span></div>
+  </div>`;
+}
+
+$('new-cert-btn').addEventListener('click', () => {
+  ['cert-name','cert-state','cert-number','cert-notes'].forEach(id=>$(id).value='');
+  $('cert-category').value='instructor';
+  $('cert-issue').value='';
+  $('cert-expiry').value='';
+  $('cert-photo').value='';
+  $('cert-photo-prev').classList.remove('show');
+  $('cert-err').textContent='';
+  $('cert-state-field').style.display='none';
+  $('cert-modal-title').textContent='Add Certification';
+  openModal('modal-new-cert');
+});
+
+$('cert-category').addEventListener('change', () => {
+  $('cert-state-field').style.display = $('cert-category').value==='state'?'':'none';
+});
+
+$('cert-photo').addEventListener('change', () => {
+  const file = $('cert-photo').files[0];
+  if (!file || !file.type.startsWith('image/')) { $('cert-photo-prev').classList.remove('show'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    $('cert-photo-prev').src = e.target.result;
+    $('cert-photo-prev').classList.add('show');
+  };
+  reader.readAsDataURL(file);
+});
+
+$('cert-save-btn').addEventListener('click', async () => {
+  const name = $('cert-name').value.trim();
+  if (!name) { $('cert-err').textContent='Certification name required.'; return; }
+  $('cert-save-btn').disabled=true;
+  try {
+    let photoBase64 = '';
+    const file = $('cert-photo').files[0];
+    if (file && file.type.startsWith('image/')) {
+      photoBase64 = await new Promise((res,rej)=>{
+        const r = new FileReader();
+        r.onload = e=>res(e.target.result);
+        r.onerror = rej;
+        r.readAsDataURL(file);
+      });
+    }
+    const data = {
+      category: $('cert-category').value,
+      name,
+      state: $('cert-state').value.trim(),
+      certNumber: $('cert-number').value.trim(),
+      issue: $('cert-issue').value,
+      expiry: $('cert-expiry').value,
+      notes: $('cert-notes').value.trim(),
+      photoBase64,
+      createdAt: Date.now()
+    };
+    const ref = await col('certs').add(data);
+    allCerts.push({id:ref.id,...data});
+    closeModal('modal-new-cert');
+    renderCerts();
+    renderDashboard();
+  } catch(e) { $('cert-err').textContent='Error: '+e.message; }
+  $('cert-save-btn').disabled=false;
+});
+
+window.openCertDetail = function(certId) {
+  currentCertId = certId;
+  const c = allCerts.find(x=>x.id===certId);
+  if (!c) return;
+  $('certd-title').textContent = c.name;
+  $('certd-sub').textContent = {instructor:'Instructor Certification',nremt:'NREMT',state:'State License',aha:'AHA Certification',other:'Certification'}[c.category]||'Certification';
+
+  const cls = expiryClass(c.expiry);
+  $('certd-body').innerHTML = `
+    <div class="card-sm">
+      ${c.certNumber?`<div class="fin-row"><span style="color:var(--muted);font-size:13px">Certificate #</span><span>${c.certNumber}</span></div>`:''}
+      ${c.state?`<div class="fin-row"><span style="color:var(--muted);font-size:13px">State</span><span>${c.state}</span></div>`:''}
+      ${c.issue?`<div class="fin-row"><span style="color:var(--muted);font-size:13px">Issued</span><span>${formatDate(c.issue)}</span></div>`:''}
+      ${c.expiry?`<div class="fin-row"><span style="color:var(--muted);font-size:13px">Expires</span><span class="exp-${cls}">${formatDate(c.expiry)} (${expiryLabel(c.expiry)})</span></div>`:''}
+      ${c.notes?`<div style="margin-top:10px;font-size:13px;color:var(--muted)">${c.notes}</div>`:''}
+    </div>`;
+
+  if (c.photoBase64) {
+    $('certd-photo-wrap').style.display='';
+    $('certd-photo').src = c.photoBase64;
+    $('certd-export-btn').href = c.photoBase64;
+    $('certd-export-btn').download = `${c.name.replace(/\s+/g,'_')}_cert.png`;
+  } else {
+    $('certd-photo-wrap').style.display='none';
+  }
+  openModal('modal-cert-detail');
+};
+
+$('certd-delete-btn').addEventListener('click', async () => {
+  if (!confirm('Delete this certification?')) return;
+  await col('certs').doc(currentCertId).delete();
+  allCerts = allCerts.filter(c=>c.id!==currentCertId);
+  closeModal('modal-cert-detail');
+  renderCerts();
+  renderDashboard();
+});
+
+// ============================================================
+// FINANCES VIEW
+// ============================================================
+function renderFinances() {
+  const totalIncome = allRoster.reduce((s,r)=>s+(parseFloat(r.charge)||0),0);
+  const totalExp    = allExpenses.reduce((s,e)=>s+(parseFloat(e.amount)||0),0);
+  const net         = totalIncome - totalExp;
+
+  $('fin-income').textContent   = fmt$(totalIncome);
+  $('fin-expenses').textContent = fmt$(totalExp);
+  $('fin-net').textContent      = fmt$(net);
+  $('fin-net').className        = `stat-val ${net>=0?'exp-ok':'exp-danger'}`;
+  $('fin-classes').textContent  = allClasses.length;
+
+  // Expenses list
+  const expEl = $('expenses-list');
+  if (!allExpenses.length) {
+    expEl.innerHTML = `<div class="empty" style="padding:20px 0"><div class="empty-text">No expenses recorded</div></div>`;
+  } else {
+    expEl.innerHTML = allExpenses.map(e => {
+      const c = allClasses.find(x=>x.id===e.classId);
+      return `<div class="fin-row">
+        <div>
+          <div style="font-size:14px;font-weight:500">${e.description}</div>
+          <div class="fin-meta">${e.type} · ${formatDate(e.date)}${c?' · '+c.type:''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="fin-amount expense">${fmt$(e.amount)}</span>
+          <button class="btn sm danger" onclick="deleteExpense('${e.id}')">×</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Income by class
+  const incEl = $('income-by-class');
+  if (!allClasses.length) {
+    incEl.innerHTML = `<div class="empty" style="padding:20px 0"><div class="empty-text">No classes yet</div></div>`;
+  } else {
+    const byClass = allClasses
+      .map(c => ({
+        ...c,
+        income: allRoster.filter(r=>r.classId===c.id).reduce((s,r)=>s+(parseFloat(r.charge)||0),0),
+        count: allRoster.filter(r=>r.classId===c.id).length
+      }))
+      .filter(c=>c.income>0)
+      .sort((a,b)=>b.income-a.income);
+
+    if (!byClass.length) {
+      incEl.innerHTML = `<div class="empty" style="padding:20px 0"><div class="empty-text">No income recorded yet</div></div>`;
+    } else {
+      const max = byClass[0].income;
+      incEl.innerHTML = byClass.map(c => `
+        <div class="fin-row" style="flex-direction:column;align-items:stretch">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <span style="font-size:13px;font-weight:600">${c.type}</span>
+              <span style="font-size:12px;color:var(--muted);margin-left:6px">${formatDate(c.date)}</span>
+            </div>
+            <span class="fin-amount income">${fmt$(c.income)}</span>
+          </div>
+          <div class="prog-bar"><div class="prog-fill" style="width:${(c.income/max*100).toFixed(1)}%"></div></div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px">${c.count} student${c.count!==1?'s':''}</div>
+        </div>`
+      ).join('');
+    }
+  }
+}
+
+$('new-expense-btn').addEventListener('click', () => {
+  ['exp-desc','exp-amount'].forEach(id=>$(id).value='');
+  $('exp-type').value='Supplies';
+  $('exp-date').value = today();
+  $('exp-err').textContent='';
+  // Populate class select
+  $('exp-class').innerHTML = '<option value="">General expense (no class)</option>' +
+    allClasses.map(c=>`<option value="${c.id}">${c.type} – ${formatDate(c.date)}</option>`).join('');
+  openModal('modal-new-expense');
+});
+
+$('exp-save-btn').addEventListener('click', async () => {
+  const desc = $('exp-desc').value.trim();
+  const amount = parseFloat($('exp-amount').value);
+  if (!desc || !amount) { $('exp-err').textContent='Description and amount required.'; return; }
+  $('exp-save-btn').disabled=true;
+  try {
+    const data = {
+      type:$('exp-type').value,
+      description:desc,
+      amount,
+      date:$('exp-date').value,
+      classId:$('exp-class').value||null,
+      createdAt:Date.now()
+    };
+    const ref = await col('expenses').add(data);
+    allExpenses.unshift({id:ref.id,...data});
+    closeModal('modal-new-expense');
+    renderFinances();
+  } catch(e) { $('exp-err').textContent='Error: '+e.message; }
+  $('exp-save-btn').disabled=false;
+});
+
+window.deleteExpense = async function(expId) {
+  if (!confirm('Delete this expense?')) return;
+  await col('expenses').doc(expId).delete();
+  allExpenses = allExpenses.filter(e=>e.id!==expId);
+  renderFinances();
+};
+
+// ============================================================
+// FIRESTORE SECURITY — prevent devtools access
+// ============================================================
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+  if (e.key==='F12') { e.preventDefault(); return; }
+  if ((e.ctrlKey||e.metaKey)&&!e.shiftKey&&e.key.toLowerCase()==='u') { e.preventDefault(); return; }
+  if ((e.ctrlKey||e.metaKey)&&e.shiftKey&&['i','j','c'].includes(e.key.toLowerCase())) e.preventDefault();
+});
+</script>
+</body>
+</html>
