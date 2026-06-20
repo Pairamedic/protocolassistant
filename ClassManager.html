@@ -199,6 +199,7 @@
       <button class="tab" data-view="certs">🏅 Certifications</button>
       <button class="tab" data-view="finances">💰 Finances</button>
       <button class="tab" data-view="materials">📚 Materials</button>
+      <button class="tab" data-view="info">📋 Info / FAQ</button>
     </nav>
   </div>
 </header>
@@ -323,6 +324,78 @@
       <input type="text" id="mat-search" placeholder="Search materials…" />
     </div>
     <div id="materials-list"></div>
+  </section>
+
+  <!-- INFO / FAQ -->
+  <section class="view" id="view-info">
+    <!-- Training Center -->
+    <div class="sec-hd" style="margin-bottom:10px">
+      <div class="sec-title" style="color:var(--accent2)">Training Center</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn sm" id="tc-save-btn" style="display:none">Save</button>
+        <button class="btn sm primary" id="tc-edit-btn">Edit</button>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:18px">
+      <div id="tc-display">
+        <div class="fin-row"><span style="color:var(--muted);font-size:13px">Training Center</span><span id="tc-d-name" style="font-weight:600"></span></div>
+        <div class="fin-row"><span style="color:var(--muted);font-size:13px">Program Director</span><span id="tc-d-pd"></span></div>
+        <div class="fin-row"><span style="color:var(--muted);font-size:13px">Email</span><span id="tc-d-email"></span></div>
+        <div class="fin-row" style="border:none"><span style="color:var(--muted);font-size:13px">Phone</span><span id="tc-d-phone"></span></div>
+      </div>
+      <div id="tc-edit-form" style="display:none">
+        <div class="fg"><label>Training Center Name</label><input type="text" id="tc-name" /></div>
+        <div class="row2">
+          <div class="fg" style="margin:0"><label>Program Director</label><input type="text" id="tc-pd" /></div>
+          <div class="fg" style="margin:0"><label>Phone</label><input type="tel" id="tc-phone" /></div>
+        </div>
+        <div class="fg" style="margin-top:10px"><label>Email</label><input type="email" id="tc-email" /></div>
+      </div>
+    </div>
+    <!-- Instructor Info -->
+    <div class="sec-hd" style="margin-bottom:10px">
+      <div class="sec-title" style="color:var(--accent)">My Instructor Info</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn sm" id="inst-info-save-btn" style="display:none">Save</button>
+        <button class="btn sm primary" id="inst-info-edit-btn">Edit</button>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:18px">
+      <div id="inst-info-display">
+        <div class="fin-row"><span style="color:var(--muted);font-size:13px">Instructor ID #</span><span id="inst-d-id" style="font-weight:600"></span></div>
+        <div class="fin-row"><span style="color:var(--muted);font-size:13px">Expiration Date</span><span id="inst-d-expiry"></span></div>
+        <div class="fin-row" style="border:none"><span style="color:var(--muted);font-size:13px">Training Center ID #</span><span id="inst-d-tcid" style="font-weight:600"></span></div>
+      </div>
+      <div id="inst-info-edit-form" style="display:none">
+        <div class="fg"><label>Instructor ID #</label><input type="text" id="inst-id" placeholder="Your AHA Instructor ID" /></div>
+        <div class="row2">
+          <div class="fg" style="margin:0"><label>Expiration Date</label><input type="date" id="inst-expiry" /></div>
+          <div class="fg" style="margin:0"><label>Training Center ID #</label><input type="text" id="inst-tcid" /></div>
+        </div>
+      </div>
+    </div>
+    <!-- Exam Rules -->
+    <div class="sec-hd" style="margin-bottom:10px">
+      <div class="sec-title">Rules During Exam</div>
+      <button class="btn sm primary" id="rules-save-btn">Save</button>
+    </div>
+    <div class="card" style="margin-bottom:18px">
+      <textarea id="info-rules" style="border:none;background:none;padding:0;min-height:80px;font-size:13px;line-height:1.6" placeholder="Enter exam rules…"></textarea>
+    </div>
+    <!-- Card Steps -->
+    <div class="sec-hd" style="margin-bottom:10px">
+      <div class="sec-title">Steps for Completion Cards</div>
+      <button class="btn sm primary" id="steps-save-btn">Save</button>
+    </div>
+    <div class="card" style="margin-bottom:18px">
+      <textarea id="info-steps" style="border:none;background:none;padding:0;min-height:70px;font-size:13px;line-height:1.6" placeholder="Steps to obtain completion cards…"></textarea>
+    </div>
+    <!-- FAQ -->
+    <div class="sec-hd" style="margin-bottom:10px">
+      <div class="sec-title">FAQ / Quick Reference</div>
+      <button class="btn sm primary" id="new-faq-btn">+ Add</button>
+    </div>
+    <div id="faq-list"></div>
   </section>
 
 </main>
@@ -505,6 +578,20 @@
   </div>
 </div>
 
+<!-- FAQ ITEM -->
+<div class="overlay hidden" id="modal-faq">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-title" id="faq-modal-title">Add FAQ Item</div><button class="close-btn" data-close="modal-faq">×</button></div>
+    <div class="fg"><label>Question / Topic *</label><input type="text" id="faq-q" placeholder="e.g. How do I get completion cards?" /></div>
+    <div class="fg"><label>Answer / Details *</label><textarea id="faq-a" style="min-height:130px" placeholder="Answer or reference information…"></textarea></div>
+    <div id="faq-err" style="color:#f87171;font-size:13px;min-height:18px;margin-bottom:8px"></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn danger" id="faq-delete-btn" style="display:none">Delete</button>
+      <button class="btn primary full" id="faq-save-btn">Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- NEW CERT -->
 <div class="overlay hidden" id="modal-new-cert">
   <div class="modal">
@@ -661,8 +748,9 @@ const sref = path => fbStorage.ref(`users/${UID}/${path}`);
 // STATE
 // ============================================================
 let allClasses=[], allStudents=[], allRoster=[], allCerts=[], allExpenses=[], allMaterials=[];
+let allFaq=[], infoDoc={};
 let currentView='dashboard';
-let currentClassId=null, currentStudentId=null, currentCertId=null, currentMatId=null;
+let currentClassId=null, currentStudentId=null, currentCertId=null, currentMatId=null, currentFaqId=null;
 let arSelectedStudentId=null, matFilterCat='';
 const unsubs=[];
 
@@ -739,6 +827,96 @@ $('theme-btn').addEventListener('click',()=>{
 $('signout-btn').addEventListener('click',()=>{if(confirm('Sign out?'))fbAuth.signOut();});
 
 // ============================================================
+// INFO / FAQ
+// ============================================================
+function renderInfo(){
+  const d=infoDoc;
+  $('tc-d-name').textContent=d.tcName||'Baptist';
+  $('tc-d-pd').textContent=d.pdName||'Jeff Jeffries';
+  $('tc-d-email').textContent=d.pdEmail||'—';
+  $('tc-d-phone').textContent=d.pdPhone||'501-202-7914';
+  $('tc-name').value=d.tcName!==undefined?d.tcName:'Baptist';
+  $('tc-pd').value=d.pdName!==undefined?d.pdName:'Jeff Jeffries';
+  $('tc-email').value=d.pdEmail||'';
+  $('tc-phone').value=d.pdPhone!==undefined?d.pdPhone:'501-202-7914';
+  const expCls=d.instExpiry?expiryClass(d.instExpiry):'';
+  $('inst-d-id').textContent=d.instId||'—';
+  $('inst-d-expiry').innerHTML=d.instExpiry?`<span class="exp-${expCls}">${formatDate(d.instExpiry)}</span>`:'—';
+  $('inst-d-tcid').textContent=d.tcId||'—';
+  $('inst-id').value=d.instId||'';
+  $('inst-expiry').value=d.instExpiry||'';
+  $('inst-tcid').value=d.tcId||'';
+  $('info-rules').value=d.examRules!==undefined?d.examRules:'No Cell Phones/Photos of the test material (private).\nInstruct candidates not to write on testing materials—if written on must be shredded.';
+  $('info-steps').value=d.cardSteps!==undefined?d.cardSteps:'Reach Out To Program Director - Jeff Jeffries.';
+  $('faq-list').innerHTML=allFaq.length
+    ?allFaq.map(f=>`<div class="card-sm" style="cursor:pointer;margin-bottom:8px" onclick="openFaqEdit('${f.id}')">
+        <div style="font-weight:600;font-size:14px;margin-bottom:5px">${f.question}</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.55;white-space:pre-wrap">${f.answer}</div>
+        <div style="font-size:11px;color:rgba(167,176,190,.4);margin-top:6px;text-align:right">tap to edit</div>
+      </div>`).join('')
+    :`<div class="empty" style="padding:20px 0"><div class="empty-text">No FAQ items yet — tap + Add</div></div>`;
+}
+function infoEditToggle(displayId,editId,editBtnId,saveBtnId,show){
+  $(displayId).style.display=show?'none':'';
+  $(editId).style.display=show?'':'none';
+  $(editBtnId).style.display=show?'none':'';
+  $(saveBtnId).style.display=show?'':'none';
+}
+async function saveInfoDoc(patch){
+  await col('settings').doc('info').set({...infoDoc,...patch},{merge:true});
+}
+$('tc-edit-btn').addEventListener('click',()=>infoEditToggle('tc-display','tc-edit-form','tc-edit-btn','tc-save-btn',true));
+$('tc-save-btn').addEventListener('click',async()=>{
+  $('tc-save-btn').disabled=true;
+  await saveInfoDoc({tcName:$('tc-name').value.trim(),pdName:$('tc-pd').value.trim(),pdEmail:$('tc-email').value.trim(),pdPhone:$('tc-phone').value.trim()});
+  infoEditToggle('tc-display','tc-edit-form','tc-edit-btn','tc-save-btn',false);
+  $('tc-save-btn').disabled=false;
+});
+$('inst-info-edit-btn').addEventListener('click',()=>infoEditToggle('inst-info-display','inst-info-edit-form','inst-info-edit-btn','inst-info-save-btn',true));
+$('inst-info-save-btn').addEventListener('click',async()=>{
+  $('inst-info-save-btn').disabled=true;
+  await saveInfoDoc({instId:$('inst-id').value.trim(),instExpiry:$('inst-expiry').value,tcId:$('inst-tcid').value.trim()});
+  infoEditToggle('inst-info-display','inst-info-edit-form','inst-info-edit-btn','inst-info-save-btn',false);
+  $('inst-info-save-btn').disabled=false;
+});
+$('rules-save-btn').addEventListener('click',async()=>{
+  $('rules-save-btn').disabled=true;
+  await saveInfoDoc({examRules:$('info-rules').value});
+  $('rules-save-btn').textContent='Saved ✓';setTimeout(()=>{$('rules-save-btn').textContent='Save';$('rules-save-btn').disabled=false;},2000);
+});
+$('steps-save-btn').addEventListener('click',async()=>{
+  $('steps-save-btn').disabled=true;
+  await saveInfoDoc({cardSteps:$('info-steps').value});
+  $('steps-save-btn').textContent='Saved ✓';setTimeout(()=>{$('steps-save-btn').textContent='Save';$('steps-save-btn').disabled=false;},2000);
+});
+$('new-faq-btn').addEventListener('click',()=>{
+  currentFaqId=null;$('faq-modal-title').textContent='Add FAQ Item';
+  $('faq-q').value='';$('faq-a').value='';$('faq-err').textContent='';
+  $('faq-delete-btn').style.display='none';openModal('modal-faq');
+});
+window.openFaqEdit=function(id){
+  currentFaqId=id;const f=allFaq.find(x=>x.id===id);if(!f)return;
+  $('faq-modal-title').textContent='Edit FAQ Item';
+  $('faq-q').value=f.question;$('faq-a').value=f.answer;$('faq-err').textContent='';
+  $('faq-delete-btn').style.display='';openModal('modal-faq');
+};
+$('faq-save-btn').addEventListener('click',async()=>{
+  const q=$('faq-q').value.trim(),a=$('faq-a').value.trim();
+  if(!q||!a){$('faq-err').textContent='Question and answer required.';return;}
+  $('faq-save-btn').disabled=true;
+  try{
+    if(currentFaqId)await col('faq').doc(currentFaqId).update({question:q,answer:a});
+    else await col('faq').add({question:q,answer:a,createdAt:Date.now()});
+    closeModal('modal-faq');
+  }catch(e){$('faq-err').textContent='Error: '+e.message;}
+  $('faq-save-btn').disabled=false;
+});
+$('faq-delete-btn').addEventListener('click',async()=>{
+  if(!currentFaqId||!confirm('Delete this FAQ item?'))return;
+  await col('faq').doc(currentFaqId).delete();closeModal('modal-faq');
+});
+
+// ============================================================
 // AUTH + REAL-TIME LISTENERS
 // ============================================================
 const ADMIN_EMAIL='eliasacaldwellnrp@gmail.com';
@@ -780,12 +958,20 @@ function setupListeners(){
     if(currentView==='materials')renderMaterials();
     $('loading-screen').classList.add('hidden');
   },console.error));
+  col('settings').doc('info').onSnapshot(snap=>{
+    infoDoc=snap.exists?snap.data():{};
+    if(currentView==='info')renderInfo();
+  },console.error);
+  unsubs.push(col('faq').orderBy('createdAt','asc').onSnapshot(snap=>{
+    allFaq=snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(currentView==='info')renderInfo();
+  },console.error));
 }
 
 function refreshView(){
   $('loading-screen').classList.add('hidden');
   renderDashboardStats();
-  const map={dashboard:renderDashboard,classes:renderClasses,students:renderStudents,certs:renderCerts,finances:renderFinances,materials:renderMaterials};
+  const map={dashboard:renderDashboard,classes:renderClasses,students:renderStudents,certs:renderCerts,finances:renderFinances,materials:renderMaterials,info:renderInfo};
   if(map[currentView])map[currentView]();
 }
 
@@ -1297,9 +1483,9 @@ $('mat-save-btn').addEventListener('click',async()=>{
   if(!file){$('mat-err').textContent='Please select a file.';return;}
   $('mat-save-btn').disabled=true;$('mat-err').textContent='';
   $('mat-upload-prog').classList.add('show');
+  $('mat-prog-fill').style.width='0%';$('mat-upload-pct').textContent='0%';
 
   try{
-    // Create Firestore doc first to get a stable ID for the storage path
     const docRef=await col('materials').add({
       name,description:$('mat-desc').value.trim(),category:$('mat-category').value,
       isAnswerKey:$('mat-is-key').checked,fileName:file.name,fileType:file.type,
@@ -1307,18 +1493,34 @@ $('mat-save-btn').addEventListener('click',async()=>{
     });
 
     const storePath=`materials/${docRef.id}/${file.name}`;
-    const task=sref(storePath).put(file);
 
-    task.on('state_changed',
-      snap=>{const pct=Math.round(snap.bytesTransferred/snap.totalBytes*100);$('mat-prog-fill').style.width=pct+'%';$('mat-upload-pct').textContent=pct+'%';},
-      err=>{$('mat-err').textContent='Upload failed — ensure Firebase Storage rules allow authenticated writes. Metadata saved.';$('mat-save-btn').disabled=false;},
-      async()=>{
-        const url=await sref(storePath).getDownloadURL();
-        await docRef.update({storagePath,downloadURL:url});
-        closeModal('modal-new-material');$('mat-save-btn').disabled=false;
-      }
-    );
-  }catch(e){$('mat-err').textContent='Error: '+e.message;$('mat-save-btn').disabled=false;}
+    await new Promise((resolve,reject)=>{
+      const timer=setTimeout(()=>reject({code:'timeout'}),90000);
+      const task=sref(storePath).put(file);
+      task.on('state_changed',
+        snap=>{
+          const pct=snap.totalBytes>0?Math.round(snap.bytesTransferred/snap.totalBytes*100):0;
+          $('mat-prog-fill').style.width=pct+'%';$('mat-upload-pct').textContent=pct+'%';
+        },
+        err=>{clearTimeout(timer);reject(err);},
+        async()=>{
+          clearTimeout(timer);
+          try{const url=await sref(storePath).getDownloadURL();await docRef.update({storagePath,downloadURL:url});resolve();}
+          catch(e){reject(e);}
+        }
+      );
+    });
+
+    closeModal('modal-new-material');
+  }catch(e){
+    const c=e.code||'';
+    $('mat-err').textContent=
+      c==='timeout'?'Upload timed out — go to Firebase Console → Storage → Rules and allow authenticated writes.'
+      :c==='storage/unauthorized'?'Permission denied — Firebase Storage rules are blocking uploads. Fix in Firebase Console → Storage → Rules.'
+      :c.startsWith('storage/')?`Storage error (${c}) — ensure Firebase Storage is enabled in your project.`
+      :'Error: '+e.message;
+  }
+  $('mat-save-btn').disabled=false;
 });
 
 window.openMaterialDetail=function(matId){
