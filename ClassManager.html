@@ -1442,8 +1442,28 @@ function renderCerts(){
   }
   $('cert-expiry-banner').innerHTML=banner;
   $('inst-certs-list').innerHTML=inst.length?inst.map(c=>certCard(c,'🎓')).join(''):`<div class="empty" style="padding:20px 0"><div class="empty-text">No instructor certifications</div></div>`;
-  $('personal-certs-list').innerHTML=pers.length?pers.map(c=>certCard(c,icons[c.category]||'📄')).join(''):`<div class="empty" style="padding:20px 0"><div class="empty-text">No personal certifications</div></div>`;
+  $('personal-certs-list').innerHTML=pers.length
+    ?pers.map(c=>certCard(c,icons[c.category]||'📄')).join('')
+    :`<div class="empty" style="padding:20px 0">
+        <div class="empty-text">No personal certifications</div>
+        <button onclick="importMyCerts()" class="btn primary" style="margin-top:12px">⬇️ Import My Certifications</button>
+      </div>`;
 }
+window.importMyCerts=async function(){
+  const btn=event.target;btn.disabled=true;btn.textContent='Adding…';
+  const MY_CERTS=[
+    {category:'state', name:'Paramedic License (AR)', state:'ADH, Section of EMS', certNumber:'31973', issue:'', expiry:'2028-03-31', notes:''},
+    {category:'state', name:'Paramedic Certification (TX)', state:'Texas Health and Human Services', certNumber:'', issue:'2023-10-01', expiry:'2027-10-31', notes:''},
+    {category:'aha',   name:'PALS', state:'AHA', certNumber:'', issue:'', expiry:'2028-02-28', notes:''},
+    {category:'aha',   name:'ACLS', state:'AHA', certNumber:'', issue:'', expiry:'2028-02-02', notes:''},
+    {category:'nremt', name:'NREMT Paramedic', state:'NREMT', certNumber:'M5103432', issue:'', expiry:'2028-03-31', notes:''},
+    {category:'state', name:'Paramedic License (MO)', state:'Missouri DHSS', certNumber:'P-22296', issue:'', expiry:'2026-12-31', notes:''},
+    {category:'aha',   name:'BLS', state:'AHA', certNumber:'', issue:'', expiry:'2028-02-02', notes:''}
+  ];
+  try{
+    await Promise.all(MY_CERTS.map(c=>col('certs').add({...c,loginUrl:'',photoUrl:'',createdAt:Date.now()})));
+  }catch(e){btn.disabled=false;btn.textContent='⬇️ Import My Certifications';alert('Error: '+e.message);}
+};
 function certCard(c,icon){
   const cls=expiryClass(c.expiry);
   return `<div class="cert-card" onclick="openCertDetail('${c.id}')">
