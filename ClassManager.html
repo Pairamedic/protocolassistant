@@ -30,6 +30,9 @@
     .tab{flex:none;padding:8px 14px;border-radius:10px;background:var(--input-bg);border:1px solid var(--border);cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);white-space:nowrap;transition:all .15s;font-family:inherit}
     .tab.active{background:rgba(94,234,212,.1);border-color:rgba(94,234,212,.35);color:var(--accent);font-weight:600}
     @media(max-width:640px){.tab{padding:7px 10px;font-size:12px}.tabs{gap:4px}}
+    .stabs{display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:10px}
+    .stab{flex:none;padding:7px 16px;border-radius:8px;background:none;border:1px solid transparent;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);white-space:nowrap;transition:all .15s;font-family:inherit}
+    .stab.active{background:rgba(94,234,212,.08);border-color:rgba(94,234,212,.3);color:var(--accent);font-weight:600}
     :root.light .tab.active{background:rgba(13,148,136,.1);border-color:rgba(13,148,136,.3);color:var(--accent)}
     main{max-width:960px;margin:0 auto;padding:18px 16px 40px}
     .view{display:none}.view.active{display:block}
@@ -198,7 +201,6 @@
     <nav class="tabs" id="tabs">
       <button class="tab active" data-view="dashboard">📊 Dashboard</button>
       <button class="tab" data-view="classes">📅 Classes</button>
-      <button class="tab" data-view="students">👥 Students</button>
       <button class="tab" data-view="certs">🏅 Certs</button>
       <button class="tab" data-view="finances">💰 Finances</button>
       <button class="tab" data-view="materials">📚 Materials</button>
@@ -226,46 +228,57 @@
         <div id="dash-expiring"></div>
       </div>
     </div>
-    <button id="dash-info-btn" class="btn full" style="margin-top:6px;justify-content:center;gap:10px;padding:13px;border-color:rgba(147,197,253,.25);color:var(--accent2);font-size:14px">📋 Info &amp; FAQ — Training Center · Rules · Quick Reference</button>
+    <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap">
+      <button id="dash-finances-btn" class="btn" style="flex:1;justify-content:center;gap:10px;padding:13px;border-color:rgba(74,222,128,.2);color:var(--ok);font-size:14px">💰 Finances</button>
+      <button id="dash-info-btn" class="btn" style="flex:2;justify-content:center;gap:10px;padding:13px;border-color:rgba(147,197,253,.25);color:var(--accent2);font-size:14px">📋 Info &amp; FAQ — Training Center · Rules</button>
+    </div>
   </section>
 
-  <!-- CLASSES -->
+  <!-- CLASSES & STUDENTS -->
   <section class="view" id="view-classes">
-    <div class="sec-hd">
-      <div class="sec-title">Scheduled Classes</div>
-      <button class="btn primary sm" id="new-class-btn">+ New Class</button>
+    <div class="stabs">
+      <button class="stab active" id="stab-classes">📅 Classes</button>
+      <button class="stab" id="stab-students">👥 Students</button>
     </div>
-    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-      <div class="search-wrap" style="flex:1;min-width:180px;margin:0">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="class-search" placeholder="Search classes…" />
-      </div>
-      <select id="class-filter-type" style="width:auto;flex:none;padding:10px 12px">
-        <option value="">All Types</option>
-        <option>ACLS</option><option>PALS</option><option>BLS</option>
-        <option>Stop the Bleed</option><option>Heartsaver</option>
-        <option>Instructor Course</option><option>Other</option>
-      </select>
-      <select id="class-filter-time" style="width:auto;flex:none;padding:10px 12px">
-        <option value="upcoming">Upcoming</option>
-        <option value="past">Past</option>
-        <option value="all">All</option>
-      </select>
-    </div>
-    <div id="classes-list"></div>
-  </section>
 
-  <!-- STUDENTS -->
-  <section class="view" id="view-students">
-    <div class="sec-hd">
-      <div class="sec-title">Student Profiles</div>
-      <button class="btn primary sm" id="new-student-btn">+ New Student</button>
+    <!-- Classes sub-panel -->
+    <div id="subpanel-classes">
+      <div class="sec-hd">
+        <div class="sec-title">Scheduled Classes</div>
+        <button class="btn primary sm" id="new-class-btn">+ New Class</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <div class="search-wrap" style="flex:1;min-width:180px;margin:0">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="class-search" placeholder="Search classes…" />
+        </div>
+        <select id="class-filter-type" style="width:auto;flex:none;padding:10px 12px">
+          <option value="">All Types</option>
+          <option>ACLS</option><option>PALS</option><option>BLS</option>
+          <option>Stop the Bleed</option><option>Heartsaver</option>
+          <option>Instructor Course</option><option>Other</option>
+        </select>
+        <select id="class-filter-time" style="width:auto;flex:none;padding:10px 12px">
+          <option value="upcoming">Upcoming</option>
+          <option value="past">Past</option>
+          <option value="all">All</option>
+        </select>
+      </div>
+      <div id="classes-list"></div>
     </div>
-    <div class="search-wrap">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="student-search" placeholder="Search by name, email, or license…" />
+
+    <!-- Students sub-panel -->
+    <div id="subpanel-students" style="display:none">
+      <div class="sec-hd">
+        <div class="sec-title">Student Profiles</div>
+        <button class="btn primary sm" id="new-student-btn">+ New Student</button>
+      </div>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="student-search" placeholder="Search by name, email, or license…" />
+      </div>
+      <div id="students-list"></div>
     </div>
-    <div id="students-list"></div>
   </section>
 
   <!-- CERTIFICATIONS -->
@@ -1005,16 +1018,36 @@ function refreshView(){
 // ============================================================
 // TAB NAV
 // ============================================================
+function switchView(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const tab=document.querySelector(`.tab[data-view="${name}"]`);
+  if(tab)tab.classList.add('active');
+  currentView=name;
+  $(`view-${name}`).classList.add('active');
+  refreshView();
+}
 document.getElementById('tabs').querySelectorAll('.tab').forEach(tab=>{
   tab.addEventListener('click',()=>{
-    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-    tab.classList.add('active');
-    currentView=tab.dataset.view;
-    $(`view-${currentView}`).classList.add('active');
-    refreshView();
+    switchView(tab.dataset.view);
+    // Reset classes/students sub-tabs to Classes when switching away and back
+    if(tab.dataset.view==='classes'){
+      $('stab-classes').classList.add('active');$('stab-students').classList.remove('active');
+      $('subpanel-classes').style.display='';$('subpanel-students').style.display='none';
+    }
   });
 });
+$('stab-classes').addEventListener('click',()=>{
+  $('stab-classes').classList.add('active');$('stab-students').classList.remove('active');
+  $('subpanel-classes').style.display='';$('subpanel-students').style.display='none';
+  currentView='classes';renderClasses();
+});
+$('stab-students').addEventListener('click',()=>{
+  $('stab-students').classList.add('active');$('stab-classes').classList.remove('active');
+  $('subpanel-students').style.display='';$('subpanel-classes').style.display='none';
+  currentView='students';renderStudents();
+});
+$('dash-finances-btn').addEventListener('click',()=>switchView('finances'));
 
 // ============================================================
 // MODAL HELPERS
