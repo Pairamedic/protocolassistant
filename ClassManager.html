@@ -609,9 +609,9 @@
     </div>
     <div class="fg" style="margin-top:10px"><label>Notes</label><textarea id="cert-notes" placeholder="Additional notes…"></textarea></div>
     <div class="fg">
-      <label>Upload Photo / Scan</label>
-      <input type="file" id="cert-photo" accept="image/*,.pdf" style="padding:8px;font-size:13px" />
-      <img id="cert-photo-prev" class="photo-prev" alt="cert preview" />
+      <label>Google Drive Link (photo/scan of cert)</label>
+      <input type="url" id="cert-photo-url" placeholder="https://drive.google.com/file/d/…" />
+      <div style="font-size:11px;color:var(--muted);margin-top:5px">Right-click image in Google Drive → Share → Copy link</div>
     </div>
     <div id="cert-err" style="color:#f87171;font-size:13px;min-height:18px;margin-bottom:8px"></div>
     <button class="btn primary full" id="cert-save-btn">Save Certification</button>
@@ -630,9 +630,7 @@
     </div>
     <div id="certd-body"></div>
     <div id="certd-photo-wrap" style="margin-top:14px;display:none">
-      <div class="sec-title" style="margin-bottom:8px">Certificate Photo</div>
-      <img id="certd-photo" style="max-width:100%;border-radius:10px;border:1px solid var(--border)" alt="cert" />
-      <div style="margin-top:8px"><a id="certd-export-btn" class="btn sm" download>⬇ Export Photo</a></div>
+      <a id="certd-photo-link" class="open-url-btn" target="_blank" rel="noopener">📷 Open Certificate Photo</a>
     </div>
   </div>
 </div>
@@ -675,10 +673,10 @@
   </div>
 </div>
 
-<!-- UPLOAD MATERIAL -->
+<!-- ADD MATERIAL -->
 <div class="overlay hidden" id="modal-new-material">
   <div class="modal">
-    <div class="modal-hd"><div class="modal-title">Upload Course Material</div><button class="close-btn" data-close="modal-new-material">×</button></div>
+    <div class="modal-hd"><div class="modal-title">Add Course Material</div><button class="close-btn" data-close="modal-new-material">×</button></div>
     <div class="fg"><label>Name *</label><input type="text" id="mat-name" placeholder="e.g. ACLS Written Exam Answer Key 2024" /></div>
     <div class="fg"><label>Category</label>
       <select id="mat-category"><option>ACLS</option><option>ACLS-EP</option><option>PALS</option><option>BLS</option><option>Stop the Bleed</option><option>Heartsaver</option><option>Instructor</option><option>General</option></select>
@@ -689,15 +687,12 @@
       <label class="toggle"><input type="checkbox" id="mat-is-key"><span class="slider"></span></label>
     </div>
     <div class="fg">
-      <label>File * (PDF, image, Word, PowerPoint, etc.)</label>
-      <input type="file" id="mat-file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,image/*,.txt" style="padding:8px;font-size:13px" />
-    </div>
-    <div class="upload-prog" id="mat-upload-prog">
-      <div class="upload-prog-label"><span>Uploading…</span><span id="mat-upload-pct">0%</span></div>
-      <div class="prog-bar"><div class="prog-fill" id="mat-prog-fill" style="width:0%"></div></div>
+      <label>Google Drive Link *</label>
+      <input type="url" id="mat-url" placeholder="https://drive.google.com/file/d/…" />
+      <div style="font-size:11px;color:var(--muted);margin-top:5px">Right-click file in Google Drive → Share → Copy link</div>
     </div>
     <div id="mat-err" style="color:#f87171;font-size:13px;min-height:18px;margin-bottom:8px"></div>
-    <button class="btn primary full" id="mat-save-btn">Upload Material</button>
+    <button class="btn primary full" id="mat-save-btn">Save Material</button>
   </div>
 </div>
 
@@ -712,9 +707,8 @@
       </div>
     </div>
     <div id="matd-body"></div>
-    <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
-      <a id="matd-open-btn" class="btn primary" target="_blank" rel="noopener" style="flex:1;justify-content:center">↗ Open File</a>
-      <a id="matd-dl-btn" class="btn" style="flex:1;justify-content:center">⬇ Download</a>
+    <div style="margin-top:16px">
+      <a id="matd-open-btn" class="btn primary full" target="_blank" rel="noopener">↗ Open in Google Drive</a>
     </div>
   </div>
 </div>
@@ -723,7 +717,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 <script>
 // ============================================================
 // INIT
@@ -736,13 +729,11 @@ firebase.initializeApp({
   messagingSenderId: "498482397906",
   appId: "1:498482397906:web:5517abc5d83cf6cf15e30b"
 });
-const fbAuth    = firebase.auth();
-const db        = firebase.firestore();
-const fbStorage = firebase.storage();
+const fbAuth = firebase.auth();
+const db     = firebase.firestore();
 
 let UID = null;
-const col  = name => db.collection(`users/${UID}/${name}`);
-const sref = path => fbStorage.ref(`users/${UID}/${path}`);
+const col = name => db.collection(`users/${UID}/${name}`);
 
 // ============================================================
 // STATE
@@ -1350,10 +1341,9 @@ function certCard(c,icon){
   </div>`;
 }
 $('new-cert-btn').addEventListener('click',()=>{
-  ['cert-name','cert-state','cert-number','cert-notes','cert-loginurl'].forEach(id=>$(id).value='');
+  ['cert-name','cert-state','cert-number','cert-notes','cert-loginurl','cert-photo-url'].forEach(id=>$(id).value='');
   $('cert-category').value='instructor';$('cert-issue').value='';$('cert-expiry').value='';
-  $('cert-photo').value='';$('cert-photo-prev').classList.remove('show');$('cert-err').textContent='';
-  $('cert-state-field').style.display='none';$('cert-loginurl-field').style.display='';
+  $('cert-err').textContent='';$('cert-state-field').style.display='none';$('cert-loginurl-field').style.display='';
   openModal('modal-new-cert');
 });
 $('cert-category').addEventListener('change',()=>{
@@ -1361,17 +1351,11 @@ $('cert-category').addEventListener('change',()=>{
   $('cert-state-field').style.display=v==='state'?'':'none';
   $('cert-loginurl-field').style.display=v==='instructor'?'':'none';
 });
-$('cert-photo').addEventListener('change',()=>{
-  const file=$('cert-photo').files[0];if(!file||!file.type.startsWith('image/')){$('cert-photo-prev').classList.remove('show');return;}
-  const r=new FileReader();r.onload=e=>{$('cert-photo-prev').src=e.target.result;$('cert-photo-prev').classList.add('show');};r.readAsDataURL(file);
-});
 $('cert-save-btn').addEventListener('click',async()=>{
   const name=$('cert-name').value.trim();if(!name){$('cert-err').textContent='Name required.';return;}
   $('cert-save-btn').disabled=true;
   try{
-    let photoBase64='';const file=$('cert-photo').files[0];
-    if(file&&file.type.startsWith('image/'))photoBase64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(file);});
-    await col('certs').add({category:$('cert-category').value,name,state:$('cert-state').value.trim(),certNumber:$('cert-number').value.trim(),issue:$('cert-issue').value,expiry:$('cert-expiry').value,notes:$('cert-notes').value.trim(),loginUrl:$('cert-loginurl').value.trim(),photoBase64,createdAt:Date.now()});
+    await col('certs').add({category:$('cert-category').value,name,state:$('cert-state').value.trim(),certNumber:$('cert-number').value.trim(),issue:$('cert-issue').value,expiry:$('cert-expiry').value,notes:$('cert-notes').value.trim(),loginUrl:$('cert-loginurl').value.trim(),photoUrl:$('cert-photo-url').value.trim(),createdAt:Date.now()});
     closeModal('modal-new-cert');
   }catch(e){$('cert-err').textContent='Error: '+e.message;}
   $('cert-save-btn').disabled=false;
@@ -1390,7 +1374,8 @@ window.openCertDetail=function(certId){
   </div>
   ${c.loginUrl?`<div style="margin-top:12px"><div style="font-size:12px;color:var(--muted);margin-bottom:6px">Renewal Portal</div><a href="${c.loginUrl}" target="_blank" rel="noopener" class="open-url-btn">🔗 Open Login Page</a></div>`:''}
   `;
-  if(c.photoBase64){$('certd-photo-wrap').style.display='';$('certd-photo').src=c.photoBase64;$('certd-export-btn').href=c.photoBase64;$('certd-export-btn').download=`${c.name.replace(/\s+/g,'_')}_cert.png`;}
+  const photoUrl=c.photoUrl||c.photoBase64||'';
+  if(photoUrl){$('certd-photo-wrap').style.display='';$('certd-photo-link').href=photoUrl;}
   else{$('certd-photo-wrap').style.display='none';}
   openModal('modal-cert-detail');
 };
@@ -1471,80 +1456,42 @@ function renderMaterials(){
 function tsToDate(ts){return ts?new Date(ts).toISOString().slice(0,10):null;}
 
 $('new-material-btn').addEventListener('click',()=>{
-  ['mat-name','mat-desc'].forEach(id=>$(id).value='');$('mat-category').value='ACLS';$('mat-is-key').checked=false;
-  $('mat-file').value='';$('mat-err').textContent='';
-  $('mat-upload-prog').classList.remove('show');$('mat-prog-fill').style.width='0%';$('mat-upload-pct').textContent='0%';
+  ['mat-name','mat-desc','mat-url'].forEach(id=>$(id).value='');$('mat-category').value='ACLS';$('mat-is-key').checked=false;$('mat-err').textContent='';
   openModal('modal-new-material');
 });
 
 $('mat-save-btn').addEventListener('click',async()=>{
-  const name=$('mat-name').value.trim(),file=$('mat-file').files[0];
+  const name=$('mat-name').value.trim(),url=$('mat-url').value.trim();
   if(!name){$('mat-err').textContent='Name is required.';return;}
-  if(!file){$('mat-err').textContent='Please select a file.';return;}
+  if(!url){$('mat-err').textContent='Google Drive link is required.';return;}
   $('mat-save-btn').disabled=true;$('mat-err').textContent='';
-  $('mat-upload-prog').classList.add('show');
-  $('mat-prog-fill').style.width='0%';$('mat-upload-pct').textContent='0%';
-
   try{
-    const docRef=await col('materials').add({
+    await col('materials').add({
       name,description:$('mat-desc').value.trim(),category:$('mat-category').value,
-      isAnswerKey:$('mat-is-key').checked,fileName:file.name,fileType:file.type,
-      fileSize:file.size,storagePath:'',downloadURL:'',uploadedAt:Date.now()
+      isAnswerKey:$('mat-is-key').checked,driveUrl:url,uploadedAt:Date.now()
     });
-
-    const storePath=`materials/${docRef.id}/${file.name}`;
-
-    await new Promise((resolve,reject)=>{
-      const timer=setTimeout(()=>reject({code:'timeout'}),90000);
-      const task=sref(storePath).put(file);
-      task.on('state_changed',
-        snap=>{
-          const pct=snap.totalBytes>0?Math.round(snap.bytesTransferred/snap.totalBytes*100):0;
-          $('mat-prog-fill').style.width=pct+'%';$('mat-upload-pct').textContent=pct+'%';
-        },
-        err=>{clearTimeout(timer);reject(err);},
-        async()=>{
-          clearTimeout(timer);
-          try{const url=await sref(storePath).getDownloadURL();await docRef.update({storagePath,downloadURL:url});resolve();}
-          catch(e){reject(e);}
-        }
-      );
-    });
-
     closeModal('modal-new-material');
-  }catch(e){
-    const c=e.code||'';
-    $('mat-err').textContent=
-      c==='timeout'?'Upload timed out — go to Firebase Console → Storage → Rules and allow authenticated writes.'
-      :c==='storage/unauthorized'?'Permission denied — Firebase Storage rules are blocking uploads. Fix in Firebase Console → Storage → Rules.'
-      :c.startsWith('storage/')?`Storage error (${c}) — ensure Firebase Storage is enabled in your project.`
-      :'Error: '+e.message;
-  }
+  }catch(e){$('mat-err').textContent='Error: '+e.message;}
   $('mat-save-btn').disabled=false;
 });
 
 window.openMaterialDetail=function(matId){
   currentMatId=matId;const m=allMaterials.find(x=>x.id===matId);if(!m)return;
   $('matd-title').textContent=m.name;
-  $('matd-sub').textContent=`${m.category} · ${m.fileName||''} · ${fmtBytes(m.fileSize)}`;
+  $('matd-sub').textContent=m.category;
   $('matd-body').innerHTML=`<div class="card-sm">
     <div class="mat-badges" style="margin-bottom:10px">${ctBadge(m.category)}${m.isAnswerKey?'<span class="answer-key-badge">🔑 Answer Key</span>':''}</div>
     ${m.description?`<div style="font-size:14px;color:var(--muted);margin-bottom:10px">${m.description}</div>`:''}
-    <div class="fin-row"><span style="font-size:13px;color:var(--muted)">Uploaded</span><span>${formatDate(tsToDate(m.uploadedAt))}</span></div>
-    <div class="fin-row"><span style="font-size:13px;color:var(--muted)">File</span><span>${m.fileName||'—'}</span></div>
-    <div class="fin-row" style="border:none"><span style="font-size:13px;color:var(--muted)">Size</span><span>${fmtBytes(m.fileSize)}</span></div>
+    <div class="fin-row" style="border:none"><span style="font-size:13px;color:var(--muted)">Added</span><span>${formatDate(tsToDate(m.uploadedAt))}</span></div>
   </div>`;
-  const url=m.downloadURL||'';
-  $('matd-open-btn').href=url;$('matd-dl-btn').href=url;$('matd-dl-btn').download=m.fileName||'material';
+  const url=m.driveUrl||m.downloadURL||'';
+  $('matd-open-btn').href=url;
   const gone=!url;$('matd-open-btn').style.opacity=gone?'0.4':'';$('matd-open-btn').style.pointerEvents=gone?'none':'';
-  $('matd-dl-btn').style.opacity=gone?'0.4':'';$('matd-dl-btn').style.pointerEvents=gone?'none':'';
   openModal('modal-material-detail');
 };
 
 $('matd-delete-btn').addEventListener('click',async()=>{
   if(!confirm('Delete this material?'))return;
-  const m=allMaterials.find(x=>x.id===currentMatId);
-  if(m&&m.storagePath){try{await sref(m.storagePath).delete();}catch(_){}}
   await col('materials').doc(currentMatId).delete();
   closeModal('modal-material-detail');
 });
