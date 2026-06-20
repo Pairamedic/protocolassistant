@@ -109,6 +109,19 @@
     .cert-name{font-weight:600;font-size:14px}
     .cert-sub{font-size:12px;color:var(--muted);margin-top:2px}
     .cert-exp{font-size:12px;font-weight:600;margin-top:4px}
+    .cert-link-dot{width:7px;height:7px;border-radius:50%;background:var(--accent2);flex:none;margin-left:auto}
+    .alert-banner{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.25);border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:13px}
+    .alert-banner-warn{background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.25)}
+    .alert-banner-title{font-weight:700;margin-bottom:6px}
+    .alert-banner .alert-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+    .alert-banner .alert-row:last-child{border-bottom:none}
+    .open-url-btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:9px;background:rgba(147,197,253,.1);border:1px solid rgba(147,197,253,.3);color:var(--accent2);font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;font-family:inherit;transition:background .15s}
+    .open-url-btn:hover{background:rgba(147,197,253,.18)}
+    .card-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:700;border:1px solid;cursor:pointer;transition:opacity .15s}
+    .card-badge:hover{opacity:.8}
+    .card-issued{background:rgba(94,234,212,.1);color:var(--accent);border-color:rgba(94,234,212,.3)}
+    .card-physical{background:rgba(147,197,253,.1);color:var(--accent2);border-color:rgba(147,197,253,.3)}
+    .card-none{background:rgba(167,176,190,.08);color:var(--muted);border-color:rgba(167,176,190,.2)}
     .mat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .15s}
     .mat-card:hover{border-color:rgba(94,234,212,.3)}
     .mat-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex:none;border:1px solid var(--border)}
@@ -257,6 +270,7 @@
       <div class="sec-title">My Certifications</div>
       <button class="btn primary sm" id="new-cert-btn">+ Add Cert</button>
     </div>
+    <div id="cert-expiry-banner"></div>
     <div class="sec-hd" style="margin-top:6px"><div class="sec-title" style="color:var(--accent2)">Instructor Certifications</div></div>
     <div id="inst-certs-list"></div>
     <div class="divider"></div>
@@ -434,6 +448,7 @@
     <div class="mtabs">
       <button class="mtab active" data-mtab="sp" data-panel="sp-info">Info</button>
       <button class="mtab" data-mtab="sp" data-panel="sp-history">Class History</button>
+      <button class="mtab" data-mtab="sp" data-panel="sp-aha-cards">AHA Cards</button>
       <button class="mtab" data-mtab="sp" data-panel="sp-notes">Notes</button>
     </div>
     <div id="sp-info">
@@ -456,10 +471,37 @@
         <span id="sp-total" style="font-weight:700"></span>
       </div>
     </div>
+    <div id="sp-aha-cards" style="display:none">
+      <div id="sp-aha-list"></div>
+    </div>
     <div id="sp-notes" style="display:none">
       <div class="fg"><label>Notes on this Student</label><textarea id="sp-notes-text" style="min-height:160px" placeholder="Observations, performance notes, contact history…"></textarea></div>
       <button class="btn primary" id="sp-notes-save">Save Notes</button>
     </div>
+  </div>
+</div>
+
+<!-- AHA CARD -->
+<div class="overlay hidden" id="modal-aha-card">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-title">AHA Card — <span id="aha-student-name"></span></div><button class="close-btn" data-close="modal-aha-card">×</button></div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px" id="aha-class-label"></div>
+    <div class="fg"><label>Card Type</label>
+      <select id="aha-card-type">
+        <option value="">Not Issued</option>
+        <option value="eCard">eCard</option>
+        <option value="Physical">Physical Card</option>
+      </select>
+    </div>
+    <div id="aha-card-fields">
+      <div class="fg"><label>Card Number</label><input type="text" id="aha-card-number" placeholder="Optional" /></div>
+      <div class="row2">
+        <div class="fg" style="margin:0"><label>Issue Date</label><input type="date" id="aha-card-issued" /></div>
+        <div class="fg" style="margin:0"><label>Expiry Date</label><input type="date" id="aha-card-expiry" /></div>
+      </div>
+    </div>
+    <div id="aha-err" style="color:#f87171;font-size:13px;min-height:18px;margin-bottom:8px"></div>
+    <button class="btn primary full" id="aha-save-btn">Save Card Info</button>
   </div>
 </div>
 
@@ -471,6 +513,7 @@
       <select id="cert-category"><option value="instructor">Instructor Certification</option><option value="nremt">NREMT</option><option value="state">State License/Certification</option><option value="aha">Personal AHA Certification</option><option value="other">Other</option></select>
     </div>
     <div class="fg"><label>Certification Name / Type *</label><input type="text" id="cert-name" placeholder="e.g. ACLS Instructor, NREMT-P" /></div>
+    <div class="fg" id="cert-loginurl-field"><label>Login URL (renewal portal)</label><input type="url" id="cert-loginurl" placeholder="https://instructornetwork.heart.org" /></div>
     <div class="fg" id="cert-state-field" style="display:none"><label>State</label><input type="text" id="cert-state" placeholder="e.g. Maryland" /></div>
     <div class="fg"><label>Certificate / License Number</label><input type="text" id="cert-number" placeholder="Optional" /></div>
     <div class="row2">
@@ -899,18 +942,64 @@ function renderRoster(classId){
   const total=entries.reduce((s,r)=>s+(+r.charge||0),0);
   $('cd-roster-count').textContent=`${entries.length} student${entries.length!==1?'s':''} · ${fmt$(total)} total`;
   $('cd-roster-list').innerHTML=entries.length
-    ?entries.map(r=>`<div class="roster-row">
+    ?entries.map(r=>{
+      const cardCls=r.cardType==='eCard'?'card-issued':r.cardType==='Physical'?'card-physical':'card-none';
+      const cardLbl=r.cardType==='eCard'?'eCard':r.cardType==='Physical'?'Physical':'Card';
+      return `<div class="roster-row">
         <div class="roster-name"><div class="name">${r.name||'—'}</div><div class="sub">${lvBadge(r.licenseLevel)} ${r.email||''}</div></div>
-        <div style="display:flex;align-items:center;gap:8px;flex:none">
+        <div style="display:flex;align-items:center;gap:6px;flex:none">
           ${r.charge?`<span style="font-size:13px;font-weight:600;color:var(--ok)">${fmt$(r.charge)}</span>`:''}
           <span class="paid-badge ${r.paid?'paid-y':'paid-n'}" style="cursor:pointer" onclick="togglePaid('${r.id}')">${r.paid?'Paid':'Unpaid'}</span>
+          <span class="card-badge ${cardCls}" onclick="openAhaCard('${r.id}')">${cardLbl}</span>
           <button class="btn sm danger" onclick="removeFromRoster('${r.id}')">×</button>
         </div>
-      </div>`).join('')
+      </div>`;}).join('')
     :`<div class="empty" style="padding:24px 0"><div class="empty-text">No students on roster yet</div></div>`;
 }
 window.togglePaid=async function(id){const r=allRoster.find(x=>x.id===id);if(!r)return;await col('roster').doc(id).update({paid:!r.paid});};
 window.removeFromRoster=async function(id){if(!confirm('Remove from roster?'))return;await col('roster').doc(id).delete();};
+
+// ============================================================
+// AHA CARD MODAL
+// ============================================================
+let currentAhaRosterId=null;
+window.openAhaCard=function(rosterId){
+  currentAhaRosterId=rosterId;
+  const r=allRoster.find(x=>x.id===rosterId);if(!r)return;
+  const c=allClasses.find(x=>x.id===r.classId)||{};
+  $('aha-student-name').textContent=r.name||'—';
+  $('aha-class-label').textContent=`${c.type||'Class'} · ${formatDate(c.date)}`;
+  $('aha-card-type').value=r.cardType||'';
+  $('aha-card-number').value=r.cardNumber||'';
+  $('aha-card-issued').value=r.cardIssued||c.date||'';
+  if(r.cardExpiry){$('aha-card-expiry').value=r.cardExpiry;}
+  else if(c.date){const d=new Date(c.date);d.setFullYear(d.getFullYear()+2);$('aha-card-expiry').value=d.toISOString().slice(0,10);}
+  else{$('aha-card-expiry').value='';}
+  $('aha-card-fields').style.display=$('aha-card-type').value?'':'none';
+  $('aha-err').textContent='';
+  openModal('modal-aha-card');
+};
+$('aha-card-type').addEventListener('change',()=>{
+  $('aha-card-fields').style.display=$('aha-card-type').value?'':'none';
+  if($('aha-card-type').value&&!$('aha-card-issued').value){
+    const r=allRoster.find(x=>x.id===currentAhaRosterId);
+    const c=r?allClasses.find(x=>x.id===r.classId):null;
+    if(c?.date){$('aha-card-issued').value=c.date;const d=new Date(c.date);d.setFullYear(d.getFullYear()+2);$('aha-card-expiry').value=d.toISOString().slice(0,10);}
+  }
+});
+$('aha-save-btn').addEventListener('click',async()=>{
+  $('aha-save-btn').disabled=true;
+  try{
+    await col('roster').doc(currentAhaRosterId).update({
+      cardType:$('aha-card-type').value,
+      cardNumber:$('aha-card-number').value.trim(),
+      cardIssued:$('aha-card-issued').value,
+      cardExpiry:$('aha-card-expiry').value,
+    });
+    closeModal('modal-aha-card');
+  }catch(e){$('aha-err').textContent='Error: '+e.message;}
+  $('aha-save-btn').disabled=false;
+});
 
 $('cd-add-student-btn').addEventListener('click',()=>{
   $('ar-search').value='';$('ar-results').innerHTML='';$('ar-selected').classList.add('hidden');
@@ -1011,8 +1100,18 @@ window.openStudentProfile=function(studentId){
       return `<div class="fin-row"><div><div style="font-size:14px;font-weight:500">${c.type||'Class'}</div><div class="fin-meta">${formatDate(c.date)} · ${c.location||'—'}</div></div>
         <div style="text-align:right"><div class="fin-amount income">${fmt$(r.charge)}</div><span class="paid-badge ${r.paid?'paid-y':'paid-n'}">${r.paid?'Paid':'Unpaid'}</span></div></div>`;}).join('')
     :`<div class="empty" style="padding:20px 0"><div class="empty-text">No class history</div></div>`;
+  const cards=allRoster.filter(r=>r.studentId===studentId&&r.cardType);
+  $('sp-aha-list').innerHTML=cards.length
+    ?cards.map(r=>{const c=allClasses.find(x=>x.id===r.classId)||{};const expCls=expiryClass(r.cardExpiry);
+      return `<div class="card-sm"><div style="display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-weight:600;font-size:14px">${c.type||'Class'}</div><div style="font-size:12px;color:var(--muted)">${formatDate(c.date)}</div></div>
+        <span class="card-badge ${r.cardType==='eCard'?'card-issued':'card-physical'}">${r.cardType}</span></div>
+        ${r.cardNumber?`<div style="font-size:12px;color:var(--muted);margin-top:6px">Card # ${r.cardNumber}</div>`:''}
+        ${r.cardExpiry?`<div style="font-size:12px;margin-top:4px" class="exp-${expCls}">Expires ${formatDate(r.cardExpiry)} (${expiryLabel(r.cardExpiry)})</div>`:''}
+      </div>`;}).join('')
+    :`<div class="empty" style="padding:24px 0"><div class="empty-text">No AHA cards recorded</div></div>`;
   document.querySelectorAll('.mtab[data-mtab="sp"]').forEach((t,i)=>t.classList.toggle('active',i===0));
-  ['sp-info','sp-history','sp-notes'].forEach((id,i)=>$(id).style.display=i===0?'':'none');
+  ['sp-info','sp-history','sp-aha-cards','sp-notes'].forEach((id,i)=>$(id).style.display=i===0?'':'none');
   openModal('modal-student');
 };
 $('sp-save-btn').addEventListener('click',async()=>{
@@ -1038,6 +1137,20 @@ $('sp-delete-btn').addEventListener('click',async()=>{
 function renderCerts(){
   const inst=allCerts.filter(c=>c.category==='instructor'),pers=allCerts.filter(c=>c.category!=='instructor');
   const icons={nremt:'🏥',state:'📋',aha:'❤️',other:'📄'};
+  // expiry banner
+  const ninety=new Date();ninety.setDate(ninety.getDate()+90);
+  const ninety_str=ninety.toISOString().slice(0,10);
+  const expiring=allCerts.filter(c=>c.expiry&&c.expiry<=ninety_str);
+  const expired=expiring.filter(c=>c.expiry<today());
+  const soonExp=expiring.filter(c=>c.expiry>=today());
+  let banner='';
+  if(expired.length){
+    banner+=`<div class="alert-banner"><div class="alert-banner-title" style="color:#f87171">⚠ ${expired.length} Expired Certification${expired.length>1?'s':''}</div>${expired.map(c=>`<div class="alert-row"><span style="font-size:13px">${c.name}</span><span style="font-size:12px;color:#f87171;font-weight:600">${formatDate(c.expiry)}</span></div>`).join('')}</div>`;
+  }
+  if(soonExp.length){
+    banner+=`<div class="alert-banner alert-banner-warn"><div class="alert-banner-title" style="color:#fbbf24">⏰ Expiring Within 90 Days</div>${soonExp.map(c=>`<div class="alert-row"><span style="font-size:13px">${c.name}</span><span style="font-size:12px;color:#fbbf24;font-weight:600">${expiryLabel(c.expiry)}</span></div>`).join('')}</div>`;
+  }
+  $('cert-expiry-banner').innerHTML=banner;
   $('inst-certs-list').innerHTML=inst.length?inst.map(c=>certCard(c,'🎓')).join(''):`<div class="empty" style="padding:20px 0"><div class="empty-text">No instructor certifications</div></div>`;
   $('personal-certs-list').innerHTML=pers.length?pers.map(c=>certCard(c,icons[c.category]||'📄')).join(''):`<div class="empty" style="padding:20px 0"><div class="empty-text">No personal certifications</div></div>`;
 }
@@ -1046,16 +1159,22 @@ function certCard(c,icon){
   return `<div class="cert-card" onclick="openCertDetail('${c.id}')">
     <div class="cert-icon">${icon}</div>
     <div class="cert-body"><div class="cert-name">${c.name}</div><div class="cert-sub">${c.certNumber?'#'+c.certNumber+' · ':''} ${c.state||''}</div><div class="cert-exp exp-${cls}">${c.expiry?expiryLabel(c.expiry):'No expiry set'}</div></div>
-    <span class="exp-dot ${cls}"></span>
+    ${c.loginUrl?'<span class="cert-link-dot" title="Login URL saved"></span>':''}
+    <span class="exp-dot ${cls}" style="margin-left:${c.loginUrl?'6px':'auto'}"></span>
   </div>`;
 }
 $('new-cert-btn').addEventListener('click',()=>{
-  ['cert-name','cert-state','cert-number','cert-notes'].forEach(id=>$(id).value='');
+  ['cert-name','cert-state','cert-number','cert-notes','cert-loginurl'].forEach(id=>$(id).value='');
   $('cert-category').value='instructor';$('cert-issue').value='';$('cert-expiry').value='';
-  $('cert-photo').value='';$('cert-photo-prev').classList.remove('show');$('cert-err').textContent='';$('cert-state-field').style.display='none';
+  $('cert-photo').value='';$('cert-photo-prev').classList.remove('show');$('cert-err').textContent='';
+  $('cert-state-field').style.display='none';$('cert-loginurl-field').style.display='';
   openModal('modal-new-cert');
 });
-$('cert-category').addEventListener('change',()=>$('cert-state-field').style.display=$('cert-category').value==='state'?'':'none');
+$('cert-category').addEventListener('change',()=>{
+  const v=$('cert-category').value;
+  $('cert-state-field').style.display=v==='state'?'':'none';
+  $('cert-loginurl-field').style.display=v==='instructor'?'':'none';
+});
 $('cert-photo').addEventListener('change',()=>{
   const file=$('cert-photo').files[0];if(!file||!file.type.startsWith('image/')){$('cert-photo-prev').classList.remove('show');return;}
   const r=new FileReader();r.onload=e=>{$('cert-photo-prev').src=e.target.result;$('cert-photo-prev').classList.add('show');};r.readAsDataURL(file);
@@ -1066,7 +1185,7 @@ $('cert-save-btn').addEventListener('click',async()=>{
   try{
     let photoBase64='';const file=$('cert-photo').files[0];
     if(file&&file.type.startsWith('image/'))photoBase64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(file);});
-    await col('certs').add({category:$('cert-category').value,name,state:$('cert-state').value.trim(),certNumber:$('cert-number').value.trim(),issue:$('cert-issue').value,expiry:$('cert-expiry').value,notes:$('cert-notes').value.trim(),photoBase64,createdAt:Date.now()});
+    await col('certs').add({category:$('cert-category').value,name,state:$('cert-state').value.trim(),certNumber:$('cert-number').value.trim(),issue:$('cert-issue').value,expiry:$('cert-expiry').value,notes:$('cert-notes').value.trim(),loginUrl:$('cert-loginurl').value.trim(),photoBase64,createdAt:Date.now()});
     closeModal('modal-new-cert');
   }catch(e){$('cert-err').textContent='Error: '+e.message;}
   $('cert-save-btn').disabled=false;
@@ -1082,7 +1201,9 @@ window.openCertDetail=function(certId){
     ${c.issue?`<div class="fin-row"><span style="color:var(--muted);font-size:13px">Issued</span><span>${formatDate(c.issue)}</span></div>`:''}
     ${c.expiry?`<div class="fin-row"><span style="color:var(--muted);font-size:13px">Expires</span><span class="exp-${cls}">${formatDate(c.expiry)} (${expiryLabel(c.expiry)})</span></div>`:''}
     ${c.notes?`<div style="margin-top:10px;font-size:13px;color:var(--muted)">${c.notes}</div>`:''}
-  </div>`;
+  </div>
+  ${c.loginUrl?`<div style="margin-top:12px"><div style="font-size:12px;color:var(--muted);margin-bottom:6px">Renewal Portal</div><a href="${c.loginUrl}" target="_blank" rel="noopener" class="open-url-btn">🔗 Open Login Page</a></div>`:''}
+  `;
   if(c.photoBase64){$('certd-photo-wrap').style.display='';$('certd-photo').src=c.photoBase64;$('certd-export-btn').href=c.photoBase64;$('certd-export-btn').download=`${c.name.replace(/\s+/g,'_')}_cert.png`;}
   else{$('certd-photo-wrap').style.display='none';}
   openModal('modal-cert-detail');
