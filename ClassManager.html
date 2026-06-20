@@ -4,6 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>Class Manager</title>
+  <link rel="icon" type="image/svg+xml" href="star-of-life.svg" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Class Manager" />
@@ -200,7 +202,6 @@
       <button class="tab" data-view="certs">🏅 Certs</button>
       <button class="tab" data-view="finances">💰 Finances</button>
       <button class="tab" data-view="materials">📚 Materials</button>
-      <button class="tab" data-view="info">📋 Info</button>
     </nav>
   </div>
 </header>
@@ -225,6 +226,7 @@
         <div id="dash-expiring"></div>
       </div>
     </div>
+    <button id="dash-info-btn" class="btn full" style="margin-top:6px;justify-content:center;gap:10px;padding:13px;border-color:rgba(147,197,253,.25);color:var(--accent2);font-size:14px">📋 Info &amp; FAQ — Training Center · Rules · Quick Reference</button>
   </section>
 
   <!-- CLASSES -->
@@ -327,17 +329,27 @@
     <div id="materials-list"></div>
   </section>
 
-  <!-- INFO / FAQ -->
-  <section class="view" id="view-info">
+
+</main>
+
+<!-- ===== MODALS ===== -->
+
+<!-- INFO & FAQ PANEL -->
+<div class="overlay hidden" id="modal-info-faq">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-title">📋 Info &amp; FAQ</div>
+      <button class="close-btn" data-close="modal-info-faq">×</button>
+    </div>
     <!-- Training Center -->
-    <div class="sec-hd" style="margin-bottom:10px">
+    <div class="sec-hd" style="margin-bottom:10px;margin-top:4px">
       <div class="sec-title" style="color:var(--accent2)">Training Center</div>
       <div style="display:flex;gap:8px">
         <button class="btn sm" id="tc-save-btn" style="display:none">Save</button>
         <button class="btn sm primary" id="tc-edit-btn">Edit</button>
       </div>
     </div>
-    <div class="card" style="margin-bottom:18px">
+    <div class="card" style="margin-bottom:16px">
       <div id="tc-display">
         <div class="fin-row"><span style="color:var(--muted);font-size:13px">Training Center</span><span id="tc-d-name" style="font-weight:600"></span></div>
         <div class="fin-row"><span style="color:var(--muted);font-size:13px">Program Director</span><span id="tc-d-pd"></span></div>
@@ -361,7 +373,7 @@
         <button class="btn sm primary" id="inst-info-edit-btn">Edit</button>
       </div>
     </div>
-    <div class="card" style="margin-bottom:18px">
+    <div class="card" style="margin-bottom:16px">
       <div id="inst-info-display">
         <div class="fin-row"><span style="color:var(--muted);font-size:13px">Instructor ID #</span><span id="inst-d-id" style="font-weight:600"></span></div>
         <div class="fin-row"><span style="color:var(--muted);font-size:13px">Expiration Date</span><span id="inst-d-expiry"></span></div>
@@ -380,16 +392,16 @@
       <div class="sec-title">Rules During Exam</div>
       <button class="btn sm primary" id="rules-save-btn">Save</button>
     </div>
-    <div class="card" style="margin-bottom:18px">
-      <textarea id="info-rules" style="border:none;background:none;padding:0;min-height:80px;font-size:13px;line-height:1.6" placeholder="Enter exam rules…"></textarea>
+    <div class="card" style="margin-bottom:16px">
+      <textarea id="info-rules" style="border:none;background:none;padding:0;min-height:72px;font-size:13px;line-height:1.6" placeholder="Enter exam rules…"></textarea>
     </div>
     <!-- Card Steps -->
     <div class="sec-hd" style="margin-bottom:10px">
       <div class="sec-title">Steps for Completion Cards</div>
       <button class="btn sm primary" id="steps-save-btn">Save</button>
     </div>
-    <div class="card" style="margin-bottom:18px">
-      <textarea id="info-steps" style="border:none;background:none;padding:0;min-height:70px;font-size:13px;line-height:1.6" placeholder="Steps to obtain completion cards…"></textarea>
+    <div class="card" style="margin-bottom:16px">
+      <textarea id="info-steps" style="border:none;background:none;padding:0;min-height:64px;font-size:13px;line-height:1.6" placeholder="Steps to obtain completion cards…"></textarea>
     </div>
     <!-- FAQ -->
     <div class="sec-hd" style="margin-bottom:10px">
@@ -397,11 +409,8 @@
       <button class="btn sm primary" id="new-faq-btn">+ Add</button>
     </div>
     <div id="faq-list"></div>
-  </section>
-
-</main>
-
-<!-- ===== MODALS ===== -->
+  </div>
+</div>
 
 <!-- NEW CLASS -->
 <div class="overlay hidden" id="modal-new-class">
@@ -932,6 +941,7 @@ $('faq-delete-btn').addEventListener('click',async()=>{
   if(!currentFaqId||!confirm('Delete this FAQ item?'))return;
   await col('faq').doc(currentFaqId).delete();closeModal('modal-faq');
 });
+$('dash-info-btn').addEventListener('click',()=>{renderInfo();openModal('modal-info-faq');});
 
 // ============================================================
 // AUTH + REAL-TIME LISTENERS
@@ -977,18 +987,18 @@ function setupListeners(){
   },console.error));
   col('settings').doc('info').onSnapshot(snap=>{
     infoDoc=snap.exists?snap.data():{};
-    if(currentView==='info')renderInfo();
+    if(!$('modal-info-faq').classList.contains('hidden'))renderInfo();
   },console.error);
   unsubs.push(col('faq').orderBy('createdAt','asc').onSnapshot(snap=>{
     allFaq=snap.docs.map(d=>({id:d.id,...d.data()}));
-    if(currentView==='info')renderInfo();
+    if(!$('modal-info-faq').classList.contains('hidden'))renderInfo();
   },console.error));
 }
 
 function refreshView(){
   $('loading-screen').classList.add('hidden');
   renderDashboardStats();
-  const map={dashboard:renderDashboard,classes:renderClasses,students:renderStudents,certs:renderCerts,finances:renderFinances,materials:renderMaterials,info:renderInfo};
+  const map={dashboard:renderDashboard,classes:renderClasses,students:renderStudents,certs:renderCerts,finances:renderFinances,materials:renderMaterials};
   if(map[currentView])map[currentView]();
 }
 
