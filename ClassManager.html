@@ -469,7 +469,10 @@
     <div id="cd-roster">
       <div class="sec-hd">
         <div style="font-size:13px;color:var(--muted)" id="cd-roster-count">0 students</div>
-        <button class="btn primary sm" id="cd-add-student-btn">+ Add Student</button>
+        <div style="display:flex;gap:6px">
+          <button class="btn sm" id="cd-print-btn">🖨️ Print</button>
+          <button class="btn primary sm" id="cd-add-student-btn">+ Add Student</button>
+        </div>
       </div>
       <div id="cd-roster-list"></div>
     </div>
@@ -646,6 +649,7 @@
     <div class="modal-hd">
       <div><div class="modal-title" id="certd-title"></div><div style="font-size:13px;color:var(--muted);margin-top:2px" id="certd-sub"></div></div>
       <div style="display:flex;gap:8px">
+        <button class="btn sm" id="certd-edit-btn">Edit</button>
         <button class="btn sm danger" id="certd-delete-btn">Delete</button>
         <button class="close-btn" data-close="modal-cert-detail">×</button>
       </div>
@@ -653,6 +657,35 @@
     <div id="certd-body"></div>
     <div id="certd-photo-wrap" style="margin-top:14px;display:none">
       <a id="certd-photo-link" class="open-url-btn" target="_blank" rel="noopener">📷 Open Certificate Photo</a>
+    </div>
+    <!-- Edit form (hidden by default) -->
+    <div id="certd-edit-form" style="display:none;margin-top:14px">
+      <div class="fg"><label>Cert Name *</label><input type="text" id="certd-e-name" /></div>
+      <div class="row2">
+        <div class="fg" style="margin:0"><label>Category</label>
+          <select id="certd-e-category">
+            <option value="instructor">Instructor Certification</option>
+            <option value="nremt">NREMT</option>
+            <option value="state">State License</option>
+            <option value="aha">AHA Certification</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="fg" style="margin:0"><label>State / Issuer</label><input type="text" id="certd-e-state" /></div>
+      </div>
+      <div class="row2">
+        <div class="fg" style="margin:0"><label>Cert / License #</label><input type="text" id="certd-e-number" /></div>
+        <div class="fg" style="margin:0"><label>Issue Date</label><input type="date" id="certd-e-issue" /></div>
+      </div>
+      <div class="fg" style="margin-top:10px"><label>Expiry Date</label><input type="date" id="certd-e-expiry" /></div>
+      <div class="fg"><label>Login / Renewal URL</label><input type="url" id="certd-e-loginurl" placeholder="https://…" /></div>
+      <div class="fg"><label>Photo / Certificate Image (Drive link)</label><input type="url" id="certd-e-photourl" placeholder="https://drive.google.com/file/d/…" /></div>
+      <div class="fg"><label>Notes</label><textarea id="certd-e-notes" style="min-height:60px"></textarea></div>
+      <div id="certd-e-err" style="color:#f87171;font-size:13px;min-height:18px;margin-bottom:8px"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn primary" id="certd-e-save">Save Changes</button>
+        <button class="btn" id="certd-e-cancel">Cancel</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1462,6 +1495,99 @@ window.openCertDetail=function(certId){
 $('certd-delete-btn').addEventListener('click',async()=>{
   if(!confirm('Delete this certification?'))return;
   await col('certs').doc(currentCertId).delete();closeModal('modal-cert-detail');
+});
+$('certd-edit-btn').addEventListener('click',()=>{
+  const c=allCerts.find(x=>x.id===currentCertId);if(!c)return;
+  $('certd-e-name').value=c.name||'';
+  $('certd-e-category').value=c.category||'other';
+  $('certd-e-state').value=c.state||'';
+  $('certd-e-number').value=c.certNumber||'';
+  $('certd-e-issue').value=c.issue||'';
+  $('certd-e-expiry').value=c.expiry||'';
+  $('certd-e-loginurl').value=c.loginUrl||'';
+  $('certd-e-photourl').value=c.photoUrl||'';
+  $('certd-e-notes').value=c.notes||'';
+  $('certd-e-err').textContent='';
+  $('certd-body').style.display='none';
+  $('certd-photo-wrap').style.display='none';
+  $('certd-edit-form').style.display='';
+  $('certd-edit-btn').style.display='none';
+  $('certd-delete-btn').style.display='none';
+});
+$('certd-e-cancel').addEventListener('click',()=>{
+  $('certd-body').style.display='';
+  $('certd-edit-form').style.display='none';
+  $('certd-edit-btn').style.display='';
+  $('certd-delete-btn').style.display='';
+  const c=allCerts.find(x=>x.id===currentCertId);
+  if(c){const photoUrl=c.photoUrl||c.photoBase64||'';$('certd-photo-wrap').style.display=photoUrl?'':'none';if(photoUrl)$('certd-photo-link').href=photoUrl;}
+});
+$('certd-e-save').addEventListener('click',async()=>{
+  const name=$('certd-e-name').value.trim();
+  if(!name){$('certd-e-err').textContent='Name required.';return;}
+  $('certd-e-save').disabled=true;
+  try{
+    await col('certs').doc(currentCertId).update({
+      name,category:$('certd-e-category').value,state:$('certd-e-state').value.trim(),
+      certNumber:$('certd-e-number').value.trim(),issue:$('certd-e-issue').value,
+      expiry:$('certd-e-expiry').value,loginUrl:$('certd-e-loginurl').value.trim(),
+      photoUrl:$('certd-e-photourl').value.trim(),notes:$('certd-e-notes').value.trim()
+    });
+    closeModal('modal-cert-detail');
+  }catch(e){$('certd-e-err').textContent='Error: '+e.message;}
+  $('certd-e-save').disabled=false;
+});
+
+// ============================================================
+// PRINT ROSTER
+// ============================================================
+$('cd-print-btn').addEventListener('click',()=>{
+  const c=allClasses.find(x=>x.id===currentClassId);if(!c)return;
+  const entries=allRoster.filter(r=>r.classId===currentClassId);
+  const rows=entries.map((r,i)=>`
+    <tr>
+      <td>${i+1}</td>
+      <td>${r.name||'—'}</td>
+      <td>${r.email||'—'}</td>
+      <td>${r.phone||'—'}</td>
+      <td>${r.licenseLevel||'—'}</td>
+      <td>${r.charge?'$'+parseFloat(r.charge).toFixed(2):'—'}</td>
+      <td>${r.paid?'✓ Paid':'Unpaid'}</td>
+      <td>${r.cardType||'—'}${r.cardNumber?' #'+r.cardNumber:''}</td>
+      <td>${r.cardExpiry||'—'}</td>
+    </tr>`).join('');
+  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"/>
+  <title>${c.type} Roster – ${c.date}</title>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;font-size:13px;color:#000;margin:0;padding:20px}
+    h1{margin:0 0 4px;font-size:20px}
+    .meta{color:#555;font-size:13px;margin-bottom:18px}
+    table{width:100%;border-collapse:collapse}
+    th{background:#1a1a2e;color:#fff;padding:8px 10px;text-align:left;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+    td{padding:8px 10px;border-bottom:1px solid #e5e7eb;vertical-align:top}
+    tr:nth-child(even) td{background:#f9fafb}
+    .footer{margin-top:18px;font-size:11px;color:#888;border-top:1px solid #e5e7eb;padding-top:8px}
+    @media print{button{display:none}}
+  </style>
+  </head><body>
+  <button onclick="window.print()" style="margin-bottom:16px;padding:8px 18px;background:#1a1a2e;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px">🖨️ Print / Save as PDF</button>
+  <h1>${c.type}</h1>
+  <div class="meta">
+    📅 ${c.date}${c.time?' · '+c.time:''}&nbsp;&nbsp;
+    📍 ${c.location||'Location TBD'}&nbsp;&nbsp;
+    👥 ${entries.length} student${entries.length!==1?'s':''}
+  </div>
+  <table>
+    <thead><tr>
+      <th>#</th><th>Name</th><th>Email</th><th>Phone</th>
+      <th>License</th><th>Charge</th><th>Payment</th>
+      <th>AHA Card</th><th>Card Expiry</th>
+    </tr></thead>
+    <tbody>${rows||'<tr><td colspan="9" style="text-align:center;color:#888;padding:20px">No students on roster</td></tr>'}</tbody>
+  </table>
+  <div class="footer">Printed ${new Date().toLocaleDateString()} · Class Manager – Pairamedic</div>
+  </body></html>`;
+  const w=window.open('','_blank');w.document.write(html);w.document.close();
 });
 
 // ============================================================
