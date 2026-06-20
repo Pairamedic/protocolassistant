@@ -211,25 +211,125 @@
 
   <!-- DASHBOARD -->
   <section class="view active" id="view-dashboard">
-    <div class="stats">
-      <div class="stat-card"><div class="stat-val" id="stat-upcoming">—</div><div class="stat-lbl">Upcoming Classes</div></div>
-      <div class="stat-card"><div class="stat-val" id="stat-students">—</div><div class="stat-lbl">Total Students</div></div>
-      <div class="stat-card"><div class="stat-val" id="stat-revenue">—</div><div class="stat-lbl">Total Revenue</div></div>
-      <div class="stat-card"><div class="stat-val" id="stat-certs">—</div><div class="stat-lbl">Active Certs</div></div>
+    <div class="stabs">
+      <button class="stab active" id="stab-dash-overview">📊 Overview</button>
+      <button class="stab" id="stab-dash-finances">💰 Finances</button>
+      <button class="stab" id="stab-dash-info">📋 Info &amp; FAQ</button>
     </div>
-    <div class="row2" style="gap:14px">
-      <div>
-        <div class="sec-hd"><div class="sec-title">Upcoming Classes</div></div>
-        <div id="dash-upcoming"></div>
+
+    <!-- Overview sub-panel -->
+    <div id="subpanel-dash-overview">
+      <div class="stats">
+        <div class="stat-card"><div class="stat-val" id="stat-upcoming">—</div><div class="stat-lbl">Upcoming Classes</div></div>
+        <div class="stat-card"><div class="stat-val" id="stat-students">—</div><div class="stat-lbl">Total Students</div></div>
+        <div class="stat-card"><div class="stat-val" id="stat-revenue">—</div><div class="stat-lbl">Total Revenue</div></div>
+        <div class="stat-card"><div class="stat-val" id="stat-certs">—</div><div class="stat-lbl">Active Certs</div></div>
       </div>
-      <div>
-        <div class="sec-hd"><div class="sec-title">Expiring Soon</div></div>
-        <div id="dash-expiring"></div>
+      <div class="row2" style="gap:14px">
+        <div>
+          <div class="sec-hd"><div class="sec-title">Upcoming Classes</div></div>
+          <div id="dash-upcoming"></div>
+        </div>
+        <div>
+          <div class="sec-hd"><div class="sec-title">Expiring Soon</div></div>
+          <div id="dash-expiring"></div>
+        </div>
       </div>
     </div>
-    <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap">
-      <button id="dash-finances-btn" class="btn" style="flex:1;justify-content:center;gap:10px;padding:13px;border-color:rgba(74,222,128,.2);color:var(--ok);font-size:14px">💰 Finances</button>
-      <button id="dash-info-btn" class="btn" style="flex:2;justify-content:center;gap:10px;padding:13px;border-color:rgba(147,197,253,.25);color:var(--accent2);font-size:14px">📋 Info &amp; FAQ — Training Center · Rules</button>
+
+    <!-- Finances sub-panel -->
+    <div id="subpanel-dash-finances" style="display:none">
+      <div class="stats">
+        <div class="stat-card"><div class="stat-val exp-ok" id="fin-income">—</div><div class="stat-lbl">Total Income</div></div>
+        <div class="stat-card"><div class="stat-val exp-danger" id="fin-expenses">—</div><div class="stat-lbl">Total Expenses</div></div>
+        <div class="stat-card"><div class="stat-val" id="fin-net">—</div><div class="stat-lbl">Net Profit</div></div>
+        <div class="stat-card"><div class="stat-val" id="fin-classes">—</div><div class="stat-lbl">Classes Taught</div></div>
+      </div>
+      <div class="row2" style="gap:14px">
+        <div>
+          <div class="sec-hd">
+            <div class="sec-title">Expenses</div>
+            <button class="btn sm" id="new-expense-btn">+ Add</button>
+          </div>
+          <div id="expenses-list"></div>
+        </div>
+        <div>
+          <div class="sec-hd"><div class="sec-title">Income by Class</div></div>
+          <div id="income-by-class"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info & FAQ sub-panel -->
+    <div id="subpanel-dash-info" style="display:none">
+      <!-- Training Center -->
+      <div class="sec-hd" style="margin-bottom:10px;margin-top:4px">
+        <div class="sec-title" style="color:var(--accent2)">Training Center</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn sm" id="tc-save-btn" style="display:none">Save</button>
+          <button class="btn sm primary" id="tc-edit-btn">Edit</button>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div id="tc-display">
+          <div class="fin-row"><span style="color:var(--muted);font-size:13px">Training Center</span><span id="tc-d-name" style="font-weight:600"></span></div>
+          <div class="fin-row"><span style="color:var(--muted);font-size:13px">Program Director</span><span id="tc-d-pd"></span></div>
+          <div class="fin-row"><span style="color:var(--muted);font-size:13px">Email</span><span id="tc-d-email"></span></div>
+          <div class="fin-row" style="border:none"><span style="color:var(--muted);font-size:13px">Phone</span><span id="tc-d-phone"></span></div>
+        </div>
+        <div id="tc-edit-form" style="display:none">
+          <div class="fg"><label>Training Center Name</label><input type="text" id="tc-name" /></div>
+          <div class="row2">
+            <div class="fg" style="margin:0"><label>Program Director</label><input type="text" id="tc-pd" /></div>
+            <div class="fg" style="margin:0"><label>Phone</label><input type="tel" id="tc-phone" /></div>
+          </div>
+          <div class="fg" style="margin-top:10px"><label>Email</label><input type="email" id="tc-email" /></div>
+        </div>
+      </div>
+      <!-- Instructor Info -->
+      <div class="sec-hd" style="margin-bottom:10px">
+        <div class="sec-title" style="color:var(--accent)">My Instructor Info</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn sm" id="inst-info-save-btn" style="display:none">Save</button>
+          <button class="btn sm primary" id="inst-info-edit-btn">Edit</button>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div id="inst-info-display">
+          <div class="fin-row"><span style="color:var(--muted);font-size:13px">Instructor ID #</span><span id="inst-d-id" style="font-weight:600"></span></div>
+          <div class="fin-row"><span style="color:var(--muted);font-size:13px">Expiration Date</span><span id="inst-d-expiry"></span></div>
+          <div class="fin-row" style="border:none"><span style="color:var(--muted);font-size:13px">Training Center ID #</span><span id="inst-d-tcid" style="font-weight:600"></span></div>
+        </div>
+        <div id="inst-info-edit-form" style="display:none">
+          <div class="fg"><label>Instructor ID #</label><input type="text" id="inst-id" placeholder="Your AHA Instructor ID" /></div>
+          <div class="row2">
+            <div class="fg" style="margin:0"><label>Expiration Date</label><input type="date" id="inst-expiry" /></div>
+            <div class="fg" style="margin:0"><label>Training Center ID #</label><input type="text" id="inst-tcid" /></div>
+          </div>
+        </div>
+      </div>
+      <!-- Exam Rules -->
+      <div class="sec-hd" style="margin-bottom:10px">
+        <div class="sec-title">Rules During Exam</div>
+        <button class="btn sm primary" id="rules-save-btn">Save</button>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <textarea id="info-rules" style="border:none;background:none;padding:0;min-height:72px;font-size:13px;line-height:1.6" placeholder="Enter exam rules…"></textarea>
+      </div>
+      <!-- Card Steps -->
+      <div class="sec-hd" style="margin-bottom:10px">
+        <div class="sec-title">Steps for Completion Cards</div>
+        <button class="btn sm primary" id="steps-save-btn">Save</button>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <textarea id="info-steps" style="border:none;background:none;padding:0;min-height:64px;font-size:13px;line-height:1.6" placeholder="Steps to obtain completion cards…"></textarea>
+      </div>
+      <!-- FAQ -->
+      <div class="sec-hd" style="margin-bottom:10px">
+        <div class="sec-title">FAQ / Quick Reference</div>
+        <button class="btn sm primary" id="new-faq-btn">+ Add</button>
+      </div>
+      <div id="faq-list"></div>
     </div>
   </section>
 
@@ -294,29 +394,6 @@
     <div id="personal-certs-list"></div>
   </section>
 
-  <!-- FINANCES -->
-  <section class="view" id="view-finances">
-    <div class="stats">
-      <div class="stat-card"><div class="stat-val exp-ok" id="fin-income">—</div><div class="stat-lbl">Total Income</div></div>
-      <div class="stat-card"><div class="stat-val exp-danger" id="fin-expenses">—</div><div class="stat-lbl">Total Expenses</div></div>
-      <div class="stat-card"><div class="stat-val" id="fin-net">—</div><div class="stat-lbl">Net Profit</div></div>
-      <div class="stat-card"><div class="stat-val" id="fin-classes">—</div><div class="stat-lbl">Classes Taught</div></div>
-    </div>
-    <div class="row2" style="gap:14px">
-      <div>
-        <div class="sec-hd">
-          <div class="sec-title">Expenses</div>
-          <button class="btn sm" id="new-expense-btn">+ Add</button>
-        </div>
-        <div id="expenses-list"></div>
-      </div>
-      <div>
-        <div class="sec-hd"><div class="sec-title">Income by Class</div></div>
-        <div id="income-by-class"></div>
-      </div>
-    </div>
-  </section>
-
   <!-- MATERIALS -->
   <section class="view" id="view-materials">
     <div class="sec-hd">
@@ -347,83 +424,6 @@
 <!-- ===== MODALS ===== -->
 
 <!-- INFO & FAQ PANEL -->
-<div class="overlay hidden" id="modal-info-faq">
-  <div class="modal">
-    <div class="modal-hd">
-      <div class="modal-title">📋 Info &amp; FAQ</div>
-      <button class="close-btn" data-close="modal-info-faq">×</button>
-    </div>
-    <!-- Training Center -->
-    <div class="sec-hd" style="margin-bottom:10px;margin-top:4px">
-      <div class="sec-title" style="color:var(--accent2)">Training Center</div>
-      <div style="display:flex;gap:8px">
-        <button class="btn sm" id="tc-save-btn" style="display:none">Save</button>
-        <button class="btn sm primary" id="tc-edit-btn">Edit</button>
-      </div>
-    </div>
-    <div class="card" style="margin-bottom:16px">
-      <div id="tc-display">
-        <div class="fin-row"><span style="color:var(--muted);font-size:13px">Training Center</span><span id="tc-d-name" style="font-weight:600"></span></div>
-        <div class="fin-row"><span style="color:var(--muted);font-size:13px">Program Director</span><span id="tc-d-pd"></span></div>
-        <div class="fin-row"><span style="color:var(--muted);font-size:13px">Email</span><span id="tc-d-email"></span></div>
-        <div class="fin-row" style="border:none"><span style="color:var(--muted);font-size:13px">Phone</span><span id="tc-d-phone"></span></div>
-      </div>
-      <div id="tc-edit-form" style="display:none">
-        <div class="fg"><label>Training Center Name</label><input type="text" id="tc-name" /></div>
-        <div class="row2">
-          <div class="fg" style="margin:0"><label>Program Director</label><input type="text" id="tc-pd" /></div>
-          <div class="fg" style="margin:0"><label>Phone</label><input type="tel" id="tc-phone" /></div>
-        </div>
-        <div class="fg" style="margin-top:10px"><label>Email</label><input type="email" id="tc-email" /></div>
-      </div>
-    </div>
-    <!-- Instructor Info -->
-    <div class="sec-hd" style="margin-bottom:10px">
-      <div class="sec-title" style="color:var(--accent)">My Instructor Info</div>
-      <div style="display:flex;gap:8px">
-        <button class="btn sm" id="inst-info-save-btn" style="display:none">Save</button>
-        <button class="btn sm primary" id="inst-info-edit-btn">Edit</button>
-      </div>
-    </div>
-    <div class="card" style="margin-bottom:16px">
-      <div id="inst-info-display">
-        <div class="fin-row"><span style="color:var(--muted);font-size:13px">Instructor ID #</span><span id="inst-d-id" style="font-weight:600"></span></div>
-        <div class="fin-row"><span style="color:var(--muted);font-size:13px">Expiration Date</span><span id="inst-d-expiry"></span></div>
-        <div class="fin-row" style="border:none"><span style="color:var(--muted);font-size:13px">Training Center ID #</span><span id="inst-d-tcid" style="font-weight:600"></span></div>
-      </div>
-      <div id="inst-info-edit-form" style="display:none">
-        <div class="fg"><label>Instructor ID #</label><input type="text" id="inst-id" placeholder="Your AHA Instructor ID" /></div>
-        <div class="row2">
-          <div class="fg" style="margin:0"><label>Expiration Date</label><input type="date" id="inst-expiry" /></div>
-          <div class="fg" style="margin:0"><label>Training Center ID #</label><input type="text" id="inst-tcid" /></div>
-        </div>
-      </div>
-    </div>
-    <!-- Exam Rules -->
-    <div class="sec-hd" style="margin-bottom:10px">
-      <div class="sec-title">Rules During Exam</div>
-      <button class="btn sm primary" id="rules-save-btn">Save</button>
-    </div>
-    <div class="card" style="margin-bottom:16px">
-      <textarea id="info-rules" style="border:none;background:none;padding:0;min-height:72px;font-size:13px;line-height:1.6" placeholder="Enter exam rules…"></textarea>
-    </div>
-    <!-- Card Steps -->
-    <div class="sec-hd" style="margin-bottom:10px">
-      <div class="sec-title">Steps for Completion Cards</div>
-      <button class="btn sm primary" id="steps-save-btn">Save</button>
-    </div>
-    <div class="card" style="margin-bottom:16px">
-      <textarea id="info-steps" style="border:none;background:none;padding:0;min-height:64px;font-size:13px;line-height:1.6" placeholder="Steps to obtain completion cards…"></textarea>
-    </div>
-    <!-- FAQ -->
-    <div class="sec-hd" style="margin-bottom:10px">
-      <div class="sec-title">FAQ / Quick Reference</div>
-      <button class="btn sm primary" id="new-faq-btn">+ Add</button>
-    </div>
-    <div id="faq-list"></div>
-  </div>
-</div>
-
 <!-- NEW CLASS -->
 <div class="overlay hidden" id="modal-new-class">
   <div class="modal">
@@ -953,7 +953,17 @@ $('faq-delete-btn').addEventListener('click',async()=>{
   if(!currentFaqId||!confirm('Delete this FAQ item?'))return;
   await col('faq').doc(currentFaqId).delete();closeModal('modal-faq');
 });
-$('dash-info-btn').addEventListener('click',()=>{renderInfo();openModal('modal-info-faq');});
+function activateDashTab(which){
+  ['overview','finances','info'].forEach(n=>{
+    $(`stab-dash-${n}`).classList.toggle('active',n===which);
+    $(`subpanel-dash-${n}`).style.display=n===which?'':'none';
+  });
+  if(which==='finances')renderFinances();
+  if(which==='info')renderInfo();
+}
+['overview','finances','info'].forEach(n=>{
+  $(`stab-dash-${n}`).addEventListener('click',()=>activateDashTab(n));
+});
 
 // ============================================================
 // AUTH + REAL-TIME LISTENERS
@@ -999,18 +1009,18 @@ function setupListeners(){
   },console.error));
   col('settings').doc('info').onSnapshot(snap=>{
     infoDoc=snap.exists?snap.data():{};
-    if(!$('modal-info-faq').classList.contains('hidden'))renderInfo();
+    if($('subpanel-dash-info').style.display!=='none')renderInfo();
   },console.error);
   unsubs.push(col('faq').orderBy('createdAt','asc').onSnapshot(snap=>{
     allFaq=snap.docs.map(d=>({id:d.id,...d.data()}));
-    if(!$('modal-info-faq').classList.contains('hidden'))renderInfo();
+    if($('subpanel-dash-info').style.display!=='none')renderInfo();
   },console.error));
 }
 
 function refreshView(){
   $('loading-screen').classList.add('hidden');
   renderDashboardStats();
-  const map={dashboard:renderDashboard,classes:renderClasses,students:renderStudents,certs:renderCerts,finances:renderFinances,materials:renderMaterials};
+  const map={dashboard:renderDashboard,classes:renderClasses,students:renderStudents,certs:renderCerts,materials:renderMaterials};
   if(map[currentView])map[currentView]();
 }
 
@@ -1018,6 +1028,7 @@ function refreshView(){
 // TAB NAV
 // ============================================================
 function switchView(name){
+  if(name==='finances'||name==='info'){switchView('dashboard');activateDashTab(name);return;}
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   const tab=document.querySelector(`.tab[data-view="${name}"]`);
@@ -1029,10 +1040,12 @@ function switchView(name){
 document.getElementById('tabs').querySelectorAll('.tab').forEach(tab=>{
   tab.addEventListener('click',()=>{
     switchView(tab.dataset.view);
-    // Reset classes/students sub-tabs to Classes when switching away and back
     if(tab.dataset.view==='classes'){
       $('stab-classes').classList.add('active');$('stab-students').classList.remove('active');
       $('subpanel-classes').style.display='';$('subpanel-students').style.display='none';
+    }
+    if(tab.dataset.view==='dashboard'){
+      activateDashTab('overview');
     }
   });
 });
@@ -1046,7 +1059,6 @@ $('stab-students').addEventListener('click',()=>{
   $('subpanel-students').style.display='';$('subpanel-classes').style.display='none';
   currentView='students';renderStudents();
 });
-$('dash-finances-btn').addEventListener('click',()=>switchView('finances'));
 
 // ============================================================
 // MODAL HELPERS
