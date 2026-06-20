@@ -698,8 +698,15 @@ $('signout-btn').addEventListener('click',()=>{if(confirm('Sign out?'))fbAuth.si
 // ============================================================
 // AUTH + REAL-TIME LISTENERS
 // ============================================================
+const ADMIN_EMAIL='eliasacaldwellnrp@gmail.com';
+
 fbAuth.onAuthStateChanged(user=>{
   if(!user){unsubs.forEach(u=>u());window.location.replace('index.html?returnTo=ClassManager.html');return;}
+  if(user.email!==ADMIN_EMAIL){
+    fbAuth.signOut();
+    window.location.replace('index.html?returnTo=ClassManager.html');
+    return;
+  }
   UID=user.uid;
   setupListeners();
 });
