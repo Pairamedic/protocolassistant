@@ -27,6 +27,7 @@
     .tabs::-webkit-scrollbar{display:none}
     .tab{flex:none;padding:8px 14px;border-radius:10px;background:var(--input-bg);border:1px solid var(--border);cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);white-space:nowrap;transition:all .15s;font-family:inherit}
     .tab.active{background:rgba(94,234,212,.1);border-color:rgba(94,234,212,.35);color:var(--accent);font-weight:600}
+    @media(max-width:640px){.tab{padding:7px 10px;font-size:12px}.tabs{gap:4px}}
     :root.light .tab.active{background:rgba(13,148,136,.1);border-color:rgba(13,148,136,.3);color:var(--accent)}
     main{max-width:960px;margin:0 auto;padding:18px 16px 40px}
     .view{display:none}.view.active{display:block}
@@ -196,10 +197,10 @@
       <button class="tab active" data-view="dashboard">📊 Dashboard</button>
       <button class="tab" data-view="classes">📅 Classes</button>
       <button class="tab" data-view="students">👥 Students</button>
-      <button class="tab" data-view="certs">🏅 Certifications</button>
+      <button class="tab" data-view="certs">🏅 Certs</button>
       <button class="tab" data-view="finances">💰 Finances</button>
       <button class="tab" data-view="materials">📚 Materials</button>
-      <button class="tab" data-view="info">📋 Info / FAQ</button>
+      <button class="tab" data-view="info">📋 Info</button>
     </nav>
   </div>
 </header>
@@ -702,13 +703,38 @@
     <div class="modal-hd">
       <div><div class="modal-title" id="matd-title"></div><div style="font-size:13px;color:var(--muted);margin-top:2px" id="matd-sub"></div></div>
       <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn sm" id="matd-edit-btn">Edit</button>
         <button class="btn sm danger" id="matd-delete-btn">Delete</button>
         <button class="close-btn" data-close="modal-material-detail">×</button>
       </div>
     </div>
-    <div id="matd-body"></div>
-    <div style="margin-top:16px">
-      <a id="matd-open-btn" class="btn primary full" target="_blank" rel="noopener">↗ Open in Google Drive</a>
+    <!-- display view -->
+    <div id="matd-display">
+      <div id="matd-body"></div>
+      <div style="margin-top:16px">
+        <a id="matd-open-btn" class="btn primary full" target="_blank" rel="noopener">↗ Open in Google Drive</a>
+      </div>
+    </div>
+    <!-- edit view -->
+    <div id="matd-edit-form" style="display:none">
+      <div class="fg"><label>Name *</label><input type="text" id="matd-e-name" /></div>
+      <div class="fg"><label>Category</label>
+        <select id="matd-e-cat"><option>ACLS</option><option>ACLS-EP</option><option>PALS</option><option>BLS</option><option>Stop the Bleed</option><option>Heartsaver</option><option>Instructor</option><option>General</option></select>
+      </div>
+      <div class="fg"><label>Description</label><textarea id="matd-e-desc" style="min-height:60px"></textarea></div>
+      <div class="toggle-row" style="margin-bottom:14px">
+        <div><div class="toggle-lbl">Answer Key</div><div class="toggle-sub">Mark as a test answer key</div></div>
+        <label class="toggle"><input type="checkbox" id="matd-e-key"><span class="slider"></span></label>
+      </div>
+      <div class="fg">
+        <label>Google Drive Link</label>
+        <input type="url" id="matd-e-url" placeholder="https://drive.google.com/file/d/…" />
+      </div>
+      <div id="matd-e-err" style="color:#f87171;font-size:13px;min-height:18px;margin-bottom:8px"></div>
+      <div style="display:flex;gap:10px">
+        <button class="btn full" id="matd-e-cancel">Cancel</button>
+        <button class="btn primary full" id="matd-e-save">Save Changes</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1475,8 +1501,7 @@ $('mat-save-btn').addEventListener('click',async()=>{
   $('mat-save-btn').disabled=false;
 });
 
-window.openMaterialDetail=function(matId){
-  currentMatId=matId;const m=allMaterials.find(x=>x.id===matId);if(!m)return;
+function renderMatDisplay(m){
   $('matd-title').textContent=m.name;
   $('matd-sub').textContent=m.category;
   $('matd-body').innerHTML=`<div class="card-sm">
@@ -1487,9 +1512,40 @@ window.openMaterialDetail=function(matId){
   const url=m.driveUrl||m.downloadURL||'';
   $('matd-open-btn').href=url;
   const gone=!url;$('matd-open-btn').style.opacity=gone?'0.4':'';$('matd-open-btn').style.pointerEvents=gone?'none':'';
+  $('matd-display').style.display='';$('matd-edit-form').style.display='none';
+}
+window.openMaterialDetail=function(matId){
+  currentMatId=matId;const m=allMaterials.find(x=>x.id===matId);if(!m)return;
+  renderMatDisplay(m);
   openModal('modal-material-detail');
 };
-
+$('matd-edit-btn').addEventListener('click',()=>{
+  const m=allMaterials.find(x=>x.id===currentMatId);if(!m)return;
+  $('matd-e-name').value=m.name||'';
+  $('matd-e-cat').value=m.category||'ACLS';
+  $('matd-e-desc').value=m.description||'';
+  $('matd-e-key').checked=!!m.isAnswerKey;
+  $('matd-e-url').value=m.driveUrl||m.downloadURL||'';
+  $('matd-e-err').textContent='';
+  $('matd-display').style.display='none';$('matd-edit-form').style.display='';
+});
+$('matd-e-cancel').addEventListener('click',()=>{
+  const m=allMaterials.find(x=>x.id===currentMatId);if(m)renderMatDisplay(m);
+});
+$('matd-e-save').addEventListener('click',async()=>{
+  const name=$('matd-e-name').value.trim();
+  if(!name){$('matd-e-err').textContent='Name is required.';return;}
+  $('matd-e-save').disabled=true;
+  try{
+    await col('materials').doc(currentMatId).update({
+      name,category:$('matd-e-cat').value,description:$('matd-e-desc').value.trim(),
+      isAnswerKey:$('matd-e-key').checked,driveUrl:$('matd-e-url').value.trim()
+    });
+    const updated=allMaterials.find(x=>x.id===currentMatId);
+    if(updated)renderMatDisplay(updated);
+  }catch(e){$('matd-e-err').textContent='Error: '+e.message;}
+  $('matd-e-save').disabled=false;
+});
 $('matd-delete-btn').addEventListener('click',async()=>{
   if(!confirm('Delete this material?'))return;
   await col('materials').doc(currentMatId).delete();
