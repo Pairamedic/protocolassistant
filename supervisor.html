@@ -575,6 +575,50 @@
     .fto-save-btn{background:var(--accent);color:#0b0d10;border:none;border-radius:10px;padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
     .fto-export-btn{background:rgba(99,102,241,.14);color:#a5b4fc;border:1px solid rgba(99,102,241,.3);border-radius:10px;padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
     .fto-back-btn{background:rgba(255,255,255,.07);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:14px;cursor:pointer;font-family:inherit}
+
+    /* ── Station-Header Info ── */
+    .section-header { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .sec-detail { font-size:10px; font-weight:500; letter-spacing:.3px; text-transform:none; color:var(--muted); }
+    .sec-detail-no { background:rgba(255,255,255,.08); border:1px solid var(--border); border-radius:4px; padding:1px 6px; }
+
+    /* ── Usual-Unit Button ── */
+    .usual-unit-btn {
+      background:rgba(94,234,212,.12);
+      border:1px solid rgba(94,234,212,.3);
+      border-radius:6px;
+      color:var(--accent);
+      font-size:11px;
+      font-weight:700;
+      padding:4px 9px;
+      cursor:pointer;
+      font-family:inherit;
+      white-space:nowrap;
+      flex-shrink:0;
+      transition:background .15s;
+    }
+    .usual-unit-btn:hover { background:rgba(94,234,212,.22); }
+
+    /* ── Profiles Tab ── */
+    .prof-section { background:var(--card); border:1px solid var(--border); border-radius:14px; margin-bottom:14px; overflow:hidden; }
+    .prof-section-hd { padding:12px 16px; background:rgba(94,234,212,.06); border-bottom:1px solid var(--border); }
+    .prof-section-title { font-size:13px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--accent); display:block; }
+    .prof-section-hint { font-size:11px; color:var(--muted); margin-top:3px; display:block; }
+    .prof-card { padding:10px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+    .prof-card:last-child { border-bottom:none; }
+    .prof-card-info { flex:1; min-width:120px; }
+    .prof-card-name { font-size:14px; font-weight:600; }
+    .prof-emp-meta { font-size:11px; color:var(--muted); margin-top:2px; }
+    .prof-card-fields { display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; }
+    .prof-field { display:flex; flex-direction:column; gap:3px; }
+    .prof-field label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; color:var(--muted); }
+    .prof-inp { background:var(--input-bg); border:1px solid var(--border); border-radius:7px; color:var(--text); font-size:13px; padding:6px 9px; font-family:inherit; outline:none; }
+    .prof-inp:focus { border-color:var(--accent); }
+    .prof-inp-sm { width:72px; }
+    .prof-inp-md { width:130px; }
+    .prof-inp-lg { width:210px; }
+    .prof-emp-search { padding:10px 14px 4px; }
+    .prof-emp-search input { width:100%; background:var(--input-bg); border:1px solid var(--border); border-radius:9px; color:var(--text); font-size:14px; padding:9px 12px; font-family:inherit; outline:none; }
+    .prof-emp-search input:focus { border-color:var(--accent); }
   </style>
 </head>
 <body>
@@ -606,6 +650,7 @@
       <button class="tab-btn" data-tab="directory">📞 Directory</button>
       <button class="tab-btn" data-tab="report">📝 Report</button>
       <button class="tab-btn" data-tab="fto">🎓 FTO / Check-Off</button>
+      <button class="tab-btn" data-tab="profiles">👤 Profiles</button>
     </div>
   </div>
 
@@ -792,6 +837,27 @@
 
     </div>
 
+    <!-- ── TAB: PROFILES ── -->
+    <div id="tab-profiles" class="tab-panel">
+      <div class="prof-section">
+        <div class="prof-section-hd">
+          <span class="prof-section-title">🏥 Stations</span>
+          <span class="prof-section-hint">State number and address shown in roster section headers</span>
+        </div>
+        <div id="stations-list"></div>
+      </div>
+      <div class="prof-section">
+        <div class="prof-section-hd">
+          <span class="prof-section-title">👤 Employee Profiles</span>
+          <span class="prof-section-hint">Employee number and usual unit — select an employee as Lead Provider on the roster and tap → to fill the unit field automatically</span>
+        </div>
+        <div class="prof-emp-search">
+          <input type="search" id="prof-emp-search" placeholder="Search by name…" autocomplete="off" />
+        </div>
+        <div id="emp-profiles-list"></div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -934,6 +1000,13 @@ const ROSTER_ROWS = [
 ];
 
 /* ════════════════════════════════════════
+   STATION & PROFILE CONSTANTS
+   ════════════════════════════════════════ */
+const STATION_NAMES    = ['Pine Bluff','England','Star City','Warren','Rison','DeWitt','Clarendon'];
+const STATION_INFO_KEY = 'station_info_v1';
+const EMP_PROFILES_KEY = 'emp_profiles_v1';
+
+/* ════════════════════════════════════════
    HELPERS
    ════════════════════════════════════════ */
 
@@ -1014,6 +1087,9 @@ function formatDateDisplay(dateStr) {
 // rowData[id] = { unit, lead, leadPhone, secondary, secondaryPhone, notes }
 let rowData = {};
 let activeAC = null; // currently open autocomplete { input, dropdown }
+let stationInfo  = {};  // { 'Pine Bluff': { stateNo:'', address:'' }, ... }
+let empProfiles  = {};  // { 'Last_First': { empNo:'', usualUnit:'' } }
+let profEmpQuery = '';  // search query for employee profiles tab
 
 /* ════════════════════════════════════════
    TOAST
@@ -1125,12 +1201,32 @@ function buildRosterDOM() {
   let lastSection = null;
 
   ROSTER_ROWS.forEach(row => {
-    // Section header
+    // Section header (with optional station number + address)
     if (row.section !== lastSection) {
       lastSection = row.section;
       const hdr = document.createElement('div');
       hdr.className = 'section-header';
-      hdr.textContent = row.section;
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = row.section;
+      hdr.appendChild(nameSpan);
+      const si = stationInfo[row.section] || {};
+      if (si.stateNo || si.address) {
+        const detail = document.createElement('span');
+        detail.className = 'sec-detail';
+        if (si.stateNo) {
+          const noSpan = document.createElement('span');
+          noSpan.className = 'sec-detail-no';
+          noSpan.textContent = 'Sta. ' + si.stateNo;
+          detail.appendChild(noSpan);
+        }
+        if (si.stateNo && si.address) detail.appendChild(document.createTextNode(' · '));
+        if (si.address) {
+          const addrSpan = document.createElement('span');
+          addrSpan.textContent = si.address;
+          detail.appendChild(addrSpan);
+        }
+        hdr.appendChild(detail);
+      }
       container.appendChild(hdr);
     }
 
@@ -1139,7 +1235,7 @@ function buildRosterDOM() {
     card.className = 'roster-card';
     card.dataset.rowId = row.id;
 
-    // Top bar: label + unit input
+    // Top bar: label + unit input + usual-unit button
     const top = document.createElement('div');
     top.className = 'roster-card-top';
 
@@ -1158,8 +1254,34 @@ function buildRosterDOM() {
       rowData[row.id].unit = unitInput.value;
     });
 
+    // "Use usual unit" button — shown when lead has a usualUnit profile
+    const usualUnitBtn = document.createElement('button');
+    usualUnitBtn.className = 'usual-unit-btn';
+    usualUnitBtn.type = 'button';
+    usualUnitBtn.style.display = 'none';
+    usualUnitBtn.addEventListener('click', () => {
+      unitInput.value = usualUnitBtn.dataset.unit || '';
+      ensureRowData(row.id);
+      rowData[row.id].unit = unitInput.value;
+    });
+
+    // Initialize button state if lead is already populated
+    const savedLead = rowData[row.id]?.lead ?? '';
+    if (savedLead) {
+      const initEmp = lookupByName(savedLead.trim());
+      if (initEmp) {
+        const initProf = getEmpProfile(initEmp);
+        if (initProf.usualUnit) {
+          usualUnitBtn.textContent = '→ ' + initProf.usualUnit;
+          usualUnitBtn.dataset.unit = initProf.usualUnit;
+          usualUnitBtn.style.display = '';
+        }
+      }
+    }
+
     top.appendChild(labelEl);
     top.appendChild(unitInput);
+    top.appendChild(usualUnitBtn);
     card.appendChild(top);
 
     // Name fields grid
@@ -1191,6 +1313,18 @@ function buildRosterDOM() {
       badgeWrap.className = 'badge-wrap';
       updateBadge(badgeWrap, rowData[row.id]?.[phoneKey] ?? '');
 
+      function applyUsualUnit(emp) {
+        if (fieldKey !== 'lead') return;
+        const prof = getEmpProfile(emp);
+        if (prof.usualUnit) {
+          usualUnitBtn.textContent = '→ ' + prof.usualUnit;
+          usualUnitBtn.dataset.unit = prof.usualUnit;
+          usualUnitBtn.style.display = '';
+        } else {
+          usualUnitBtn.style.display = 'none';
+        }
+      }
+
       // Input handler — trigger autocomplete
       nameInput.addEventListener('input', () => {
         ensureRowData(row.id);
@@ -1200,6 +1334,7 @@ function buildRosterDOM() {
           rowData[row.id][phoneKey] = '';
           updateBadge(badgeWrap, '');
           closeActiveAC();
+          if (fieldKey === 'lead') usualUnitBtn.style.display = 'none';
           return;
         }
         // Check exact match first
@@ -1207,6 +1342,7 @@ function buildRosterDOM() {
         if (exact) {
           rowData[row.id][phoneKey] = exact.phone;
           updateBadge(badgeWrap, exact.phone);
+          applyUsualUnit(exact);
         } else {
           rowData[row.id][phoneKey] = '';
           updateBadge(badgeWrap, '');
@@ -1217,6 +1353,7 @@ function buildRosterDOM() {
           rowData[row.id][fieldKey] = nameInput.value;
           rowData[row.id][phoneKey] = emp.phone;
           updateBadge(badgeWrap, emp.phone);
+          applyUsualUnit(emp);
         });
       });
 
@@ -1228,6 +1365,7 @@ function buildRosterDOM() {
             rowData[row.id][fieldKey] = nameInput.value;
             rowData[row.id][phoneKey] = emp.phone;
             updateBadge(badgeWrap, emp.phone);
+            applyUsualUnit(emp);
           });
         }
       });
@@ -1267,6 +1405,41 @@ function ensureRowData(id) {
   if (!rowData[id]) {
     rowData[id] = { unit: '', lead: '', leadPhone: '', secondary: '', secondaryPhone: '', notes: '' };
   }
+}
+
+/* ════════════════════════════════════════
+   PROFILE HELPERS
+   ════════════════════════════════════════ */
+function empProfileKey(emp) { return emp.last + '_' + emp.first; }
+
+function getEmpProfile(emp) {
+  return empProfiles[empProfileKey(emp)] || { empNo:'', usualUnit:'' };
+}
+
+function ensureEmpProfile(key) {
+  if (!empProfiles[key]) empProfiles[key] = { empNo:'', usualUnit:'' };
+}
+
+function saveStationInfo() {
+  localStorage.setItem(STATION_INFO_KEY, JSON.stringify(stationInfo));
+}
+
+function loadStationInfo() {
+  try {
+    const s = localStorage.getItem(STATION_INFO_KEY);
+    if (s) stationInfo = JSON.parse(s);
+  } catch(e) { stationInfo = {}; }
+}
+
+function saveEmpProfiles() {
+  localStorage.setItem(EMP_PROFILES_KEY, JSON.stringify(empProfiles));
+}
+
+function loadEmpProfiles() {
+  try {
+    const s = localStorage.getItem(EMP_PROFILES_KEY);
+    if (s) empProfiles = JSON.parse(s);
+  } catch(e) { empProfiles = {}; }
 }
 
 /* ════════════════════════════════════════
@@ -1858,9 +2031,173 @@ function doImport() {
 }
 
 /* ════════════════════════════════════════
+   PROFILES TAB
+   ════════════════════════════════════════ */
+function renderStationsPanel() {
+  const container = document.getElementById('stations-list');
+  if (!container) return;
+  container.innerHTML = '';
+  STATION_NAMES.forEach(name => {
+    const info = stationInfo[name] || { stateNo:'', address:'' };
+    const card = document.createElement('div');
+    card.className = 'prof-card';
+
+    const infoDiv = document.createElement('div');
+    infoDiv.className = 'prof-card-info';
+    const nameDiv = document.createElement('div');
+    nameDiv.className = 'prof-card-name';
+    nameDiv.textContent = name;
+    infoDiv.appendChild(nameDiv);
+
+    const fieldsDiv = document.createElement('div');
+    fieldsDiv.className = 'prof-card-fields';
+
+    const noField = document.createElement('div');
+    noField.className = 'prof-field';
+    noField.innerHTML = '<label>State #</label>';
+    const noInp = document.createElement('input');
+    noInp.className = 'prof-inp prof-inp-sm';
+    noInp.type = 'text';
+    noInp.placeholder = 'e.g. 7';
+    noInp.autocomplete = 'off';
+    noInp.dataset.station = name;
+    noInp.dataset.field = 'stateNo';
+    noInp.value = info.stateNo || '';
+    noField.appendChild(noInp);
+
+    const addrField = document.createElement('div');
+    addrField.className = 'prof-field';
+    addrField.innerHTML = '<label>Address</label>';
+    const addrInp = document.createElement('input');
+    addrInp.className = 'prof-inp prof-inp-lg';
+    addrInp.type = 'text';
+    addrInp.placeholder = '123 Main St, City AR';
+    addrInp.autocomplete = 'off';
+    addrInp.dataset.station = name;
+    addrInp.dataset.field = 'address';
+    addrInp.value = info.address || '';
+    addrField.appendChild(addrInp);
+
+    fieldsDiv.appendChild(noField);
+    fieldsDiv.appendChild(addrField);
+    card.appendChild(infoDiv);
+    card.appendChild(fieldsDiv);
+    container.appendChild(card);
+  });
+}
+
+function renderEmpProfilesPanel() {
+  const container = document.getElementById('emp-profiles-list');
+  if (!container) return;
+  const q = profEmpQuery.toLowerCase();
+  const list = q.length >= 1
+    ? EMPLOYEES.filter(emp => (emp.first + ' ' + emp.last).toLowerCase().includes(q))
+    : EMPLOYEES;
+  container.innerHTML = '';
+  if (!list.length) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'color:var(--muted);text-align:center;padding:20px;font-size:13px';
+    empty.textContent = 'No employees found.';
+    container.appendChild(empty);
+    return;
+  }
+  list.forEach(emp => {
+    const key = empProfileKey(emp);
+    const prof = empProfiles[key] || { empNo:'', usualUnit:'' };
+    const card = document.createElement('div');
+    card.className = 'prof-card';
+
+    const infoDiv = document.createElement('div');
+    infoDiv.className = 'prof-card-info';
+    const nameDiv = document.createElement('div');
+    nameDiv.className = 'prof-card-name';
+    nameDiv.textContent = displayName(emp);
+    const metaDiv = document.createElement('div');
+    metaDiv.className = 'prof-emp-meta';
+    metaDiv.textContent = emp.role + ' · ' + emp.station + ' · ' + emp.status;
+    infoDiv.appendChild(nameDiv);
+    infoDiv.appendChild(metaDiv);
+
+    const fieldsDiv = document.createElement('div');
+    fieldsDiv.className = 'prof-card-fields';
+
+    const noField = document.createElement('div');
+    noField.className = 'prof-field';
+    noField.innerHTML = '<label>Emp #</label>';
+    const noInp = document.createElement('input');
+    noInp.className = 'prof-inp prof-inp-sm';
+    noInp.type = 'text';
+    noInp.placeholder = '001';
+    noInp.autocomplete = 'off';
+    noInp.dataset.empkey = key;
+    noInp.dataset.field = 'empNo';
+    noInp.value = prof.empNo || '';
+    noField.appendChild(noInp);
+
+    const unitField = document.createElement('div');
+    unitField.className = 'prof-field';
+    unitField.innerHTML = '<label>Usual Unit</label>';
+    const unitInp = document.createElement('input');
+    unitInp.className = 'prof-inp prof-inp-md';
+    unitInp.type = 'text';
+    unitInp.placeholder = '185-ALS-PB';
+    unitInp.autocomplete = 'off';
+    unitInp.dataset.empkey = key;
+    unitInp.dataset.field = 'usualUnit';
+    unitInp.value = prof.usualUnit || '';
+    unitField.appendChild(unitInp);
+
+    fieldsDiv.appendChild(noField);
+    fieldsDiv.appendChild(unitField);
+    card.appendChild(infoDiv);
+    card.appendChild(fieldsDiv);
+    container.appendChild(card);
+  });
+}
+
+function initProfilesTab() {
+  document.getElementById('stations-list').addEventListener('input', e => {
+    const inp = e.target.closest('.prof-inp[data-station]');
+    if (!inp) return;
+    const station = inp.dataset.station;
+    const field = inp.dataset.field;
+    if (!stationInfo[station]) stationInfo[station] = { stateNo:'', address:'' };
+    stationInfo[station][field] = inp.value;
+    saveStationInfo();
+    buildRosterDOM();
+  });
+
+  document.getElementById('emp-profiles-list').addEventListener('input', e => {
+    const inp = e.target.closest('.prof-inp[data-empkey]');
+    if (!inp) return;
+    const key = inp.dataset.empkey;
+    const field = inp.dataset.field;
+    ensureEmpProfile(key);
+    empProfiles[key][field] = inp.value;
+    saveEmpProfiles();
+  });
+
+  document.getElementById('prof-emp-search').addEventListener('input', e => {
+    profEmpQuery = e.target.value.trim();
+    renderEmpProfilesPanel();
+  });
+
+  document.querySelectorAll('.tab-btn[data-tab="profiles"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      renderStationsPanel();
+      renderEmpProfilesPanel();
+    });
+  });
+}
+
+/* ════════════════════════════════════════
    APP INIT
    ════════════════════════════════════════ */
 function initApp() {
+  // Load profiles before building roster DOM (station info used in section headers)
+  loadStationInfo();
+  loadEmpProfiles();
+
   // Set today's date
   const dateInput = document.getElementById('roster-date');
   dateInput.value = todayStr();
@@ -1933,6 +2270,11 @@ function initApp() {
 
   // Initial directory render
   renderDirectory();
+
+  // Profiles tab
+  initProfilesTab();
+  renderStationsPanel();
+  renderEmpProfilesPanel();
 
   // Tabs
   initTabs();
