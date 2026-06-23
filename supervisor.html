@@ -747,10 +747,12 @@
   <header>
     <div class="header-inner">
       <div class="header-title">
-        <h1>EASI Supervisor Tools</h1>
-        <p>EASI Ambulance Service — Supervisor Tools</p>
+        <h1>PAT — Supervisor Tools</h1>
+        <p id="svc-name-display">EASI INC</p>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
+        <select id="svc-switcher" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;cursor:pointer;font-family:inherit;max-width:130px"></select>
+        <button id="btn-svc-settings" style="background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:13px;font-family:inherit;cursor:pointer;padding:7px 11px;white-space:nowrap" title="Manage Services">⚙ Services</button>
         <a href="ProtocolAssistant.html" style="padding:8px 14px;border-radius:10px;border:1px solid rgba(94,234,212,.35);background:rgba(94,234,212,.08);color:#5eead4;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap">← PAT</a>
         <button class="signout-btn" id="signout-btn">Sign Out</button>
       </div>
@@ -795,6 +797,7 @@
           <span id="dir-filter-chevron" style="font-size:10px;opacity:.7">▾</span>
         </button>
         <button class="dir-add-emp-btn" id="btn-add-emp">+ Add</button>
+        <button class="dir-add-emp-btn" id="btn-csv-import" style="background:rgba(255,255,255,.07);border:1px solid var(--border);color:var(--text)">📥 CSV</button>
       </div>
       <div id="dir-filter-panel" class="dir-filter-panel" style="display:none">
         <div class="dir-filter-row">
@@ -1130,6 +1133,85 @@ Shift Start/End    0600
   </div>
 </div>
 
+<!-- Service Settings Modal -->
+<div id="svc-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);align-items:flex-end;justify-content:center">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;max-width:660px;max-height:92vh;overflow-y:auto;padding:20px 20px 36px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div style="font-size:16px;font-weight:800;color:var(--text)">Manage Services</div>
+      <button onclick="closeSvcModal()" style="background:rgba(255,255,255,.08);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:18px;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+    </div>
+
+    <!-- Service list -->
+    <div id="svc-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px"></div>
+    <button id="btn-add-svc" style="width:100%;padding:10px;border-radius:10px;border:1px dashed var(--border);background:transparent;color:var(--muted);font-size:14px;cursor:pointer;font-family:inherit">+ Add New Service</button>
+
+    <!-- Service editor (shown when a service is selected for editing) -->
+    <div id="svc-editor" style="display:none;margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">
+      <div style="font-size:13px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px" id="svc-editor-title">Edit Service</div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <!-- Name -->
+        <div class="rpt-field"><label>Service Name *</label><input type="text" id="svc-edit-name" class="inc-inp" placeholder="e.g. County EMS" /></div>
+
+        <!-- Stations -->
+        <div class="rpt-field">
+          <label>Stations</label>
+          <div id="svc-stations-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
+          <div style="display:flex;gap:8px">
+            <input type="text" id="svc-station-input" class="inc-inp" placeholder="Station name…" style="flex:1" />
+            <button id="btn-svc-add-station" style="background:rgba(94,234,212,.1);border:1px solid rgba(94,234,212,.3);border-radius:8px;color:var(--accent);font-size:13px;padding:7px 14px;cursor:pointer;font-family:inherit;white-space:nowrap">+ Add</button>
+          </div>
+        </div>
+
+        <!-- Roster rows -->
+        <div class="rpt-field">
+          <label>Roster Rows (Unit Template)</label>
+          <div id="svc-rows-list" style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px;max-height:260px;overflow-y:auto"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;align-items:end">
+            <div><div style="font-size:10px;color:var(--muted);margin-bottom:3px">Section</div><input type="text" id="svc-row-section" class="inc-inp" placeholder="Pine Bluff…" list="svc-section-list" /></div>
+            <div><div style="font-size:10px;color:var(--muted);margin-bottom:3px">Label</div><input type="text" id="svc-row-label" class="inc-inp" placeholder="ALS 7AM…" /></div>
+            <div><div style="font-size:10px;color:var(--muted);margin-bottom:3px">Default Unit</div><input type="text" id="svc-row-unit" class="inc-inp" placeholder="279-ALS…" /></div>
+            <button id="btn-svc-add-row" style="background:rgba(94,234,212,.1);border:1px solid rgba(94,234,212,.3);border-radius:8px;color:var(--accent);font-size:13px;padding:9px 12px;cursor:pointer;font-family:inherit;white-space:nowrap;align-self:flex-end">+ Row</button>
+          </div>
+          <datalist id="svc-section-list"></datalist>
+        </div>
+      </div>
+
+      <!-- Editor action buttons -->
+      <div style="display:flex;gap:8px;margin-top:18px;align-items:center">
+        <button id="btn-svc-delete" style="display:none;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);border-radius:10px;color:#f87171;font-size:13px;font-weight:600;padding:10px 14px;cursor:pointer;font-family:inherit">🗑 Delete Service</button>
+        <div style="flex:1"></div>
+        <button id="btn-svc-cancel-edit" style="background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;padding:10px 18px;cursor:pointer;font-family:inherit">Cancel</button>
+        <button id="btn-svc-save" style="background:var(--accent);border:none;border-radius:10px;color:#0b0d10;font-size:14px;font-weight:700;padding:10px 22px;cursor:pointer;font-family:inherit">Save Service</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CSV Employee Import Modal -->
+<div id="csv-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);align-items:flex-end;justify-content:center">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;padding:20px 20px 32px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div>
+        <div style="font-size:16px;font-weight:800;color:var(--text)">Import Employees (CSV)</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">First,Last,Station,Role,Phone,Status — one per line</div>
+      </div>
+      <button onclick="closeCsvModal()" style="background:rgba(255,255,255,.08);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:18px;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+    </div>
+    <textarea id="csv-textarea" style="width:100%;height:180px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;padding:12px;font-family:monospace;resize:vertical;outline:none" placeholder="John,Smith,Pine Bluff,Paramedic,870-555-0000,FULL TIME
+Jane,Doe,England,EMT,870-555-1111,PRN
+..."></textarea>
+    <label style="display:block;margin-top:8px;padding:10px 14px;border-radius:10px;border:1px dashed var(--border);color:var(--muted);font-size:13px;cursor:pointer;text-align:center">
+      📁 Upload .csv or .txt file
+      <input type="file" id="csv-file-input" accept=".csv,.txt,text/plain,text/csv" style="display:none" />
+    </label>
+    <div id="csv-preview" style="margin-top:10px;font-size:12px;color:var(--muted)"></div>
+    <div style="display:flex;gap:10px;margin-top:14px">
+      <button onclick="closeCsvModal()" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Cancel</button>
+      <button onclick="doImportCsv()" style="flex:2;padding:12px;border-radius:10px;border:none;background:var(--accent);color:#0b0d10;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Import Employees</button>
+    </div>
+  </div>
+</div>
+
 <!-- Print View (hidden on screen, shown on print) -->
 <div id="print-view"></div>
 
@@ -1187,7 +1269,15 @@ const EMPLOYEES = [{"last":"Aalseth","first":"Dwayne","station":"Pine Bluff","st
 /* ════════════════════════════════════════
    ROSTER ROWS DEFINITION
    ════════════════════════════════════════ */
-const ROSTER_ROWS = [
+let ROSTER_ROWS = []; // populated from active service in loadServices()
+
+/* ════════════════════════════════════════
+   SERVICES
+   ════════════════════════════════════════ */
+const SERVICES_KEY    = 'services_v2';
+const ACTIVE_SVC_KEY  = 'active_svc_v1';
+
+const EASI_INC_ROSTER_ROWS = [
   { id:0,  section:'Pine Bluff', label:'SUPERVISOR',            defaultUnit:'' },
   { id:1,  section:'Pine Bluff', label:'BLS 6AM',               defaultUnit:'193-BLS-PB' },
   { id:2,  section:'Pine Bluff', label:'BLS 8AM',               defaultUnit:'191-BLS-PB' },
@@ -1213,10 +1303,86 @@ const ROSTER_ROWS = [
   { id:22, section:'On Call',    label:'ON CALL',               defaultUnit:'' },
 ];
 
+const EASI_INC_DEFAULT = {
+  id:       'svc_easiinc',
+  name:     'EASI INC',
+  stations: ['Pine Bluff','England','Star City','Warren','Rison','DeWitt','Clarendon'],
+  rosterRows: EASI_INC_ROSTER_ROWS,
+};
+
+let servicesData   = [];
+let activeServiceId = 'svc_easiinc';
+
+function getActiveService() {
+  return servicesData.find(s => s.id === activeServiceId) || EASI_INC_DEFAULT;
+}
+
+function svcKey(k) { return activeServiceId + '_' + k; }
+
+function loadServices() {
+  try { servicesData = JSON.parse(localStorage.getItem(SERVICES_KEY) || '[]'); } catch(e) { servicesData = []; }
+  if (!servicesData.find(s => s.id === 'svc_easiinc')) {
+    servicesData.unshift(structuredClone ? structuredClone(EASI_INC_DEFAULT) : JSON.parse(JSON.stringify(EASI_INC_DEFAULT)));
+    saveServices();
+  }
+  try { activeServiceId = localStorage.getItem(ACTIVE_SVC_KEY) || 'svc_easiinc'; } catch(e) {}
+  if (!servicesData.find(s => s.id === activeServiceId)) activeServiceId = servicesData[0].id;
+}
+
+function saveServices() {
+  localStorage.setItem(SERVICES_KEY, JSON.stringify(servicesData));
+}
+
+function switchService(id) {
+  activeServiceId = id;
+  localStorage.setItem(ACTIVE_SVC_KEY, id);
+  ROSTER_ROWS = getRosterRows();
+  updateHeaderServiceName();
+  updateStationDropdowns();
+  const date = document.getElementById('roster-date')?.value || todayStr();
+  loadStationInfo();
+  loadEmpProfiles();
+  loadRoster(date);
+  loadIncidents(date);
+  loadCustomEmployees();
+  loadForms();
+  renderDirectory();
+  renderStationsPanel();
+  renderEmpProfilesPanel();
+  renderForms();
+  showToast('Switched to ' + getActiveService().name);
+}
+
+function getRosterRows() {
+  return getActiveService().rosterRows || [];
+}
+
+function updateHeaderServiceName() {
+  const el = document.getElementById('svc-name-display');
+  if (el) el.textContent = getActiveService().name;
+  const sel = document.getElementById('svc-switcher');
+  if (sel) sel.value = activeServiceId;
+}
+
+function updateStationDropdowns() {
+  const stations = getActiveService().stations || [];
+  ['dir-station-sel', 'em-station'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const cur = sel.value;
+    Array.from(sel.options).forEach(o => { if (o.value !== 'All') o.remove(); });
+    stations.forEach(st => {
+      const o = document.createElement('option');
+      o.value = o.textContent = st;
+      sel.appendChild(o);
+    });
+    if (stations.includes(cur)) sel.value = cur;
+  });
+}
+
 /* ════════════════════════════════════════
    STATION & PROFILE CONSTANTS
    ════════════════════════════════════════ */
-const STATION_NAMES    = ['Pine Bluff','England','Star City','Warren','Rison','DeWitt','Clarendon'];
 const STATION_INFO_KEY = 'station_info_v1';
 const EMP_PROFILES_KEY = 'emp_profiles_v1';
 
@@ -1753,7 +1919,7 @@ function copyPreviousRoster() {
   const d = new Date(date + 'T12:00:00');
   d.setDate(d.getDate() - 1);
   const prevDate = d.toLocaleDateString('en-CA');
-  const saved = localStorage.getItem('roster_v1_' + prevDate);
+  const saved = localStorage.getItem(rosterKey(prevDate));
   if (!saved) { showToast('No saved roster found for ' + formatDateDisplay(prevDate)); return; }
   if (!confirm('Copy ' + formatDateDisplay(prevDate) + ' into today? This overwrites current entries.')) return;
   try {
@@ -1777,24 +1943,26 @@ function ensureEmpProfile(key) {
 }
 
 function saveStationInfo() {
-  localStorage.setItem(STATION_INFO_KEY, JSON.stringify(stationInfo));
+  localStorage.setItem(svcKey('station_info_v1'), JSON.stringify(stationInfo));
 }
 
 function loadStationInfo() {
   try {
-    const s = localStorage.getItem(STATION_INFO_KEY);
+    const s = localStorage.getItem(svcKey('station_info_v1'));
     if (s) stationInfo = JSON.parse(s);
+    else stationInfo = {};
   } catch(e) { stationInfo = {}; }
 }
 
 function saveEmpProfiles() {
-  localStorage.setItem(EMP_PROFILES_KEY, JSON.stringify(empProfiles));
+  localStorage.setItem(svcKey('emp_profiles_v1'), JSON.stringify(empProfiles));
 }
 
 function loadEmpProfiles() {
   try {
-    const s = localStorage.getItem(EMP_PROFILES_KEY);
+    const s = localStorage.getItem(svcKey('emp_profiles_v1'));
     if (s) empProfiles = JSON.parse(s);
+    else empProfiles = {};
   } catch(e) { empProfiles = {}; }
 }
 
@@ -1834,21 +2002,23 @@ function setSyncStatus(status) {
   badge.textContent = status === 'synced' ? '☁ Synced' : status === 'syncing' ? '🔄 Syncing…' : '💾 Local';
 }
 
+function rosterKey(date) { return svcKey('roster_v1_') + date; }
+
 function saveRoster() {
   const date = currentDate();
   if (!date) return;
-  localStorage.setItem('roster_v1_' + date, JSON.stringify(rowData));
+  localStorage.setItem(rosterKey(date), JSON.stringify(rowData));
   showToast('Saved ✓');
   if (db) {
     setSyncStatus('syncing');
-    db.collection('shift_rosters').doc(date).set({ data: JSON.stringify(rowData) })
+    db.collection('services').doc(activeServiceId).collection('shift_rosters').doc(date).set({ data: JSON.stringify(rowData) })
       .then(() => setSyncStatus('synced'))
       .catch(() => setSyncStatus('local'));
   }
 }
 
 function loadRoster(date) {
-  const saved = localStorage.getItem('roster_v1_' + date);
+  const saved = localStorage.getItem(rosterKey(date));
   if (saved) {
     try { rowData = JSON.parse(saved); } catch(e) { rowData = {}; }
   } else {
@@ -1866,7 +2036,7 @@ function loadRoster(date) {
   // Background Firestore sync
   if (db) {
     setSyncStatus('syncing');
-    db.collection('shift_rosters').doc(date).get()
+    db.collection('services').doc(activeServiceId).collection('shift_rosters').doc(date).get()
       .then(doc => {
         if (doc.exists) {
           try {
@@ -2501,7 +2671,7 @@ function renderStationsPanel() {
   const container = document.getElementById('stations-list');
   if (!container) return;
   container.innerHTML = '';
-  STATION_NAMES.forEach(name => {
+  getActiveService().stations.forEach(name => {
     const info = stationInfo[name] || { stateNo:'', address:'' };
     const card = document.createElement('div');
     card.className = 'prof-card';
@@ -2652,7 +2822,7 @@ function initProfilesTab() {
 
   // Station filter pills
   const stationPillBar = document.getElementById('prof-station-pills');
-  ['All', ...STATION_NAMES].forEach(s => {
+  ['All', ...getActiveService().stations].forEach(s => {
     const btn = document.createElement('button');
     btn.className = 'pill' + (s === 'All' ? ' active' : '');
     btn.dataset.profStation = s;
@@ -2830,7 +3000,7 @@ const INC_PRIORITIES = ['P1 — Critical','P2 — Urgent','P3 — Routine'];
 
 let incidentsData = [];
 
-function incKey(date) { return 'incidents_v1_' + date; }
+function incKey(date) { return svcKey('incidents_v1_') + date; }
 
 function loadIncidents(date) {
   try {
@@ -3090,19 +3260,41 @@ function initIncidents() {
 /* ════════════════════════════════════════
    FORMS
    ════════════════════════════════════════ */
-const FORMS_KEY = 'supervisor_forms_v1';
+const FORMS_KEY = 'forms_v1';
 let formsData = [];
 let formsQuery = '';
 let formsFolderFilter = 'All';
 let formEditId = null;
 
+const DEFAULT_FORMS = [
+  { id:'frm_d01', name:'EMS Preceptor Feedback',             folder:'Supervisory', link:'', desc:'' },
+  { id:'frm_d02', name:'Supervisor Investigation Checklist', folder:'Supervisory', link:'', desc:'' },
+  { id:'frm_d03', name:'Employee Performance Evaluation',    folder:'HR',          link:'', desc:'' },
+  { id:'frm_d04', name:'Employee Discipline Report',         folder:'HR',          link:'', desc:'' },
+  { id:'frm_d05', name:'Absentee / Tardy',                  folder:'HR',          link:'', desc:'' },
+  { id:'frm_d06', name:'Attention Request',                  folder:'HR',          link:'', desc:'' },
+  { id:'frm_d07', name:'Status Change',                      folder:'HR',          link:'', desc:'' },
+  { id:'frm_d08', name:'Third Rider',                        folder:'HR',          link:'', desc:'' },
+  { id:'frm_d09', name:'Maintenance Request',                folder:'Operations',  link:'', desc:'' },
+  { id:'frm_d10', name:'Unit Check Off',                     folder:'Operations',  link:'', desc:'' },
+  { id:'frm_d11', name:'Phone List',                         folder:'Operations',  link:'', desc:'' },
+  { id:'frm_d12', name:'Refusal Form',                       folder:'Clinical',    link:'', desc:'' },
+  { id:'frm_d13', name:'Patient / Receiving Signature Form', folder:'Clinical',    link:'', desc:'' },
+  { id:'frm_d14', name:'PCS',                                folder:'Clinical',    link:'', desc:'' },
+  { id:'frm_d15', name:'PMI',                                folder:'Clinical',    link:'', desc:'' },
+];
+
 function loadForms() {
-  try { formsData = JSON.parse(localStorage.getItem(FORMS_KEY) || '[]'); }
+  try { formsData = JSON.parse(localStorage.getItem(svcKey('forms_v1')) || '[]'); }
   catch(e) { formsData = []; }
+  if (!formsData.length) {
+    formsData = DEFAULT_FORMS.map(f => ({ ...f }));
+    saveForms();
+  }
 }
 
 function saveForms() {
-  localStorage.setItem(FORMS_KEY, JSON.stringify(formsData));
+  localStorage.setItem(svcKey('forms_v1'), JSON.stringify(formsData));
 }
 
 function renderForms() {
@@ -3284,14 +3476,14 @@ const CUSTOM_EMP_KEY = 'custom_employees_v1';
 
 function loadCustomEmployees() {
   try {
-    const s = localStorage.getItem(CUSTOM_EMP_KEY);
+    const s = localStorage.getItem(svcKey('custom_employees_v1'));
     customEmployees = s ? JSON.parse(s) : [];
   } catch(e) { customEmployees = []; }
   if (db) {
-    db.collection('custom_employees').get().then(snap => {
+    db.collection('services').doc(activeServiceId).collection('custom_employees').get().then(snap => {
       if (!snap.empty) {
         customEmployees = snap.docs.map(d => ({ ...d.data(), _id: d.id, _custom: true }));
-        localStorage.setItem(CUSTOM_EMP_KEY, JSON.stringify(customEmployees));
+        localStorage.setItem(svcKey('custom_employees_v1'), JSON.stringify(customEmployees));
         renderDirectory();
       }
     }).catch(() => {});
@@ -3299,11 +3491,11 @@ function loadCustomEmployees() {
 }
 
 function saveCustomEmployees() {
-  localStorage.setItem(CUSTOM_EMP_KEY, JSON.stringify(customEmployees));
+  localStorage.setItem(svcKey('custom_employees_v1'), JSON.stringify(customEmployees));
   if (db) {
     customEmployees.forEach(emp => {
       const { _id, _custom, ...data } = emp;
-      db.collection('custom_employees').doc(_id).set(data).catch(() => {});
+      db.collection('services').doc(activeServiceId).collection('custom_employees').doc(_id).set(data).catch(() => {});
     });
   }
 }
@@ -3356,7 +3548,7 @@ function deleteCustomEmp() {
   if (!editingEmpId) return;
   const emp = customEmployees.find(e => e._id === editingEmpId);
   if (!confirm('Delete ' + (emp ? emp.first + ' ' + emp.last : 'this employee') + '?')) return;
-  if (db) db.collection('custom_employees').doc(editingEmpId).delete().catch(() => {});
+  if (db) db.collection('services').doc(activeServiceId).collection('custom_employees').doc(editingEmpId).delete().catch(() => {});
   customEmployees = customEmployees.filter(e => e._id !== editingEmpId);
   saveCustomEmployees();
   closeEmpModal();
@@ -3380,9 +3572,233 @@ function updateDirFilterCount() {
 }
 
 /* ════════════════════════════════════════
+   SERVICE MANAGEMENT
+   ════════════════════════════════════════ */
+let editingSvcId = null;
+let editingSvcStations = [];
+let editingSvcRows = [];
+
+function openSvcModal() {
+  renderSvcList();
+  hideSvcEditor();
+  document.getElementById('svc-modal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSvcModal() {
+  document.getElementById('svc-modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function renderSvcList() {
+  const list = document.getElementById('svc-list');
+  list.innerHTML = '';
+  servicesData.forEach(svc => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid ' + (svc.id === activeServiceId ? 'rgba(94,234,212,.3)' : 'var(--border)') + ';background:' + (svc.id === activeServiceId ? 'rgba(94,234,212,.07)' : 'rgba(255,255,255,.03)') + ';cursor:pointer';
+    const nameEl = document.createElement('div');
+    nameEl.style.cssText = 'flex:1;font-size:14px;font-weight:600;color:' + (svc.id === activeServiceId ? 'var(--accent)' : 'var(--text)');
+    nameEl.textContent = svc.name + (svc.id === activeServiceId ? ' ✓' : '');
+    const stEl = document.createElement('div');
+    stEl.style.cssText = 'font-size:11px;color:var(--muted)';
+    stEl.textContent = (svc.stations || []).length + ' stations · ' + (svc.rosterRows || []).length + ' rows';
+    const editBtn = document.createElement('button');
+    editBtn.style.cssText = 'background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:7px;color:var(--muted);font-size:11px;padding:4px 10px;cursor:pointer;font-family:inherit;white-space:nowrap';
+    editBtn.textContent = '✏️ Edit';
+    editBtn.addEventListener('click', e => { e.stopPropagation(); openSvcEditor(svc.id); });
+    const switchBtn = document.createElement('button');
+    switchBtn.style.cssText = 'background:rgba(94,234,212,.1);border:1px solid rgba(94,234,212,.25);border-radius:7px;color:var(--accent);font-size:11px;padding:4px 10px;cursor:pointer;font-family:inherit;white-space:nowrap';
+    switchBtn.textContent = svc.id === activeServiceId ? 'Active' : '→ Switch';
+    switchBtn.disabled = svc.id === activeServiceId;
+    switchBtn.addEventListener('click', e => { e.stopPropagation(); switchService(svc.id); renderSvcList(); });
+    const infoDiv = document.createElement('div');
+    infoDiv.style.cssText = 'flex:1;display:flex;flex-direction:column;gap:2px';
+    infoDiv.appendChild(nameEl);
+    infoDiv.appendChild(stEl);
+    row.appendChild(infoDiv);
+    row.appendChild(editBtn);
+    row.appendChild(switchBtn);
+    list.appendChild(row);
+  });
+}
+
+function openSvcEditor(svcId) {
+  editingSvcId = svcId || null;
+  const svc = svcId ? servicesData.find(s => s.id === svcId) : null;
+  document.getElementById('svc-editor-title').textContent = svc ? 'Edit: ' + svc.name : 'New Service';
+  document.getElementById('svc-edit-name').value = svc?.name || '';
+  editingSvcStations = [...(svc?.stations || [])];
+  editingSvcRows = (svc?.rosterRows || []).map(r => ({...r}));
+  renderSvcStations();
+  renderSvcRows();
+  document.getElementById('btn-svc-delete').style.display = (svcId && svcId !== 'svc_easiinc') ? '' : 'none';
+  document.getElementById('svc-editor').style.display = '';
+}
+
+function hideSvcEditor() {
+  document.getElementById('svc-editor').style.display = 'none';
+  editingSvcId = null;
+}
+
+function renderSvcStations() {
+  const list = document.getElementById('svc-stations-list');
+  list.innerHTML = '';
+  editingSvcStations.forEach((st, i) => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 10px;background:rgba(255,255,255,.04);border-radius:8px';
+    const label = document.createElement('span');
+    label.style.cssText = 'flex:1;font-size:13px';
+    label.textContent = st;
+    const del = document.createElement('button');
+    del.style.cssText = 'background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0 2px';
+    del.textContent = '✕';
+    del.addEventListener('click', () => { editingSvcStations.splice(i, 1); renderSvcStations(); updateSvcSectionDatalist(); });
+    row.appendChild(label); row.appendChild(del);
+    list.appendChild(row);
+  });
+  updateSvcSectionDatalist();
+}
+
+function updateSvcSectionDatalist() {
+  const dl = document.getElementById('svc-section-list');
+  if (!dl) return;
+  dl.innerHTML = '';
+  editingSvcStations.forEach(st => {
+    const o = document.createElement('option'); o.value = st; dl.appendChild(o);
+  });
+  const extras = ['Dispatch','On Call'];
+  extras.forEach(e => { const o = document.createElement('option'); o.value = e; dl.appendChild(o); });
+}
+
+function renderSvcRows() {
+  const list = document.getElementById('svc-rows-list');
+  list.innerHTML = '';
+  if (!editingSvcRows.length) {
+    list.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:8px 0">No rows yet. Add rows below.</div>';
+    return;
+  }
+  editingSvcRows.forEach((row, i) => {
+    const el = document.createElement('div');
+    el.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;align-items:center;padding:5px 8px;background:rgba(255,255,255,.04);border-radius:7px;font-size:12px';
+    el.innerHTML = '<span style="color:var(--accent)">' + (row.section||'') + '</span><span>' + (row.label||'') + '</span><span style="color:var(--muted)">' + (row.defaultUnit||'—') + '</span>';
+    const del = document.createElement('button');
+    del.style.cssText = 'background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:0';
+    del.textContent = '✕';
+    del.addEventListener('click', () => { editingSvcRows.splice(i, 1); renderSvcRows(); });
+    el.appendChild(del);
+    list.appendChild(el);
+  });
+}
+
+function saveSvcEditor() {
+  const name = document.getElementById('svc-edit-name').value.trim();
+  if (!name) { showToast('Service name required'); return; }
+  const newId = editingSvcId || ('svc_' + Date.now());
+  const svc = {
+    id:         newId,
+    name,
+    stations:   [...editingSvcStations],
+    rosterRows: editingSvcRows.map((r, i) => ({ ...r, id: i })),
+  };
+  if (editingSvcId) {
+    const idx = servicesData.findIndex(s => s.id === editingSvcId);
+    if (idx >= 0) servicesData[idx] = svc;
+  } else {
+    servicesData.push(svc);
+  }
+  saveServices();
+  if (editingSvcId === activeServiceId) {
+    ROSTER_ROWS = getRosterRows();
+    buildRosterDOM();
+    updateStationDropdowns();
+    document.getElementById('svc-name-display').textContent = name;
+  }
+  hideSvcEditor();
+  renderSvcList();
+  rebuildSvcSwitcher();
+  showToast((editingSvcId ? 'Updated: ' : 'Created: ') + name);
+}
+
+function deleteSvc() {
+  if (!editingSvcId || editingSvcId === 'svc_easiinc') { showToast('Cannot delete EASI INC service'); return; }
+  const svc = servicesData.find(s => s.id === editingSvcId);
+  if (!confirm('Delete service "' + (svc?.name || '') + '"? This does not delete roster data.')) return;
+  servicesData = servicesData.filter(s => s.id !== editingSvcId);
+  saveServices();
+  if (activeServiceId === editingSvcId) switchService(servicesData[0]?.id || 'svc_easiinc');
+  hideSvcEditor();
+  renderSvcList();
+  rebuildSvcSwitcher();
+}
+
+function rebuildSvcSwitcher() {
+  const sel = document.getElementById('svc-switcher');
+  if (!sel) return;
+  sel.innerHTML = '';
+  servicesData.forEach(svc => {
+    const o = document.createElement('option');
+    o.value = svc.id;
+    o.textContent = svc.name;
+    sel.appendChild(o);
+  });
+  sel.value = activeServiceId;
+}
+
+/* ════════════════════════════════════════
+   CSV EMPLOYEE IMPORT
+   ════════════════════════════════════════ */
+function openCsvModal() {
+  document.getElementById('csv-textarea').value = '';
+  document.getElementById('csv-preview').textContent = '';
+  document.getElementById('csv-modal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCsvModal() {
+  document.getElementById('csv-modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function doImportCsv() {
+  const raw = document.getElementById('csv-textarea').value.trim();
+  if (!raw) { showToast('Paste CSV data first'); return; }
+  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+  let added = 0, skipped = 0;
+  lines.forEach(line => {
+    const parts = line.split(',').map(p => p.trim());
+    if (parts.length < 2) { skipped++; return; }
+    const [first, last, station, role, phone, status] = parts;
+    if (!first || !last) { skipped++; return; }
+    const id = 'cemp_csv_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+    customEmployees.push({
+      first, last,
+      station: station || getActiveService().stations[0] || '',
+      role:    role    || 'EMT',
+      phone:   phone   || '',
+      status:  (status || 'FULL TIME').toUpperCase(),
+      note:    '',
+      _custom: true,
+      _id:     id,
+    });
+    added++;
+  });
+  saveCustomEmployees();
+  closeCsvModal();
+  renderDirectory();
+  showToast('Imported ' + added + ' employee' + (added !== 1 ? 's' : '') + (skipped ? ' (' + skipped + ' skipped)' : ''));
+}
+
+/* ════════════════════════════════════════
    APP INIT
    ════════════════════════════════════════ */
 function initApp() {
+  // Load services first (sets ROSTER_ROWS and activeServiceId)
+  loadServices();
+  ROSTER_ROWS = getRosterRows();
+  rebuildSvcSwitcher();
+  updateHeaderServiceName();
+  updateStationDropdowns();
+
   // Load profiles before building roster DOM (station info used in section headers)
   loadStationInfo();
   loadEmpProfiles();
@@ -3508,6 +3924,53 @@ function initApp() {
 
   // Forms
   initForms();
+
+  // Service switcher select
+  document.getElementById('svc-switcher').addEventListener('change', e => switchService(e.target.value));
+
+  // Service settings button
+  document.getElementById('btn-svc-settings').addEventListener('click', openSvcModal);
+  document.getElementById('svc-modal').addEventListener('click', e => { if (e.target === document.getElementById('svc-modal')) closeSvcModal(); });
+
+  // Service editor buttons
+  document.getElementById('btn-add-svc').addEventListener('click', () => openSvcEditor(null));
+  document.getElementById('btn-svc-save').addEventListener('click', saveSvcEditor);
+  document.getElementById('btn-svc-cancel-edit').addEventListener('click', hideSvcEditor);
+  document.getElementById('btn-svc-delete').addEventListener('click', deleteSvc);
+  document.getElementById('btn-svc-add-station').addEventListener('click', () => {
+    const inp = document.getElementById('svc-station-input');
+    const val = inp.value.trim();
+    if (!val) return;
+    if (!editingSvcStations.includes(val)) { editingSvcStations.push(val); renderSvcStations(); }
+    inp.value = '';
+  });
+  document.getElementById('svc-station-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('btn-svc-add-station').click();
+  });
+  document.getElementById('btn-svc-add-row').addEventListener('click', () => {
+    const section = document.getElementById('svc-row-section').value.trim();
+    const label   = document.getElementById('svc-row-label').value.trim();
+    const unit    = document.getElementById('svc-row-unit').value.trim();
+    if (!section || !label) { showToast('Section and label required'); return; }
+    editingSvcRows.push({ id: editingSvcRows.length, section, label, defaultUnit: unit });
+    renderSvcRows();
+    document.getElementById('svc-row-label').value = '';
+    document.getElementById('svc-row-unit').value = '';
+  });
+
+  // CSV import
+  document.getElementById('btn-csv-import').addEventListener('click', openCsvModal);
+  document.getElementById('csv-file-input').addEventListener('change', e => {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      document.getElementById('csv-textarea').value = ev.target.result;
+      const lines = ev.target.result.trim().split('\n').filter(Boolean);
+      document.getElementById('csv-preview').textContent = lines.length + ' lines detected';
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
 }
 
 /* ════════════════════════════════════════
@@ -3521,7 +3984,7 @@ const RPT_NARC_CHANGE      = ['Administered / Used','Wasted','Discrepancy','Brea
 
 let rptData = { shiftType:'day', callouts:[], events:[], admin:[], narcotics:[], totals:[], notes:'' };
 
-function rptKey(date){ return 'shift_report_v1_' + date; }
+function rptKey(date){ return svcKey('shift_report_v1_') + date; }
 
 function loadRptData(date){
   try {
@@ -3742,7 +4205,7 @@ function generateReportText(){
   // Pine Bluff unit assignments (pulled from saved roster)
   r += '── PINE BLUFF UNIT ASSIGNMENTS ──────────\n';
   try {
-    const savedRoster = JSON.parse(localStorage.getItem('roster_v1_' + date) || 'null');
+    const savedRoster = JSON.parse(localStorage.getItem(rosterKey(date)) || 'null');
     const pbRows = ROSTER_ROWS.filter(row => row.section === 'Pine Bluff');
     let anyPB = false;
     pbRows.forEach(row => {
