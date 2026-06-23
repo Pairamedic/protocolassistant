@@ -3096,9 +3096,31 @@ let formsQuery = '';
 let formsFolderFilter = 'All';
 let formEditId = null;
 
+const DEFAULT_FORMS = [
+  { id:'frm_d01', name:'EMS Preceptor Feedback',             folder:'Supervisory', link:'', desc:'' },
+  { id:'frm_d02', name:'Supervisor Investigation Checklist', folder:'Supervisory', link:'', desc:'' },
+  { id:'frm_d03', name:'Employee Performance Evaluation',    folder:'HR',          link:'', desc:'' },
+  { id:'frm_d04', name:'Employee Discipline Report',         folder:'HR',          link:'', desc:'' },
+  { id:'frm_d05', name:'Absentee / Tardy',                  folder:'HR',          link:'', desc:'' },
+  { id:'frm_d06', name:'Attention Request',                  folder:'HR',          link:'', desc:'' },
+  { id:'frm_d07', name:'Status Change',                      folder:'HR',          link:'', desc:'' },
+  { id:'frm_d08', name:'Third Rider',                        folder:'HR',          link:'', desc:'' },
+  { id:'frm_d09', name:'Maintenance Request',                folder:'Operations',  link:'', desc:'' },
+  { id:'frm_d10', name:'Unit Check Off',                     folder:'Operations',  link:'', desc:'' },
+  { id:'frm_d11', name:'Phone List',                         folder:'Operations',  link:'', desc:'' },
+  { id:'frm_d12', name:'Refusal Form',                       folder:'Clinical',    link:'', desc:'' },
+  { id:'frm_d13', name:'Patient / Receiving Signature Form', folder:'Clinical',    link:'', desc:'' },
+  { id:'frm_d14', name:'PCS',                                folder:'Clinical',    link:'', desc:'' },
+  { id:'frm_d15', name:'PMI',                                folder:'Clinical',    link:'', desc:'' },
+];
+
 function loadForms() {
   try { formsData = JSON.parse(localStorage.getItem(FORMS_KEY) || '[]'); }
   catch(e) { formsData = []; }
+  if (!formsData.length) {
+    formsData = DEFAULT_FORMS.map(f => ({ ...f }));
+    saveForms();
+  }
 }
 
 function saveForms() {
