@@ -333,25 +333,22 @@
     .ac-item .ac-detail { color: var(--muted); font-size: 11px; }
 
     /* ── Directory ── */
-    .dir-search-bar {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      margin-bottom: 14px;
-    }
-    .dir-search-bar input {
-      background: var(--input-bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      color: var(--text);
-      font-size: 15px;
-      font-family: inherit;
-      padding: 11px 14px;
-      flex: 1;
-      outline: none;
-      transition: border-color .15s;
-    }
-    .dir-search-bar input:focus { border-color: var(--accent); }
+    .dir-topbar { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+    .dir-topbar input { flex:1; min-width:0; background:var(--input-bg); border:1px solid var(--border); border-radius:10px; color:var(--text); font-size:15px; font-family:inherit; padding:11px 14px; outline:none; transition:border-color .15s; }
+    .dir-topbar input:focus { border-color:var(--accent); }
+    .dir-filter-toggle { background:rgba(255,255,255,.07); border:1px solid var(--border); border-radius:10px; color:var(--text); font-size:13px; font-family:inherit; padding:10px 12px; cursor:pointer; display:flex; align-items:center; gap:5px; white-space:nowrap; flex-shrink:0; transition:background .15s, color .15s; }
+    .dir-filter-toggle.has-filter { background:rgba(94,234,212,.1); border-color:rgba(94,234,212,.3); color:var(--accent); }
+    .dir-filter-count { background:var(--accent); color:#0b0d10; border-radius:10px; font-size:10px; font-weight:800; padding:1px 6px; line-height:1.5; }
+    .dir-add-emp-btn { background:var(--accent); color:#0b0d10; border:none; border-radius:10px; padding:10px 14px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; flex-shrink:0; white-space:nowrap; }
+    .dir-filter-panel { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 14px; margin-bottom:12px; display:flex; flex-direction:column; gap:10px; }
+    .dir-filter-row { display:flex; align-items:center; gap:10px; }
+    .dir-filter-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; color:var(--muted); min-width:46px; }
+    .dir-filter-sel { background:var(--input-bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:13px; padding:7px 10px; font-family:inherit; flex:1; outline:none; }
+    .dir-filter-sel:focus { border-color:var(--accent); }
+    .dir-filter-sel option { background:var(--card); }
+    .dir-status-btns { display:flex; gap:6px; }
+    .dir-status-btn { background:rgba(255,255,255,.06); border:1px solid var(--border); border-radius:7px; color:var(--muted); font-size:12px; font-weight:600; padding:6px 14px; cursor:pointer; font-family:inherit; transition:all .15s; white-space:nowrap; }
+    .dir-status-btn.active { background:rgba(94,234,212,.12); border-color:rgba(94,234,212,.3); color:var(--accent); }
 
     .filter-pills {
       display: flex;
@@ -399,10 +396,10 @@
       margin-top: 2px;
       font-style: italic;
     }
-    .dir-empty {
-      color: var(--muted); font-size: 14px;
-      text-align: center; padding: 40px 0;
-    }
+    .dir-empty { color:var(--muted); font-size:14px; text-align:center; padding:40px 0; }
+    .dir-custom-badge { font-size:10px; font-weight:700; background:rgba(251,191,36,.12); color:#fbbf24; border:1px solid rgba(251,191,36,.3); border-radius:5px; padding:1px 6px; margin-left:6px; vertical-align:middle; }
+    .dir-edit-btn { background:rgba(255,255,255,.06); border:1px solid var(--border); border-radius:7px; color:var(--muted); font-size:12px; padding:5px 10px; cursor:pointer; font-family:inherit; white-space:nowrap; }
+    .dir-edit-btn:hover { background:rgba(255,255,255,.11); color:var(--text); }
 
     /* ── Toast ── */
     #toast {
@@ -790,31 +787,50 @@
 
     <!-- ── TAB: DIRECTORY ── -->
     <div id="tab-directory" class="tab-panel">
-      <div class="dir-search-bar">
+      <div class="dir-topbar">
         <input type="search" id="dir-search" placeholder="Search by name…" autocomplete="off" />
+        <button class="dir-filter-toggle" id="dir-filter-toggle">
+          ⚙ Filter
+          <span id="dir-filter-count" class="dir-filter-count" style="display:none"></span>
+          <span id="dir-filter-chevron" style="font-size:10px;opacity:.7">▾</span>
+        </button>
+        <button class="dir-add-emp-btn" id="btn-add-emp">+ Add</button>
       </div>
-      <div class="filter-pills" id="filter-pills">
-        <button class="pill active" data-station="All">All</button>
-        <button class="pill" data-station="Pine Bluff">Pine Bluff</button>
-        <button class="pill" data-station="England">England</button>
-        <button class="pill" data-station="Star City">Star City</button>
-        <button class="pill" data-station="Warren">Warren</button>
-        <button class="pill" data-station="Rison">Rison</button>
-        <button class="pill" data-station="DeWitt">DeWitt</button>
-        <button class="pill" data-station="Clarendon">Clarendon</button>
-      </div>
-      <div class="filter-pills" id="role-pills" style="margin-top:6px">
-        <button class="pill active" data-role="All">All Roles</button>
-        <button class="pill" data-role="Paramedic">Paramedic</button>
-        <button class="pill" data-role="AEMT">A-EMT</button>
-        <button class="pill" data-role="EMT">EMT</button>
-        <button class="pill" data-role="EMR">EMR</button>
-        <button class="pill" data-role="EVO">EVO</button>
-      </div>
-      <div class="filter-pills" id="status-pills" style="margin-top:6px">
-        <button class="pill active" data-status="All">All Status</button>
-        <button class="pill" data-status="FULL TIME">Full Time</button>
-        <button class="pill" data-status="PRN">PRN</button>
+      <div id="dir-filter-panel" class="dir-filter-panel" style="display:none">
+        <div class="dir-filter-row">
+          <span class="dir-filter-label">Station</span>
+          <select id="dir-station-sel" class="dir-filter-sel">
+            <option value="All">All Stations</option>
+            <option value="Pine Bluff">Pine Bluff</option>
+            <option value="England">England</option>
+            <option value="Star City">Star City</option>
+            <option value="Warren">Warren</option>
+            <option value="Rison">Rison</option>
+            <option value="DeWitt">DeWitt</option>
+            <option value="Clarendon">Clarendon</option>
+          </select>
+        </div>
+        <div class="dir-filter-row">
+          <span class="dir-filter-label">Role</span>
+          <select id="dir-role-sel" class="dir-filter-sel">
+            <option value="All">All Roles</option>
+            <option value="Paramedic">Paramedic</option>
+            <option value="AEMT">A-EMT</option>
+            <option value="EMT">EMT</option>
+            <option value="EMR">EMR</option>
+            <option value="EVO">EVO</option>
+            <option value="SUPERVISOR">Supervisor</option>
+            <option value="DISPATCHER">Dispatcher</option>
+          </select>
+        </div>
+        <div class="dir-filter-row">
+          <span class="dir-filter-label">Status</span>
+          <div class="dir-status-btns">
+            <button class="dir-status-btn active" data-status="All">All</button>
+            <button class="dir-status-btn" data-status="FULL TIME">Full Time</button>
+            <button class="dir-status-btn" data-status="PRN">PRN</button>
+          </div>
+        </div>
       </div>
       <div id="dir-results" class="dir-results"></div>
     </div>
@@ -1061,6 +1077,59 @@ Shift Start/End    0600
   </div>
 </div>
 
+<!-- Add / Edit Employee Modal -->
+<div id="emp-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);align-items:flex-end;justify-content:center">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;padding:20px 20px 32px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div id="emp-modal-title" style="font-size:16px;font-weight:800;color:var(--text)">Add Employee</div>
+      <button onclick="closeEmpModal()" style="background:rgba(255,255,255,.08);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:18px;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="rpt-field"><label>First Name *</label><input type="text" id="em-first" class="inc-inp" placeholder="First" autocomplete="given-name" /></div>
+        <div class="rpt-field"><label>Last Name *</label><input type="text" id="em-last" class="inc-inp" placeholder="Last" autocomplete="family-name" /></div>
+      </div>
+      <div class="rpt-field">
+        <label>Station</label>
+        <select id="em-station" class="dir-filter-sel" style="width:100%">
+          <option value="Pine Bluff">Pine Bluff</option>
+          <option value="England">England</option>
+          <option value="Star City">Star City</option>
+          <option value="Warren">Warren</option>
+          <option value="Rison">Rison</option>
+          <option value="DeWitt">DeWitt</option>
+          <option value="Clarendon">Clarendon</option>
+        </select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="rpt-field">
+          <label>Role</label>
+          <input type="text" id="em-role" class="inc-inp" placeholder="Paramedic, EMT…" list="em-role-list" autocomplete="off" />
+          <datalist id="em-role-list">
+            <option value="Paramedic"><option value="A-EMT"><option value="EMT"><option value="EMR">
+            <option value="EVO"><option value="SUPERVISOR"><option value="DISPATCHER">
+          </datalist>
+        </div>
+        <div class="rpt-field">
+          <label>Status</label>
+          <select id="em-status" class="dir-filter-sel" style="width:100%">
+            <option value="FULL TIME">Full Time</option>
+            <option value="PRN">PRN</option>
+          </select>
+        </div>
+      </div>
+      <div class="rpt-field"><label>Phone</label><input type="tel" id="em-phone" class="inc-inp" placeholder="870-555-0000" autocomplete="tel" /></div>
+      <div class="rpt-field"><label>Note (optional)</label><input type="text" id="em-note" class="inc-inp" placeholder="Cannot drive, on light duty…" /></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:18px;align-items:center">
+      <button id="btn-emp-delete" style="display:none;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);border-radius:10px;color:#f87171;font-size:13px;font-weight:600;padding:10px 14px;cursor:pointer;font-family:inherit">🗑 Delete</button>
+      <div style="flex:1"></div>
+      <button id="btn-emp-cancel" style="background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;padding:10px 18px;cursor:pointer;font-family:inherit">Cancel</button>
+      <button id="btn-emp-save" style="background:var(--accent);border:none;border-radius:10px;color:#0b0d10;font-size:14px;font-weight:700;padding:10px 22px;cursor:pointer;font-family:inherit">Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- Print View (hidden on screen, shown on print) -->
 <div id="print-view"></div>
 
@@ -1163,11 +1232,16 @@ function empTokens(emp) {
   return { raw, nick: nick.toLowerCase() };
 }
 
+/** Merge static EMPLOYEES with user-added customEmployees */
+function getAllEmployees() {
+  return [...EMPLOYEES, ...customEmployees];
+}
+
 /** Find up to `limit` employees whose name matches `query` */
 function searchEmployees(query, limit = 6) {
   if (!query || query.length < 2) return [];
   const q = query.toLowerCase();
-  return EMPLOYEES.filter(emp => {
+  return getAllEmployees().filter(emp => {
     const { raw, nick } = empTokens(emp);
     return raw.includes(q) || nick.includes(q);
   }).slice(0, limit);
@@ -1177,11 +1251,9 @@ function searchEmployees(query, limit = 6) {
 function lookupByName(name) {
   if (!name) return null;
   const q = name.toLowerCase().trim();
-  return EMPLOYEES.find(emp => {
+  return getAllEmployees().find(emp => {
     const first = emp.first.toLowerCase();
-    // extract nickname
     const nick = (emp.first.match(/\(([^)]+)\)/) || [])[1] || '';
-    // also try "FirstName LastName" combo
     const full = (emp.first + ' ' + emp.last).toLowerCase();
     return first === q || nick.toLowerCase() === q || full === q;
   }) || null;
@@ -1191,17 +1263,14 @@ function lookupByName(name) {
 function lookupByOCRName(raw) {
   if (!raw) return null;
   const q = raw.toLowerCase().trim();
-  // exact first name
-  let found = EMPLOYEES.find(e => e.first.replace(/\s*\(.*?\)/,'').toLowerCase() === q);
+  let found = getAllEmployees().find(e => e.first.replace(/\s*\(.*?\)/,'').toLowerCase() === q);
   if (found) return found;
-  // nickname
-  found = EMPLOYEES.find(e => {
+  found = getAllEmployees().find(e => {
     const nick = (e.first.match(/\(([^)]+)\)/) || [])[1] || '';
     return nick.toLowerCase() === q;
   });
   if (found) return found;
-  // exact last name
-  found = EMPLOYEES.find(e => e.last.toLowerCase() === q);
+  found = getAllEmployees().find(e => e.last.toLowerCase() === q);
   if (found) return found;
   return null;
 }
@@ -1239,6 +1308,9 @@ let profStationFilter = 'All';
 let profRoleFilter    = 'All';
 let collapsedSections = new Set();
 let assignEmp = null;
+let customEmployees = [];
+let editingEmpId = null;
+let assignSectionFilter = 'All';
 let db = null;
 
 /* ════════════════════════════════════════
@@ -1896,9 +1968,10 @@ function roleMatches(empRole, filter) {
 
 function renderDirectory() {
   const results = document.getElementById('dir-results');
-  let filtered = EMPLOYEES.filter(emp => {
+  results.innerHTML = '';
+  let filtered = getAllEmployees().filter(emp => {
     if (dirStation !== 'All') {
-      const empStation = emp.station.toLowerCase().replace(/\s/g, '');
+      const empStation = (emp.station || '').toLowerCase().replace(/\s/g, '');
       const filterStation = dirStation.toLowerCase().replace(/\s/g, '');
       if (empStation !== filterStation) return false;
     }
@@ -1912,50 +1985,90 @@ function renderDirectory() {
     return true;
   });
 
-  // Sort by last name, then first
   filtered.sort((a, b) => {
-    const lc = a.last.toLowerCase().localeCompare(b.last.toLowerCase());
+    const lc = (a.last || '').toLowerCase().localeCompare((b.last || '').toLowerCase());
     if (lc !== 0) return lc;
-    return a.first.toLowerCase().localeCompare(b.first.toLowerCase());
+    return (a.first || '').toLowerCase().localeCompare((b.first || '').toLowerCase());
   });
 
   if (!filtered.length) {
-    results.innerHTML = '<div class="dir-empty">No results found.</div>';
+    const empty = document.createElement('div');
+    empty.className = 'dir-empty';
+    empty.textContent = 'No results found.';
+    results.appendChild(empty);
     return;
   }
 
-  results.innerHTML = filtered.map((emp, _) => {
-    const idx = EMPLOYEES.indexOf(emp);
-    const phone = emp.phone;
-    const phoneHtml = phone && phone !== 'on file'
-      ? `<a href="tel:${phone}" class="call-badge">📞 ${phone}</a>`
-      : phone
-        ? `<span class="call-badge" style="color:var(--muted);font-size:12px">${phone}</span>`
-        : '';
-    const noteHtml = emp.note
-      ? `<div class="dir-note">${emp.note}</div>`
-      : '';
-    return `
-      <div class="dir-card">
-        <div class="dir-info">
-          <div class="dir-name">${emp.first} ${emp.last}</div>
-          <div class="dir-meta">${emp.role} &mdash; ${emp.station} &bull; ${emp.status}</div>
-          ${noteHtml}
-        </div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          ${phoneHtml}
-          <button class="dir-assign-btn" data-empidx="${idx}">📋 Assign</button>
-        </div>
-      </div>`;
-  }).join('');
+  filtered.forEach(emp => {
+    const card = document.createElement('div');
+    card.className = 'dir-card';
 
-  // Assign button handler (delegated)
-  results.onclick = e => {
-    const btn = e.target.closest('.dir-assign-btn');
-    if (!btn) return;
-    const idx = parseInt(btn.dataset.empidx);
-    if (!isNaN(idx) && EMPLOYEES[idx]) openAssignModal(EMPLOYEES[idx]);
-  };
+    const infoDiv = document.createElement('div');
+    infoDiv.className = 'dir-info';
+
+    const nameRow = document.createElement('div');
+    nameRow.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap';
+    const nameEl = document.createElement('div');
+    nameEl.className = 'dir-name';
+    nameEl.textContent = emp.first + ' ' + emp.last;
+    nameRow.appendChild(nameEl);
+    if (emp._custom) {
+      const badge = document.createElement('span');
+      badge.className = 'dir-custom-badge';
+      badge.textContent = '★ Custom';
+      nameRow.appendChild(badge);
+    }
+    infoDiv.appendChild(nameRow);
+
+    const metaEl = document.createElement('div');
+    metaEl.className = 'dir-meta';
+    metaEl.textContent = (emp.role || '') + ' — ' + (emp.station || '') + ' · ' + (emp.status || '');
+    infoDiv.appendChild(metaEl);
+
+    if (emp.note) {
+      const noteEl = document.createElement('div');
+      noteEl.className = 'dir-note';
+      noteEl.textContent = emp.note;
+      infoDiv.appendChild(noteEl);
+    }
+    card.appendChild(infoDiv);
+
+    const actDiv = document.createElement('div');
+    actDiv.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap;flex-shrink:0';
+
+    const phone = emp.phone || '';
+    if (phone && phone !== 'on file') {
+      const a = document.createElement('a');
+      a.href = 'tel:' + phone;
+      a.className = 'call-badge';
+      a.textContent = '📞 ' + phone;
+      actDiv.appendChild(a);
+    } else if (phone) {
+      const s = document.createElement('span');
+      s.className = 'call-badge';
+      s.style.cssText = 'color:var(--muted);font-size:12px';
+      s.textContent = phone;
+      actDiv.appendChild(s);
+    }
+
+    if (emp._custom) {
+      const editBtn = document.createElement('button');
+      editBtn.className = 'dir-edit-btn';
+      editBtn.textContent = '✏️';
+      editBtn.title = 'Edit';
+      editBtn.addEventListener('click', () => openEmpModal(emp._id));
+      actDiv.appendChild(editBtn);
+    }
+
+    const assignBtn = document.createElement('button');
+    assignBtn.className = 'dir-assign-btn';
+    assignBtn.textContent = '📋 Assign';
+    assignBtn.addEventListener('click', () => openAssignModal(emp));
+    actDiv.appendChild(assignBtn);
+
+    card.appendChild(actDiv);
+    results.appendChild(card);
+  });
 }
 
 /* ════════════════════════════════════════
@@ -2593,58 +2706,114 @@ function initProfilesTab() {
    ════════════════════════════════════════ */
 function openAssignModal(emp) {
   assignEmp = emp;
-  document.getElementById('assign-modal-title').textContent = 'Assign ' + displayName(emp);
-  const body = document.getElementById('assign-modal-body');
-  body.innerHTML = '';
-  let lastSec = null;
-  ROSTER_ROWS.forEach(row => {
-    if (row.section !== lastSec) {
-      lastSec = row.section;
-      const hdr = document.createElement('div');
-      hdr.style.cssText = 'font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;padding:10px 0 4px';
-      hdr.textContent = row.section;
-      body.appendChild(hdr);
-    }
-    const rd = rowData[row.id] || {};
-    const rowDiv = document.createElement('div');
-    rowDiv.className = 'assign-slot-row';
-    const info = document.createElement('div');
-    info.className = 'assign-slot-info';
-    info.innerHTML = `<b>${row.label}</b> <span style="color:var(--muted);font-size:11px">${rd.unit || row.defaultUnit || ''}</span>`;
-    if (rd.lead) {
-      const cur = document.createElement('div');
-      cur.className = 'assign-slot-current';
-      cur.textContent = 'Lead: ' + rd.lead + (rd.secondary ? ' · 2nd: ' + rd.secondary : '');
-      info.appendChild(cur);
-    }
-    rowDiv.appendChild(info);
-    if (!rd.lead) {
-      const b = document.createElement('button');
-      b.className = 'assign-lead-btn';
-      b.textContent = 'Lead';
-      b.addEventListener('click', () => assignToSlot(row.id, 'lead', 'leadPhone'));
-      rowDiv.appendChild(b);
-    }
-    if (!rd.secondary) {
-      const b = document.createElement('button');
-      b.className = 'assign-sec-btn';
-      b.textContent = '2nd';
-      b.addEventListener('click', () => assignToSlot(row.id, 'secondary', 'secondaryPhone'));
-      rowDiv.appendChild(b);
-    }
-    body.appendChild(rowDiv);
-  });
+  assignSectionFilter = 'All';
+  document.getElementById('assign-modal-title').textContent = displayName(emp);
+  renderAssignBody();
   document.getElementById('assign-modal').style.display = 'flex';
   document.body.style.overflow = 'hidden';
 }
 
-function assignToSlot(rowId, fieldKey, phoneKey) {
+function renderAssignBody() {
+  const body = document.getElementById('assign-modal-body');
+  body.innerHTML = '';
+
+  // Section filter pills
+  const sections = ['All', ...new Set(ROSTER_ROWS.map(r => r.section).filter(Boolean))];
+  const pillWrap = document.createElement('div');
+  pillWrap.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)';
+  sections.forEach(sec => {
+    const btn = document.createElement('button');
+    const isActive = assignSectionFilter === sec;
+    btn.style.cssText = 'padding:4px 10px;border-radius:12px;border:1px solid var(--border);background:' +
+      (isActive ? 'var(--accent)' : 'rgba(255,255,255,.07)') +
+      ';color:' + (isActive ? '#0b0d10' : 'var(--text)') +
+      ';font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap';
+    btn.textContent = sec;
+    btn.addEventListener('click', () => { assignSectionFilter = sec; renderAssignBody(); });
+    pillWrap.appendChild(btn);
+  });
+  body.appendChild(pillWrap);
+
+  // Filter rows by section
+  let rows = ROSTER_ROWS;
+  if (assignSectionFilter !== 'All') rows = rows.filter(r => r.section === assignSectionFilter);
+
+  // Sort: open (no lead) → partial (lead, no 2nd) → filled (both)
+  const open    = rows.filter(r => { const d = rowData[r.id] || {}; return !d.lead; });
+  const partial = rows.filter(r => { const d = rowData[r.id] || {}; return d.lead && !d.secondary; });
+  const filled  = rows.filter(r => { const d = rowData[r.id] || {}; return d.lead && d.secondary; });
+
+  const addGroup = (label, groupRows, accentColor) => {
+    if (!groupRows.length) return;
+    const hdr = document.createElement('div');
+    hdr.style.cssText = 'font-size:10px;font-weight:700;color:' + accentColor + ';text-transform:uppercase;letter-spacing:1px;padding:8px 0 4px';
+    hdr.textContent = label + ' (' + groupRows.length + ')';
+    body.appendChild(hdr);
+    groupRows.forEach(row => {
+      const rd = rowData[row.id] || {};
+      const rowDiv = document.createElement('div');
+      rowDiv.className = 'assign-slot-row';
+      const info = document.createElement('div');
+      info.className = 'assign-slot-info';
+      const bold = document.createElement('b');
+      bold.textContent = row.label;
+      info.appendChild(bold);
+      const unitTxt = rd.unit || row.defaultUnit || '';
+      if (unitTxt) {
+        const unitSpan = document.createElement('span');
+        unitSpan.style.cssText = 'color:var(--muted);font-size:11px;margin-left:6px';
+        unitSpan.textContent = unitTxt;
+        info.appendChild(unitSpan);
+      }
+      if (rd.lead) {
+        const cur = document.createElement('div');
+        cur.className = 'assign-slot-current';
+        cur.textContent = 'Lead: ' + rd.lead + (rd.secondary ? ' · 2nd: ' + rd.secondary : '');
+        info.appendChild(cur);
+      }
+      rowDiv.appendChild(info);
+      if (!rd.lead) {
+        const b = document.createElement('button');
+        b.className = 'assign-lead-btn';
+        b.textContent = 'Lead';
+        b.addEventListener('click', () => assignToSlot(row.id, 'lead', 'leadPhone', renderAssignBody));
+        rowDiv.appendChild(b);
+      }
+      if (!rd.secondary) {
+        const b = document.createElement('button');
+        b.className = 'assign-sec-btn';
+        b.textContent = '2nd';
+        b.addEventListener('click', () => assignToSlot(row.id, 'secondary', 'secondaryPhone', renderAssignBody));
+        rowDiv.appendChild(b);
+      }
+      body.appendChild(rowDiv);
+    });
+  };
+
+  addGroup('Open Slots', open, 'var(--accent)');
+  addGroup('Partial — Needs 2nd', partial, '#fbbf24');
+  addGroup('Filled', filled, 'var(--muted)');
+
+  if (!open.length && !partial.length && !filled.length) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'text-align:center;padding:24px;color:var(--muted);font-size:14px';
+    empty.textContent = 'No rows in this section.';
+    body.appendChild(empty);
+  }
+}
+
+function assignToSlot(rowId, fieldKey, phoneKey, onDone) {
   ensureRowData(rowId);
   rowData[rowId][fieldKey] = displayName(assignEmp);
   rowData[rowId][phoneKey] = assignEmp.phone;
   buildRosterDOM();
-  closeAssignModal();
-  showToast(displayName(assignEmp) + ' → ' + (ROSTER_ROWS.find(r => r.id === rowId)?.label || 'slot'));
+  const label = ROSTER_ROWS.find(r => r.id === rowId)?.label || 'slot';
+  showToast(displayName(assignEmp) + ' → ' + label);
+  if (typeof onDone === 'function') {
+    onDone();
+  } else {
+    closeAssignModal();
+  }
 }
 
 function closeAssignModal() {
@@ -3109,6 +3278,108 @@ function initForms() {
 }
 
 /* ════════════════════════════════════════
+   CUSTOM EMPLOYEES
+   ════════════════════════════════════════ */
+const CUSTOM_EMP_KEY = 'custom_employees_v1';
+
+function loadCustomEmployees() {
+  try {
+    const s = localStorage.getItem(CUSTOM_EMP_KEY);
+    customEmployees = s ? JSON.parse(s) : [];
+  } catch(e) { customEmployees = []; }
+  if (db) {
+    db.collection('custom_employees').get().then(snap => {
+      if (!snap.empty) {
+        customEmployees = snap.docs.map(d => ({ ...d.data(), _id: d.id, _custom: true }));
+        localStorage.setItem(CUSTOM_EMP_KEY, JSON.stringify(customEmployees));
+        renderDirectory();
+      }
+    }).catch(() => {});
+  }
+}
+
+function saveCustomEmployees() {
+  localStorage.setItem(CUSTOM_EMP_KEY, JSON.stringify(customEmployees));
+  if (db) {
+    customEmployees.forEach(emp => {
+      const { _id, _custom, ...data } = emp;
+      db.collection('custom_employees').doc(_id).set(data).catch(() => {});
+    });
+  }
+}
+
+function openEmpModal(empId) {
+  editingEmpId = empId || null;
+  const emp = empId ? customEmployees.find(e => e._id === empId) : null;
+  document.getElementById('emp-modal-title').textContent = emp ? 'Edit Employee' : 'Add Employee';
+  document.getElementById('em-first').value   = emp?.first   || '';
+  document.getElementById('em-last').value    = emp?.last    || '';
+  document.getElementById('em-station').value = emp?.station || 'Pine Bluff';
+  document.getElementById('em-role').value    = emp?.role    || '';
+  document.getElementById('em-phone').value   = emp?.phone   || '';
+  document.getElementById('em-status').value  = emp?.status  || 'FULL TIME';
+  document.getElementById('em-note').value    = emp?.note    || '';
+  document.getElementById('btn-emp-delete').style.display = emp ? '' : 'none';
+  document.getElementById('emp-modal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('em-first').focus(), 60);
+}
+
+function saveEmpModal() {
+  const first = document.getElementById('em-first').value.trim();
+  const last  = document.getElementById('em-last').value.trim();
+  if (!first || !last) { showToast('First and last name required'); return; }
+  const emp = {
+    first,
+    last,
+    station: document.getElementById('em-station').value,
+    role:    document.getElementById('em-role').value.trim() || 'EMT',
+    phone:   document.getElementById('em-phone').value.trim() || '',
+    status:  document.getElementById('em-status').value,
+    note:    document.getElementById('em-note').value.trim(),
+    _custom: true,
+    _id:     editingEmpId || ('cemp_' + Date.now()),
+  };
+  if (editingEmpId) {
+    const idx = customEmployees.findIndex(e => e._id === editingEmpId);
+    if (idx !== -1) customEmployees[idx] = emp; else customEmployees.push(emp);
+  } else {
+    customEmployees.push(emp);
+  }
+  saveCustomEmployees();
+  closeEmpModal();
+  renderDirectory();
+  showToast((editingEmpId ? 'Updated: ' : 'Added: ') + first + ' ' + last);
+}
+
+function deleteCustomEmp() {
+  if (!editingEmpId) return;
+  const emp = customEmployees.find(e => e._id === editingEmpId);
+  if (!confirm('Delete ' + (emp ? emp.first + ' ' + emp.last : 'this employee') + '?')) return;
+  if (db) db.collection('custom_employees').doc(editingEmpId).delete().catch(() => {});
+  customEmployees = customEmployees.filter(e => e._id !== editingEmpId);
+  saveCustomEmployees();
+  closeEmpModal();
+  renderDirectory();
+  showToast('Employee removed');
+}
+
+function closeEmpModal() {
+  document.getElementById('emp-modal').style.display = 'none';
+  document.body.style.overflow = '';
+  editingEmpId = null;
+}
+
+function updateDirFilterCount() {
+  let count = 0;
+  if (dirStation !== 'All') count++;
+  if (dirRole !== 'All') count++;
+  if (dirStatus !== 'All') count++;
+  const el = document.getElementById('dir-filter-count');
+  if (el) { el.textContent = count; el.style.display = count ? '' : 'none'; }
+}
+
+/* ════════════════════════════════════════
    APP INIT
    ════════════════════════════════════════ */
 function initApp() {
@@ -3168,37 +3439,54 @@ function initApp() {
     renderDirectory();
   });
 
-  // Station filter pills
-  document.getElementById('filter-pills').addEventListener('click', e => {
-    const pill = e.target.closest('.pill');
-    if (!pill) return;
-    dirStation = pill.dataset.station;
-    document.querySelectorAll('#filter-pills .pill').forEach(p => p.classList.remove('active'));
-    pill.classList.add('active');
+  // Directory filter toggle (expand/collapse panel)
+  const filterToggle = document.getElementById('dir-filter-toggle');
+  const filterPanel  = document.getElementById('dir-filter-panel');
+  const filterChevron = document.getElementById('dir-filter-chevron');
+  filterToggle.addEventListener('click', () => {
+    const isOpen = filterPanel.style.display !== 'none';
+    filterPanel.style.display = isOpen ? 'none' : '';
+    filterChevron.textContent = isOpen ? '▾' : '▴';
+  });
+
+  // Station select
+  document.getElementById('dir-station-sel').addEventListener('change', e => {
+    dirStation = e.target.value;
+    updateDirFilterCount();
     renderDirectory();
   });
 
-  // Role filter pills
-  document.getElementById('role-pills').addEventListener('click', e => {
-    const pill = e.target.closest('.pill');
-    if (!pill) return;
-    dirRole = pill.dataset.role;
-    document.querySelectorAll('#role-pills .pill').forEach(p => p.classList.remove('active'));
-    pill.classList.add('active');
+  // Role select
+  document.getElementById('dir-role-sel').addEventListener('change', e => {
+    dirRole = e.target.value;
+    updateDirFilterCount();
     renderDirectory();
   });
 
-  // Status filter pills (Full Time / PRN)
-  document.getElementById('status-pills').addEventListener('click', e => {
-    const pill = e.target.closest('.pill');
-    if (!pill) return;
-    dirStatus = pill.dataset.status;
-    document.querySelectorAll('#status-pills .pill').forEach(p => p.classList.remove('active'));
-    pill.classList.add('active');
-    renderDirectory();
+  // Status buttons
+  document.querySelectorAll('.dir-status-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.dir-status-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      dirStatus = btn.dataset.status;
+      updateDirFilterCount();
+      renderDirectory();
+    });
   });
 
-  // Initial directory render
+  // Add employee button
+  document.getElementById('btn-add-emp').addEventListener('click', () => openEmpModal(null));
+
+  // Employee modal buttons
+  document.getElementById('btn-emp-save').addEventListener('click', saveEmpModal);
+  document.getElementById('btn-emp-cancel').addEventListener('click', closeEmpModal);
+  document.getElementById('btn-emp-delete').addEventListener('click', deleteCustomEmp);
+  document.getElementById('emp-modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('emp-modal')) closeEmpModal();
+  });
+
+  // Load custom employees (localStorage + Firestore) then render directory
+  loadCustomEmployees();
   renderDirectory();
 
   // Profiles tab

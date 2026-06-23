@@ -27,5 +27,11 @@ service cloud.firestore {
     match /shift_rosters/{date} {
       allow read, write: if request.auth != null;
     }
+
+    // Custom employees — admin-only (only the supervisor account can manage)
+    match /custom_employees/{empId} {
+      allow read, write: if request.auth != null &&
+                            request.auth.token.email == 'eliasacaldwellnrp@gmail.com';
+    }
   }
 }
