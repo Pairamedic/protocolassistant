@@ -483,10 +483,23 @@
 
     /* ── Shift Report ── */
     .rpt-section { background: var(--card); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 12px; overflow: hidden; }
-    .rpt-section-hd { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: rgba(94,234,212,.06); border-bottom: 1px solid var(--border); }
-    .rpt-section-title { font-size: 13px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--accent); }
+    .rpt-section-hd { display: flex; align-items: center; gap: 6px; padding: 12px 16px; background: rgba(94,234,212,.06); border-bottom: 1px solid var(--border); cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; }
+    .rpt-section-hd:active { background: rgba(94,234,212,.12); }
+    .rpt-section.collapsed .rpt-section-body { display: none; }
+    .rpt-section.collapsed .rpt-section-hd { border-bottom: none; }
+    .rpt-section-title { font-size: 13px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--accent); flex-shrink: 0; }
+    .rpt-section-count { background: rgba(94,234,212,.15); color: var(--accent); border-radius: 10px; padding: 1px 8px; font-size: 11px; font-weight: 700; display: inline-block; flex-shrink: 0; }
+    .rpt-section-count.zero { background: rgba(255,255,255,.06); color: var(--muted); }
+    .rpt-section-hd .rpt-add-btn { margin-left: auto; flex-shrink: 0; }
+    .rpt-section-chevron { font-size: 12px; color: var(--muted); flex-shrink: 0; transition: transform .2s; }
     .rpt-section-body { padding: 10px 14px 14px; }
-    .rpt-add-btn { background: rgba(94,234,212,.1); border: 1px solid rgba(94,234,212,.3); color: var(--accent); border-radius: 8px; padding: 5px 12px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .rpt-add-btn { background: rgba(94,234,212,.1); border: 1px solid rgba(94,234,212,.3); color: var(--accent); border-radius: 8px; padding: 7px 14px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; min-height: 34px; touch-action: manipulation; }
+    /* PCR provider roster picker */
+    .qm-provider-picker { display: flex; flex-wrap: wrap; gap: 8px; max-height: 150px; overflow-y: auto; padding: 4px 0 2px; -webkit-overflow-scrolling: touch; }
+    .qm-provider-chip { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 9px 14px; font-size: 13px; font-weight: 600; color: var(--text); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 80px; font-family: inherit; touch-action: manipulation; transition: background .12s, border-color .12s; }
+    .qm-provider-chip:active { background: rgba(94,234,212,.15); }
+    .qm-chip-unit { font-size: 10px; color: var(--muted); font-weight: 500; }
+    .qm-provider-chip.selected { background: rgba(94,234,212,.18); border-color: var(--accent); color: var(--accent); }
     .rpt-entry { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; position: relative; }
     .rpt-entry:last-child { margin-bottom: 0; }
     .rpt-entry-grid { display: grid; gap: 8px; }
@@ -4956,6 +4969,7 @@ function renderRpt(){
   renderNarcotics();
   renderUnlockedPcrs();
   renderStaffing();
+  updateRptBadges();
 }
 
 /* ── helpers ── */
@@ -5747,8 +5761,32 @@ function qaRider(){
 }
 
 // ── 6. PCR Count
+function getRosterProviders(){
+  const providers = [];
+  const seen = new Set();
+  (typeof ROSTER_ROWS !== 'undefined' ? ROSTER_ROWS : []).forEach(row => {
+    const rd = rowData[row.id];
+    if (!rd?.lead) return;
+    const key = rd.lead + '|' + (rd.unit || row.defaultUnit || '');
+    if (seen.has(key)) return;
+    seen.add(key);
+    providers.push({ name: rd.lead, unit: rd.unit || row.defaultUnit || '' });
+  });
+  return providers;
+}
+
 function qaPcr(){
+  const providers = getRosterProviders();
+  const pickerHtml = providers.length ? `
+    <div class="qm-group">
+      <label class="qm-label">Tap to select from today's roster</label>
+      <div class="qm-provider-picker" id="qm-provider-picker">
+        ${providers.map(p => `<button type="button" class="qm-provider-chip" data-name="${p.name.replace(/"/g,'&quot;')}" data-unit="${p.unit.replace(/"/g,'&quot;')}"><span>${p.name}</span><span class="qm-chip-unit">${p.unit || '—'}</span></button>`).join('')}
+      </div>
+    </div>` : '';
+
   openQuickModal('📋 PCR Count', `
+    ${pickerHtml}
     <div class="qm-row g3">
       <div class="qm-group">
         <label class="qm-label">PCR Count</label>
@@ -5773,6 +5811,20 @@ function qaPcr(){
     showToast('PCR count logged ✓');
     closeQuickModal();
   }, 'Logs to Activity Log and PCR\'s section of Shift Report.');
+
+  // Wire roster chip clicks (DOM is ready since openQuickModal sets innerHTML synchronously)
+  document.querySelectorAll('.qm-provider-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.qm-provider-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      const provEl = document.getElementById('qm-pcr-prov');
+      const unitEl = document.getElementById('qm-pcr-unit');
+      const countEl = document.getElementById('qm-pcr-count');
+      if (provEl) provEl.value = chip.dataset.name;
+      if (unitEl) unitEl.value = chip.dataset.unit;
+      if (countEl) { countEl.focus(); countEl.select(); }
+    });
+  });
 }
 
 // ── 7. Unlock PCR
@@ -5828,6 +5880,73 @@ function initQuickModal(){
   });
 }
 
+/* ────────────────────────────────────────
+   REPORT SECTION COLLAPSE + BADGES
+   ──────────────────────────────────────── */
+function updateRptBadgeForList(listId){
+  const badge = document.getElementById('rpt-badge-' + listId);
+  if(!badge) return;
+  const list = document.getElementById(listId);
+  if(!list) return;
+  const count = list.querySelectorAll('.rpt-entry').length;
+  badge.textContent = count;
+  badge.className = 'rpt-section-count' + (count > 0 ? '' : ' zero');
+  if(count > 0){
+    const section = badge.closest('.rpt-section');
+    if(section?.classList.contains('collapsed')){
+      section.classList.remove('collapsed');
+      const ch = section.querySelector('.rpt-section-chevron');
+      if(ch) ch.textContent = '▾';
+    }
+  }
+}
+
+function updateRptBadges(){
+  ['admin-list','callouts-list','riders-list','pcrs-list','unit-issues-list','events-list','narcotics-list','unlocked-pcrs-list'].forEach(updateRptBadgeForList);
+}
+
+function initReportSectionCollapse(){
+  const trackedLists = ['admin-list','callouts-list','riders-list','pcrs-list','unit-issues-list','events-list','narcotics-list','unlocked-pcrs-list'];
+
+  // MutationObserver: update badges whenever a list's children change (add or remove entries)
+  trackedLists.forEach(id => {
+    const list = document.getElementById(id);
+    if(!list) return;
+    new MutationObserver(() => updateRptBadgeForList(id)).observe(list, { childList: true });
+  });
+
+  // Make each section collapsible; add count badge + chevron to header
+  document.querySelectorAll('#tab-report .rpt-section').forEach(section => {
+    const hd = section.querySelector('.rpt-section-hd');
+    if(!hd) return;
+
+    // Find a tracked list inside this section
+    const listEl = trackedLists.map(id => section.querySelector('#' + id)).find(Boolean);
+    if(listEl){
+      const title = hd.querySelector('.rpt-section-title');
+      const badge = document.createElement('span');
+      badge.className = 'rpt-section-count zero';
+      badge.id = 'rpt-badge-' + listEl.id;
+      badge.textContent = '0';
+      if(title) title.after(badge);
+    }
+
+    const chevron = document.createElement('span');
+    chevron.className = 'rpt-section-chevron';
+    chevron.textContent = '▸';
+    hd.appendChild(chevron);
+
+    // Start collapsed (except the date browser row which has no body to hide)
+    section.classList.add('collapsed');
+
+    hd.addEventListener('click', e => {
+      if(e.target.closest('button')) return;
+      const nowCollapsed = section.classList.toggle('collapsed');
+      chevron.textContent = nowCollapsed ? '▸' : '▾';
+    });
+  });
+}
+
 function initShiftReport(){
   const dateInput = document.getElementById('roster-date');
   loadRptData(dateInput.value || todayStr());
@@ -5848,6 +5967,7 @@ function initShiftReport(){
   document.getElementById('btn-rpt-preview')?.addEventListener('click', openRptPreview);
   document.getElementById('btn-refresh-staffing')?.addEventListener('click', renderStaffing);
   renderReportDateBrowser();
+  initReportSectionCollapse();
 
   function addTo(listId, buildFn){
     const list = document.getElementById(listId);
