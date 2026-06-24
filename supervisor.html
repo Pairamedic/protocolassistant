@@ -514,6 +514,13 @@
     .rpt-email-btn { background: rgba(196,181,253,.1); border: 1px solid rgba(196,181,253,.35); color: #c4b5fd; border-radius: 10px; padding: 9px 16px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
     .rpt-email-btn:hover { background: rgba(196,181,253,.2); }
     .rpt-copy-area { background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px; font-size: 12px; color: var(--muted); font-family: monospace; white-space: pre-wrap; max-height: 200px; overflow-y: auto; margin-top: 10px; display: none; }
+    /* Unit check rows */
+    .unit-check-row { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); }
+    .unit-check-row:last-child { border-bottom:none; }
+    .unit-check-cb { width:22px; height:22px; accent-color:var(--accent); flex-shrink:0; cursor:pointer; }
+    .unit-check-label { font-size:14px; flex:1; }
+    .unit-check-label.checked { text-decoration:line-through; color:var(--muted); }
+    .unit-check-note { background:var(--input-bg); border:1px solid var(--border); border-radius:7px; color:var(--text); font-size:12px; padding:5px 8px; font-family:inherit; outline:none; width:130px; flex-shrink:0; }
     /* Narcotic modal */
     .narc-step-title { font-size: 15px; font-weight: 800; color: var(--accent); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
     .narc-check-row  { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
@@ -741,8 +748,7 @@
 
       /* Modals: taller on mobile */
       #assign-modal > div,
-      #import-modal .import-modal-body,
-      #narc-modal > div { max-height: 93vh; }
+      #import-modal .import-modal-body { max-height: 93vh; }
     }
 
     /* ══════════════════════════════════════════════
@@ -1045,7 +1051,7 @@
     .dash-date { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
     .dash-shift-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
     .dash-shift-row select { background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 14px; padding: 9px 14px; font-family: inherit; flex: 1; outline: none; }
-    .dash-stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+    .dash-stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 8px; }
     .dash-stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
     .dash-stat-num { font-size: 34px; font-weight: 800; color: var(--accent); line-height: 1; }
     .dash-stat-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-top: 5px; }
@@ -1167,7 +1173,12 @@
           <div class="dash-stat-num" id="dash-stat-log">0</div>
           <div class="dash-stat-label">Log Entries</div>
         </div>
+        <div class="dash-stat-card" id="dash-stat-callins-card" style="display:none">
+          <div class="dash-stat-num" style="color:#fbbf24" id="dash-stat-callins">0</div>
+          <div class="dash-stat-label">Call-Ins</div>
+        </div>
       </div>
+      <div id="dash-shift-remaining" style="font-size:13px;color:var(--muted);margin-bottom:16px;text-align:center"></div>
       <div class="dash-section-title">Quick Log</div>
       <div class="dash-quick-grid" style="margin-bottom:20px">
         <button class="dash-quick-btn primary" id="dash-btn-log-entry">
@@ -1189,6 +1200,11 @@
           <span class="dash-quick-icon">🚨</span>
           <span>Incident</span>
           <span class="dash-quick-sub">Log active incident</span>
+        </button>
+        <button class="dash-quick-btn" id="dash-btn-forms">
+          <span class="dash-quick-icon">📄</span>
+          <span>Forms</span>
+          <span class="dash-quick-sub">Reference &amp; checklists</span>
         </button>
       </div>
       <div class="dash-section-title">Recent Activity</div>
@@ -1280,7 +1296,8 @@
     <div id="tab-report" class="tab-panel">
       <div class="rpt-topbar">
         <button class="action-btn save-btn" id="btn-rpt-save">💾 Save</button>
-        <button class="rpt-email-btn" id="btn-rpt-email">✉️ Email Report</button>
+        <button class="rpt-email-btn" id="btn-rpt-email">✉️ Email</button>
+        <button class="rpt-email-btn" id="btn-rpt-copy" style="background:rgba(94,234,212,.1);border-color:rgba(94,234,212,.3);color:var(--accent)">📋 Copy</button>
       </div>
 
       <!-- Administrative -->
@@ -1331,6 +1348,7 @@
       <div class="rpt-section">
         <div class="rpt-section-hd">
           <span class="rpt-section-title">📊 PCR's / Call Totals</span>
+          <button class="rpt-add-btn" id="btn-prefill-pcr" style="margin-right:6px">↻ From Roster</button>
           <button class="rpt-add-btn" id="btn-add-pcr">+ Add Provider</button>
         </div>
         <div class="rpt-section-body">
@@ -1373,8 +1391,7 @@
       <div class="rpt-section">
         <div class="rpt-section-hd">
           <span class="rpt-section-title">💊 Narcotic Changes</span>
-          <button class="rpt-add-btn" id="btn-restock" style="margin-right:6px">🔄 Restock</button>
-          <button class="rpt-add-btn" id="btn-add-narc">+ Manual</button>
+          <button class="rpt-add-btn" id="btn-add-narc">+ Add</button>
         </div>
         <div class="rpt-section-body">
           <div id="narcotics-list"><div class="rpt-empty">No narcotic changes recorded.</div></div>
@@ -1383,9 +1400,12 @@
 
       <!-- Unit Checks -->
       <div class="rpt-section">
-        <div class="rpt-section-hd"><span class="rpt-section-title">✅ Unit Checks</span></div>
-        <div class="rpt-section-body rpt-notes">
-          <textarea id="rpt-unit-checks-text" rows="3" placeholder="Unit check status and notes…"></textarea>
+        <div class="rpt-section-hd">
+          <span class="rpt-section-title">✅ Unit Checks</span>
+          <button class="rpt-add-btn" id="btn-load-unit-checks">↻ Load Units</button>
+        </div>
+        <div class="rpt-section-body">
+          <div id="unit-checks-list"><div class="rpt-empty">Tap Load Units to populate from today's roster.</div></div>
         </div>
       </div>
 
@@ -1533,28 +1553,6 @@ Shift Start/End    0600
     <div style="display:flex;gap:10px;margin-top:14px">
       <button onclick="closeImportModal()" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Cancel</button>
       <button onclick="doImport()" style="flex:2;padding:12px;border-radius:10px;border:none;background:var(--accent);color:#0b0d10;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Import Roster</button>
-    </div>
-  </div>
-</div>
-
-<!-- Narcotic Restock Modal -->
-<div id="narc-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);align-items:flex-end;justify-content:center">
-  <div style="background:var(--card);border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;padding:20px 20px 32px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-      <div>
-        <div style="font-size:16px;font-weight:800;color:var(--text)">Narcotic Restock</div>
-        <div id="narc-step-label" style="font-size:12px;color:var(--muted);margin-top:2px"></div>
-      </div>
-      <button onclick="closeNarcModal()" style="background:rgba(255,255,255,.08);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:18px;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
-    </div>
-    <!-- Progress bar -->
-    <div style="background:rgba(255,255,255,.07);border-radius:4px;height:4px;margin-bottom:18px">
-      <div id="narc-progress-bar" style="background:var(--accent);height:4px;border-radius:4px;transition:width .3s"></div>
-    </div>
-    <div id="narc-step-content"></div>
-    <div style="display:flex;gap:10px;margin-top:18px">
-      <button id="narc-btn-back" onclick="narcStep(-1)" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">← Back</button>
-      <button id="narc-btn-next" onclick="narcStep(1)"  style="flex:2;padding:12px;border-radius:10px;border:none;background:var(--accent);color:#0b0d10;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Next →</button>
     </div>
   </div>
 </div>
@@ -2316,6 +2314,20 @@ function buildRowEditor(row) {
     rptData.callouts.push({ 'co-name': name, 'co-pos': row.label + (rd.unit ? ' / ' + rd.unit : ''), 'co-time': now, 'co-reason': 'Sick', 'co-covered': '' });
     renderCallouts();
     showToast(name + ' added to call-outs');
+    // Auto-log the callout
+    const entry = {
+      id: 'log_' + Date.now(),
+      time: now,
+      type: 'Call-In',
+      desc: (rd.lead || 'Unknown') + ' called out — ' + (row.label || row.id),
+      unit: rd.unit || row.defaultUnit || '',
+      includeInReport: true
+    };
+    if(typeof logData !== 'undefined') {
+      logData.unshift(entry);
+      if(typeof saveLog === 'function') saveLog();
+      if(typeof updateDashboard === 'function') updateDashboard();
+    }
   });
   actionsDiv.appendChild(calloutBtn);
 
@@ -4543,7 +4555,7 @@ const RPT_DRUGS           = ['Fentanyl','Morphine','Midazolam (Versed)','Ketamin
 const RPT_NARC_CHANGE     = ['Administered / Used','Wasted','Discrepancy','Breakage','Addition / Restock','Transfer','Other'];
 
 function makeEmptyRpt(){
-  return { shiftType:'day', supervisor:'', admin:[], callins:[], riders:[], pcrs:[], unitIssues:[], preshift:'', events:[], narcotics:[], unitChecks:'', unlockedPcrs:[], notes:'' };
+  return { shiftType:'day', supervisor:'', admin:[], callins:[], riders:[], pcrs:[], unitIssues:[], preshift:'', events:[], narcotics:[], unitChecks:[], unlockedPcrs:[], notes:'' };
 }
 let rptData = makeEmptyRpt();
 
@@ -4584,8 +4596,7 @@ function collectRptFromDOM(){
   if(sup) rptData.supervisor = sup.value;
   const ps = document.getElementById('rpt-preshift-text');
   if(ps) rptData.preshift = ps.value;
-  const uc = document.getElementById('rpt-unit-checks-text');
-  if(uc) rptData.unitChecks = uc.value;
+  rptData.unitChecks = collectUnitChecks();
   const nt = document.getElementById('rpt-notes-text');
   if(nt) rptData.notes = nt.value;
   rptData.admin        = collectEntries('admin-list',         ['ad-text']);
@@ -4619,8 +4630,7 @@ function renderRpt(){
   if(sup) sup.value = rptData.supervisor || '';
   const ps = document.getElementById('rpt-preshift-text');
   if(ps) ps.value = rptData.preshift || '';
-  const uc = document.getElementById('rpt-unit-checks-text');
-  if(uc) uc.value = rptData.unitChecks || '';
+  renderUnitChecks();
   const nt = document.getElementById('rpt-notes-text');
   if(nt) nt.value = rptData.notes || '';
   renderAdminItems();
@@ -4710,6 +4720,29 @@ function renderPcrs(){
   noEntries(list,'No PCR counts entered.');
   updateTotalsCount();
 }
+function prefillPcrsFromRoster(){
+  try {
+    const date = document.getElementById('roster-date').value || todayStr();
+    const savedRoster = JSON.parse(localStorage.getItem(rosterKey(date)) || 'null');
+    if(!savedRoster){ showToast('No roster saved for today.'); return; }
+    const list = document.getElementById('pcrs-list');
+    if(!list) return;
+    const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
+    let added = 0;
+    ROSTER_ROWS.forEach(row => {
+      const rd = savedRoster[row.id];
+      const lead = rd && rd.lead ? rd.lead : '';
+      if(!lead) return;
+      const unit = (rd && rd.unit) ? rd.unit : (row.defaultUnit || '');
+      const lastName = lead.trim().split(' ').pop();
+      list.appendChild(buildPcrEntry({ 'pcr-provider': lastName, 'pcr-unit': unit, 'pcr-count': '' }));
+      added++;
+    });
+    updateTotalsCount();
+    showToast('Pre-filled ' + added + ' providers from roster ✓');
+  } catch(e){ showToast('Could not load roster data.'); }
+}
+
 function buildPcrEntry(p={}){
   const div = document.createElement('div'); div.className = 'rpt-entry';
   div.innerHTML = delBtn() + `
@@ -4794,6 +4827,72 @@ function buildNarcEntry(n={}){
       ${inp('nc-reason','Patient admin, breakage, etc.',n['nc-reason']||'')}
     </div>`;
   return div;
+}
+
+function collectUnitChecks(){
+  const list = document.getElementById('unit-checks-list');
+  if(!list) return [];
+  return Array.from(list.querySelectorAll('.unit-check-row')).map(row => ({
+    unit: row.dataset.unit || '',
+    checked: row.querySelector('.unit-check-cb')?.checked || false,
+    note: row.querySelector('.unit-check-note')?.value || ''
+  }));
+}
+
+function renderUnitChecks(){
+  const list = document.getElementById('unit-checks-list');
+  if(!list) return;
+  const checks = Array.isArray(rptData.unitChecks) ? rptData.unitChecks : [];
+  if(!checks.length){
+    list.innerHTML = '<div class="rpt-empty">Tap Load Units to populate from today\'s roster.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  checks.forEach(c => list.appendChild(buildUnitCheckRow(c.unit, c.checked, c.note)));
+}
+
+function buildUnitCheckRow(unitLabel, checked=false, note=''){
+  const row = document.createElement('div');
+  row.className = 'unit-check-row';
+  row.dataset.unit = unitLabel;
+  const cb = document.createElement('input');
+  cb.type = 'checkbox'; cb.className = 'unit-check-cb'; cb.checked = checked;
+  const lbl = document.createElement('span');
+  lbl.className = 'unit-check-label' + (checked ? ' checked' : '');
+  lbl.textContent = unitLabel;
+  cb.addEventListener('change', () => { lbl.classList.toggle('checked', cb.checked); });
+  const noteInp = document.createElement('input');
+  noteInp.type = 'text'; noteInp.className = 'unit-check-note'; noteInp.placeholder = 'Note…'; noteInp.value = note;
+  row.appendChild(cb); row.appendChild(lbl); row.appendChild(noteInp);
+  return row;
+}
+
+function loadUnitChecksFromRoster(){
+  try {
+    const date = document.getElementById('roster-date').value || todayStr();
+    const savedRoster = JSON.parse(localStorage.getItem(rosterKey(date)) || 'null');
+    if(!savedRoster){ showToast('No roster saved for today.'); return; }
+    const list = document.getElementById('unit-checks-list');
+    if(!list) return;
+    // Keep existing checked state if already loaded
+    const existing = collectUnitChecks();
+    const existingMap = {};
+    existing.forEach(c => { existingMap[c.unit] = c; });
+    list.innerHTML = '';
+    let added = 0;
+    ROSTER_ROWS.forEach(row => {
+      const rd = savedRoster[row.id];
+      const lead = rd && rd.lead ? rd.lead : '';
+      if(!lead) return;
+      const unit = (rd && rd.unit) ? rd.unit : (row.defaultUnit || '');
+      const label = unit + ' — ' + lead;
+      const prev = existingMap[label];
+      list.appendChild(buildUnitCheckRow(label, prev?.checked||false, prev?.note||''));
+      added++;
+    });
+    if(!added) list.innerHTML = '<div class="rpt-empty">No staffed units found on roster.</div>';
+    else showToast('Loaded ' + added + ' units ✓');
+  } catch(e){ showToast('Could not load roster.'); }
 }
 
 /* ── Unlocked PCRs ── */
@@ -4935,10 +5034,11 @@ function generateReportText(){
   });
   r += '\n';
 
-  if(rptData.unitChecks && rptData.unitChecks.trim()){
-    r += 'Unit Checks\n';
-    r += rptData.unitChecks.trim().split('\n').map(l=>' '+l).join('\n') + '\n\n';
-  }
+  const ucArr = Array.isArray(rptData.unitChecks) ? rptData.unitChecks : [];
+  r += 'Unit Checks\n';
+  if(!ucArr.length){ r += ' None\n'; }
+  else ucArr.forEach(c => { r += ` ${c.checked ? '✓' : '○'} ${c.unit}${c.note ? ' — '+c.note : ''}\n`; });
+  r += '\n';
 
   r += "Unlocked PCR's\n";
   if(!rptData.unlockedPcrs.length){ r += ' None\n'; }
@@ -4973,225 +5073,6 @@ function emailReport(){
   }
 }
 
-/* ════════════════════════════════════════
-   NARCOTIC RESTOCK MODAL
-   ════════════════════════════════════════ */
-const NARC_TOTAL_STEPS = 7;
-let narcCurrentStep = 1;
-let narcTx = {}; // transaction data
-
-const NARC_STEP_LABELS = [
-  'Step 1 of 7 — Transaction Info',
-  'Step 2 of 7 — Safe Access',
-  'Step 3 of 7 — Book Verification',
-  'Step 4 of 7 — Document Used Bag',
-  'Step 5 of 7 — Return Signatures',
-  'Step 6 of 7 — Issue New Bag',
-  'Step 7 of 7 — Lock Up',
-];
-
-function openNarcModal(){
-  narcCurrentStep = 1;
-  narcTx = {};
-  const modal = document.getElementById('narc-modal');
-  modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-  renderNarcStep();
-}
-function closeNarcModal(){
-  document.getElementById('narc-modal').style.display = 'none';
-  document.body.style.overflow = '';
-}
-
-function saveNarcStepData(){
-  const content = document.getElementById('narc-step-content');
-  content.querySelectorAll('[data-nt]').forEach(el => {
-    narcTx[el.dataset.nt] = el.type === 'checkbox' ? el.checked : el.value;
-  });
-}
-
-function narcStep(dir){
-  saveNarcStepData();
-  if(dir === 1 && narcCurrentStep === NARC_TOTAL_STEPS){
-    completeNarcRestock();
-    return;
-  }
-  narcCurrentStep = Math.max(1, Math.min(NARC_TOTAL_STEPS, narcCurrentStep + dir));
-  renderNarcStep();
-}
-
-function renderNarcStep(){
-  const label = document.getElementById('narc-step-label');
-  const bar   = document.getElementById('narc-progress-bar');
-  const back  = document.getElementById('narc-btn-back');
-  const next  = document.getElementById('narc-btn-next');
-  label.textContent = NARC_STEP_LABELS[narcCurrentStep - 1];
-  bar.style.width   = (narcCurrentStep / NARC_TOTAL_STEPS * 100) + '%';
-  back.style.display = narcCurrentStep === 1 ? 'none' : '';
-  next.textContent   = narcCurrentStep === NARC_TOTAL_STEPS ? '✓ Complete & Log' : 'Next →';
-  next.style.background = narcCurrentStep === NARC_TOTAL_STEPS ? '#4ade80' : 'var(--accent)';
-
-  const c = document.getElementById('narc-step-content');
-  c.innerHTML = '';
-
-  const t = narcTx;
-  const steps = {
-    1: () => `
-      <div class="narc-step-title">📝 Transaction Info</div>
-      <p style="font-size:13px;color:var(--muted);margin:0 0 14px">Record the three items you need for your notes. Everything else is a verification checklist.</p>
-      <label class="narc-inp-label">Unit # (bag coming off of)</label>
-      <input class="narc-inp" data-nt="unit" placeholder="e.g. 279-ALS-PB" value="${t.unit||''}" />
-      <label class="narc-inp-label">Run # (where narcotic was used)</label>
-      <input class="narc-inp" data-nt="runNum" placeholder="e.g. 2026-04812" value="${t.runNum||''}" />
-      <label class="narc-inp-label">Narcotic Used</label>
-      <select class="narc-inp" data-nt="drug">
-        ${RPT_DRUGS.map(d=>`<option value="${d}" ${t.drug===d?'selected':''}>${d}</option>`).join('')}
-      </select>`,
-
-    2: () => `
-      <div class="narc-step-title">🔐 Safe Access</div>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-pw" data-nt="safePw" ${t.safePw?'checked':''} />
-        <label for="nc-pw"><b>Password entered into safe</b><span>Enter the combination code to unlock the electronic lock.</span></label>
-      </div>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-key" data-nt="safeKey" ${t.safeKey?'checked':''} />
-        <label for="nc-key"><b>Physical key used to unlock safe</b><span>Insert and turn key to complete dual-control access.</span></label>
-      </div>`,
-
-    3: () => `
-      <div class="narc-step-title">📖 Book Verification</div>
-      <div style="background:rgba(94,234,212,.06);border:1px solid rgba(94,234,212,.18);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--muted)">
-        Pull the narcotic book for <b style="color:var(--text)">${t.unit||'this unit'}</b> and navigate to the page for the returned bag.
-      </div>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-lot" data-nt="lotVerified" ${t.lotVerified?'checked':''} />
-        <label for="nc-lot"><b>Lot # verified — bag matches book</b><span>Confirm the lot number printed on the bag matches the narcotic book entry.</span></label>
-      </div>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-page" data-nt="pageVerified" ${t.pageVerified?'checked':''} />
-        <label for="nc-page"><b>Page # verified — bag matches book</b><span>Confirm the page number written on the back of the bag matches the open book page.</span></label>
-      </div>`,
-
-    4: () => `
-      <div class="narc-step-title">✍️ Document Used Bag</div>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-doc1" data-nt="docUsedFilled" ${t.docUsedFilled?'checked':''} />
-        <label for="nc-doc1"><b>"Used / Return" section filled out</b><span>Complete the used and return fields in the narcotic book for the drug administered.</span></label>
-      </div>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-doc2" data-nt="docUnusedLined" ${t.docUnusedLined?'checked':''} />
-        <label for="nc-doc2"><b>Lines drawn through unused narcotics</b><span>Draw a line through any narcotics in the bag that were not used.</span></label>
-      </div>`,
-
-    5: () => `
-      <div class="narc-step-title">✒️ Return Signatures</div>
-      <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Both the medic and supervisor must sign the narcotic book confirming narcotics were returned and accounted for.</p>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-sig-med" data-nt="sigMedicReturn" ${t.sigMedicReturn?'checked':''} />
-        <label for="nc-sig-med"><b>Medic signed — return section</b><span>Medic has signed the narcotic book confirming return.</span></label>
-      </div>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-sig-sup" data-nt="sigSuperReturn" ${t.sigSuperReturn?'checked':''} />
-        <label for="nc-sig-sup"><b>Supervisor signed — return section</b><span>You have signed as supervisor, verifying the returned narcotics.</span></label>
-      </div>`,
-
-    6: () => `
-      <div class="narc-step-title">🆕 Issue New Narcotic Bag</div>
-      <div style="background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.25);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--muted)">
-        Remove a new narcotic bag from the safe for <b style="color:var(--text)">${t.unit||'this unit'}</b>.
-      </div>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-new1" data-nt="newPageWritten" ${t.newPageWritten?'checked':''} />
-        <label for="nc-new1"><b>Book page # written on back of new bag</b><span>Write the current narcotic book page number on the back of the new bag.</span></label>
-      </div>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-new2" data-nt="sigMedicNew" ${t.sigMedicNew?'checked':''} />
-        <label for="nc-new2"><b>Medic signed new bag</b><span>Medic has signed the new bag acknowledgment.</span></label>
-      </div>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-new3" data-nt="sigSuperNew" ${t.sigSuperNew?'checked':''} />
-        <label for="nc-new3"><b>Supervisor signed new bag</b><span>You have signed as supervisor for issuance of new bag.</span></label>
-      </div>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-new4" data-nt="newBagToMedic" ${t.newBagToMedic?'checked':''} />
-        <label for="nc-new4"><b>New bag provided to medic</b><span>Medic will place new bag on unit with new blue and yellow seals.</span></label>
-      </div>`,
-
-    7: () => {
-      const allChecks = [t.safePw, t.safeKey, t.lotVerified, t.pageVerified,
-        t.docUsedFilled, t.docUnusedLined, t.sigMedicReturn, t.sigSuperReturn,
-        t.newPageWritten, t.sigMedicNew, t.sigSuperNew, t.newBagToMedic];
-      const done = allChecks.filter(Boolean).length;
-      return `
-      <div class="narc-step-title">🔒 Lock Up &amp; Summary</div>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-lock1" data-nt="oldBagTaped" ${t.oldBagTaped?'checked':''} />
-        <label for="nc-lock1"><b>Old bag taped and rolled up</b><span>Seal the used narcotic bag with tape and roll it closed.</span></label>
-      </div>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-lock2" data-nt="oldBagInSafe" ${t.oldBagInSafe?'checked':''} />
-        <label for="nc-lock2"><b>Old bag placed back in safe</b><span>Return the sealed used bag to the narcotic safe for storage.</span></label>
-      </div>
-      <div class="narc-check-row" style="margin-bottom:14px">
-        <input type="checkbox" id="nc-lock3" data-nt="safeLocked" ${t.safeLocked?'checked':''} />
-        <label for="nc-lock3"><b>Safe locked and confirmed</b><span>Ensure both the electronic lock and physical key lock are engaged.</span></label>
-      </div>
-      <div style="background:rgba(94,234,212,.06);border:1px solid rgba(94,234,212,.2);border-radius:12px;padding:14px 16px;margin-top:4px">
-        <div style="font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Transaction Summary</div>
-        <div class="narc-summary-row"><span class="k">Unit #</span><span class="v">${t.unit||'—'}</span></div>
-        <div class="narc-summary-row"><span class="k">Run #</span><span class="v">${t.runNum||'—'}</span></div>
-        <div class="narc-summary-row"><span class="k">Narcotic Used</span><span class="v">${t.drug||'—'}</span></div>
-        <div class="narc-summary-row"><span class="k">Checklist</span><span class="v">${done} / 12 steps verified</span></div>
-      </div>`;
-    }
-  };
-
-  c.innerHTML = steps[narcCurrentStep]();
-}
-
-function narcLotCheck(){
-  const bag  = document.querySelector('[data-nt="lotBag"]')?.value || '';
-  const book = document.querySelector('[data-nt="lotBook"]')?.value || '';
-  const el   = document.getElementById('lot-match-indicator');
-  if(!el) return;
-  el.innerHTML = (bag && book)
-    ? (bag === book ? '<span class="narc-match-ok">✓ Lot numbers match</span>'
-                    : '<span class="narc-match-warn">✗ Lot numbers do NOT match — verify before proceeding</span>')
-    : '';
-}
-function narcPageCheck(){
-  const bag  = document.querySelector('[data-nt="pageBag"]')?.value || '';
-  const book = document.querySelector('[data-nt="pageBook"]')?.value || '';
-  const el   = document.getElementById('page-match-indicator');
-  if(!el) return;
-  el.innerHTML = (bag && book)
-    ? (bag === book ? '<span class="narc-match-ok">✓ Page numbers match</span>'
-                    : '<span class="narc-match-warn">✗ Page numbers do NOT match — verify before proceeding</span>')
-    : '';
-}
-
-function completeNarcRestock(){
-  saveNarcStepData();
-  const t = narcTx;
-  const time = new Date().toTimeString().slice(0,5);
-  // Auto-add a narcotic changes entry
-  const list = document.getElementById('narcotics-list');
-  const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
-  const entry = buildNarcEntry({
-    'nc-unit':    t.unit  || '',
-    'nc-prov':    '',
-    'nc-drug':    t.drug  || '',
-    'nc-change':  'Administered / Used',
-    'nc-amt':     '',
-    'nc-reason':  `Run #${t.runNum||'?'} | Lot verified: ${t.lotVerified?'Yes':'NO'} | Page verified: ${t.pageVerified?'Yes':'NO'} | Completed ${time}`,
-    'nc-witness': '',
-  });
-  list.appendChild(entry);
-  updateTotalsCount();
-  closeNarcModal();
-  showToast('Restock logged ✓');
-}
 
 /* ════════════════════════════════════════
    DASHBOARD
@@ -5237,6 +5118,38 @@ function updateDashboard(){
       <span class="dash-log-type ${typeCls[e.type]||''}">${e.type||'Note'}</span>
       <span class="dash-log-desc">${e.desc||e.unit||'No description'}</span>
     </div>`).join('');
+  // Shift time remaining
+  const remainEl = document.getElementById('dash-shift-remaining');
+  if(remainEl){
+    const shiftType = rptData.shiftType || 'day';
+    const now2 = new Date();
+    const nowMins = now2.getHours() * 60 + now2.getMinutes();
+    let endMins, inShift;
+    if(shiftType === 'day'){
+      endMins = 18 * 60;
+      inShift = nowMins >= 6 * 60 && nowMins < 18 * 60;
+    } else {
+      endMins = 6 * 60;
+      inShift = nowMins >= 18 * 60 || nowMins < 6 * 60;
+    }
+    if(inShift){
+      let rem = endMins - nowMins;
+      if(rem < 0) rem += 24 * 60;
+      const rh = Math.floor(rem / 60);
+      const rm = rem % 60;
+      remainEl.textContent = rh + 'h ' + rm + 'm remaining in shift';
+    } else {
+      remainEl.textContent = '';
+    }
+  }
+  // Callout badge
+  const callInCount = logData.filter(e => e.type === 'Call-In').length;
+  const callinsCard = document.getElementById('dash-stat-callins-card');
+  const callinsNum = document.getElementById('dash-stat-callins');
+  if(callinsCard && callinsNum){
+    callinsNum.textContent = callInCount;
+    callinsCard.style.display = callInCount > 0 ? '' : 'none';
+  }
 }
 
 function initDashboard(){
@@ -5267,7 +5180,7 @@ function initDashboard(){
   });
   document.getElementById('dash-btn-narc')?.addEventListener('click', () => {
     switchTab('report');
-    openNarcModal();
+    setTimeout(() => { document.getElementById('narcotics-list')?.scrollIntoView({behavior:'smooth'}); }, 100);
   });
   document.getElementById('dash-btn-incident')?.addEventListener('click', () => {
     switchTab('log');
@@ -5277,16 +5190,36 @@ function initDashboard(){
     saveLog();
     renderLog();
   });
+  document.getElementById('dash-btn-forms')?.addEventListener('click', () => {
+    showTab('forms');
+  });
 }
 
 function initShiftReport(){
   const dateInput = document.getElementById('roster-date');
   loadRptData(dateInput.value || todayStr());
   dateInput.addEventListener('change', () => { loadRptData(dateInput.value); renderStaffing(); });
+  // Auto-fill supervisor name from logged-in user if field is empty
+  setTimeout(() => {
+    const supEl = document.getElementById('rpt-supervisor');
+    if(supEl && !supEl.value){
+      try {
+        const user = typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser;
+        if(user) supEl.value = user.displayName || user.email || '';
+        if(supEl.value && !rptData.supervisor) rptData.supervisor = supEl.value;
+      } catch(e){}
+    }
+  }, 500);
 
   document.getElementById('btn-rpt-save').addEventListener('click', saveRptData);
   document.getElementById('btn-rpt-email').addEventListener('click', emailReport);
-  document.getElementById('btn-restock').addEventListener('click', openNarcModal);
+  document.getElementById('btn-rpt-copy')?.addEventListener('click', ()=>{
+    const text = generateReportText();
+    navigator.clipboard?.writeText(text).then(()=>showToast('Report copied ✓')).catch(()=>{
+      const area = document.getElementById('rpt-copy-area');
+      area.textContent = text; area.style.display='block'; area.scrollIntoView({behavior:'smooth'});
+    });
+  });
   document.getElementById('btn-refresh-staffing')?.addEventListener('click', renderStaffing);
 
   function addTo(listId, buildFn){
@@ -5300,16 +5233,14 @@ function initShiftReport(){
   document.getElementById('btn-add-callout')?.addEventListener('click', ()=> addTo('callouts-list', buildCalloutEntry));
   document.getElementById('btn-add-rider')?.addEventListener('click', ()=> addTo('riders-list', buildRiderEntry));
   document.getElementById('btn-add-pcr')?.addEventListener('click', ()=> addTo('pcrs-list', buildPcrEntry));
+  document.getElementById('btn-prefill-pcr')?.addEventListener('click', prefillPcrsFromRoster);
   document.getElementById('btn-add-unit-issue')?.addEventListener('click', ()=> addTo('unit-issues-list', buildUnitIssueEntry));
   document.getElementById('btn-add-event')?.addEventListener('click', ()=> addTo('events-list', buildEventEntry));
   document.getElementById('btn-add-narc')?.addEventListener('click', ()=> addTo('narcotics-list', buildNarcEntry));
   document.getElementById('btn-add-unlocked-pcr')?.addEventListener('click', ()=> addTo('unlocked-pcrs-list', buildUnlockedPcrEntry));
 
   document.getElementById('btn-pull-log')?.addEventListener('click', pullLogIntoReport);
-
-  document.getElementById('narc-modal').addEventListener('click', e => {
-    if(e.target === document.getElementById('narc-modal')) closeNarcModal();
-  });
+  document.getElementById('btn-load-unit-checks')?.addEventListener('click', loadUnitChecksFromRoster);
 }
 
 function pullLogIntoReport(){
