@@ -1141,6 +1141,28 @@
       border-color: #f472b6; color: #9d174d; font-weight: 700;
     }
 
+    /* ─── OFFLINE INDICATOR ─── */
+    #offline-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #4ade80; flex-shrink: 0;
+      transition: background .4s;
+      box-shadow: 0 0 0 2px rgba(74,222,128,.25);
+    }
+    #offline-dot.offline {
+      background: #f87171;
+      box-shadow: 0 0 0 2px rgba(248,113,113,.25);
+    }
+    #offline-dot.offline::after {
+      content: ''; display: block; position: absolute;
+    }
+    .offline-banner {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 600;
+      background: #7f1d1d; color: #fca5a5; font-size: 13px; font-weight: 600;
+      text-align: center; padding: 6px 16px;
+      transition: transform .25s ease;
+    }
+    .offline-banner.hidden { transform: translateY(-100%); }
+
     /* ─── QUICK-LOG BOTTOM SHEET MODAL ─── */
     #quick-modal {
       position: fixed; inset: 0;
@@ -1264,11 +1286,15 @@
     </div>
     <pre id="rpt-preview-text"></pre>
     <div class="rpt-preview-actions">
-      <button class="rpt-preview-copy" id="rpt-preview-copy-btn">📋 Copy to Clipboard</button>
+      <button class="rpt-preview-copy" id="rpt-preview-copy-btn">📋 Copy</button>
+      <button class="rpt-preview-email" id="rpt-preview-share-btn" style="display:none">⬆️ Share</button>
       <button class="rpt-preview-email" id="rpt-preview-email-btn">✉️ Email</button>
     </div>
   </div>
 </div>
+
+<!-- ── OFFLINE BANNER ── -->
+<div id="offline-banner" class="offline-banner hidden">📵 No connection — changes saved locally</div>
 
 <!-- ── QUICK-LOG BOTTOM SHEET MODAL ── -->
 <div id="quick-modal" role="dialog" aria-modal="true">
@@ -1303,6 +1329,7 @@
         <p id="svc-name-display">EASI INC</p>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
+        <div id="offline-dot" title="Online"></div>
         <select id="svc-switcher" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;cursor:pointer;font-family:inherit;max-width:130px"></select>
         <button id="btn-svc-settings" style="background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:13px;font-family:inherit;cursor:pointer;padding:7px 11px;white-space:nowrap" title="Manage Services">⚙ Services</button>
         <button id="shanna-toggle" title="Toggle Shanna Mode">🩷</button>
@@ -1401,6 +1428,14 @@
         </div>
         <span class="dash-generate-arrow">›</span>
       </button>
+      <button class="dash-generate-btn" id="dash-btn-carry-forward" style="margin-top:8px;border-color:rgba(168,85,247,.35);background:rgba(168,85,247,.07)">
+        <div>
+          <div class="dash-generate-label" style="color:#c084fc">📅 Carry Forward from Yesterday</div>
+          <div class="dash-generate-sub">Copy roster + pull notes into Prior to Shift</div>
+        </div>
+        <span class="dash-generate-arrow" style="color:#c084fc">›</span>
+      </button>
+      <div id="autosave-indicator" style="font-size:11px;color:var(--muted);text-align:center;margin:10px 0 4px;min-height:16px"></div>
       <div class="dash-section-title">Recent Activity</div>
       <div class="dash-recent" id="dash-recent-log">
         <div class="dash-recent-empty">No activity logged yet.</div>
@@ -4761,6 +4796,9 @@ function initApp() {
   initRptPreview();
   initWrapUp();
 
+  // Offline indicator
+  initOfflineIndicator();
+
   // Activity Log
   initLog();
 
@@ -4857,6 +4895,16 @@ function saveRptData(){
   collectRptFromDOM();
   localStorage.setItem(rptKey(date), JSON.stringify(rptData));
   showToast('Report saved ✓');
+}
+
+function autoSaveRptData(){
+  try {
+    const date = document.getElementById('roster-date')?.value || todayStr();
+    collectRptFromDOM();
+    localStorage.setItem(rptKey(date), JSON.stringify(rptData));
+    const el = document.getElementById('autosave-indicator');
+    if(el){ const t = new Date().toTimeString().slice(0,5); el.textContent = 'Auto-saved at ' + t; }
+  } catch(e){}
 }
 
 function collectRptFromDOM(){
@@ -5397,6 +5445,74 @@ function initDashboard(){
 
   document.getElementById('dash-btn-wrapup')?.addEventListener('click', openWrapUp);
   document.getElementById('dash-btn-generate-report')?.addEventListener('click', openRptPreview);
+  document.getElementById('dash-btn-carry-forward')?.addEventListener('click', carryForwardFromYesterday);
+
+  // Auto-save every 60 seconds
+  setInterval(autoSaveRptData, 60000);
+}
+
+/* ════════════════════════════════════════
+   OFFLINE INDICATOR
+   ════════════════════════════════════════ */
+function initOfflineIndicator(){
+  const dot = document.getElementById('offline-dot');
+  const banner = document.getElementById('offline-banner');
+  function setOnline(on){
+    if(!dot || !banner) return;
+    dot.classList.toggle('offline', !on);
+    dot.title = on ? 'Online' : 'Offline';
+    banner.classList.toggle('hidden', on);
+  }
+  setOnline(navigator.onLine);
+  window.addEventListener('online',  () => { setOnline(true);  showToast('Back online ✓'); });
+  window.addEventListener('offline', () => { setOnline(false); });
+}
+
+/* ════════════════════════════════════════
+   CARRY FORWARD FROM YESTERDAY
+   ════════════════════════════════════════ */
+function carryForwardFromYesterday(){
+  const date = currentDate() || todayStr();
+  const d = new Date(date + 'T12:00:00');
+  d.setDate(d.getDate() - 1);
+  const prevDate = d.toISOString().slice(0,10);
+
+  const prevRoster  = localStorage.getItem(rosterKey(prevDate));
+  const prevRptRaw  = localStorage.getItem(rptKey(prevDate));
+  const prevRpt     = prevRptRaw ? JSON.parse(prevRptRaw) : null;
+
+  if(!prevRoster && !prevRpt){
+    showToast('No data found for ' + formatDateDisplay(prevDate));
+    return;
+  }
+
+  const parts = [];
+  if(prevRoster) parts.push('yesterday\'s roster');
+  if(prevRpt?.notes) parts.push('notes → Prior to Shift');
+
+  if(!confirm('Carry forward ' + parts.join(' and ') + ' into today?\n\nThis will overwrite today\'s current roster and Prior to Shift field.')) return;
+
+  // Copy roster
+  if(prevRoster){
+    localStorage.setItem(rosterKey(date), prevRoster);
+    loadRoster(date);
+  }
+
+  // Copy previous notes into today's Prior to Shift
+  if(prevRpt?.notes){
+    const ps = document.getElementById('rpt-preshift-text');
+    if(ps) ps.value = prevRpt.notes;
+    rptData.preshift = prevRpt.notes;
+  }
+
+  // Also carry forward admin items and unit issues if present
+  if(prevRpt?.unitIssues?.length){
+    rptData.unitIssues = prevRpt.unitIssues;
+    if(typeof renderUnitIssues === 'function') renderUnitIssues();
+  }
+
+  autoSaveRptData();
+  showToast('Carried forward from ' + formatDateDisplay(prevDate) + ' ✓');
 }
 
 /* ════════════════════════════════════════
@@ -5780,6 +5896,17 @@ function initRptPreview(){
     closeRptPreview();
     emailReport();
   });
+  const shareBtn = document.getElementById('rpt-preview-share-btn');
+  if(navigator.share && shareBtn){
+    shareBtn.style.display = '';
+    shareBtn.addEventListener('click', () => {
+      const text = document.getElementById('rpt-preview-text').textContent;
+      const date = document.getElementById('roster-date')?.value || todayStr();
+      navigator.share({ title: 'Shift Report ' + date, text })
+        .then(() => closeRptPreview())
+        .catch(() => {});
+    });
+  }
 }
 
 /* ────────────────────────────────────────
