@@ -1563,7 +1563,8 @@
       <div class="rpt-date-browser" id="rpt-date-browser"></div>
       <div class="rpt-topbar">
         <button class="action-btn save-btn" id="btn-rpt-save">💾 Save</button>
-        <button class="rpt-email-btn" id="btn-rpt-preview" style="background:rgba(94,234,212,.1);border-color:rgba(94,234,212,.3);color:var(--accent)">👁 Preview &amp; Copy</button>
+        <button class="rpt-email-btn" id="btn-rpt-preview" style="background:rgba(94,234,212,.1);border-color:rgba(94,234,212,.3);color:var(--accent)">👁 Day Report</button>
+        <button class="rpt-email-btn" id="btn-rpt-combined" style="background:rgba(94,234,212,.06);border-color:rgba(94,234,212,.2);color:var(--accent)">📅 2-Day</button>
       </div>
 
       <!-- Administrative -->
@@ -4139,18 +4140,69 @@ function buildLogEntry(e){
   return div;
 }
 
+function openLogEntrySheet(){
+  const providers = getRosterProviders();
+  const pickerHtml = providers.length ? `
+    <div class="qm-group">
+      <label class="qm-label">Tap crew to pre-fill unit &amp; name</label>
+      <div class="qm-provider-picker" id="qml-picker">
+        ${providers.map(p => `<button type="button" class="qm-provider-chip" data-who="${(p.name + (p.unit ? ' — '+p.unit : '')).replace(/"/g,'&quot;')}">${p.name}<span class="qm-chip-unit">${p.unit||'—'}</span></button>`).join('')}
+      </div>
+    </div>` : '';
+
+  const now = new Date().toTimeString().slice(0,5);
+  openQuickModal('📒 Log Entry', `
+    ${pickerHtml}
+    <div class="qm-row g2">
+      <div class="qm-group">
+        <label class="qm-label">Time</label>
+        <input id="qml-time" class="qm-inp" type="time" value="${now}" />
+      </div>
+      <div class="qm-group">
+        <label class="qm-label">Type</label>
+        <select id="qml-type" class="qm-sel">${LOG_TYPES.map(t=>`<option>${t}</option>`).join('')}</select>
+      </div>
+    </div>
+    <div class="qm-group">
+      <label class="qm-label">Unit / Who</label>
+      <input id="qml-unit" class="qm-inp" type="text" placeholder="Unit # or crew name…" autocomplete="off" />
+    </div>
+    <div class="qm-group">
+      <label class="qm-label">Description</label>
+      <textarea id="qml-desc" class="qm-ta" rows="3" placeholder="What happened…"></textarea>
+    </div>`, () => {
+    const time = qmVal('qml-time') || now;
+    const type = qmVal('qml-type') || 'Note';
+    const unit = qmVal('qml-unit');
+    const desc = qmVal('qml-desc');
+    if(!desc){ showToast('Enter a description.'); return; }
+    const incl = qmChecked('qm-include-chk');
+    logData.unshift({ id:'log_'+Date.now(), time, type, desc, unit, includeInReport:incl });
+    saveLog();
+    renderLog();
+    if(typeof updateDashboard === 'function') updateDashboard();
+    showToast('Entry logged ✓');
+    closeQuickModal();
+  }, 'Tap a crew member chip to auto-fill unit and name.');
+
+  // Wire roster chips immediately (innerHTML is already set by openQuickModal)
+  document.querySelectorAll('#qml-picker .qm-provider-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('#qml-picker .qm-provider-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      const unitEl = document.getElementById('qml-unit');
+      if(unitEl){ unitEl.value = chip.dataset.who; }
+      const descEl = document.getElementById('qml-desc');
+      if(descEl) descEl.focus();
+    });
+  });
+}
+
 function initLog(){
   const date = currentDate() || todayStr();
   loadLog(date);
 
-  document.getElementById('btn-add-log').addEventListener('click', () => {
-    const now = new Date().toTimeString().slice(0,5);
-    const newEntry = { id:'log_'+Date.now(), time:now, type:'Note', desc:'', unit:'', includeInReport:false };
-    logData.unshift(newEntry);
-    saveLog();
-    renderLog();
-    document.getElementById('log-list').firstElementChild?.scrollIntoView({behavior:'smooth'});
-  });
+  document.getElementById('btn-add-log').addEventListener('click', openLogEntrySheet);
 
   document.getElementById('log-filter-row')?.addEventListener('click', e => {
     const chip = e.target.closest('.log-chip');
@@ -5298,9 +5350,12 @@ function renderStaffing(){
 }
 
 /* ── Generate report text ── */
-function generateReportText(){
-  collectRptFromDOM();
-  const date    = document.getElementById('roster-date').value || todayStr();
+/* generateReportText(data?, date?)
+   Pass explicit data + date to render any saved report without touching globals.
+   Called with no args → collects current DOM state and uses the active date. */
+function generateReportText(data, date){
+  if(!data){ collectRptFromDOM(); data = rptData; }
+  if(!date) date = document.getElementById('roster-date').value || todayStr();
   const d       = new Date(date + 'T12:00:00');
   const dateStr = (d.getMonth()+1) + '/' + d.getDate() + '/' + String(d.getFullYear()).slice(2);
   let r = '';
@@ -5308,8 +5363,8 @@ function generateReportText(){
   r += `Subject: Central end of shift report\n\n`;
 
   r += 'Administrative:\n';
-  if(!rptData.admin.length){ r += ' None\n'; }
-  else rptData.admin.forEach(a => { if(a['ad-text']) r += ' ' + a['ad-text'].replace(/\n/g, '\n ') + '\n'; });
+  if(!data.admin.length){ r += ' None\n'; }
+  else data.admin.forEach(a => { if(a['ad-text']) r += ' ' + a['ad-text'].replace(/\n/g, '\n ') + '\n'; });
   r += '\n';
 
   r += 'Staffing\n';
@@ -5342,41 +5397,41 @@ function generateReportText(){
   r += '\n';
 
   r += "Call in's/Coverage\n";
-  if(!rptData.callins.length){ r += ' NONE!!\n'; }
-  else rptData.callins.forEach(c => { r += ` ${c['co-name']||'—'} | ${c['co-pos']||'—'} | ${c['co-time']||''} | ${c['co-reason']||''} | Covered: ${c['co-covered']||'N/A'}\n`; });
+  if(!data.callins.length){ r += ' NONE!!\n'; }
+  else data.callins.forEach(c => { r += ` ${c['co-name']||'—'} | ${c['co-pos']||'—'} | ${c['co-time']||''} | ${c['co-reason']||''} | Covered: ${c['co-covered']||'N/A'}\n`; });
   r += '\n';
 
   r += '3rd Riders and Orientation\n';
-  if(!rptData.riders.length){ r += ' None\n'; }
-  else rptData.riders.forEach(rd => { r += ` ${rd['rd-name']||'—'}${rd['rd-desc'] ? ' – '+rd['rd-desc'] : ''}\n`; });
+  if(!data.riders.length){ r += ' None\n'; }
+  else data.riders.forEach(rd => { r += ` ${rd['rd-name']||'—'}${rd['rd-desc'] ? ' – '+rd['rd-desc'] : ''}\n`; });
   r += '\n';
 
   r += "PCR's\n";
-  if(!rptData.pcrs.length){ r += ' None entered\n'; }
-  else rptData.pcrs.forEach(p => { r += ` ${p['pcr-count']||'0'} – ${p['pcr-provider']||'—'}${p['pcr-unit'] ? ' ('+p['pcr-unit']+')' : ''}\n`; });
+  if(!data.pcrs.length){ r += ' None entered\n'; }
+  else data.pcrs.forEach(p => { r += ` ${p['pcr-count']||'0'} – ${p['pcr-provider']||'—'}${p['pcr-unit'] ? ' ('+p['pcr-unit']+')' : ''}\n`; });
   r += '\n';
 
   r += 'Units\n';
-  if(!rptData.unitIssues.length){ r += ' None\n'; }
-  else rptData.unitIssues.forEach(u => { r += ` ${u['ui-unit']||'—'} – ${u['ui-issue']||''}\n`; });
+  if(!data.unitIssues.length){ r += ' None\n'; }
+  else data.unitIssues.forEach(u => { r += ` ${u['ui-unit']||'—'} – ${u['ui-issue']||''}\n`; });
   r += '\n';
 
-  if(rptData.preshift && rptData.preshift.trim()){
+  if(data.preshift && data.preshift.trim()){
     r += 'Prior to Shift\n';
-    r += rptData.preshift.trim().split('\n').map(l=>' '+l).join('\n') + '\n\n';
+    r += data.preshift.trim().split('\n').map(l=>' '+l).join('\n') + '\n\n';
   }
 
   r += 'Notable Events\n';
-  if(!rptData.events.length){ r += ' None\n'; }
-  else rptData.events.forEach(e => {
+  if(!data.events.length){ r += ' None\n'; }
+  else data.events.forEach(e => {
     r += ` [${e['ev-time']||'??:??'}] ${e['ev-cat']||''}\n`;
     if(e['ev-desc']) r += `  ${e['ev-desc']}\n`;
   });
   r += '\n';
 
   r += 'Narcotics\n';
-  if(!rptData.narcotics.length){ r += ' None\n'; }
-  else rptData.narcotics.forEach(n => {
+  if(!data.narcotics.length){ r += ' None\n'; }
+  else data.narcotics.forEach(n => {
     r += ` ${n['nc-unit']||'—'} – ${n['nc-drug']||'—'} ${n['nc-change']||''}${n['nc-amt'] ? ' ('+n['nc-amt']+')' : ''}\n`;
     if(n['nc-prov']) r += `  Provider: ${n['nc-prov']}\n`;
     if(n['nc-reason']) r += `  ${n['nc-reason']}\n`;
@@ -5384,24 +5439,50 @@ function generateReportText(){
   });
   r += '\n';
 
-  const ucArr = Array.isArray(rptData.unitChecks) ? rptData.unitChecks : [];
+  const ucArr = Array.isArray(data.unitChecks) ? data.unitChecks : [];
   r += 'Unit Checks\n';
   if(!ucArr.length){ r += ' None\n'; }
   else ucArr.forEach(c => { r += ` ${c.checked ? '✓' : '○'} ${c.unit}${c.note ? ' — '+c.note : ''}\n`; });
   r += '\n';
 
   r += "Unlocked PCR's\n";
-  if(!rptData.unlockedPcrs.length){ r += ' None\n'; }
-  else rptData.unlockedPcrs.forEach(u => { r += ` ${u['up-run']||'—'} ${u['up-reason']||''}\n`; });
+  if(!data.unlockedPcrs.length){ r += ' None\n'; }
+  else data.unlockedPcrs.forEach(u => { r += ` ${u['up-run']||'—'} ${u['up-reason']||''}\n`; });
   r += '\n';
 
-  if(rptData.notes && rptData.notes.trim()){
+  if(data.notes && data.notes.trim()){
     r += 'Notes\n';
-    r += rptData.notes.trim().split('\n').map(l=>' '+l).join('\n') + '\n\n';
+    r += data.notes.trim().split('\n').map(l=>' '+l).join('\n') + '\n\n';
   }
 
   r += 'Supervisor\n';
-  r += (rptData.supervisor || '—') + '\n';
+  r += (data.supervisor || '—') + '\n';
+  return r;
+}
+
+/* Load any date's saved report without touching global rptData */
+function loadRptDataForDate(date){
+  try {
+    const s = localStorage.getItem(rptKey(date));
+    return s ? Object.assign(makeEmptyRpt(), JSON.parse(s)) : makeEmptyRpt();
+  } catch(e){ return makeEmptyRpt(); }
+}
+
+/* Combined Day 1 + Day 2 report text */
+function generateCombinedReportText(day1Date, day2Date){
+  collectRptFromDOM();
+  const activeDate = document.getElementById('roster-date').value || todayStr();
+  const day1Data = day1Date === activeDate ? JSON.parse(JSON.stringify(rptData)) : loadRptDataForDate(day1Date);
+  const day2Data = day2Date === activeDate ? JSON.parse(JSON.stringify(rptData)) : loadRptDataForDate(day2Date);
+  const fmt = ds => { const d = new Date(ds+'T12:00:00'); return (d.getMonth()+1)+'/'+d.getDate()+'/'+String(d.getFullYear()).slice(2); };
+  const skipHeader = text => text.split('\n').slice(2).join('\n');
+
+  let r = `Combined Shift Report — Day 1 (${fmt(day1Date)}) / Day 2 (${fmt(day2Date)})\n`;
+  r += `Subject: Central end of shift report\n\n`;
+  r += `══════ DAY 1 — ${fmt(day1Date)} ══════\n\n`;
+  r += skipHeader(generateReportText(day1Data, day1Date));
+  r += `\n══════ DAY 2 — ${fmt(day2Date)} ══════\n\n`;
+  r += skipHeader(generateReportText(day2Data, day2Date));
   return r;
 }
 
@@ -5989,6 +6070,7 @@ function initShiftReport(){
 
   document.getElementById('btn-rpt-save').addEventListener('click', saveRptData);
   document.getElementById('btn-rpt-preview')?.addEventListener('click', openRptPreview);
+  document.getElementById('btn-rpt-combined')?.addEventListener('click', openCombinedRptPreview);
   document.getElementById('btn-refresh-staffing')?.addEventListener('click', renderStaffing);
   renderReportDateBrowser();
   initReportSectionCollapse();
@@ -6020,6 +6102,15 @@ function initShiftReport(){
 function openRptPreview(){
   collectRptFromDOM();
   const text = generateReportText();
+  document.getElementById('rpt-preview-text').textContent = text;
+  document.getElementById('rpt-preview-modal').classList.add('open');
+}
+function openCombinedRptPreview(){
+  const day2Date = document.getElementById('roster-date').value || todayStr();
+  const d2 = new Date(day2Date + 'T12:00:00');
+  d2.setDate(d2.getDate() - 1);
+  const day1Date = d2.toISOString().slice(0,10);
+  const text = generateCombinedReportText(day1Date, day2Date);
   document.getElementById('rpt-preview-text').textContent = text;
   document.getElementById('rpt-preview-modal').classList.add('open');
 }
