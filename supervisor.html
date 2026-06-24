@@ -557,8 +557,13 @@
     #import-textarea:focus { border-color: var(--accent); }
     .import-file-label { display: inline-block; margin-top: 10px; font-size: 13px; color: var(--accent); cursor: pointer; text-decoration: underline; }
     #import-result { font-size: 13px; min-height: 18px; margin-top: 8px; }
-
-
+    .import-preview-table { width:100%; border-collapse:collapse; font-size:12px; margin:4px 0; }
+    .import-preview-table th { color:var(--muted); font-weight:600; text-align:left; padding:3px 6px; border-bottom:1px solid var(--border); font-size:11px; }
+    .import-preview-table td { color:var(--text); padding:3px 6px; border-bottom:1px solid rgba(255,255,255,.04); vertical-align:top; }
+    .import-preview-table tr:last-child td { border-bottom:none; }
+    .import-preview-table td.no-match { color:var(--muted); font-style:italic; }
+    .qm-polish-btn { background:rgba(94,234,212,.12); border:1px solid rgba(94,234,212,.3); border-radius:6px; color:var(--accent); font-size:11px; font-weight:700; padding:3px 10px; cursor:pointer; font-family:inherit; line-height:1.4; }
+    .qm-polish-btn:disabled { opacity:.5; cursor:not-allowed; }
 
     /* ── Station-Header Info ── */
     .section-header { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
@@ -3331,6 +3336,10 @@ function openImportModal() {
 function closeImportModal() {
   document.getElementById('import-modal').style.display = 'none';
   document.body.style.overflow = '';
+  if (_rosterImportSnapshot !== null) {
+    rowData = _rosterImportSnapshot;
+    _rosterImportSnapshot = null;
+  }
 }
 
 function stripPhone(name) {
@@ -3666,11 +3675,153 @@ function importRosterFromText(text) {
   return imported;
 }
 
+/* ── Snapshot for daily-list preview rollback ── */
+let _rosterImportSnapshot = null;
+
+/* Detect columnar daily-list format: rows where first token is a unit type / number
+   followed by tab or 2+ spaces and a name — e.g. "ALS 6AM  JOHN  JANE" */
+function isStructuredDailyList(text) {
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 2);
+  // First column is unit type (ALS/BLS/number) + optional time/shift, then whitespace, then a name
+  const colRx = /^(?:ALS|BLS|ALS\/BLS|\d{3,4})[\w\s\/\-]{0,18}(?:\t|\s{2,})[A-Za-z]/i;
+  const slashRx = /^(?:ALS|BLS|\d{3,4})[\w\s\/\-]{0,20}:\s*[A-Za-z].{0,40}\/\s*[A-Za-z]/i;
+  return lines.filter(l => colRx.test(l) || slashRx.test(l)).length >= 2;
+}
+
+/* Parse columnar daily-list:
+   Section header lines → station context
+   Data lines: [unit/time label] [tab or 2+sp] [lead] [tab or 2+sp] [partner]
+   Modifies rowData directly; caller must snapshot first.
+   Returns { imported, preview[] } */
+function importRosterFromDailyList(text) {
+  text = text.replace(/[￼â€]/g, '').replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '');
+
+  const SECTION_MAP = {
+    'pinebluff':'Pine Bluff','pine bluff':'Pine Bluff','pb':'Pine Bluff',
+    'england':'England',
+    'starcity':'Star City','star city':'Star City',
+    'warren':'Warren',
+    'rison':'Rison',
+    'dewitt':'DeWitt','dewhitt':'DeWitt','de witt':'DeWitt',
+    'clarendon':'Clarendon',
+    'dispatch':'Dispatch',
+    'oncall':'On Call','on call':'On Call',
+  };
+  function resolveSection(raw) {
+    const clean = raw.replace(/^[^a-zA-Z]+/,'').toLowerCase().trim();
+    return SECTION_MAP[clean.replace(/\s/g,'')] || SECTION_MAP[clean] || null;
+  }
+  function unitTypeOf(u) {
+    return /ALS/i.test(u) ? 'ALS' : /BLS/i.test(u) ? 'BLS' : null;
+  }
+  function findRow(section, type, timeLabel) {
+    let pool = ROSTER_ROWS.filter(r => r.section === section);
+    if (!pool.length) return null;
+    if (type) { const t2 = pool.filter(r => r.label.startsWith(type)); if (t2.length) pool = t2; }
+    if (timeLabel) { const t2 = pool.filter(r => r.label.includes(timeLabel)); if (t2.length) pool = t2; }
+    if (pool.length === 1) return pool[0];
+    return pool.find(r => !rowData[r.id] || (!rowData[r.id].lead && !rowData[r.id].secondary)) || pool[0];
+  }
+
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  let section = null;
+  const preview = [];
+  let imported = 0;
+
+  for (const rawLine of lines) {
+    // Section header: matches a known station, no tab, no slash columns
+    const sec = resolveSection(rawLine);
+    if (sec && !/\t/.test(rawLine) && !/\s{2,}/.test(rawLine) && !rawLine.includes('/')) {
+      section = sec;
+      continue;
+    }
+    if (!section) continue;
+
+    // Split into columns by tab, double-space, or colon+slash
+    let cols = [];
+    if (rawLine.includes('\t')) {
+      cols = rawLine.split('\t').map(c => c.trim()).filter(Boolean);
+    } else if (/\s{2,}/.test(rawLine)) {
+      cols = rawLine.split(/\s{2,}/).map(c => c.trim()).filter(Boolean);
+    } else {
+      const m = rawLine.match(/^(.+?):\s*(.+?)\s*\/\s*(.*)$/);
+      if (m) cols = [m[1].trim(), m[2].trim(), m[3].trim()];
+    }
+
+    if (cols.length < 2) continue;
+
+    const label   = cols[0];
+    const lead    = cols[1] !== 'NA' && cols[1] !== '—' ? stripPhone(cols[1]) : '';
+    const partner = cols[2] && cols[2] !== 'NA' && cols[2] !== '—' ? stripPhone(cols[2]) : '';
+
+    const type = unitTypeOf(label);
+    // Try to extract a time token from the label (e.g. "ALS 6AM" → "6AM")
+    const timePart = label.replace(/^(?:ALS|BLS|ALS\/BLS|\d{3,4})\s*/i, '').trim();
+    const tl = parseTimeLabel(timePart) || parseTimeLabel(label);
+    const row = findRow(section, type, tl);
+
+    if (row) {
+      ensureRowData(row.id);
+      if (lead)    rowData[row.id].lead      = lead;
+      if (partner) rowData[row.id].secondary = partner;
+      imported++;
+    }
+    preview.push({ section, label, lead: lead || '—', partner: partner || '—', matched: !!row });
+  }
+
+  return { imported, preview };
+}
+
 function doImport() {
   const text = document.getElementById('import-textarea').value.trim();
   if (!text) { showToast('Paste or upload a roster first.'); return; }
-  const count = isOCRFormat(text) ? importRosterFromOCR(text) : importRosterFromText(text);
   const resultEl = document.getElementById('import-result');
+
+  if (isStructuredDailyList(text)) {
+    // Snapshot rowData so cancel can roll back
+    _rosterImportSnapshot = JSON.parse(JSON.stringify(rowData));
+    const { imported, preview } = importRosterFromDailyList(text);
+
+    if (imported === 0) {
+      rowData = _rosterImportSnapshot;
+      _rosterImportSnapshot = null;
+      resultEl.style.color = '#f59e0b';
+      resultEl.textContent = '⚠ No rows matched — check column format (tabs or double spaces between names).';
+      return;
+    }
+
+    resultEl.style.color = '';
+    resultEl.innerHTML = `
+      <div style="margin-top:6px">
+        <div style="font-size:12px;color:var(--accent);font-weight:700;margin-bottom:6px">${imported} unit${imported!==1?'s':''} detected — review then confirm:</div>
+        <div style="overflow-x:auto;max-height:220px;overflow-y:auto">
+          <table class="import-preview-table">
+            <thead><tr><th>Station</th><th>Shift</th><th>Lead</th><th>Partner</th></tr></thead>
+            <tbody>${preview.map(r =>
+              `<tr>
+                <td>${r.section}</td>
+                <td>${r.label}</td>
+                <td class="${r.matched?'':'no-match'}">${r.lead}</td>
+                <td class="${r.partner==='—'?'no-match':''}">${r.partner}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+        <button id="import-preview-confirm" style="margin-top:10px;width:100%;padding:10px;border-radius:10px;border:none;background:var(--accent);color:#0b0d10;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">✓ Confirm Import (${imported} row${imported!==1?'s':''})</button>
+      </div>`;
+
+    document.getElementById('import-preview-confirm').addEventListener('click', () => {
+      _rosterImportSnapshot = null;
+      buildRosterDOM();
+      saveRoster();
+      closeImportModal();
+      showToast(`Imported ${imported} row${imported!==1?'s':''} ✓`);
+    });
+    return;
+  }
+
+  // Legacy: OCR column-scan or key-value text format
+  const count = isOCRFormat(text) ? importRosterFromOCR(text) : importRosterFromText(text);
   if (count === 0) {
     resultEl.style.color = '#f59e0b';
     resultEl.textContent = '⚠ No rows matched — check the format matches the template.';
@@ -4140,6 +4291,44 @@ function buildLogEntry(e){
   return div;
 }
 
+/* ── AI Description Polisher ── */
+async function polishText(rawText) {
+  let key = (localStorage.getItem('pat_anthropic_key') || '').trim();
+  if (!key) {
+    key = (prompt('Enter your Anthropic API key to use ✨ Polish:\n(Saved locally, never uploaded to our servers)') || '').trim();
+    if (!key) return null;
+    localStorage.setItem('pat_anthropic_key', key);
+  }
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-allow-browser': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 300,
+        messages: [{
+          role: 'user',
+          content: `You are an EMS supervisor log assistant. Fix all spelling and grammar errors, then rewrite the following activity log entry to sound professional and concise — like it was written by an experienced EMS supervisor. Keep the facts identical. Return ONLY the improved text, nothing else:\n\n${rawText}`
+        }]
+      })
+    });
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.error?.message || `HTTP ${resp.status}`);
+    }
+    const data = await resp.json();
+    return data.content?.[0]?.text?.trim() || null;
+  } catch (e) {
+    showToast('Polish failed: ' + (e.message || 'Unknown error'));
+    return null;
+  }
+}
+
 function openLogEntrySheet(){
   const providers = getRosterProviders();
   const pickerHtml = providers.length ? `
@@ -4168,7 +4357,10 @@ function openLogEntrySheet(){
       <input id="qml-unit" class="qm-inp" type="text" placeholder="Unit # or crew name…" autocomplete="off" />
     </div>
     <div class="qm-group">
-      <label class="qm-label">Description</label>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <label class="qm-label" style="margin-bottom:0">Description</label>
+        <button type="button" id="qml-polish-btn" class="qm-polish-btn">✨ Polish</button>
+      </div>
       <textarea id="qml-desc" class="qm-ta" rows="3" placeholder="What happened…"></textarea>
     </div>`, () => {
     const time = qmVal('qml-time') || now;
@@ -4196,6 +4388,21 @@ function openLogEntrySheet(){
       if(descEl) descEl.focus();
     });
   });
+
+  // Wire polish button
+  const polishBtn = document.getElementById('qml-polish-btn');
+  if (polishBtn) {
+    polishBtn.addEventListener('click', async () => {
+      const descEl = document.getElementById('qml-desc');
+      if (!descEl || !descEl.value.trim()) { showToast('Type a description first.'); return; }
+      polishBtn.disabled = true;
+      polishBtn.textContent = '…';
+      const result = await polishText(descEl.value);
+      polishBtn.disabled = false;
+      polishBtn.textContent = '✨ Polish';
+      if (result) { descEl.value = result; descEl.dispatchEvent(new Event('input')); }
+    });
+  }
 }
 
 function initLog(){
