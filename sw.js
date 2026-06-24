@@ -1,4 +1,4 @@
-const CACHE = 'pat-v4';
+const CACHE = 'pat-v5';
 
 // Local app files — always pre-cached
 const LOCAL = [
@@ -11,6 +11,10 @@ const LOCAL = [
   './icon-180.png',
   './icon-192.png',
   './icon-512.png',
+  './supervisor-manifest.json',
+  './supervisor-icon-180.png',
+  './supervisor-icon-192.png',
+  './supervisor-icon-512.png',
 ];
 
 // Firebase CDN scripts — versioned URLs never change, safe to cache forever
@@ -32,8 +36,15 @@ self.addEventListener('install', e => {
             .catch(() => {}) // best-effort — network may be unavailable at install
         ),
       ])
-    ).then(() => self.skipWaiting())
+    )
+    // Do NOT skipWaiting here — let the page show the update banner and
+    // call skipWaiting only when the user taps "Update Now"
   );
+});
+
+// Called by the update banner in each app page
+self.addEventListener('message', e => {
+  if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', e => {

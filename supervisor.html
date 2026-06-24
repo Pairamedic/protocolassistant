@@ -483,10 +483,23 @@
 
     /* ── Shift Report ── */
     .rpt-section { background: var(--card); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 12px; overflow: hidden; }
-    .rpt-section-hd { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: rgba(94,234,212,.06); border-bottom: 1px solid var(--border); }
-    .rpt-section-title { font-size: 13px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--accent); }
+    .rpt-section-hd { display: flex; align-items: center; gap: 6px; padding: 12px 16px; background: rgba(94,234,212,.06); border-bottom: 1px solid var(--border); cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; }
+    .rpt-section-hd:active { background: rgba(94,234,212,.12); }
+    .rpt-section.collapsed .rpt-section-body { display: none; }
+    .rpt-section.collapsed .rpt-section-hd { border-bottom: none; }
+    .rpt-section-title { font-size: 13px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--accent); flex-shrink: 0; }
+    .rpt-section-count { background: rgba(94,234,212,.15); color: var(--accent); border-radius: 10px; padding: 1px 8px; font-size: 11px; font-weight: 700; display: inline-block; flex-shrink: 0; }
+    .rpt-section-count.zero { background: rgba(255,255,255,.06); color: var(--muted); }
+    .rpt-section-hd .rpt-add-btn { margin-left: auto; flex-shrink: 0; }
+    .rpt-section-chevron { font-size: 12px; color: var(--muted); flex-shrink: 0; transition: transform .2s; }
     .rpt-section-body { padding: 10px 14px 14px; }
-    .rpt-add-btn { background: rgba(94,234,212,.1); border: 1px solid rgba(94,234,212,.3); color: var(--accent); border-radius: 8px; padding: 5px 12px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .rpt-add-btn { background: rgba(94,234,212,.1); border: 1px solid rgba(94,234,212,.3); color: var(--accent); border-radius: 8px; padding: 7px 14px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; min-height: 34px; touch-action: manipulation; }
+    /* PCR provider roster picker */
+    .qm-provider-picker { display: flex; flex-wrap: wrap; gap: 8px; max-height: 150px; overflow-y: auto; padding: 4px 0 2px; -webkit-overflow-scrolling: touch; }
+    .qm-provider-chip { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 9px 14px; font-size: 13px; font-weight: 600; color: var(--text); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 80px; font-family: inherit; touch-action: manipulation; transition: background .12s, border-color .12s; }
+    .qm-provider-chip:active { background: rgba(94,234,212,.15); }
+    .qm-chip-unit { font-size: 10px; color: var(--muted); font-weight: 500; }
+    .qm-provider-chip.selected { background: rgba(94,234,212,.18); border-color: var(--accent); color: var(--accent); }
     .rpt-entry { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; position: relative; }
     .rpt-entry:last-child { margin-bottom: 0; }
     .rpt-entry-grid { display: grid; gap: 8px; }
@@ -514,6 +527,13 @@
     .rpt-email-btn { background: rgba(196,181,253,.1); border: 1px solid rgba(196,181,253,.35); color: #c4b5fd; border-radius: 10px; padding: 9px 16px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
     .rpt-email-btn:hover { background: rgba(196,181,253,.2); }
     .rpt-copy-area { background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px; font-size: 12px; color: var(--muted); font-family: monospace; white-space: pre-wrap; max-height: 200px; overflow-y: auto; margin-top: 10px; display: none; }
+    /* Unit check rows */
+    .unit-check-row { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); }
+    .unit-check-row:last-child { border-bottom:none; }
+    .unit-check-cb { width:22px; height:22px; accent-color:var(--accent); flex-shrink:0; cursor:pointer; }
+    .unit-check-label { font-size:14px; flex:1; }
+    .unit-check-label.checked { text-decoration:line-through; color:var(--muted); }
+    .unit-check-note { background:var(--input-bg); border:1px solid var(--border); border-radius:7px; color:var(--text); font-size:12px; padding:5px 8px; font-family:inherit; outline:none; width:130px; flex-shrink:0; }
     /* Narcotic modal */
     .narc-step-title { font-size: 15px; font-weight: 800; color: var(--accent); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
     .narc-check-row  { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
@@ -674,63 +694,65 @@
     .forms-edit-btn:hover { background:rgba(255,255,255,.12); }
 
     /* ── Mobile Bottom Navigation ── */
-    .mobile-nav { display:none; }
+    /* ── Bottom Navigation: phones + tablets (≤960px) ── */
+    .mobile-nav { display: none; }
 
-    @media (max-width: 640px) {
-      /* Hide top tab bar, show bottom nav */
-      .tab-bar-wrap { display:none; }
+    @media (max-width: 960px) {
+      /* Hide top tab bar; bottom nav takes over */
+      .tab-bar-wrap { display: none; }
+
       .mobile-nav {
         display: flex;
         position: fixed;
         bottom: 0; left: 0; right: 0;
-        background: rgba(20,24,32,.96);
+        background: rgba(13, 17, 24, .97);
         border-top: 1px solid var(--border);
         z-index: 200;
         padding-bottom: env(safe-area-inset-bottom, 0);
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
       }
-      .mobile-nav::-webkit-scrollbar { display:none; }
+
       .mobile-nav-btn {
-        flex: 1 0 auto;
-        min-width: 56px;
+        flex: 1;
+        min-width: 0;
         background: none;
         border: none;
         color: var(--muted);
-        font-size: 9px;
+        font-size: 10px;
         font-weight: 600;
-        padding: 8px 4px 6px;
+        padding: 8px 2px 10px;
         cursor: pointer;
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: center;
         gap: 3px;
         font-family: inherit;
         transition: color .15s;
         letter-spacing: .2px;
         white-space: nowrap;
-        position: relative;
+        -webkit-tap-highlight-color: transparent;
       }
+
       .mobile-nav-btn.active { color: var(--accent); }
-      .mobile-nav-btn.active::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 20%; right: 20%;
-        height: 2px;
-        background: var(--accent);
-        border-radius: 0 0 2px 2px;
+
+      /* iOS-style pill indicator behind icon */
+      .nav-pill {
+        display: block;
+        border-radius: 16px;
+        padding: 4px 18px;
+        transition: background .2s;
+        line-height: 1;
       }
-      .mobile-nav-btn .nav-icon { font-size: 20px; line-height: 1; }
+      .mobile-nav-btn.active .nav-pill { background: rgba(94,234,212,.18); }
+      .mobile-nav-btn .nav-icon { font-size: 22px; line-height: 1; display: block; }
 
-      /* Content area: bottom padding for nav bar */
-      .content { padding-bottom: calc(70px + env(safe-area-inset-bottom, 8px)); }
+      /* Content padding so bottom nav doesn't cover content */
+      .content { padding-bottom: calc(74px + env(safe-area-inset-bottom, 8px)); }
+      #toast { bottom: calc(82px + env(safe-area-inset-bottom, 8px)); }
 
-      /* Toast: above nav bar */
-      #toast { bottom: calc(78px + env(safe-area-inset-bottom, 8px)); }
-
-      /* Compact header on mobile */
+      /* Compact header on phone */
       .header-title p { display: none; }
       header { padding: 10px 14px 8px; }
       #btn-svc-settings { display: none; }
@@ -741,8 +763,28 @@
 
       /* Modals: taller on mobile */
       #assign-modal > div,
-      #import-modal .import-modal-body,
-      #narc-modal > div { max-height: 93vh; }
+      #import-modal .import-modal-body { max-height: 93vh; }
+    }
+
+    /* ── Tablet sizing (iPad portrait + small landscape, 641-960px) ── */
+    @media (min-width: 641px) and (max-width: 960px) {
+      .mobile-nav-btn {
+        font-size: 12px;
+        gap: 4px;
+        padding: 10px 4px 12px;
+      }
+      .mobile-nav-btn .nav-icon { font-size: 28px; }
+      .nav-pill { padding: 5px 24px; border-radius: 20px; }
+
+      /* Taller nav → more content padding */
+      .content { padding-bottom: calc(88px + env(safe-area-inset-bottom, 8px)); }
+      #toast { bottom: calc(96px + env(safe-area-inset-bottom, 8px)); }
+
+      /* Restore header elements hidden by the phone rule above */
+      .header-title p { display: block; }
+      header { padding: 14px 20px 12px; }
+      #btn-svc-settings { display: flex; }
+      #svc-switcher { max-width: 150px; font-size: 12px; }
     }
 
     /* ══════════════════════════════════════════════
@@ -1045,7 +1087,7 @@
     .dash-date { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
     .dash-shift-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
     .dash-shift-row select { background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 14px; padding: 9px 14px; font-family: inherit; flex: 1; outline: none; }
-    .dash-stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+    .dash-stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 8px; }
     .dash-stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
     .dash-stat-num { font-size: 34px; font-weight: 800; color: var(--accent); line-height: 1; }
     .dash-stat-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-top: 5px; }
@@ -1107,9 +1149,207 @@
     .rpt-staffing-unit { font-size: 11px; font-weight: 700; color: var(--accent); min-width: 90px; flex-shrink: 0; }
     .rpt-staffing-crew { font-size: 13px; color: var(--text); }
 
+    /* ─── SHANNA MODE 🩷 ─── */
+    body.shanna-mode {
+      --bg: #fdf2f6;
+      --card: #ffffff;
+      --accent: #e83e8c;
+      --muted: #a0527a;
+      --text: #2d1020;
+      --border: rgba(232,62,140,.18);
+      --input-bg: #fff6fa;
+    }
+    body.shanna-mode header,
+    body.shanna-mode .tab-bar-wrap,
+    body.shanna-mode .tab-bar { background: #ffffff; border-color: rgba(232,62,140,.15); }
+    body.shanna-mode .mobile-nav { background: rgba(255,255,255,.97); border-color: rgba(232,62,140,.15); }
+    body.shanna-mode .tab-btn.active { color: #e83e8c; border-bottom-color: #e83e8c; }
+    body.shanna-mode .mobile-nav-btn.active { color: #e83e8c; }
+    body.shanna-mode .mobile-nav-btn.active .nav-pill { background: rgba(232,62,140,.15); }
+    body.shanna-mode .spin { border-top-color: #e83e8c; }
+    #shanna-toggle {
+      display: none;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(232,62,140,.3);
+      border-radius: 8px; color: #f9a8d4; font-size: 13px; font-family: inherit;
+      cursor: pointer; padding: 7px 11px; white-space: nowrap; transition: all .2s;
+    }
+    body.shanna-mode #shanna-toggle {
+      background: linear-gradient(135deg,#fce7f3,#fdf2f8);
+      border-color: #f472b6; color: #9d174d; font-weight: 700;
+    }
+
+    /* ─── OFFLINE INDICATOR ─── */
+    #offline-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #4ade80; flex-shrink: 0;
+      transition: background .4s;
+      box-shadow: 0 0 0 2px rgba(74,222,128,.25);
+    }
+    #offline-dot.offline {
+      background: #f87171;
+      box-shadow: 0 0 0 2px rgba(248,113,113,.25);
+    }
+    #offline-dot.offline::after {
+      content: ''; display: block; position: absolute;
+    }
+    .offline-banner {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 600;
+      background: #7f1d1d; color: #fca5a5; font-size: 13px; font-weight: 600;
+      text-align: center; padding: 6px 16px;
+      transition: transform .25s ease;
+    }
+    .offline-banner.hidden { transform: translateY(-100%); }
+
+    /* ─── QUICK-LOG BOTTOM SHEET MODAL ─── */
+    #quick-modal {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.65);
+      z-index: 400;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    #quick-modal.open { display: flex; }
+    #quick-modal-sheet {
+      background: var(--card);
+      border-radius: 20px 20px 0 0;
+      width: 100%;
+      max-width: 600px;
+      max-height: 82vh;
+      overflow-y: auto;
+      padding: 6px 20px 48px;
+      animation: slideUp .22s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(60px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .qm-handle { width: 40px; height: 4px; background: rgba(255,255,255,.18); border-radius: 2px; margin: 10px auto 18px; }
+    .qm-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .qm-title { font-size: 20px; font-weight: 800; }
+    .qm-close { background: none; border: none; color: var(--muted); font-size: 24px; cursor: pointer; padding: 2px 6px; line-height: 1; }
+    .qm-note { font-size: 12px; color: var(--muted); margin: -12px 0 18px; line-height: 1.5; }
+    .qm-label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+    .qm-group { margin-bottom: 16px; }
+    .qm-row { display: grid; gap: 12px; margin-bottom: 16px; }
+    .qm-row.g2 { grid-template-columns: 1fr 1fr; }
+    .qm-row.g3 { grid-template-columns: 1fr 1fr 1fr; }
+    @media(max-width:480px) { .qm-row.g2, .qm-row.g3 { grid-template-columns: 1fr; } }
+    .qm-inp, .qm-sel, .qm-ta {
+      background: var(--input-bg); border: 1px solid var(--border);
+      border-radius: 10px; color: var(--text); font-size: 16px;
+      padding: 12px 14px; width: 100%; font-family: inherit; outline: none;
+    }
+    .qm-inp:focus, .qm-sel:focus, .qm-ta:focus { border-color: var(--accent); }
+    .qm-sel option { background: var(--card); }
+    .qm-ta { resize: vertical; min-height: 72px; }
+    .qm-include-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+    .qm-include-row input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--accent); cursor: pointer; }
+    .qm-include-row label { font-size: 14px; color: var(--text); cursor: pointer; flex: 1; }
+    .qm-submit {
+      background: var(--accent); color: #0b0d10; border: none;
+      border-radius: 14px; width: 100%; padding: 16px;
+      font-size: 17px; font-weight: 800; cursor: pointer; font-family: inherit;
+      transition: opacity .15s;
+    }
+    .qm-submit:active { opacity: .8; }
+    /* Dashboard generate CTA */
+    .dash-generate-btn {
+      background: linear-gradient(135deg, rgba(94,234,212,.18) 0%, rgba(94,234,212,.08) 100%);
+      border: 1px solid rgba(94,234,212,.4);
+      border-radius: 16px; width: 100%; padding: 18px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; font-family: inherit; color: var(--accent);
+      margin-top: 10px; transition: background .15s;
+    }
+    .dash-generate-btn:hover { background: linear-gradient(135deg, rgba(94,234,212,.28) 0%, rgba(94,234,212,.14) 100%); }
+    .dash-generate-label { font-size: 16px; font-weight: 800; text-align: left; }
+    .dash-generate-sub { font-size: 11px; color: var(--muted); font-weight: 500; margin-top: 2px; }
+    .dash-generate-arrow { font-size: 22px; flex-shrink: 0; margin-left: 12px; }
+
+    /* ─── PAST REPORT DATE BROWSER ─── */
+    .rpt-date-browser { overflow-x: auto; -webkit-overflow-scrolling: touch; display: flex; gap: 8px; padding: 10px 0 8px; }
+    .rpt-date-browser::-webkit-scrollbar { display: none; }
+    .rpt-date-pill { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--muted); white-space: nowrap; flex-shrink: 0; transition: all .15s; }
+    .rpt-date-pill.active { background: rgba(94,234,212,.1); border-color: rgba(94,234,212,.4); color: var(--accent); }
+    .rpt-date-pill.has-data { color: var(--text); border-color: rgba(255,255,255,.2); }
+    .rpt-date-pill.has-data.active { color: var(--accent); border-color: rgba(94,234,212,.4); }
+
+    /* ─── WRAP-UP CHECKLIST MODAL ─── */
+    #wrapup-modal { position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:400; display:none; align-items:flex-end; justify-content:center; }
+    #wrapup-modal.open { display:flex; }
+    #wrapup-sheet { background:var(--card); border-radius:20px 20px 0 0; width:100%; max-width:600px; max-height:80vh; overflow-y:auto; padding:6px 20px 48px; animation:slideUp .22s ease; }
+    .wrapup-row { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--border); cursor:pointer; }
+    .wrapup-row:last-child { border-bottom:none; }
+    .wrapup-status { font-size:20px; flex-shrink:0; width:28px; text-align:center; line-height:1; }
+    .wrapup-info { flex:1; }
+    .wrapup-label { font-size:15px; font-weight:600; }
+    .wrapup-count { font-size:12px; color:var(--muted); margin-top:1px; }
+    .wrapup-arrow { font-size:18px; color:var(--muted); flex-shrink:0; }
+    .wrapup-complete-btn { background:var(--accent); color:#0b0d10; border:none; border-radius:14px; width:100%; padding:16px; font-size:17px; font-weight:800; cursor:pointer; font-family:inherit; margin-top:20px; }
+    .wrapup-warning { background:rgba(251,191,36,.1); border:1px solid rgba(251,191,36,.25); border-radius:12px; padding:12px 14px; font-size:13px; color:#fbbf24; margin-bottom:16px; display:none; }
+
+    /* ─── REPORT PREVIEW MODAL ─── */
+    #rpt-preview-modal { position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:400; display:none; align-items:flex-end; justify-content:center; }
+    #rpt-preview-modal.open { display:flex; }
+    #rpt-preview-sheet { background:var(--card); border-radius:20px 20px 0 0; width:100%; max-width:600px; max-height:88vh; overflow-y:auto; padding:6px 20px 44px; animation:slideUp .22s ease; }
+    #rpt-preview-text { background:var(--input-bg); border:1px solid var(--border); border-radius:10px; padding:14px 14px; font-size:12px; font-family:'Courier New',Courier,monospace; color:var(--text); white-space:pre-wrap; word-break:break-word; line-height:1.65; margin-bottom:16px; max-height:54vh; overflow-y:auto; }
+    .rpt-preview-actions { display:flex; gap:10px; }
+    .rpt-preview-copy { background:var(--accent); color:#0b0d10; border:none; border-radius:12px; flex:1; padding:14px; font-size:16px; font-weight:800; cursor:pointer; font-family:inherit; }
+    .rpt-preview-email { background:rgba(255,255,255,.06); border:1px solid var(--border); border-radius:12px; flex:1; padding:14px; font-size:14px; font-weight:700; color:var(--text); cursor:pointer; font-family:inherit; }
+
   </style>
 </head>
 <body>
+
+<!-- ── WRAP-UP CHECKLIST MODAL ── -->
+<div id="wrapup-modal" role="dialog" aria-modal="true">
+  <div id="wrapup-sheet">
+    <div class="qm-handle"></div>
+    <div class="qm-hdr">
+      <span class="qm-title">✅ Shift Wrap-Up</span>
+      <button class="qm-close" onclick="closeWrapUp()" aria-label="Close">✕</button>
+    </div>
+    <div class="wrapup-warning" id="wrapup-warning">Some sections are empty — review before generating your report.</div>
+    <div id="wrapup-checklist"></div>
+    <button class="wrapup-complete-btn" id="wrapup-generate-btn">📄 Generate Shift Report</button>
+  </div>
+</div>
+
+<!-- ── REPORT PREVIEW MODAL ── -->
+<div id="rpt-preview-modal" role="dialog" aria-modal="true">
+  <div id="rpt-preview-sheet">
+    <div class="qm-handle"></div>
+    <div class="qm-hdr">
+      <span class="qm-title">Report Preview</span>
+      <button class="qm-close" onclick="closeRptPreview()" aria-label="Close">✕</button>
+    </div>
+    <pre id="rpt-preview-text"></pre>
+    <div class="rpt-preview-actions">
+      <button class="rpt-preview-copy" id="rpt-preview-copy-btn">📋 Copy</button>
+      <button class="rpt-preview-email" id="rpt-preview-share-btn" style="display:none">⬆️ Share</button>
+      <button class="rpt-preview-email" id="rpt-preview-email-btn">✉️ Email</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── OFFLINE BANNER ── -->
+<div id="offline-banner" class="offline-banner hidden">📵 No connection — changes saved locally</div>
+
+<!-- ── QUICK-LOG BOTTOM SHEET MODAL ── -->
+<div id="quick-modal" role="dialog" aria-modal="true">
+  <div id="quick-modal-sheet">
+    <div class="qm-handle"></div>
+    <div class="qm-hdr">
+      <span class="qm-title" id="qm-title">Log Entry</span>
+      <button class="qm-close" onclick="closeQuickModal()" aria-label="Close">✕</button>
+    </div>
+    <div id="qm-note" class="qm-note" style="display:none"></div>
+    <div id="qm-body"></div>
+    <div class="qm-include-row" id="qm-include-row">
+      <input type="checkbox" id="qm-include-chk" checked />
+      <label for="qm-include-chk">Include in Shift Report</label>
+    </div>
+    <button class="qm-submit" id="qm-submit">Log It ✓</button>
+  </div>
+</div>
 
 <!-- Auth Loading -->
 <div id="auth-loading">
@@ -1126,8 +1366,10 @@
         <p id="svc-name-display">EASI INC</p>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
+        <div id="offline-dot" title="Online"></div>
         <select id="svc-switcher" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;cursor:pointer;font-family:inherit;max-width:130px"></select>
         <button id="btn-svc-settings" style="background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:13px;font-family:inherit;cursor:pointer;padding:7px 11px;white-space:nowrap" title="Manage Services">⚙ Services</button>
+        <button id="shanna-toggle" title="Toggle Shanna Mode">🩷</button>
         <a href="ProtocolAssistant.html" style="padding:8px 14px;border-radius:10px;border:1px solid rgba(94,234,212,.35);background:rgba(94,234,212,.08);color:#5eead4;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap">← PAT</a>
         <button class="signout-btn" id="signout-btn">Sign Out</button>
       </div>
@@ -1151,12 +1393,6 @@
     <div id="tab-dashboard" class="tab-panel active">
       <div class="dash-header">
         <div class="dash-date" id="dash-date-display"></div>
-        <div class="dash-shift-row">
-          <select id="dash-shift-type">
-            <option value="day">Day Shift (0600–1800)</option>
-            <option value="night">Night Shift (1800–0600)</option>
-          </select>
-        </div>
       </div>
       <div class="dash-stats-row">
         <div class="dash-stat-card">
@@ -1167,30 +1403,76 @@
           <div class="dash-stat-num" id="dash-stat-log">0</div>
           <div class="dash-stat-label">Log Entries</div>
         </div>
+        <div class="dash-stat-card" id="dash-stat-callins-card" style="display:none">
+          <div class="dash-stat-num" style="color:#fbbf24" id="dash-stat-callins">0</div>
+          <div class="dash-stat-label">Call-Ins</div>
+        </div>
       </div>
       <div class="dash-section-title">Quick Log</div>
-      <div class="dash-quick-grid" style="margin-bottom:20px">
-        <button class="dash-quick-btn primary" id="dash-btn-log-entry">
-          <span class="dash-quick-icon">📝</span>
-          <span>Log Entry</span>
-          <span class="dash-quick-sub">Add to activity log</span>
-        </button>
-        <button class="dash-quick-btn" id="dash-btn-callin">
+      <div class="dash-quick-grid" style="margin-bottom:12px">
+        <button class="dash-quick-btn" data-qa="callin">
           <span class="dash-quick-icon">📵</span>
           <span>Call-In</span>
           <span class="dash-quick-sub">Staff calling out</span>
         </button>
-        <button class="dash-quick-btn" id="dash-btn-narc">
+        <button class="dash-quick-btn" data-qa="narc">
           <span class="dash-quick-icon">💊</span>
           <span>Narc Change</span>
           <span class="dash-quick-sub">Log narcotic event</span>
         </button>
-        <button class="dash-quick-btn" id="dash-btn-incident">
+        <button class="dash-quick-btn" data-qa="event">
           <span class="dash-quick-icon">🚨</span>
-          <span>Incident</span>
-          <span class="dash-quick-sub">Log active incident</span>
+          <span>Notable Event</span>
+          <span class="dash-quick-sub">Incident or event</span>
+        </button>
+        <button class="dash-quick-btn" data-qa="equipment">
+          <span class="dash-quick-icon">🔧</span>
+          <span>Equipment</span>
+          <span class="dash-quick-sub">Unit / equipment issue</span>
+        </button>
+        <button class="dash-quick-btn" data-qa="rider">
+          <span class="dash-quick-icon">🎓</span>
+          <span>3rd Rider</span>
+          <span class="dash-quick-sub">Ride-along / orientee</span>
+        </button>
+        <button class="dash-quick-btn" data-qa="pcr">
+          <span class="dash-quick-icon">📋</span>
+          <span>PCR Count</span>
+          <span class="dash-quick-sub">Add provider call total</span>
+        </button>
+        <button class="dash-quick-btn" data-qa="unlockpcr">
+          <span class="dash-quick-icon">🔓</span>
+          <span>Unlock PCR</span>
+          <span class="dash-quick-sub">Log unlocked PCR</span>
+        </button>
+        <button class="dash-quick-btn" data-qa="admin">
+          <span class="dash-quick-icon">📝</span>
+          <span>Admin Note</span>
+          <span class="dash-quick-sub">Administrative item</span>
         </button>
       </div>
+      <button class="dash-generate-btn" id="dash-btn-wrapup" style="margin-bottom:8px">
+        <div>
+          <div class="dash-generate-label">✅ Shift Wrap-Up</div>
+          <div class="dash-generate-sub">Check report completeness</div>
+        </div>
+        <span class="dash-generate-arrow">›</span>
+      </button>
+      <button class="dash-generate-btn" id="dash-btn-generate-report">
+        <div>
+          <div class="dash-generate-label">📄 Generate Shift Report</div>
+          <div class="dash-generate-sub">Preview and copy your report</div>
+        </div>
+        <span class="dash-generate-arrow">›</span>
+      </button>
+      <button class="dash-generate-btn" id="dash-btn-carry-forward" style="margin-top:8px;border-color:rgba(168,85,247,.35);background:rgba(168,85,247,.07)">
+        <div>
+          <div class="dash-generate-label" style="color:#c084fc">📅 Carry Forward from Yesterday</div>
+          <div class="dash-generate-sub">Copy roster + pull notes into Prior to Shift</div>
+        </div>
+        <span class="dash-generate-arrow" style="color:#c084fc">›</span>
+      </button>
+      <div id="autosave-indicator" style="font-size:11px;color:var(--muted);text-align:center;margin:10px 0 4px;min-height:16px"></div>
       <div class="dash-section-title">Recent Activity</div>
       <div class="dash-recent" id="dash-recent-log">
         <div class="dash-recent-empty">No activity logged yet.</div>
@@ -1278,9 +1560,11 @@
 
     <!-- ── TAB: SHIFT REPORT ── -->
     <div id="tab-report" class="tab-panel">
+      <div class="rpt-date-browser" id="rpt-date-browser"></div>
       <div class="rpt-topbar">
         <button class="action-btn save-btn" id="btn-rpt-save">💾 Save</button>
-        <button class="rpt-email-btn" id="btn-rpt-email">✉️ Email Report</button>
+        <button class="rpt-email-btn" id="btn-rpt-preview" style="background:rgba(94,234,212,.1);border-color:rgba(94,234,212,.3);color:var(--accent)">👁 Day Report</button>
+        <button class="rpt-email-btn" id="btn-rpt-combined" style="background:rgba(94,234,212,.06);border-color:rgba(94,234,212,.2);color:var(--accent)">📅 2-Day</button>
       </div>
 
       <!-- Administrative -->
@@ -1331,6 +1615,7 @@
       <div class="rpt-section">
         <div class="rpt-section-hd">
           <span class="rpt-section-title">📊 PCR's / Call Totals</span>
+          <button class="rpt-add-btn" id="btn-prefill-pcr" style="margin-right:6px">↻ From Roster</button>
           <button class="rpt-add-btn" id="btn-add-pcr">+ Add Provider</button>
         </div>
         <div class="rpt-section-body">
@@ -1373,8 +1658,7 @@
       <div class="rpt-section">
         <div class="rpt-section-hd">
           <span class="rpt-section-title">💊 Narcotic Changes</span>
-          <button class="rpt-add-btn" id="btn-restock" style="margin-right:6px">🔄 Restock</button>
-          <button class="rpt-add-btn" id="btn-add-narc">+ Manual</button>
+          <button class="rpt-add-btn" id="btn-add-narc">+ Add</button>
         </div>
         <div class="rpt-section-body">
           <div id="narcotics-list"><div class="rpt-empty">No narcotic changes recorded.</div></div>
@@ -1383,9 +1667,12 @@
 
       <!-- Unit Checks -->
       <div class="rpt-section">
-        <div class="rpt-section-hd"><span class="rpt-section-title">✅ Unit Checks</span></div>
-        <div class="rpt-section-body rpt-notes">
-          <textarea id="rpt-unit-checks-text" rows="3" placeholder="Unit check status and notes…"></textarea>
+        <div class="rpt-section-hd">
+          <span class="rpt-section-title">✅ Unit Checks</span>
+          <button class="rpt-add-btn" id="btn-load-unit-checks">↻ Load Units</button>
+        </div>
+        <div class="rpt-section-body">
+          <div id="unit-checks-list"><div class="rpt-empty">Tap Load Units to populate from today's roster.</div></div>
         </div>
       </div>
 
@@ -1537,39 +1824,17 @@ Shift Start/End    0600
   </div>
 </div>
 
-<!-- Narcotic Restock Modal -->
-<div id="narc-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);align-items:flex-end;justify-content:center">
-  <div style="background:var(--card);border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;padding:20px 20px 32px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-      <div>
-        <div style="font-size:16px;font-weight:800;color:var(--text)">Narcotic Restock</div>
-        <div id="narc-step-label" style="font-size:12px;color:var(--muted);margin-top:2px"></div>
-      </div>
-      <button onclick="closeNarcModal()" style="background:rgba(255,255,255,.08);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:18px;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
-    </div>
-    <!-- Progress bar -->
-    <div style="background:rgba(255,255,255,.07);border-radius:4px;height:4px;margin-bottom:18px">
-      <div id="narc-progress-bar" style="background:var(--accent);height:4px;border-radius:4px;transition:width .3s"></div>
-    </div>
-    <div id="narc-step-content"></div>
-    <div style="display:flex;gap:10px;margin-top:18px">
-      <button id="narc-btn-back" onclick="narcStep(-1)" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">← Back</button>
-      <button id="narc-btn-next" onclick="narcStep(1)"  style="flex:2;padding:12px;border-radius:10px;border:none;background:var(--accent);color:#0b0d10;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Next →</button>
-    </div>
-  </div>
-</div>
-
 <!-- Toast -->
 <div id="toast"></div>
 
 <!-- Mobile Bottom Nav -->
 <nav class="mobile-nav">
-  <button class="mobile-nav-btn active" data-tab="dashboard"><span class="nav-icon">🏠</span>Home</button>
-  <button class="mobile-nav-btn" data-tab="roster"><span class="nav-icon">📋</span>Roster</button>
-  <button class="mobile-nav-btn" data-tab="log"><span class="nav-icon">📒</span>Log</button>
-  <button class="mobile-nav-btn" data-tab="directory"><span class="nav-icon">📞</span>Directory</button>
-  <button class="mobile-nav-btn" data-tab="profiles"><span class="nav-icon">👤</span>Profiles</button>
-  <button class="mobile-nav-btn" data-tab="report"><span class="nav-icon">📝</span>Report</button>
+  <button class="mobile-nav-btn active" data-tab="dashboard"><span class="nav-pill"><span class="nav-icon">🏠</span></span><span class="nav-label">Home</span></button>
+  <button class="mobile-nav-btn" data-tab="roster"><span class="nav-pill"><span class="nav-icon">📋</span></span><span class="nav-label">Roster</span></button>
+  <button class="mobile-nav-btn" data-tab="log"><span class="nav-pill"><span class="nav-icon">📒</span></span><span class="nav-label">Log</span></button>
+  <button class="mobile-nav-btn" data-tab="directory"><span class="nav-pill"><span class="nav-icon">📞</span></span><span class="nav-label">Directory</span></button>
+  <button class="mobile-nav-btn" data-tab="profiles"><span class="nav-pill"><span class="nav-icon">👤</span></span><span class="nav-label">Profiles</span></button>
+  <button class="mobile-nav-btn" data-tab="report"><span class="nav-pill"><span class="nav-icon">📝</span></span><span class="nav-label">Report</span></button>
 </nav>
 
 <!-- Form Add/Edit Modal -->
@@ -1765,15 +2030,46 @@ firebase.initializeApp({
 
 const fbAuth = firebase.auth();
 
+const SUPERVISOR_ALLOWED = new Set([
+  'eliasacaldwellnrp@gmail.com',
+  'smcdonel@easimedics.com',
+]);
+
 fbAuth.onAuthStateChanged(user => {
   if (!user) {
     window.location.replace('index.html?returnTo=supervisor.html');
+  } else if (!SUPERVISOR_ALLOWED.has(user.email)) {
+    document.getElementById('auth-loading').innerHTML =
+      '<div style="text-align:center;padding:32px;color:#f87171;font-size:15px;max-width:320px">' +
+      '<div style="font-size:40px;margin-bottom:16px">🔒</div>' +
+      '<div style="font-weight:700;font-size:18px;margin-bottom:8px">Access Denied</div>' +
+      '<div style="color:#a7b0be;margin-bottom:24px">Your account does not have permission to access Supervisor Tools.</div>' +
+      '<button onclick="firebase.auth().signOut().then(()=>location.replace(\'index.html\'))" ' +
+      'style="background:#5eead4;color:#0b0d10;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Sign Out</button>' +
+      '</div>';
   } else {
     document.getElementById('auth-loading').style.display = 'none';
     document.getElementById('app').style.display = 'flex';
     initApp();
+    initShannaMode(user.email);
   }
 });
+
+function initShannaMode(email) {
+  const SHANNA_EMAIL = 'smcdonel@easimedics.com';
+  if (email !== SHANNA_EMAIL) return;
+  const btn = document.getElementById('shanna-toggle');
+  if (!btn) return;
+  btn.style.display = '';
+  const key = 'shanna_mode_v1';
+  const apply = (on) => {
+    document.body.classList.toggle('shanna-mode', on);
+    btn.textContent = on ? '🩷 Shanna Mode ON' : '🩷';
+    localStorage.setItem(key, on ? '1' : '0');
+  };
+  apply(localStorage.getItem(key) === '1');
+  btn.addEventListener('click', () => apply(!document.body.classList.contains('shanna-mode')));
+}
 
 document.getElementById('signout-btn').addEventListener('click', () => {
   fbAuth.signOut();
@@ -2302,6 +2598,44 @@ function buildRowEditor(row) {
   const actionsDiv = document.createElement('div');
   actionsDiv.className = 'rvr-editor-actions';
 
+  const logBtn = document.createElement('button');
+  logBtn.className = 'slot-callout-btn';
+  logBtn.type = 'button';
+  logBtn.title = 'Quick-log for this unit';
+  logBtn.textContent = '📝';
+  logBtn.style.background = 'rgba(94,234,212,.08)';
+  logBtn.style.borderColor = 'rgba(94,234,212,.25)';
+  logBtn.style.color = 'var(--accent)';
+  logBtn.addEventListener('click', () => {
+    const rd2 = rowData[row.id] || {};
+    const unitVal = rd2.unit || row.defaultUnit || '';
+    const nameVal = rd2.lead || '';
+    const labelTxt = [nameVal, unitVal].filter(Boolean).join(' / ');
+    openQuickModal('📝 Log Entry — ' + (row.label || 'Unit'), `
+      <div class="qm-group">
+        <label class="qm-label">Type</label>
+        <select id="qm-rl-type" class="qm-sel">
+          <option>Note</option>
+          <option>Event</option>
+          <option>Equipment</option>
+          <option>Incident</option>
+        </select>
+      </div>
+      <div class="qm-group">
+        <label class="qm-label">Description</label>
+        <textarea id="qm-rl-desc" class="qm-ta" placeholder="What happened…">${labelTxt ? labelTxt + ' — ' : ''}</textarea>
+      </div>`, () => {
+      const type = qmVal('qm-rl-type') || 'Note';
+      const desc = qmVal('qm-rl-desc');
+      if(!desc){ showToast('Enter a description.'); return; }
+      const incl = qmChecked('qm-include-chk');
+      addQuickLogEntry(type, desc, unitVal, incl);
+      showToast('Entry logged ✓');
+      closeQuickModal();
+    }, 'Pre-filled with this unit\'s crew information.');
+  });
+  actionsDiv.appendChild(logBtn);
+
   const calloutBtn = document.createElement('button');
   calloutBtn.className = 'slot-callout-btn';
   calloutBtn.type = 'button';
@@ -2316,6 +2650,20 @@ function buildRowEditor(row) {
     rptData.callouts.push({ 'co-name': name, 'co-pos': row.label + (rd.unit ? ' / ' + rd.unit : ''), 'co-time': now, 'co-reason': 'Sick', 'co-covered': '' });
     renderCallouts();
     showToast(name + ' added to call-outs');
+    // Auto-log the callout
+    const entry = {
+      id: 'log_' + Date.now(),
+      time: now,
+      type: 'Call-In',
+      desc: (rd.lead || 'Unknown') + ' called out — ' + (row.label || row.id),
+      unit: rd.unit || row.defaultUnit || '',
+      includeInReport: true
+    };
+    if(typeof logData !== 'undefined') {
+      logData.unshift(entry);
+      if(typeof saveLog === 'function') saveLog();
+      if(typeof updateDashboard === 'function') updateDashboard();
+    }
   });
   actionsDiv.appendChild(calloutBtn);
 
@@ -3792,18 +4140,69 @@ function buildLogEntry(e){
   return div;
 }
 
+function openLogEntrySheet(){
+  const providers = getRosterProviders();
+  const pickerHtml = providers.length ? `
+    <div class="qm-group">
+      <label class="qm-label">Tap crew to pre-fill unit &amp; name</label>
+      <div class="qm-provider-picker" id="qml-picker">
+        ${providers.map(p => `<button type="button" class="qm-provider-chip" data-who="${(p.name + (p.unit ? ' — '+p.unit : '')).replace(/"/g,'&quot;')}">${p.name}<span class="qm-chip-unit">${p.unit||'—'}</span></button>`).join('')}
+      </div>
+    </div>` : '';
+
+  const now = new Date().toTimeString().slice(0,5);
+  openQuickModal('📒 Log Entry', `
+    ${pickerHtml}
+    <div class="qm-row g2">
+      <div class="qm-group">
+        <label class="qm-label">Time</label>
+        <input id="qml-time" class="qm-inp" type="time" value="${now}" />
+      </div>
+      <div class="qm-group">
+        <label class="qm-label">Type</label>
+        <select id="qml-type" class="qm-sel">${LOG_TYPES.map(t=>`<option>${t}</option>`).join('')}</select>
+      </div>
+    </div>
+    <div class="qm-group">
+      <label class="qm-label">Unit / Who</label>
+      <input id="qml-unit" class="qm-inp" type="text" placeholder="Unit # or crew name…" autocomplete="off" />
+    </div>
+    <div class="qm-group">
+      <label class="qm-label">Description</label>
+      <textarea id="qml-desc" class="qm-ta" rows="3" placeholder="What happened…"></textarea>
+    </div>`, () => {
+    const time = qmVal('qml-time') || now;
+    const type = qmVal('qml-type') || 'Note';
+    const unit = qmVal('qml-unit');
+    const desc = qmVal('qml-desc');
+    if(!desc){ showToast('Enter a description.'); return; }
+    const incl = qmChecked('qm-include-chk');
+    logData.unshift({ id:'log_'+Date.now(), time, type, desc, unit, includeInReport:incl });
+    saveLog();
+    renderLog();
+    if(typeof updateDashboard === 'function') updateDashboard();
+    showToast('Entry logged ✓');
+    closeQuickModal();
+  }, 'Tap a crew member chip to auto-fill unit and name.');
+
+  // Wire roster chips immediately (innerHTML is already set by openQuickModal)
+  document.querySelectorAll('#qml-picker .qm-provider-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('#qml-picker .qm-provider-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      const unitEl = document.getElementById('qml-unit');
+      if(unitEl){ unitEl.value = chip.dataset.who; }
+      const descEl = document.getElementById('qml-desc');
+      if(descEl) descEl.focus();
+    });
+  });
+}
+
 function initLog(){
   const date = currentDate() || todayStr();
   loadLog(date);
 
-  document.getElementById('btn-add-log').addEventListener('click', () => {
-    const now = new Date().toTimeString().slice(0,5);
-    const newEntry = { id:'log_'+Date.now(), time:now, type:'Note', desc:'', unit:'', includeInReport:false };
-    logData.unshift(newEntry);
-    saveLog();
-    renderLog();
-    document.getElementById('log-list').firstElementChild?.scrollIntoView({behavior:'smooth'});
-  });
+  document.getElementById('btn-add-log').addEventListener('click', openLogEntrySheet);
 
   document.getElementById('log-filter-row')?.addEventListener('click', e => {
     const chip = e.target.closest('.log-chip');
@@ -4479,6 +4878,16 @@ function initApp() {
   // Dashboard
   initDashboard();
 
+  // Quick-log mini-wizard
+  initQuickModal();
+
+  // Report preview + wrap-up modals
+  initRptPreview();
+  initWrapUp();
+
+  // Offline indicator
+  initOfflineIndicator();
+
   // Activity Log
   initLog();
 
@@ -4543,7 +4952,7 @@ const RPT_DRUGS           = ['Fentanyl','Morphine','Midazolam (Versed)','Ketamin
 const RPT_NARC_CHANGE     = ['Administered / Used','Wasted','Discrepancy','Breakage','Addition / Restock','Transfer','Other'];
 
 function makeEmptyRpt(){
-  return { shiftType:'day', supervisor:'', admin:[], callins:[], riders:[], pcrs:[], unitIssues:[], preshift:'', events:[], narcotics:[], unitChecks:'', unlockedPcrs:[], notes:'' };
+  return { supervisor:'', admin:[], callins:[], riders:[], pcrs:[], unitIssues:[], preshift:'', events:[], narcotics:[], unitChecks:[], unlockedPcrs:[], notes:'' };
 }
 let rptData = makeEmptyRpt();
 
@@ -4577,15 +4986,22 @@ function saveRptData(){
   showToast('Report saved ✓');
 }
 
+function autoSaveRptData(){
+  try {
+    const date = document.getElementById('roster-date')?.value || todayStr();
+    collectRptFromDOM();
+    localStorage.setItem(rptKey(date), JSON.stringify(rptData));
+    const el = document.getElementById('autosave-indicator');
+    if(el){ const t = new Date().toTimeString().slice(0,5); el.textContent = 'Auto-saved at ' + t; }
+  } catch(e){}
+}
+
 function collectRptFromDOM(){
-  const st = document.getElementById('rpt-shift-type');
-  if(st) rptData.shiftType = st.value;
   const sup = document.getElementById('rpt-supervisor');
   if(sup) rptData.supervisor = sup.value;
   const ps = document.getElementById('rpt-preshift-text');
   if(ps) rptData.preshift = ps.value;
-  const uc = document.getElementById('rpt-unit-checks-text');
-  if(uc) rptData.unitChecks = uc.value;
+  rptData.unitChecks = collectUnitChecks();
   const nt = document.getElementById('rpt-notes-text');
   if(nt) rptData.notes = nt.value;
   rptData.admin        = collectEntries('admin-list',         ['ad-text']);
@@ -4613,14 +5029,11 @@ function collectEntries(listId, fields){
 }
 
 function renderRpt(){
-  const st = document.getElementById('rpt-shift-type');
-  if(st) st.value = rptData.shiftType || 'day';
   const sup = document.getElementById('rpt-supervisor');
   if(sup) sup.value = rptData.supervisor || '';
   const ps = document.getElementById('rpt-preshift-text');
   if(ps) ps.value = rptData.preshift || '';
-  const uc = document.getElementById('rpt-unit-checks-text');
-  if(uc) uc.value = rptData.unitChecks || '';
+  renderUnitChecks();
   const nt = document.getElementById('rpt-notes-text');
   if(nt) nt.value = rptData.notes || '';
   renderAdminItems();
@@ -4632,6 +5045,7 @@ function renderRpt(){
   renderNarcotics();
   renderUnlockedPcrs();
   renderStaffing();
+  updateRptBadges();
 }
 
 /* ── helpers ── */
@@ -4710,6 +5124,29 @@ function renderPcrs(){
   noEntries(list,'No PCR counts entered.');
   updateTotalsCount();
 }
+function prefillPcrsFromRoster(){
+  try {
+    const date = document.getElementById('roster-date').value || todayStr();
+    const savedRoster = JSON.parse(localStorage.getItem(rosterKey(date)) || 'null');
+    if(!savedRoster){ showToast('No roster saved for today.'); return; }
+    const list = document.getElementById('pcrs-list');
+    if(!list) return;
+    const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
+    let added = 0;
+    ROSTER_ROWS.forEach(row => {
+      const rd = savedRoster[row.id];
+      const lead = rd && rd.lead ? rd.lead : '';
+      if(!lead) return;
+      const unit = (rd && rd.unit) ? rd.unit : (row.defaultUnit || '');
+      const lastName = lead.trim().split(' ').pop();
+      list.appendChild(buildPcrEntry({ 'pcr-provider': lastName, 'pcr-unit': unit, 'pcr-count': '' }));
+      added++;
+    });
+    updateTotalsCount();
+    showToast('Pre-filled ' + added + ' providers from roster ✓');
+  } catch(e){ showToast('Could not load roster data.'); }
+}
+
 function buildPcrEntry(p={}){
   const div = document.createElement('div'); div.className = 'rpt-entry';
   div.innerHTML = delBtn() + `
@@ -4796,6 +5233,72 @@ function buildNarcEntry(n={}){
   return div;
 }
 
+function collectUnitChecks(){
+  const list = document.getElementById('unit-checks-list');
+  if(!list) return [];
+  return Array.from(list.querySelectorAll('.unit-check-row')).map(row => ({
+    unit: row.dataset.unit || '',
+    checked: row.querySelector('.unit-check-cb')?.checked || false,
+    note: row.querySelector('.unit-check-note')?.value || ''
+  }));
+}
+
+function renderUnitChecks(){
+  const list = document.getElementById('unit-checks-list');
+  if(!list) return;
+  const checks = Array.isArray(rptData.unitChecks) ? rptData.unitChecks : [];
+  if(!checks.length){
+    list.innerHTML = '<div class="rpt-empty">Tap Load Units to populate from today\'s roster.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  checks.forEach(c => list.appendChild(buildUnitCheckRow(c.unit, c.checked, c.note)));
+}
+
+function buildUnitCheckRow(unitLabel, checked=false, note=''){
+  const row = document.createElement('div');
+  row.className = 'unit-check-row';
+  row.dataset.unit = unitLabel;
+  const cb = document.createElement('input');
+  cb.type = 'checkbox'; cb.className = 'unit-check-cb'; cb.checked = checked;
+  const lbl = document.createElement('span');
+  lbl.className = 'unit-check-label' + (checked ? ' checked' : '');
+  lbl.textContent = unitLabel;
+  cb.addEventListener('change', () => { lbl.classList.toggle('checked', cb.checked); });
+  const noteInp = document.createElement('input');
+  noteInp.type = 'text'; noteInp.className = 'unit-check-note'; noteInp.placeholder = 'Note…'; noteInp.value = note;
+  row.appendChild(cb); row.appendChild(lbl); row.appendChild(noteInp);
+  return row;
+}
+
+function loadUnitChecksFromRoster(){
+  try {
+    const date = document.getElementById('roster-date').value || todayStr();
+    const savedRoster = JSON.parse(localStorage.getItem(rosterKey(date)) || 'null');
+    if(!savedRoster){ showToast('No roster saved for today.'); return; }
+    const list = document.getElementById('unit-checks-list');
+    if(!list) return;
+    // Keep existing checked state if already loaded
+    const existing = collectUnitChecks();
+    const existingMap = {};
+    existing.forEach(c => { existingMap[c.unit] = c; });
+    list.innerHTML = '';
+    let added = 0;
+    ROSTER_ROWS.forEach(row => {
+      const rd = savedRoster[row.id];
+      const lead = rd && rd.lead ? rd.lead : '';
+      if(!lead) return;
+      const unit = (rd && rd.unit) ? rd.unit : (row.defaultUnit || '');
+      const label = unit + ' — ' + lead;
+      const prev = existingMap[label];
+      list.appendChild(buildUnitCheckRow(label, prev?.checked||false, prev?.note||''));
+      added++;
+    });
+    if(!added) list.innerHTML = '<div class="rpt-empty">No staffed units found on roster.</div>';
+    else showToast('Loaded ' + added + ' units ✓');
+  } catch(e){ showToast('Could not load roster.'); }
+}
+
 /* ── Unlocked PCRs ── */
 function renderUnlockedPcrs(){
   const list = document.getElementById('unlocked-pcrs-list');
@@ -4847,20 +5350,21 @@ function renderStaffing(){
 }
 
 /* ── Generate report text ── */
-function generateReportText(){
-  collectRptFromDOM();
-  const date    = document.getElementById('roster-date').value || todayStr();
-  const shift   = rptData.shiftType === 'night' ? 'Night Shift (1800–0600)' : 'Day Shift (0600–1800)';
+/* generateReportText(data?, date?)
+   Pass explicit data + date to render any saved report without touching globals.
+   Called with no args → collects current DOM state and uses the active date. */
+function generateReportText(data, date){
+  if(!data){ collectRptFromDOM(); data = rptData; }
+  if(!date) date = document.getElementById('roster-date').value || todayStr();
   const d       = new Date(date + 'T12:00:00');
   const dateStr = (d.getMonth()+1) + '/' + d.getDate() + '/' + String(d.getFullYear()).slice(2);
   let r = '';
   r += `Shift Report ${dateStr}\n`;
-  r += `Subject: Central end of shift report\n`;
-  r += `Shift: ${shift}\n\n`;
+  r += `Subject: Central end of shift report\n\n`;
 
   r += 'Administrative:\n';
-  if(!rptData.admin.length){ r += ' None\n'; }
-  else rptData.admin.forEach(a => { if(a['ad-text']) r += ' ' + a['ad-text'].replace(/\n/g, '\n ') + '\n'; });
+  if(!data.admin.length){ r += ' None\n'; }
+  else data.admin.forEach(a => { if(a['ad-text']) r += ' ' + a['ad-text'].replace(/\n/g, '\n ') + '\n'; });
   r += '\n';
 
   r += 'Staffing\n';
@@ -4893,41 +5397,41 @@ function generateReportText(){
   r += '\n';
 
   r += "Call in's/Coverage\n";
-  if(!rptData.callins.length){ r += ' NONE!!\n'; }
-  else rptData.callins.forEach(c => { r += ` ${c['co-name']||'—'} | ${c['co-pos']||'—'} | ${c['co-time']||''} | ${c['co-reason']||''} | Covered: ${c['co-covered']||'N/A'}\n`; });
+  if(!data.callins.length){ r += ' NONE!!\n'; }
+  else data.callins.forEach(c => { r += ` ${c['co-name']||'—'} | ${c['co-pos']||'—'} | ${c['co-time']||''} | ${c['co-reason']||''} | Covered: ${c['co-covered']||'N/A'}\n`; });
   r += '\n';
 
   r += '3rd Riders and Orientation\n';
-  if(!rptData.riders.length){ r += ' None\n'; }
-  else rptData.riders.forEach(rd => { r += ` ${rd['rd-name']||'—'}${rd['rd-desc'] ? ' – '+rd['rd-desc'] : ''}\n`; });
+  if(!data.riders.length){ r += ' None\n'; }
+  else data.riders.forEach(rd => { r += ` ${rd['rd-name']||'—'}${rd['rd-desc'] ? ' – '+rd['rd-desc'] : ''}\n`; });
   r += '\n';
 
   r += "PCR's\n";
-  if(!rptData.pcrs.length){ r += ' None entered\n'; }
-  else rptData.pcrs.forEach(p => { r += ` ${p['pcr-count']||'0'} – ${p['pcr-provider']||'—'}${p['pcr-unit'] ? ' ('+p['pcr-unit']+')' : ''}\n`; });
+  if(!data.pcrs.length){ r += ' None entered\n'; }
+  else data.pcrs.forEach(p => { r += ` ${p['pcr-count']||'0'} – ${p['pcr-provider']||'—'}${p['pcr-unit'] ? ' ('+p['pcr-unit']+')' : ''}\n`; });
   r += '\n';
 
   r += 'Units\n';
-  if(!rptData.unitIssues.length){ r += ' None\n'; }
-  else rptData.unitIssues.forEach(u => { r += ` ${u['ui-unit']||'—'} – ${u['ui-issue']||''}\n`; });
+  if(!data.unitIssues.length){ r += ' None\n'; }
+  else data.unitIssues.forEach(u => { r += ` ${u['ui-unit']||'—'} – ${u['ui-issue']||''}\n`; });
   r += '\n';
 
-  if(rptData.preshift && rptData.preshift.trim()){
+  if(data.preshift && data.preshift.trim()){
     r += 'Prior to Shift\n';
-    r += rptData.preshift.trim().split('\n').map(l=>' '+l).join('\n') + '\n\n';
+    r += data.preshift.trim().split('\n').map(l=>' '+l).join('\n') + '\n\n';
   }
 
   r += 'Notable Events\n';
-  if(!rptData.events.length){ r += ' None\n'; }
-  else rptData.events.forEach(e => {
+  if(!data.events.length){ r += ' None\n'; }
+  else data.events.forEach(e => {
     r += ` [${e['ev-time']||'??:??'}] ${e['ev-cat']||''}\n`;
     if(e['ev-desc']) r += `  ${e['ev-desc']}\n`;
   });
   r += '\n';
 
   r += 'Narcotics\n';
-  if(!rptData.narcotics.length){ r += ' None\n'; }
-  else rptData.narcotics.forEach(n => {
+  if(!data.narcotics.length){ r += ' None\n'; }
+  else data.narcotics.forEach(n => {
     r += ` ${n['nc-unit']||'—'} – ${n['nc-drug']||'—'} ${n['nc-change']||''}${n['nc-amt'] ? ' ('+n['nc-amt']+')' : ''}\n`;
     if(n['nc-prov']) r += `  Provider: ${n['nc-prov']}\n`;
     if(n['nc-reason']) r += `  ${n['nc-reason']}\n`;
@@ -4935,23 +5439,50 @@ function generateReportText(){
   });
   r += '\n';
 
-  if(rptData.unitChecks && rptData.unitChecks.trim()){
-    r += 'Unit Checks\n';
-    r += rptData.unitChecks.trim().split('\n').map(l=>' '+l).join('\n') + '\n\n';
-  }
-
-  r += "Unlocked PCR's\n";
-  if(!rptData.unlockedPcrs.length){ r += ' None\n'; }
-  else rptData.unlockedPcrs.forEach(u => { r += ` ${u['up-run']||'—'} ${u['up-reason']||''}\n`; });
+  const ucArr = Array.isArray(data.unitChecks) ? data.unitChecks : [];
+  r += 'Unit Checks\n';
+  if(!ucArr.length){ r += ' None\n'; }
+  else ucArr.forEach(c => { r += ` ${c.checked ? '✓' : '○'} ${c.unit}${c.note ? ' — '+c.note : ''}\n`; });
   r += '\n';
 
-  if(rptData.notes && rptData.notes.trim()){
+  r += "Unlocked PCR's\n";
+  if(!data.unlockedPcrs.length){ r += ' None\n'; }
+  else data.unlockedPcrs.forEach(u => { r += ` ${u['up-run']||'—'} ${u['up-reason']||''}\n`; });
+  r += '\n';
+
+  if(data.notes && data.notes.trim()){
     r += 'Notes\n';
-    r += rptData.notes.trim().split('\n').map(l=>' '+l).join('\n') + '\n\n';
+    r += data.notes.trim().split('\n').map(l=>' '+l).join('\n') + '\n\n';
   }
 
   r += 'Supervisor\n';
-  r += (rptData.supervisor || '—') + '\n';
+  r += (data.supervisor || '—') + '\n';
+  return r;
+}
+
+/* Load any date's saved report without touching global rptData */
+function loadRptDataForDate(date){
+  try {
+    const s = localStorage.getItem(rptKey(date));
+    return s ? Object.assign(makeEmptyRpt(), JSON.parse(s)) : makeEmptyRpt();
+  } catch(e){ return makeEmptyRpt(); }
+}
+
+/* Combined Day 1 + Day 2 report text */
+function generateCombinedReportText(day1Date, day2Date){
+  collectRptFromDOM();
+  const activeDate = document.getElementById('roster-date').value || todayStr();
+  const day1Data = day1Date === activeDate ? JSON.parse(JSON.stringify(rptData)) : loadRptDataForDate(day1Date);
+  const day2Data = day2Date === activeDate ? JSON.parse(JSON.stringify(rptData)) : loadRptDataForDate(day2Date);
+  const fmt = ds => { const d = new Date(ds+'T12:00:00'); return (d.getMonth()+1)+'/'+d.getDate()+'/'+String(d.getFullYear()).slice(2); };
+  const skipHeader = text => text.split('\n').slice(2).join('\n');
+
+  let r = `Combined Shift Report — Day 1 (${fmt(day1Date)}) / Day 2 (${fmt(day2Date)})\n`;
+  r += `Subject: Central end of shift report\n\n`;
+  r += `══════ DAY 1 — ${fmt(day1Date)} ══════\n\n`;
+  r += skipHeader(generateReportText(day1Data, day1Date));
+  r += `\n══════ DAY 2 — ${fmt(day2Date)} ══════\n\n`;
+  r += skipHeader(generateReportText(day2Data, day2Date));
   return r;
 }
 
@@ -4973,225 +5504,6 @@ function emailReport(){
   }
 }
 
-/* ════════════════════════════════════════
-   NARCOTIC RESTOCK MODAL
-   ════════════════════════════════════════ */
-const NARC_TOTAL_STEPS = 7;
-let narcCurrentStep = 1;
-let narcTx = {}; // transaction data
-
-const NARC_STEP_LABELS = [
-  'Step 1 of 7 — Transaction Info',
-  'Step 2 of 7 — Safe Access',
-  'Step 3 of 7 — Book Verification',
-  'Step 4 of 7 — Document Used Bag',
-  'Step 5 of 7 — Return Signatures',
-  'Step 6 of 7 — Issue New Bag',
-  'Step 7 of 7 — Lock Up',
-];
-
-function openNarcModal(){
-  narcCurrentStep = 1;
-  narcTx = {};
-  const modal = document.getElementById('narc-modal');
-  modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-  renderNarcStep();
-}
-function closeNarcModal(){
-  document.getElementById('narc-modal').style.display = 'none';
-  document.body.style.overflow = '';
-}
-
-function saveNarcStepData(){
-  const content = document.getElementById('narc-step-content');
-  content.querySelectorAll('[data-nt]').forEach(el => {
-    narcTx[el.dataset.nt] = el.type === 'checkbox' ? el.checked : el.value;
-  });
-}
-
-function narcStep(dir){
-  saveNarcStepData();
-  if(dir === 1 && narcCurrentStep === NARC_TOTAL_STEPS){
-    completeNarcRestock();
-    return;
-  }
-  narcCurrentStep = Math.max(1, Math.min(NARC_TOTAL_STEPS, narcCurrentStep + dir));
-  renderNarcStep();
-}
-
-function renderNarcStep(){
-  const label = document.getElementById('narc-step-label');
-  const bar   = document.getElementById('narc-progress-bar');
-  const back  = document.getElementById('narc-btn-back');
-  const next  = document.getElementById('narc-btn-next');
-  label.textContent = NARC_STEP_LABELS[narcCurrentStep - 1];
-  bar.style.width   = (narcCurrentStep / NARC_TOTAL_STEPS * 100) + '%';
-  back.style.display = narcCurrentStep === 1 ? 'none' : '';
-  next.textContent   = narcCurrentStep === NARC_TOTAL_STEPS ? '✓ Complete & Log' : 'Next →';
-  next.style.background = narcCurrentStep === NARC_TOTAL_STEPS ? '#4ade80' : 'var(--accent)';
-
-  const c = document.getElementById('narc-step-content');
-  c.innerHTML = '';
-
-  const t = narcTx;
-  const steps = {
-    1: () => `
-      <div class="narc-step-title">📝 Transaction Info</div>
-      <p style="font-size:13px;color:var(--muted);margin:0 0 14px">Record the three items you need for your notes. Everything else is a verification checklist.</p>
-      <label class="narc-inp-label">Unit # (bag coming off of)</label>
-      <input class="narc-inp" data-nt="unit" placeholder="e.g. 279-ALS-PB" value="${t.unit||''}" />
-      <label class="narc-inp-label">Run # (where narcotic was used)</label>
-      <input class="narc-inp" data-nt="runNum" placeholder="e.g. 2026-04812" value="${t.runNum||''}" />
-      <label class="narc-inp-label">Narcotic Used</label>
-      <select class="narc-inp" data-nt="drug">
-        ${RPT_DRUGS.map(d=>`<option value="${d}" ${t.drug===d?'selected':''}>${d}</option>`).join('')}
-      </select>`,
-
-    2: () => `
-      <div class="narc-step-title">🔐 Safe Access</div>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-pw" data-nt="safePw" ${t.safePw?'checked':''} />
-        <label for="nc-pw"><b>Password entered into safe</b><span>Enter the combination code to unlock the electronic lock.</span></label>
-      </div>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-key" data-nt="safeKey" ${t.safeKey?'checked':''} />
-        <label for="nc-key"><b>Physical key used to unlock safe</b><span>Insert and turn key to complete dual-control access.</span></label>
-      </div>`,
-
-    3: () => `
-      <div class="narc-step-title">📖 Book Verification</div>
-      <div style="background:rgba(94,234,212,.06);border:1px solid rgba(94,234,212,.18);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--muted)">
-        Pull the narcotic book for <b style="color:var(--text)">${t.unit||'this unit'}</b> and navigate to the page for the returned bag.
-      </div>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-lot" data-nt="lotVerified" ${t.lotVerified?'checked':''} />
-        <label for="nc-lot"><b>Lot # verified — bag matches book</b><span>Confirm the lot number printed on the bag matches the narcotic book entry.</span></label>
-      </div>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-page" data-nt="pageVerified" ${t.pageVerified?'checked':''} />
-        <label for="nc-page"><b>Page # verified — bag matches book</b><span>Confirm the page number written on the back of the bag matches the open book page.</span></label>
-      </div>`,
-
-    4: () => `
-      <div class="narc-step-title">✍️ Document Used Bag</div>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-doc1" data-nt="docUsedFilled" ${t.docUsedFilled?'checked':''} />
-        <label for="nc-doc1"><b>"Used / Return" section filled out</b><span>Complete the used and return fields in the narcotic book for the drug administered.</span></label>
-      </div>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-doc2" data-nt="docUnusedLined" ${t.docUnusedLined?'checked':''} />
-        <label for="nc-doc2"><b>Lines drawn through unused narcotics</b><span>Draw a line through any narcotics in the bag that were not used.</span></label>
-      </div>`,
-
-    5: () => `
-      <div class="narc-step-title">✒️ Return Signatures</div>
-      <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Both the medic and supervisor must sign the narcotic book confirming narcotics were returned and accounted for.</p>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-sig-med" data-nt="sigMedicReturn" ${t.sigMedicReturn?'checked':''} />
-        <label for="nc-sig-med"><b>Medic signed — return section</b><span>Medic has signed the narcotic book confirming return.</span></label>
-      </div>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-sig-sup" data-nt="sigSuperReturn" ${t.sigSuperReturn?'checked':''} />
-        <label for="nc-sig-sup"><b>Supervisor signed — return section</b><span>You have signed as supervisor, verifying the returned narcotics.</span></label>
-      </div>`,
-
-    6: () => `
-      <div class="narc-step-title">🆕 Issue New Narcotic Bag</div>
-      <div style="background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.25);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--muted)">
-        Remove a new narcotic bag from the safe for <b style="color:var(--text)">${t.unit||'this unit'}</b>.
-      </div>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-new1" data-nt="newPageWritten" ${t.newPageWritten?'checked':''} />
-        <label for="nc-new1"><b>Book page # written on back of new bag</b><span>Write the current narcotic book page number on the back of the new bag.</span></label>
-      </div>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-new2" data-nt="sigMedicNew" ${t.sigMedicNew?'checked':''} />
-        <label for="nc-new2"><b>Medic signed new bag</b><span>Medic has signed the new bag acknowledgment.</span></label>
-      </div>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-new3" data-nt="sigSuperNew" ${t.sigSuperNew?'checked':''} />
-        <label for="nc-new3"><b>Supervisor signed new bag</b><span>You have signed as supervisor for issuance of new bag.</span></label>
-      </div>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-new4" data-nt="newBagToMedic" ${t.newBagToMedic?'checked':''} />
-        <label for="nc-new4"><b>New bag provided to medic</b><span>Medic will place new bag on unit with new blue and yellow seals.</span></label>
-      </div>`,
-
-    7: () => {
-      const allChecks = [t.safePw, t.safeKey, t.lotVerified, t.pageVerified,
-        t.docUsedFilled, t.docUnusedLined, t.sigMedicReturn, t.sigSuperReturn,
-        t.newPageWritten, t.sigMedicNew, t.sigSuperNew, t.newBagToMedic];
-      const done = allChecks.filter(Boolean).length;
-      return `
-      <div class="narc-step-title">🔒 Lock Up &amp; Summary</div>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-lock1" data-nt="oldBagTaped" ${t.oldBagTaped?'checked':''} />
-        <label for="nc-lock1"><b>Old bag taped and rolled up</b><span>Seal the used narcotic bag with tape and roll it closed.</span></label>
-      </div>
-      <div class="narc-check-row">
-        <input type="checkbox" id="nc-lock2" data-nt="oldBagInSafe" ${t.oldBagInSafe?'checked':''} />
-        <label for="nc-lock2"><b>Old bag placed back in safe</b><span>Return the sealed used bag to the narcotic safe for storage.</span></label>
-      </div>
-      <div class="narc-check-row" style="margin-bottom:14px">
-        <input type="checkbox" id="nc-lock3" data-nt="safeLocked" ${t.safeLocked?'checked':''} />
-        <label for="nc-lock3"><b>Safe locked and confirmed</b><span>Ensure both the electronic lock and physical key lock are engaged.</span></label>
-      </div>
-      <div style="background:rgba(94,234,212,.06);border:1px solid rgba(94,234,212,.2);border-radius:12px;padding:14px 16px;margin-top:4px">
-        <div style="font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Transaction Summary</div>
-        <div class="narc-summary-row"><span class="k">Unit #</span><span class="v">${t.unit||'—'}</span></div>
-        <div class="narc-summary-row"><span class="k">Run #</span><span class="v">${t.runNum||'—'}</span></div>
-        <div class="narc-summary-row"><span class="k">Narcotic Used</span><span class="v">${t.drug||'—'}</span></div>
-        <div class="narc-summary-row"><span class="k">Checklist</span><span class="v">${done} / 12 steps verified</span></div>
-      </div>`;
-    }
-  };
-
-  c.innerHTML = steps[narcCurrentStep]();
-}
-
-function narcLotCheck(){
-  const bag  = document.querySelector('[data-nt="lotBag"]')?.value || '';
-  const book = document.querySelector('[data-nt="lotBook"]')?.value || '';
-  const el   = document.getElementById('lot-match-indicator');
-  if(!el) return;
-  el.innerHTML = (bag && book)
-    ? (bag === book ? '<span class="narc-match-ok">✓ Lot numbers match</span>'
-                    : '<span class="narc-match-warn">✗ Lot numbers do NOT match — verify before proceeding</span>')
-    : '';
-}
-function narcPageCheck(){
-  const bag  = document.querySelector('[data-nt="pageBag"]')?.value || '';
-  const book = document.querySelector('[data-nt="pageBook"]')?.value || '';
-  const el   = document.getElementById('page-match-indicator');
-  if(!el) return;
-  el.innerHTML = (bag && book)
-    ? (bag === book ? '<span class="narc-match-ok">✓ Page numbers match</span>'
-                    : '<span class="narc-match-warn">✗ Page numbers do NOT match — verify before proceeding</span>')
-    : '';
-}
-
-function completeNarcRestock(){
-  saveNarcStepData();
-  const t = narcTx;
-  const time = new Date().toTimeString().slice(0,5);
-  // Auto-add a narcotic changes entry
-  const list = document.getElementById('narcotics-list');
-  const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
-  const entry = buildNarcEntry({
-    'nc-unit':    t.unit  || '',
-    'nc-prov':    '',
-    'nc-drug':    t.drug  || '',
-    'nc-change':  'Administered / Used',
-    'nc-amt':     '',
-    'nc-reason':  `Run #${t.runNum||'?'} | Lot verified: ${t.lotVerified?'Yes':'NO'} | Page verified: ${t.pageVerified?'Yes':'NO'} | Completed ${time}`,
-    'nc-witness': '',
-  });
-  list.appendChild(entry);
-  updateTotalsCount();
-  closeNarcModal();
-  showToast('Restock logged ✓');
-}
 
 /* ════════════════════════════════════════
    DASHBOARD
@@ -5237,45 +5549,506 @@ function updateDashboard(){
       <span class="dash-log-type ${typeCls[e.type]||''}">${e.type||'Note'}</span>
       <span class="dash-log-desc">${e.desc||e.unit||'No description'}</span>
     </div>`).join('');
+  // Callout badge
+  const callInCount = logData.filter(e => e.type === 'Call-In').length;
+  const callinsCard = document.getElementById('dash-stat-callins-card');
+  const callinsNum = document.getElementById('dash-stat-callins');
+  if(callinsCard && callinsNum){
+    callinsNum.textContent = callInCount;
+    callinsCard.style.display = callInCount > 0 ? '' : 'none';
+  }
 }
 
 function initDashboard(){
   updateDashboard();
 
-  // Shift type sync with report tab
-  const dashShift = document.getElementById('dash-shift-type');
-  if(dashShift){
-    dashShift.addEventListener('change', () => {
-      const rptShift = document.getElementById('rpt-shift-type');
-      if(rptShift) rptShift.value = dashShift.value;
-      rptData.shiftType = dashShift.value;
-    });
+  document.getElementById('dash-btn-wrapup')?.addEventListener('click', openWrapUp);
+  document.getElementById('dash-btn-generate-report')?.addEventListener('click', openRptPreview);
+  document.getElementById('dash-btn-carry-forward')?.addEventListener('click', carryForwardFromYesterday);
+
+  // Auto-save every 60 seconds
+  setInterval(autoSaveRptData, 60000);
+}
+
+/* ════════════════════════════════════════
+   OFFLINE INDICATOR
+   ════════════════════════════════════════ */
+function initOfflineIndicator(){
+  const dot = document.getElementById('offline-dot');
+  const banner = document.getElementById('offline-banner');
+  function setOnline(on){
+    if(!dot || !banner) return;
+    dot.classList.toggle('offline', !on);
+    dot.title = on ? 'Online' : 'Offline';
+    banner.classList.toggle('hidden', on);
+  }
+  setOnline(navigator.onLine);
+  window.addEventListener('online',  () => { setOnline(true);  showToast('Back online ✓'); });
+  window.addEventListener('offline', () => { setOnline(false); });
+}
+
+/* ════════════════════════════════════════
+   CARRY FORWARD FROM YESTERDAY
+   ════════════════════════════════════════ */
+function carryForwardFromYesterday(){
+  const date = currentDate() || todayStr();
+  const d = new Date(date + 'T12:00:00');
+  d.setDate(d.getDate() - 1);
+  const prevDate = d.toISOString().slice(0,10);
+
+  const prevRoster  = localStorage.getItem(rosterKey(prevDate));
+  const prevRptRaw  = localStorage.getItem(rptKey(prevDate));
+  const prevRpt     = prevRptRaw ? JSON.parse(prevRptRaw) : null;
+
+  if(!prevRoster && !prevRpt){
+    showToast('No data found for ' + formatDateDisplay(prevDate));
+    return;
   }
 
-  // Quick log buttons → navigate to Log tab and open add entry
-  document.getElementById('dash-btn-log-entry')?.addEventListener('click', () => {
-    switchTab('log');
-    document.getElementById('btn-add-log')?.click();
+  const parts = [];
+  if(prevRoster) parts.push('yesterday\'s roster');
+  if(prevRpt?.notes) parts.push('notes → Prior to Shift');
+
+  if(!confirm('Carry forward ' + parts.join(' and ') + ' into today?\n\nThis will overwrite today\'s current roster and Prior to Shift field.')) return;
+
+  // Copy roster
+  if(prevRoster){
+    localStorage.setItem(rosterKey(date), prevRoster);
+    loadRoster(date);
+  }
+
+  // Copy previous notes into today's Prior to Shift
+  if(prevRpt?.notes){
+    const ps = document.getElementById('rpt-preshift-text');
+    if(ps) ps.value = prevRpt.notes;
+    rptData.preshift = prevRpt.notes;
+  }
+
+  // Also carry forward admin items and unit issues if present
+  if(prevRpt?.unitIssues?.length){
+    rptData.unitIssues = prevRpt.unitIssues;
+    if(typeof renderUnitIssues === 'function') renderUnitIssues();
+  }
+
+  autoSaveRptData();
+  showToast('Carried forward from ' + formatDateDisplay(prevDate) + ' ✓');
+}
+
+/* ════════════════════════════════════════
+   QUICK-LOG MINI-WIZARD
+   ════════════════════════════════════════ */
+
+let _qmSubmitHandler = null;
+
+function openQuickModal(title, bodyHTML, onSubmit, noteText){
+  const modal = document.getElementById('quick-modal');
+  document.getElementById('qm-title').textContent = title;
+  document.getElementById('qm-body').innerHTML = bodyHTML;
+  const noteEl = document.getElementById('qm-note');
+  if(noteText){ noteEl.textContent = noteText; noteEl.style.display = ''; }
+  else { noteEl.style.display = 'none'; }
+  document.getElementById('qm-include-chk').checked = true;
+  if(_qmSubmitHandler){
+    document.getElementById('qm-submit').removeEventListener('click', _qmSubmitHandler);
+  }
+  _qmSubmitHandler = onSubmit;
+  document.getElementById('qm-submit').addEventListener('click', _qmSubmitHandler);
+  modal.classList.add('open');
+  // Focus first input
+  setTimeout(() => { document.querySelector('#qm-body input, #qm-body select, #qm-body textarea')?.focus(); }, 80);
+}
+
+function closeQuickModal(){
+  const modal = document.getElementById('quick-modal');
+  modal.classList.remove('open');
+  if(_qmSubmitHandler){
+    document.getElementById('qm-submit').removeEventListener('click', _qmSubmitHandler);
+    _qmSubmitHandler = null;
+  }
+}
+
+function qmVal(id){ return (document.getElementById(id)?.value || '').trim(); }
+function qmChecked(id){ return document.getElementById(id)?.checked || false; }
+
+function addQuickLogEntry(type, desc, unit, includeInReport){
+  const now = new Date().toTimeString().slice(0,5);
+  const entry = { id:'log_'+Date.now(), time:now, type, desc, unit, includeInReport };
+  logData.unshift(entry);
+  saveLog();
+  renderLog();
+  updateDashboard();
+  return entry;
+}
+
+function addToRptList(listId, buildFn, data){
+  const list = document.getElementById(listId);
+  if(!list) return;
+  const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
+  list.appendChild(buildFn(data));
+}
+
+// ── 1. Call-In
+function qaCallIn(){
+  const now = new Date().toTimeString().slice(0,5);
+  openQuickModal('📵 Call-In', `
+    <div class="qm-row g2">
+      <div class="qm-group">
+        <label class="qm-label">Employee Name</label>
+        <input id="qm-ci-name" class="qm-inp" type="text" placeholder="First Last" autocomplete="off" />
+      </div>
+      <div class="qm-group">
+        <label class="qm-label">Position / Unit</label>
+        <input id="qm-ci-pos" class="qm-inp" type="text" placeholder="BLS 6AM / 193-BLS-PB" autocomplete="off" />
+      </div>
+    </div>
+    <div class="qm-row g2">
+      <div class="qm-group">
+        <label class="qm-label">Time</label>
+        <input id="qm-ci-time" class="qm-inp" type="time" value="${now}" />
+      </div>
+      <div class="qm-group">
+        <label class="qm-label">Reason</label>
+        <select id="qm-ci-reason" class="qm-sel">
+          ${RPT_CALLOUT_REASONS.map(r=>`<option>${r}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="qm-group">
+      <label class="qm-label">Covered By</label>
+      <input id="qm-ci-covered" class="qm-inp" type="text" placeholder="Name or NONE" autocomplete="off" />
+    </div>`, () => {
+    const name = qmVal('qm-ci-name');
+    const pos  = qmVal('qm-ci-pos');
+    const time = qmVal('qm-ci-time');
+    const reason = qmVal('qm-ci-reason');
+    const covered = qmVal('qm-ci-covered');
+    const incl = qmChecked('qm-include-chk');
+    const desc = [name, reason, covered ? 'covered by '+covered : ''].filter(Boolean).join(' · ');
+    addQuickLogEntry('Call-In', desc, pos, incl);
+    if(incl){
+      addToRptList('callouts-list', buildCalloutEntry, { 'co-name':name, 'co-pos':pos, 'co-time':time, 'co-reason':reason, 'co-covered':covered });
+    }
+    showToast('Call-In logged ✓');
+    closeQuickModal();
+  }, 'Logs to Activity Log and Call-ins section of Shift Report.');
+}
+
+// ── 2. Narc Change
+function qaNarc(){
+  const now = new Date().toTimeString().slice(0,5);
+  openQuickModal('💊 Narc Change', `
+    <div class="qm-row g3">
+      <div class="qm-group">
+        <label class="qm-label">Unit #</label>
+        <input id="qm-nc-unit" class="qm-inp" type="text" placeholder="279-ALS-PB" autocomplete="off" />
+      </div>
+      <div class="qm-group">
+        <label class="qm-label">Provider</label>
+        <input id="qm-nc-prov" class="qm-inp" type="text" placeholder="Last name" autocomplete="off" />
+      </div>
+      <div class="qm-group">
+        <label class="qm-label">Drug</label>
+        <select id="qm-nc-drug" class="qm-sel">
+          ${RPT_DRUGS.map(d=>`<option>${d}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="qm-row g3">
+      <div class="qm-group">
+        <label class="qm-label">Change Type</label>
+        <select id="qm-nc-change" class="qm-sel">
+          ${RPT_NARC_CHANGE.map(c=>`<option>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="qm-group">
+        <label class="qm-label">Amount</label>
+        <input id="qm-nc-amt" class="qm-inp" type="text" placeholder="e.g. 200 mcg" autocomplete="off" />
+      </div>
+      <div class="qm-group">
+        <label class="qm-label">Witnessed By</label>
+        <input id="qm-nc-witness" class="qm-inp" type="text" placeholder="Name" autocomplete="off" />
+      </div>
+    </div>
+    <div class="qm-group">
+      <label class="qm-label">Reason / Notes</label>
+      <input id="qm-nc-reason" class="qm-inp" type="text" placeholder="Patient admin, breakage, etc." autocomplete="off" />
+    </div>`, () => {
+    const unit = qmVal('qm-nc-unit'), prov = qmVal('qm-nc-prov'), drug = qmVal('qm-nc-drug');
+    const change = qmVal('qm-nc-change'), amt = qmVal('qm-nc-amt'), witness = qmVal('qm-nc-witness'), reason = qmVal('qm-nc-reason');
+    const incl = qmChecked('qm-include-chk');
+    const desc = [drug, change, amt, reason].filter(Boolean).join(' · ');
+    addQuickLogEntry('Narcotic', desc, unit, incl);
+    if(incl){
+      addToRptList('narcotics-list', buildNarcEntry, { 'nc-unit':unit, 'nc-prov':prov, 'nc-drug':drug, 'nc-change':change, 'nc-amt':amt, 'nc-reason':reason, 'nc-witness':witness });
+    }
+    showToast('Narc change logged ✓');
+    closeQuickModal();
+  }, 'Logs to Activity Log and Narcotics section of Shift Report.');
+}
+
+// ── 3. Notable Event
+function qaEvent(){
+  const now = new Date().toTimeString().slice(0,5);
+  openQuickModal('🚨 Notable Event', `
+    <div class="qm-row g2">
+      <div class="qm-group">
+        <label class="qm-label">Time</label>
+        <input id="qm-ev-time" class="qm-inp" type="time" value="${now}" />
+      </div>
+      <div class="qm-group">
+        <label class="qm-label">Category</label>
+        <select id="qm-ev-cat" class="qm-sel">
+          ${RPT_EVENT_CATS.map(c=>`<option>${c}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="qm-group">
+      <label class="qm-label">Unit / Resource</label>
+      <input id="qm-ev-unit" class="qm-inp" type="text" placeholder="Unit # (optional)" autocomplete="off" />
+    </div>
+    <div class="qm-group">
+      <label class="qm-label">Description</label>
+      <textarea id="qm-ev-desc" class="qm-ta" placeholder="Describe what happened…"></textarea>
+    </div>`, () => {
+    const time = qmVal('qm-ev-time'), cat = qmVal('qm-ev-cat'), unit = qmVal('qm-ev-unit'), desc = qmVal('qm-ev-desc');
+    const incl = qmChecked('qm-include-chk');
+    addQuickLogEntry('Event', [cat, desc].filter(Boolean).join(': '), unit, incl);
+    if(incl){
+      addToRptList('events-list', buildEventEntry, { 'ev-time':time, 'ev-cat':cat, 'ev-desc':desc });
+    }
+    showToast('Event logged ✓');
+    closeQuickModal();
+  }, 'Logs to Activity Log and Notable Events section of Shift Report.');
+}
+
+// ── 4. Equipment Issue
+function qaEquipment(){
+  openQuickModal('🔧 Equipment Issue', `
+    <div class="qm-group">
+      <label class="qm-label">Unit #</label>
+      <input id="qm-eq-unit" class="qm-inp" type="text" placeholder="e.g. 193-BLS" autocomplete="off" />
+    </div>
+    <div class="qm-group">
+      <label class="qm-label">Issue Description</label>
+      <textarea id="qm-eq-issue" class="qm-ta" placeholder="Describe the equipment or unit issue…"></textarea>
+    </div>`, () => {
+    const unit = qmVal('qm-eq-unit'), issue = qmVal('qm-eq-issue');
+    const incl = qmChecked('qm-include-chk');
+    addQuickLogEntry('Equipment', issue, unit, incl);
+    if(incl){
+      addToRptList('unit-issues-list', buildUnitIssueEntry, { 'ui-unit':unit, 'ui-issue':issue });
+    }
+    showToast('Equipment issue logged ✓');
+    closeQuickModal();
+  }, 'Logs to Activity Log and Units/Equipment section of Shift Report.');
+}
+
+// ── 5. 3rd Rider / Orientee
+function qaRider(){
+  openQuickModal('🎓 3rd Rider / Orientee', `
+    <div class="qm-group">
+      <label class="qm-label">Name</label>
+      <input id="qm-rd-name" class="qm-inp" type="text" placeholder="Student / Orientee full name" autocomplete="off" />
+    </div>
+    <div class="qm-group">
+      <label class="qm-label">Program / Description</label>
+      <input id="qm-rd-desc" class="qm-inp" type="text" placeholder="e.g. 24-hr student, School of EMS" autocomplete="off" />
+    </div>`, () => {
+    const name = qmVal('qm-rd-name'), desc = qmVal('qm-rd-desc');
+    const incl = qmChecked('qm-include-chk');
+    addQuickLogEntry('Event', '3rd Rider: ' + name + (desc ? ' — '+desc : ''), '', incl);
+    if(incl){
+      addToRptList('riders-list', buildRiderEntry, { 'rd-name':name, 'rd-desc':desc });
+    }
+    showToast('3rd Rider logged ✓');
+    closeQuickModal();
+  }, 'Logs to Activity Log and 3rd Riders section of Shift Report.');
+}
+
+// ── 6. PCR Count
+function getRosterProviders(){
+  const providers = [];
+  const seen = new Set();
+  (typeof ROSTER_ROWS !== 'undefined' ? ROSTER_ROWS : []).forEach(row => {
+    const rd = rowData[row.id];
+    if (!rd?.lead) return;
+    const key = rd.lead + '|' + (rd.unit || row.defaultUnit || '');
+    if (seen.has(key)) return;
+    seen.add(key);
+    providers.push({ name: rd.lead, unit: rd.unit || row.defaultUnit || '' });
   });
-  document.getElementById('dash-btn-callin')?.addEventListener('click', () => {
-    switchTab('log');
-    const now = new Date().toTimeString().slice(0,5);
-    const e = { id:'log_'+Date.now(), time:now, type:'Call-In', desc:'', unit:'', includeInReport:true };
-    logData.unshift(e);
-    saveLog();
-    renderLog();
+  return providers;
+}
+
+function qaPcr(){
+  const providers = getRosterProviders();
+  const pickerHtml = providers.length ? `
+    <div class="qm-group">
+      <label class="qm-label">Tap to select from today's roster</label>
+      <div class="qm-provider-picker" id="qm-provider-picker">
+        ${providers.map(p => `<button type="button" class="qm-provider-chip" data-name="${p.name.replace(/"/g,'&quot;')}" data-unit="${p.unit.replace(/"/g,'&quot;')}"><span>${p.name}</span><span class="qm-chip-unit">${p.unit || '—'}</span></button>`).join('')}
+      </div>
+    </div>` : '';
+
+  openQuickModal('📋 PCR Count', `
+    ${pickerHtml}
+    <div class="qm-row g3">
+      <div class="qm-group">
+        <label class="qm-label">PCR Count</label>
+        <input id="qm-pcr-count" class="qm-inp" type="number" inputmode="numeric" min="0" placeholder="0" />
+      </div>
+      <div class="qm-group">
+        <label class="qm-label">Provider</label>
+        <input id="qm-pcr-prov" class="qm-inp" type="text" placeholder="Last name" autocomplete="off" />
+      </div>
+      <div class="qm-group">
+        <label class="qm-label">Unit #</label>
+        <input id="qm-pcr-unit" class="qm-inp" type="text" placeholder="279-ALS" autocomplete="off" />
+      </div>
+    </div>`, () => {
+    const count = qmVal('qm-pcr-count'), prov = qmVal('qm-pcr-prov'), unit = qmVal('qm-pcr-unit');
+    const incl = qmChecked('qm-include-chk');
+    addQuickLogEntry('Note', `PCR Count: ${count} — ${prov} (${unit})`, unit, incl);
+    if(incl){
+      addToRptList('pcrs-list', buildPcrEntry, { 'pcr-count':count, 'pcr-provider':prov, 'pcr-unit':unit });
+      updateTotalsCount();
+    }
+    showToast('PCR count logged ✓');
+    closeQuickModal();
+  }, 'Logs to Activity Log and PCR\'s section of Shift Report.');
+
+  // Wire roster chip clicks (DOM is ready since openQuickModal sets innerHTML synchronously)
+  document.querySelectorAll('.qm-provider-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.qm-provider-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      const provEl = document.getElementById('qm-pcr-prov');
+      const unitEl = document.getElementById('qm-pcr-unit');
+      const countEl = document.getElementById('qm-pcr-count');
+      if (provEl) provEl.value = chip.dataset.name;
+      if (unitEl) unitEl.value = chip.dataset.unit;
+      if (countEl) { countEl.focus(); countEl.select(); }
+    });
   });
-  document.getElementById('dash-btn-narc')?.addEventListener('click', () => {
-    switchTab('report');
-    openNarcModal();
+}
+
+// ── 7. Unlock PCR
+function qaUnlockPcr(){
+  openQuickModal('🔓 Unlock PCR', `
+    <div class="qm-group">
+      <label class="qm-label">Run # / PCR ID</label>
+      <input id="qm-up-run" class="qm-inp" type="text" placeholder="e.g. 2026-04812" autocomplete="off" />
+    </div>
+    <div class="qm-group">
+      <label class="qm-label">Reason / Action Taken</label>
+      <input id="qm-up-reason" class="qm-inp" type="text" placeholder="e.g. Call type changed" autocomplete="off" />
+    </div>`, () => {
+    const run = qmVal('qm-up-run'), reason = qmVal('qm-up-reason');
+    const incl = qmChecked('qm-include-chk');
+    addQuickLogEntry('Note', `Unlocked PCR ${run}: ${reason}`, '', incl);
+    if(incl){
+      addToRptList('unlocked-pcrs-list', buildUnlockedPcrEntry, { 'up-run':run, 'up-reason':reason });
+    }
+    showToast('Unlocked PCR logged ✓');
+    closeQuickModal();
+  }, 'Logs to Activity Log and Unlocked PCR\'s section of Shift Report.');
+}
+
+// ── 8. Admin Note
+function qaAdmin(){
+  openQuickModal('📝 Admin Note', `
+    <div class="qm-group">
+      <label class="qm-label">Administrative Note</label>
+      <textarea id="qm-ad-text" class="qm-ta" placeholder="Administrative note or action taken…" rows="4"></textarea>
+    </div>`, () => {
+    const text = qmVal('qm-ad-text');
+    if(!text){ showToast('Enter a note first.'); return; }
+    const incl = qmChecked('qm-include-chk');
+    addQuickLogEntry('Note', text, '', incl);
+    if(incl){
+      addToRptList('admin-list', buildAdminItem, { 'ad-text':text });
+    }
+    showToast('Admin note logged ✓');
+    closeQuickModal();
+  }, 'Logs to Activity Log and Administrative section of Shift Report.');
+}
+
+function initQuickModal(){
+  const map = { callin:qaCallIn, narc:qaNarc, event:qaEvent, equipment:qaEquipment, rider:qaRider, pcr:qaPcr, unlockpcr:qaUnlockPcr, admin:qaAdmin };
+  document.querySelectorAll('[data-qa]').forEach(btn => {
+    const fn = map[btn.dataset.qa];
+    if(fn) btn.addEventListener('click', fn);
   });
-  document.getElementById('dash-btn-incident')?.addEventListener('click', () => {
-    switchTab('log');
-    const now = new Date().toTimeString().slice(0,5);
-    const e = { id:'log_'+Date.now(), time:now, type:'Incident', desc:'', unit:'', includeInReport:true };
-    logData.unshift(e);
-    saveLog();
-    renderLog();
+  // Dismiss on backdrop click
+  document.getElementById('quick-modal').addEventListener('click', e => {
+    if(e.target === document.getElementById('quick-modal')) closeQuickModal();
+  });
+}
+
+/* ────────────────────────────────────────
+   REPORT SECTION COLLAPSE + BADGES
+   ──────────────────────────────────────── */
+function updateRptBadgeForList(listId){
+  const badge = document.getElementById('rpt-badge-' + listId);
+  if(!badge) return;
+  const list = document.getElementById(listId);
+  if(!list) return;
+  const count = list.querySelectorAll('.rpt-entry').length;
+  badge.textContent = count;
+  badge.className = 'rpt-section-count' + (count > 0 ? '' : ' zero');
+  if(count > 0){
+    const section = badge.closest('.rpt-section');
+    if(section?.classList.contains('collapsed')){
+      section.classList.remove('collapsed');
+      const ch = section.querySelector('.rpt-section-chevron');
+      if(ch) ch.textContent = '▾';
+    }
+  }
+}
+
+function updateRptBadges(){
+  ['admin-list','callouts-list','riders-list','pcrs-list','unit-issues-list','events-list','narcotics-list','unlocked-pcrs-list'].forEach(updateRptBadgeForList);
+}
+
+function initReportSectionCollapse(){
+  const trackedLists = ['admin-list','callouts-list','riders-list','pcrs-list','unit-issues-list','events-list','narcotics-list','unlocked-pcrs-list'];
+
+  // MutationObserver: update badges whenever a list's children change (add or remove entries)
+  trackedLists.forEach(id => {
+    const list = document.getElementById(id);
+    if(!list) return;
+    new MutationObserver(() => updateRptBadgeForList(id)).observe(list, { childList: true });
+  });
+
+  // Make each section collapsible; add count badge + chevron to header
+  document.querySelectorAll('#tab-report .rpt-section').forEach(section => {
+    const hd = section.querySelector('.rpt-section-hd');
+    if(!hd) return;
+
+    // Find a tracked list inside this section
+    const listEl = trackedLists.map(id => section.querySelector('#' + id)).find(Boolean);
+    if(listEl){
+      const title = hd.querySelector('.rpt-section-title');
+      const badge = document.createElement('span');
+      badge.className = 'rpt-section-count zero';
+      badge.id = 'rpt-badge-' + listEl.id;
+      badge.textContent = '0';
+      if(title) title.after(badge);
+    }
+
+    const chevron = document.createElement('span');
+    chevron.className = 'rpt-section-chevron';
+    chevron.textContent = '▸';
+    hd.appendChild(chevron);
+
+    // Start collapsed (except the date browser row which has no body to hide)
+    section.classList.add('collapsed');
+
+    hd.addEventListener('click', e => {
+      if(e.target.closest('button')) return;
+      const nowCollapsed = section.classList.toggle('collapsed');
+      chevron.textContent = nowCollapsed ? '▸' : '▾';
+    });
   });
 }
 
@@ -5283,11 +6056,24 @@ function initShiftReport(){
   const dateInput = document.getElementById('roster-date');
   loadRptData(dateInput.value || todayStr());
   dateInput.addEventListener('change', () => { loadRptData(dateInput.value); renderStaffing(); });
+  // Auto-fill supervisor name from logged-in user if field is empty
+  setTimeout(() => {
+    const supEl = document.getElementById('rpt-supervisor');
+    if(supEl && !supEl.value){
+      try {
+        const user = typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser;
+        if(user) supEl.value = user.displayName || user.email || '';
+        if(supEl.value && !rptData.supervisor) rptData.supervisor = supEl.value;
+      } catch(e){}
+    }
+  }, 500);
 
   document.getElementById('btn-rpt-save').addEventListener('click', saveRptData);
-  document.getElementById('btn-rpt-email').addEventListener('click', emailReport);
-  document.getElementById('btn-restock').addEventListener('click', openNarcModal);
+  document.getElementById('btn-rpt-preview')?.addEventListener('click', openRptPreview);
+  document.getElementById('btn-rpt-combined')?.addEventListener('click', openCombinedRptPreview);
   document.getElementById('btn-refresh-staffing')?.addEventListener('click', renderStaffing);
+  renderReportDateBrowser();
+  initReportSectionCollapse();
 
   function addTo(listId, buildFn){
     const list = document.getElementById(listId);
@@ -5300,15 +6086,145 @@ function initShiftReport(){
   document.getElementById('btn-add-callout')?.addEventListener('click', ()=> addTo('callouts-list', buildCalloutEntry));
   document.getElementById('btn-add-rider')?.addEventListener('click', ()=> addTo('riders-list', buildRiderEntry));
   document.getElementById('btn-add-pcr')?.addEventListener('click', ()=> addTo('pcrs-list', buildPcrEntry));
+  document.getElementById('btn-prefill-pcr')?.addEventListener('click', prefillPcrsFromRoster);
   document.getElementById('btn-add-unit-issue')?.addEventListener('click', ()=> addTo('unit-issues-list', buildUnitIssueEntry));
   document.getElementById('btn-add-event')?.addEventListener('click', ()=> addTo('events-list', buildEventEntry));
   document.getElementById('btn-add-narc')?.addEventListener('click', ()=> addTo('narcotics-list', buildNarcEntry));
   document.getElementById('btn-add-unlocked-pcr')?.addEventListener('click', ()=> addTo('unlocked-pcrs-list', buildUnlockedPcrEntry));
 
   document.getElementById('btn-pull-log')?.addEventListener('click', pullLogIntoReport);
+  document.getElementById('btn-load-unit-checks')?.addEventListener('click', loadUnitChecksFromRoster);
+}
 
-  document.getElementById('narc-modal').addEventListener('click', e => {
-    if(e.target === document.getElementById('narc-modal')) closeNarcModal();
+/* ────────────────────────────────────────
+   REPORT PREVIEW MODAL
+   ──────────────────────────────────────── */
+function openRptPreview(){
+  collectRptFromDOM();
+  const text = generateReportText();
+  document.getElementById('rpt-preview-text').textContent = text;
+  document.getElementById('rpt-preview-modal').classList.add('open');
+}
+function openCombinedRptPreview(){
+  const day2Date = document.getElementById('roster-date').value || todayStr();
+  const d2 = new Date(day2Date + 'T12:00:00');
+  d2.setDate(d2.getDate() - 1);
+  const day1Date = d2.toISOString().slice(0,10);
+  const text = generateCombinedReportText(day1Date, day2Date);
+  document.getElementById('rpt-preview-text').textContent = text;
+  document.getElementById('rpt-preview-modal').classList.add('open');
+}
+function closeRptPreview(){
+  document.getElementById('rpt-preview-modal').classList.remove('open');
+}
+function initRptPreview(){
+  document.getElementById('rpt-preview-modal').addEventListener('click', e => {
+    if(e.target === document.getElementById('rpt-preview-modal')) closeRptPreview();
+  });
+  document.getElementById('rpt-preview-copy-btn').addEventListener('click', () => {
+    const text = document.getElementById('rpt-preview-text').textContent;
+    navigator.clipboard?.writeText(text).then(() => { showToast('Report copied ✓'); closeRptPreview(); }).catch(() => {
+      showToast('Copy failed — select all text manually.');
+    });
+  });
+  document.getElementById('rpt-preview-email-btn').addEventListener('click', () => {
+    closeRptPreview();
+    emailReport();
+  });
+  const shareBtn = document.getElementById('rpt-preview-share-btn');
+  if(navigator.share && shareBtn){
+    shareBtn.style.display = '';
+    shareBtn.addEventListener('click', () => {
+      const text = document.getElementById('rpt-preview-text').textContent;
+      const date = document.getElementById('roster-date')?.value || todayStr();
+      navigator.share({ title: 'Shift Report ' + date, text })
+        .then(() => closeRptPreview())
+        .catch(() => {});
+    });
+  }
+}
+
+/* ────────────────────────────────────────
+   WRAP-UP CHECKLIST
+   ──────────────────────────────────────── */
+function openWrapUp(){
+  collectRptFromDOM();
+  const sections = [
+    { key:'admin',       label:'Administrative',        count: rptData.admin.filter(a=>a['ad-text']).length,           tab:'report', emptyOk:true  },
+    { key:'callins',     label:"Call-in's / Coverage",  count: rptData.callins.length,                                  tab:'report', emptyOk:true  },
+    { key:'riders',      label:'3rd Riders',            count: rptData.riders.filter(r=>r['rd-name']).length,           tab:'report', emptyOk:true  },
+    { key:'pcrs',        label:"PCR's / Call Totals",   count: rptData.pcrs.filter(p=>p['pcr-provider']).length,        tab:'report', emptyOk:false },
+    { key:'unitIssues',  label:'Unit / Equipment Issues',count: rptData.unitIssues.filter(u=>u['ui-unit']).length,      tab:'report', emptyOk:true  },
+    { key:'events',      label:'Notable Events',        count: rptData.events.filter(e=>e['ev-desc']).length,           tab:'report', emptyOk:true  },
+    { key:'narcotics',   label:'Narcotic Changes',      count: rptData.narcotics.filter(n=>n['nc-drug']).length,        tab:'report', emptyOk:true  },
+    { key:'unitChecks',  label:'Unit Checks',           count: (Array.isArray(rptData.unitChecks)?rptData.unitChecks:[]).length, tab:'report', emptyOk:false },
+    { key:'supervisor',  label:'Supervisor Name',       count: rptData.supervisor ? 1 : 0,                              tab:'report', emptyOk:false },
+  ];
+  const missing = sections.filter(s => !s.emptyOk && s.count === 0);
+  const warn = document.getElementById('wrapup-warning');
+  if(warn) { warn.style.display = missing.length ? '' : 'none'; }
+  const list = document.getElementById('wrapup-checklist');
+  if(list){
+    list.innerHTML = sections.map(s => {
+      const done = s.count > 0;
+      const icon = done ? '✅' : (s.emptyOk ? '⬜' : '⚠️');
+      const countTxt = done ? (s.key==='supervisor' ? rptData.supervisor : s.count + (s.count===1?' entry':' entries')) : (s.emptyOk ? 'None — OK' : 'Not filled');
+      return `<div class="wrapup-row" onclick="closeWrapUp();switchTab('report')">
+        <span class="wrapup-status">${icon}</span>
+        <div class="wrapup-info">
+          <div class="wrapup-label">${s.label}</div>
+          <div class="wrapup-count">${countTxt}</div>
+        </div>
+        <span class="wrapup-arrow">›</span>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('wrapup-modal').classList.add('open');
+}
+function closeWrapUp(){
+  document.getElementById('wrapup-modal').classList.remove('open');
+}
+function initWrapUp(){
+  document.getElementById('wrapup-modal').addEventListener('click', e => {
+    if(e.target === document.getElementById('wrapup-modal')) closeWrapUp();
+  });
+  document.getElementById('wrapup-generate-btn').addEventListener('click', () => {
+    closeWrapUp();
+    openRptPreview();
+  });
+}
+
+/* ────────────────────────────────────────
+   PAST REPORT DATE BROWSER
+   ──────────────────────────────────────── */
+function renderReportDateBrowser(){
+  const bar = document.getElementById('rpt-date-browser');
+  if(!bar) return;
+  const today = todayStr();
+  const active = document.getElementById('roster-date')?.value || today;
+  const pills = [];
+  for(let i = 0; i < 10; i++){
+    const d = new Date(today + 'T12:00:00');
+    d.setDate(d.getDate() - i);
+    const ds = d.toISOString().slice(0,10);
+    const hasData = !!localStorage.getItem(rptKey(ds));
+    const label = i === 0 ? 'Today' : i === 1 ? 'Yesterday' : (d.getMonth()+1)+'/'+d.getDate();
+    pills.push({ ds, label, hasData, active: ds === active });
+  }
+  bar.innerHTML = pills.map(p => {
+    let cls = 'rpt-date-pill';
+    if(p.hasData) cls += ' has-data';
+    if(p.active) cls += ' active';
+    return `<button class="${cls}" data-rpt-date="${p.ds}">${p.label}${p.hasData?' ●':''}</button>`;
+  }).join('');
+  bar.querySelectorAll('[data-rpt-date]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const ds = btn.dataset.rptDate;
+      const dateInput = document.getElementById('roster-date');
+      if(dateInput) dateInput.value = ds;
+      loadRptData(ds);
+      renderReportDateBrowser();
+    });
   });
 }
 
@@ -5348,6 +6264,62 @@ function pullLogIntoReport(){
 }
 
 </script>
-<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});</script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').then(reg => {
+    // Proactively check for a new version each time the page loads
+    reg.update();
+
+    // New SW found installing — track its state
+    reg.addEventListener('updatefound', () => {
+      const sw = reg.installing;
+      sw.addEventListener('statechange', () => {
+        if (sw.state === 'installed' && navigator.serviceWorker.controller) {
+          // New version ready and waiting — show the update banner
+          showAppUpdateBanner(reg);
+        }
+      });
+    });
+
+    // If there's already a waiting SW when the page loads, show banner immediately
+    if (reg.waiting && navigator.serviceWorker.controller) {
+      showAppUpdateBanner(reg);
+    }
+  }).catch(() => {});
+
+  // When the new SW takes over, reload so the user gets fresh HTML
+  let _swReloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!_swReloading) { _swReloading = true; window.location.reload(); }
+  });
+}
+
+function showAppUpdateBanner(reg) {
+  if (document.getElementById('app-update-banner')) return; // already shown
+  const banner = document.createElement('div');
+  banner.id = 'app-update-banner';
+  banner.style.cssText = [
+    'position:fixed', 'bottom:72px', 'left:50%', 'transform:translateX(-50%)',
+    'background:#1e2636', 'border:1px solid rgba(94,234,212,.4)', 'border-radius:14px',
+    'padding:13px 16px', 'z-index:600', 'display:flex', 'align-items:center', 'gap:12px',
+    'box-shadow:0 4px 24px rgba(0,0,0,.5)', 'max-width:360px', 'width:calc(100% - 32px)',
+    'font-family:system-ui,-apple-system,sans-serif'
+  ].join(';');
+  banner.innerHTML =
+    '<span style="font-size:13px;color:#e6eef8;flex:1">🔄 New version available</span>' +
+    '<button id="app-update-btn" style="background:#5eead4;color:#0b0d10;border:none;border-radius:8px;' +
+    'padding:7px 16px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap">' +
+    'Update Now</button>';
+  document.body.appendChild(banner);
+  document.getElementById('app-update-btn').addEventListener('click', () => {
+    banner.querySelector('#app-update-btn').textContent = 'Updating…';
+    if (reg.waiting) {
+      reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+    } else {
+      window.location.reload();
+    }
+  });
+}
+</script>
 </body>
 </html>
