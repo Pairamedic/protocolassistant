@@ -6304,8 +6304,8 @@ function initShiftReport(){
     const supEl = document.getElementById('rpt-supervisor');
     if(supEl && !supEl.value){
       try {
-        const user = typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser;
-        if(user) supEl.value = user.displayName || user.email || '';
+        try { const tos = JSON.parse(localStorage.getItem('pat_tos_v1') || 'null'); if(tos && tos.first) { supEl.value = (tos.first + ' ' + (tos.last||'')).trim(); } } catch(e2){}
+        if(!supEl.value) { const user = typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser; if(user) supEl.value = user.displayName || user.email || ''; }
         if(supEl.value && !rptData.supervisor) rptData.supervisor = supEl.value;
       } catch(e){}
     }
