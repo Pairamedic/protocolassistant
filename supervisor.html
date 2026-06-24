@@ -1113,6 +1113,34 @@
     .rpt-staffing-unit { font-size: 11px; font-weight: 700; color: var(--accent); min-width: 90px; flex-shrink: 0; }
     .rpt-staffing-crew { font-size: 13px; color: var(--text); }
 
+    /* ─── SHANNA MODE 🩷 ─── */
+    body.shanna-mode {
+      --bg: #fdf2f6;
+      --card: #ffffff;
+      --accent: #e83e8c;
+      --muted: #a0527a;
+      --text: #2d1020;
+      --border: rgba(232,62,140,.18);
+      --input-bg: #fff6fa;
+    }
+    body.shanna-mode header,
+    body.shanna-mode .tab-bar-wrap,
+    body.shanna-mode .tab-bar { background: #ffffff; border-color: rgba(232,62,140,.15); }
+    body.shanna-mode .mob-nav { background: rgba(255,255,255,.92); border-color: rgba(232,62,140,.15); }
+    body.shanna-mode .tab-btn.active { color: #e83e8c; border-bottom-color: #e83e8c; }
+    body.shanna-mode .mob-nav-btn.active { color: #e83e8c; }
+    body.shanna-mode .spin { border-top-color: #e83e8c; }
+    #shanna-toggle {
+      display: none;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(232,62,140,.3);
+      border-radius: 8px; color: #f9a8d4; font-size: 13px; font-family: inherit;
+      cursor: pointer; padding: 7px 11px; white-space: nowrap; transition: all .2s;
+    }
+    body.shanna-mode #shanna-toggle {
+      background: linear-gradient(135deg,#fce7f3,#fdf2f8);
+      border-color: #f472b6; color: #9d174d; font-weight: 700;
+    }
+
     /* ─── QUICK-LOG BOTTOM SHEET MODAL ─── */
     #quick-modal {
       position: fixed; inset: 0;
@@ -1277,6 +1305,7 @@
       <div style="display:flex;gap:8px;align-items:center">
         <select id="svc-switcher" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;cursor:pointer;font-family:inherit;max-width:130px"></select>
         <button id="btn-svc-settings" style="background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:13px;font-family:inherit;cursor:pointer;padding:7px 11px;white-space:nowrap" title="Manage Services">⚙ Services</button>
+        <button id="shanna-toggle" title="Toggle Shanna Mode">🩷</button>
         <a href="ProtocolAssistant.html" style="padding:8px 14px;border-radius:10px;border:1px solid rgba(94,234,212,.35);background:rgba(94,234,212,.08);color:#5eead4;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap">← PAT</a>
         <button class="signout-btn" id="signout-btn">Sign Out</button>
       </div>
@@ -1949,8 +1978,25 @@ fbAuth.onAuthStateChanged(user => {
     document.getElementById('auth-loading').style.display = 'none';
     document.getElementById('app').style.display = 'flex';
     initApp();
+    initShannaMode(user.email);
   }
 });
+
+function initShannaMode(email) {
+  const SHANNA_EMAIL = 'smcdonel@easimedics.com';
+  if (email !== SHANNA_EMAIL) return;
+  const btn = document.getElementById('shanna-toggle');
+  if (!btn) return;
+  btn.style.display = '';
+  const key = 'shanna_mode_v1';
+  const apply = (on) => {
+    document.body.classList.toggle('shanna-mode', on);
+    btn.textContent = on ? '🩷 Shanna Mode ON' : '🩷';
+    localStorage.setItem(key, on ? '1' : '0');
+  };
+  apply(localStorage.getItem(key) === '1');
+  btn.addEventListener('click', () => apply(!document.body.classList.contains('shanna-mode')));
+}
 
 document.getElementById('signout-btn').addEventListener('click', () => {
   fbAuth.signOut();
