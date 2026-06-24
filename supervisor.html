@@ -1116,8 +1116,11 @@
     .log-topbar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
     .log-topbar-title { flex: 1; font-size: 16px; font-weight: 700; }
     .log-add-btn { background: var(--accent); color: #0b0d10; border: none; border-radius: 10px; height: 40px; padding: 0 18px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; flex-shrink: 0; }
-    .log-filter-row { display: flex; gap: 6px; margin-bottom: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
+    .log-filter-row { display: flex; gap: 6px; margin-bottom: 8px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
     .log-filter-row::-webkit-scrollbar { display: none; }
+    .log-search-wrap { margin-bottom: 12px; }
+    .log-search-wrap input { width: 100%; background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 13px; padding: 9px 12px; font-family: inherit; outline: none; box-sizing: border-box; }
+    .log-search-wrap input:focus { border-color: rgba(94,234,212,.4); }
     .log-chip { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 5px 13px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--muted); white-space: nowrap; flex-shrink: 0; transition: background .15s, border-color .15s; }
     .log-chip.active { background: rgba(94,234,212,.1); border-color: rgba(94,234,212,.4); color: var(--accent); }
     .log-entry { background: var(--card); border: 1px solid var(--border); border-radius: 13px; padding: 13px 14px; margin-bottom: 8px; position: relative; }
@@ -1269,13 +1272,22 @@
     .dash-generate-sub { font-size: 11px; color: var(--muted); font-weight: 500; margin-top: 2px; }
     .dash-generate-arrow { font-size: 22px; flex-shrink: 0; margin-left: 12px; }
 
-    /* ─── PAST REPORT DATE BROWSER ─── */
-    .rpt-date-browser { overflow-x: auto; -webkit-overflow-scrolling: touch; display: flex; gap: 8px; padding: 10px 0 8px; }
-    .rpt-date-browser::-webkit-scrollbar { display: none; }
-    .rpt-date-pill { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--muted); white-space: nowrap; flex-shrink: 0; transition: all .15s; }
-    .rpt-date-pill.active { background: rgba(94,234,212,.1); border-color: rgba(94,234,212,.4); color: var(--accent); }
-    .rpt-date-pill.has-data { color: var(--text); border-color: rgba(255,255,255,.2); }
-    .rpt-date-pill.has-data.active { color: var(--accent); border-color: rgba(94,234,212,.4); }
+    /* ─── MINI CALENDAR DATE PICKER ─── */
+    .rpt-mini-cal { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 12px 10px 10px; margin: 6px 0 10px; }
+    .rpt-mini-cal-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .rpt-mini-cal-title { font-size: 14px; font-weight: 700; color: var(--text); }
+    .rpt-mini-cal-nav { background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 18px; width: 30px; height: 30px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: inherit; line-height: 1; padding: 0; }
+    .rpt-mini-cal-nav:active { background: rgba(255,255,255,.07); }
+    .rpt-mini-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; }
+    .rpt-mini-cal-dow { font-size: 9px; font-weight: 700; color: var(--muted); text-align: center; padding: 2px 0 5px; }
+    .rpt-mini-cal-day { font-size: 12px; font-weight: 600; text-align: center; padding: 6px 1px; border-radius: 8px; cursor: pointer; color: var(--muted); position: relative; border: none; background: none; font-family: inherit; width: 100%; }
+    .rpt-mini-cal-day.other-month { opacity: .25; }
+    .rpt-mini-cal-day.today { color: var(--text); font-weight: 800; }
+    .rpt-mini-cal-day.has-data { color: var(--text); }
+    .rpt-mini-cal-day.has-data::after { content: ''; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; border-radius: 50%; background: var(--accent); opacity: .7; }
+    .rpt-mini-cal-day.selected { background: var(--accent) !important; color: #0b0d10 !important; font-weight: 800; }
+    .rpt-mini-cal-day.selected::after { display: none; }
+    .rpt-mini-cal-day.future { opacity: .25; pointer-events: none; }
 
     /* ─── WRAP-UP CHECKLIST MODAL ─── */
     #wrapup-modal { position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:400; display:none; align-items:flex-end; justify-content:center; }
@@ -1475,26 +1487,12 @@
           <span class="dash-quick-sub">Administrative item</span>
         </button>
       </div>
-      <button class="dash-generate-btn" id="dash-btn-wrapup" style="margin-bottom:8px">
+      <button class="dash-generate-btn" id="dash-btn-report-tab" style="margin-bottom:2px">
         <div>
-          <div class="dash-generate-label">✅ Shift Wrap-Up</div>
-          <div class="dash-generate-sub">Check report completeness</div>
+          <div class="dash-generate-label">📝 Reports</div>
+          <div class="dash-generate-sub">Generate shift report, wrap-up &amp; history</div>
         </div>
         <span class="dash-generate-arrow">›</span>
-      </button>
-      <button class="dash-generate-btn" id="dash-btn-generate-report">
-        <div>
-          <div class="dash-generate-label">📄 Generate Shift Report</div>
-          <div class="dash-generate-sub">Preview and copy your report</div>
-        </div>
-        <span class="dash-generate-arrow">›</span>
-      </button>
-      <button class="dash-generate-btn" id="dash-btn-carry-forward" style="margin-top:8px;border-color:rgba(168,85,247,.35);background:rgba(168,85,247,.07)">
-        <div>
-          <div class="dash-generate-label" style="color:#c084fc">📅 Carry Forward from Yesterday</div>
-          <div class="dash-generate-sub">Copy roster + pull notes into Prior to Shift</div>
-        </div>
-        <span class="dash-generate-arrow" style="color:#c084fc">›</span>
       </button>
       <div id="autosave-indicator" style="font-size:11px;color:var(--muted);text-align:center;margin:10px 0 4px;min-height:16px"></div>
       <div class="dash-section-title">Recent Activity</div>
@@ -1706,6 +1704,7 @@
         <button class="log-chip" data-filter="Event">Events</button>
         <button class="log-chip" data-filter="Note">Notes</button>
       </div>
+      <div class="log-search-wrap"><input type="search" id="log-search" placeholder="Search entries…" autocomplete="off" /></div>
       <div id="log-list"></div>
     </div>
 
@@ -1718,17 +1717,12 @@
           <input type="file" accept=".json" id="profiles-import-input" style="display:none" />
         </label>
       </div>
-      <div class="prof-section">
-        <div class="prof-section-hd">
-          <span class="prof-section-title">🏥 Stations</span>
-          <span class="prof-section-hint">State number and address shown in roster section headers</span>
-        </div>
-        <div id="stations-list"></div>
-      </div>
+
+      <!-- Employee Profiles first -->
       <div class="prof-section">
         <div class="prof-section-hd">
           <span class="prof-section-title">👤 Employee Profiles</span>
-          <span class="prof-section-hint">Phone number and usual unit — select as Lead Provider on roster to reveal the → quick-fill button</span>
+          <span class="prof-section-hint">Usual unit per employee — pick as Lead Provider on roster for → quick-fill</span>
         </div>
         <div class="prof-emp-search">
           <input type="search" id="prof-emp-search" placeholder="Search by name…" autocomplete="off" />
@@ -1736,6 +1730,18 @@
         <div class="prof-filter-bar" id="prof-station-pills"></div>
         <div class="prof-filter-bar" id="prof-role-pills"></div>
         <div id="emp-profiles-list"></div>
+      </div>
+
+      <!-- Stations — collapsible, collapsed by default -->
+      <div class="prof-section">
+        <div class="prof-section-hd" id="prof-stations-hd" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <span class="prof-section-title">🏥 Stations</span>
+            <span class="prof-section-hint">State number and address shown in roster section headers</span>
+          </div>
+          <span id="prof-stations-chevron" style="font-size:16px;color:var(--muted);flex-shrink:0;margin-left:8px">▸</span>
+        </div>
+        <div id="stations-list" style="display:none"></div>
       </div>
     </div>
 
@@ -2051,7 +2057,7 @@ document.getElementById('signout-btn').addEventListener('click', () => {
 /* ════════════════════════════════════════
    EMPLOYEE DATA
    ════════════════════════════════════════ */
-const EMPLOYEES = [{"last":"Aalseth","first":"Dwayne","station":"Pine Bluff","status":"FULL TIME","role":"OPS MGR","phone":"870-575-3004","note":""},{"last":"Aldridge","first":"Nyeshia","station":"Pine Bluff","status":"FULL TIME","role":"PR/DIREC/EMT","phone":"903-960-0139","note":""},{"last":"Alexander","first":"Braylon","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-288-5875","note":""},{"last":"Allen","first":"Jimmy","station":"Warren","status":"FULL TIME","role":"EMT","phone":"985-227-0234","note":""},{"last":"Anderson","first":"Allison","station":"Pine Bluff","status":"FULL TIME","role":"SUPERVISOR","phone":"870-917-4416","note":""},{"last":"Anderson","first":"Michael","station":"Dewitt","status":"FULL TIME","role":"SUPERVISOR","phone":"870-510-6361","note":""},{"last":"Arledge","first":"Brian","station":"Pine Bluff","status":"FULL TIME","role":"MAINT","phone":"870-718-7722","note":""},{"last":"Badgley","first":"Briana","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-718-4561","note":""},{"last":"Baker","first":"Amanda","station":"Clarendon","status":"FULL TIME","role":"EMT","phone":"501-266-1518","note":""},{"last":"Baker","first":"Melinda(Lindy)","station":"Clarendon","status":"FULL TIME","role":"EMT","phone":"870-718-4922","note":""},{"last":"Beadle","first":"Bill","station":"Pine Bluff","status":"PRN","role":"EMT/RESCUE","phone":"870-692-1387","note":""},{"last":"Bishop","first":"Josh","station":"Pine Bluff","status":"FULL TIME","role":"CEO","phone":"on file","note":""},{"last":"Blanchard","first":"Roland","station":"Warren","status":"FULL TIME","role":"PARAMEDIC","phone":"870-413-3777","note":""},{"last":"Braden","first":"Stephanie","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"405-269-3909","note":""},{"last":"Brangaccio","first":"Kimberly","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"870-312-0189","note":""},{"last":"Branson","first":"Morgan","station":"Dewitt","status":"FULL TIME","role":"EMT","phone":"870-267-3130","note":""},{"last":"Brickey","first":"Samantha","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-267-5922","note":""},{"last":"Brooks","first":"Keyviote","station":"Pine Bluff","status":"PRN","role":"EMT /FD","phone":"870-209-7743","note":""},{"last":"Brown","first":"Lane","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"479-320-8866","note":""},{"last":"Bryant","first":"Troupe","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"501-282-4450","note":""},{"last":"Bunting","first":"Cynthia","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-209-9328","note":""},{"last":"Burnett","first":"Becky","station":"Pine Bluff","status":"PRN","role":"DISPATCHER","phone":"870-623-5235","note":"cannot drive"},{"last":"Caldwell","first":"Elias","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"870-316-1165","note":""},{"last":"Caldwell","first":"Miranda","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-319-0133","note":""},{"last":"Canada","first":"LaRaven","station":"Pine Bluff","status":"PRN","role":"EMT/FD","phone":"870-413-3370","note":""},{"last":"Chiles","first":"Cindy","station":"Warren","status":"FULL TIME","role":"SUPERVISOR","phone":"870-643-0521","note":""},{"last":"Clement","first":"Belinda","station":"Pine Bluff","status":"PRN","role":"EVO","phone":"501-690-2846","note":""},{"last":"Collins","first":"David","station":"Pine Bluff","status":"FULL TIME","role":"SUPERVISOR","phone":"501-269-9041","note":""},{"last":"Croft","first":"Megan","station":"Pine Bluff","status":"FULL TIME","role":"DISPATCHER","phone":"870-794-6553","note":""},{"last":"Cumblidge","first":"Taylor","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-257-7418","note":""},{"last":"Cuthbertson","first":"Brayden","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-484-3394","note":""},{"last":"Earvin","first":"Tina","station":"Warren","status":"FULL TIME","role":"PARAMEDIC","phone":"870-501-1484","note":""},{"last":"Edgin","first":"Tiffany","station":"Rison","status":"PRN","role":"EMT","phone":"870-807-4245","note":""},{"last":"Edgin JR","first":"William","station":"Rison","status":"FULL TIME","role":"EMT","phone":"870-220-2368","note":""},{"last":"Fowler","first":"Brittany","station":"Pine Bluff","status":"PRN","role":"EVO","phone":"870-370-8102","note":""},{"last":"Freeman","first":"Holly","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-486-8089","note":""},{"last":"Fudge","first":"Greg","station":"England","status":"FULL TIME","role":"PARAMEDIC","phone":"501-563-0585","note":""},{"last":"Garrett","first":"Irene","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"501-499-0741","note":""},{"last":"Garrison","first":"Lindsay","station":"Warren","status":"FULL TIME","role":"EMT","phone":"870-608-9025","note":""},{"last":"Gilmore","first":"Shyanne","station":"Rison","status":"FULL TIME","role":"EMT","phone":"870-312-4775","note":""},{"last":"Givens","first":"Amber","station":"Pine Bluff","status":"FULL TIME","role":"DISPATCHER","phone":"501-864-5620","note":""},{"last":"Glason","first":"Dennis","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-247-2814","note":""},{"last":"Goehle III","first":"Charles","station":"Pine Bluff","status":"medical","role":"PARAMEDIC","phone":"239-872-6907","note":""},{"last":"Gorman","first":"Amber","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"501-647-4830","note":""},{"last":"Gorman","first":"Ricky","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"870-718-1502","note":""},{"last":"Goudelock","first":"Kelly","station":"Warren","status":"FULL TIME","role":"EMT","phone":"870-830-5595","note":""},{"last":"Goudelock","first":"LeKesha","station":"Warren","status":"PRN","role":"EMT","phone":"870-820-5018","note":""},{"last":"Greenlaw","first":"Carnell","station":"Pine Bluff","status":"PRN","role":"EMT/ FD","phone":"870-718-8609","note":"cannot drive"},{"last":"Hall","first":"Dakota","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-489-3034","note":""},{"last":"Hall","first":"Tonya","station":"Pine Bluff","status":"FULL TIME","role":"OFFICE","phone":"870-370-3426","note":""},{"last":"Hampton","first":"Joshua","station":"Pine Bluff","status":"PRN","role":"EVO","phone":"501-363-2258","note":""},{"last":"Hawkins","first":"Robert","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"501-773-6478","note":""},{"last":"Herrin","first":"Dennis","station":"Dewitt","status":"FULL TIME","role":"SUPERVISOR","phone":"870-718-6518","note":""},{"last":"Herrin","first":"Monica","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"call Dennis","note":""},{"last":"Hickman","first":"Cody","station":"Pine Bluff","status":"PRN","role":"EMT / FD","phone":"870-489-2272","note":""},{"last":"Hill","first":"Brodie(Jason)","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"870-377-1508","note":""},{"last":"Holiman","first":"Jamie","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"732-788-0314","note":""},{"last":"House","first":"Shawn","station":"Dewitt","status":"FULL TIME","role":"EMT","phone":"870-623-2822","note":""},{"last":"Howell","first":"Angela","station":"England","status":"FULL TIME","role":"EMT","phone":"501-672-2776","note":""},{"last":"Huntley-Johnson","first":"Andrea","station":"Star City","status":"FULL TIME","role":"EMT","phone":"870-352-1558","note":""},{"last":"Isenhour","first":"Dylan","station":"Pine Bluff","status":"FULL TIME","role":"EMR","phone":"870-461-0911","note":""},{"last":"Jackson","first":"Ian","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-805-1088","note":""},{"last":"Johnson","first":"Bubba","station":"Star City","status":"FULL TIME","role":"PARAMEDIC","phone":"870-659-6316","note":""},{"last":"Johnson","first":"Erica","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"501-412-0788","note":"cannot drive"},{"last":"Kindall","first":"Micha","station":"Pine Bluff","status":"FULL TIME","role":"A-EMT","phone":"985-348-7419","note":""},{"last":"Lalonde","first":"Courtney","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"501-912-5192","note":""},{"last":"Lang","first":"Robert","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-858-8090","note":""},{"last":"Leister","first":"Cory","station":"Dewitt","status":"FULL TIME","role":"EMT","phone":"479-264-0456","note":""},{"last":"Leister","first":"Erica","station":"Dewitt","status":"FULL TIME","role":"EMT","phone":"479-477-4356","note":""},{"last":"Linker","first":"Ciara","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-200-7681","note":""},{"last":"Lowe","first":"Diamond","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-663-4055","note":""},{"last":"Mackey","first":"Briana","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-718-4716","note":""},{"last":"Masters","first":"Amanda","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-329-1510","note":""},{"last":"Mattis","first":"Damian","station":"Pine Bluff","status":"FULL TIME","role":"EMR","phone":"501-237-6507","note":""},{"last":"Mays","first":"Isiah","station":"Pine Bluff","status":"PRN","role":"EMT / FD","phone":"870-502-9974","note":""},{"last":"McClanahan","first":"Steven","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-351-4943","note":""},{"last":"McClure","first":"Ayeshia","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"501-418-1702","note":""},{"last":"McDaniel","first":"Clyde","station":"Pine Bluff","status":"FULL TIME","role":"OPS SUPER","phone":"870-329-1448","note":""},{"last":"McDonel","first":"Shanna","station":"Pine Bluff","status":"FULL TIME","role":"SUPERVISOR","phone":"870-329-2491","note":""},{"last":"McDonel","first":"Traci","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-510-0271","note":""},{"last":"McFadden","first":"Stephanie","station":"Dewitt","status":"FULL TIME","role":"PARAMEDIC","phone":"501-470-8630","note":""},{"last":"McKinley","first":"Courtney","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-540-6936","note":""},{"last":"McNeill","first":"Laura","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"870-318-0037","note":""},{"last":"Mealler","first":"Carter","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"501-285-5454","note":""},{"last":"Miller","first":"Marilyn","station":"Pine Bluff","status":"FULL TIME","role":"SUPERVISOR","phone":"870-510-4844","note":""},{"last":"Miller","first":"Paul","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-331-2775","note":""},{"last":"Moody","first":"Greg","station":"Pine Bluff","status":"FULL TIME","role":"OFF MGR","phone":"870-643-9456","note":""},{"last":"Moring","first":"Elizabeth","station":"Pine Bluff","status":"FULL TIME","role":"EMR/DISPATCH","phone":"870-489-6414","note":""},{"last":"Moring","first":"Joseph","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-917-5622","note":""},{"last":"Motes","first":"Houston","station":"Pine Bluff","status":"PRN","role":"EMT /FD","phone":"501-271-9717","note":""},{"last":"Murphy","first":"Seth","station":"Warren","status":"FULL TIME","role":"PARAMEDIC","phone":"318-245-9209","note":""},{"last":"Nutz","first":"Jeremy","station":"Pine Bluff","status":"PRN","role":"EVO","phone":"501-425-8327","note":""},{"last":"Odom","first":"Sedric","station":"Pine Bluff","status":"PRN","role":"EMT /FD","phone":"870-329-8153","note":""},{"last":"Oliver","first":"Denishia","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-897-8131","note":""},{"last":"Oliver","first":"Amber","station":"Pine Bluff","status":"PRN","role":"DISPATCHER","phone":"870-592-0221","note":""},{"last":"Pack","first":"Brandi","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"601-433-4929","note":""},{"last":"Page","first":"Alivia","station":"Pine Bluff","status":"FULL TIME","role":"EMR","phone":"501-765-0593","note":""},{"last":"Pritchard","first":"Susan","station":"Pine Bluff","status":"FULL TIME","role":"EMR/DISPATCH","phone":"870-510-3481","note":""},{"last":"Reyna-Durham","first":"Daphne","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-764-8919","note":""},{"last":"Richardson","first":"Mykayla","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-723-7024","note":""},{"last":"Rivera","first":"Daniel","station":"England","status":"FULL TIME","role":"PARAMEDIC","phone":"870-362-0318","note":""},{"last":"Robertson","first":"Joshua","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"870-377-6228","note":""},{"last":"Rushing","first":"Ashton","station":"Clarendon","status":"FULL TIME","role":"EMT","phone":"870-592-2164","note":""},{"last":"Russell","first":"Thomas","station":"Pine Bluff","status":"PRN","role":"EMT /FD","phone":"870-489-8177","note":""},{"last":"Shelley","first":"Patrick","station":"Dewitt","status":"FULL TIME","role":"EMT","phone":"870-540-6986","note":""},{"last":"Sidwell","first":"Chris","station":"Rison","status":"FULL TIME","role":"PARAMEDIC","phone":"903-280-4528","note":""},{"last":"Sinclair-Davis","first":"NiKayla","station":"Pine Bluff","status":"FULL TIME","role":"EVO","phone":"857-757-0823","note":""},{"last":"Smith","first":"Cheryl","station":"Pine Bluff","status":"FULL TIME","role":"OPS ADM","phone":"870-718-2909","note":""},{"last":"Smith","first":"Lance","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"501-541-1016","note":"cannot drive"},{"last":"Smith","first":"Sara Bri","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"501-439-0884","note":""},{"last":"Spriggs","first":"Harvey","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"870-556-0887","note":""},{"last":"Spriggs JR","first":"John","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"870-830-0562","note":""},{"last":"Stayton","first":"James","station":"Pine Bluff","status":"FULL TIME","role":"SUPERVISOR","phone":"870-718-2920","note":""},{"last":"Stayton","first":"Scott","station":"Pine Bluff","status":"FULL TIME","role":"DISPATCHER","phone":"870-209-7358","note":""},{"last":"Tallent","first":"Phillip","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-240-3478","note":""},{"last":"Thomas","first":"Christina","station":"Pine Bluff","status":"FULL TIME","role":"DISPATCHER","phone":"870-377-1294","note":""},{"last":"Twomey","first":"Lauren","station":"Clarendon","status":"FULL TIME","role":"EMT","phone":"479-755-1526","note":""},{"last":"Visconti","first":"Christopher","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"718-614-9120","note":""},{"last":"Walker","first":"Courtland","station":"England","status":"FULL TIME","role":"EMT","phone":"870-556-0477","note":""},{"last":"Walker","first":"TK","station":"Pine Bluff","status":"FULL TIME","role":"EMR","phone":"501-200-0240","note":""},{"last":"Watkins","first":"Faith","station":"Pine Bluff","status":"FULL TIME","role":"DISPATCHER","phone":"870-329-8453","note":""},{"last":"West","first":"Tyisha","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-360-5999","note":""},{"last":"Whipple","first":"Rebekah","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-370-1945","note":""},{"last":"Whitney","first":"Tim","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-718-3812","note":""},{"last":"Williams","first":"Kiersten","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-659-7818","note":""},{"last":"Wise","first":"Neil","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"501-201-1226","note":""},{"last":"Wise","first":"Jill","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"501-201-0610","note":""},{"last":"Wood","first":"Tammy","station":"Pine Bluff","status":"FULL TIME","role":"FTO COOR","phone":"870-556-1301","note":""},{"last":"Woolridge","first":"Katherine","station":"Pine Bluff","status":"FULL TIME","role":"OFFICE","phone":"870-718-4282","note":""},{"last":"Young","first":"Ronald","station":"Warren","status":"FULL TIME","role":"EMT","phone":"870-489-0427","note":""}];
+const EMPLOYEES = [{"last":"Aalseth","first":"Dwayne","station":"Pine Bluff","status":"FULL TIME","role":"OPS MGR","phone":"870-575-3004","note":""},{"last":"Aldridge","first":"Nyeshia","station":"Pine Bluff","status":"FULL TIME","role":"PR/DIREC/EMT","phone":"903-960-0139","note":""},{"last":"Alexander","first":"Braylon","station":"Pine Bluff","status":"leave","role":"EMT","phone":"870-288-5875","note":""},{"last":"Allen","first":"Jimmy","station":"Warren","status":"FULL TIME","role":"EMT","phone":"985-227-0234","note":""},{"last":"Anderson","first":"Allison","station":"Pine Bluff","status":"FULL TIME","role":"SUPERVISOR","phone":"870-917-4416","note":""},{"last":"Anderson","first":"Michael","station":"DeWitt","status":"FULL TIME","role":"SUPERVISOR","phone":"870-510-6361","note":""},{"last":"Anderson","first":"Vinnie","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-329-8242","note":""},{"last":"Arledge","first":"Brian","station":"Pine Bluff","status":"FULL TIME","role":"MAINT","phone":"870-718-7722","note":""},{"last":"Badgley","first":"Briana","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-718-4561","note":""},{"last":"Baker","first":"Amanda","station":"Clarendon","status":"FULL TIME","role":"EMT","phone":"501-266-1518","note":""},{"last":"Baker","first":"Melinda(Lindy)","station":"Clarendon","status":"FULL TIME","role":"A-EMT","phone":"870-718-4922","note":""},{"last":"Barnett","first":"Nicholas","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-831-4780","note":""},{"last":"Beadle","first":"Bill","station":"Pine Bluff","status":"PRN","role":"EMT/RESCUE","phone":"870-692-1387","note":""},{"last":"Bishop","first":"Josh","station":"Pine Bluff","status":"FULL TIME","role":"CEO","phone":"on file","note":""},{"last":"Blanchard","first":"Roland","station":"Warren","status":"FULL TIME","role":"PARAMEDIC","phone":"870-413-3777","note":""},{"last":"Bowen","first":"Rebekah","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"501-286-1661","note":""},{"last":"Bowen","first":"Slade","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-303-7301","note":""},{"last":"Braden","first":"Stephanie","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"405-269-3909","note":""},{"last":"Brangaccio","first":"Kimberly","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"870-312-0189","note":""},{"last":"Branson","first":"Morgan","station":"DeWitt","status":"FULL TIME","role":"EMT","phone":"870-267-3130","note":""},{"last":"Brickey","first":"Samantha","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-267-5922","note":""},{"last":"Brooks","first":"Keyviote","station":"Pine Bluff","status":"PRN","role":"EMT /FD","phone":"870-209-7743","note":""},{"last":"Brown","first":"Lane","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"479-320-8866","note":""},{"last":"Bryant","first":"Troupe","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"501-282-4450","note":""},{"last":"Bunting","first":"Cynthia","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-209-9328","note":""},{"last":"Burnett","first":"Becky","station":"Pine Bluff","status":"PRN","role":"DISPATCHER","phone":"870-623-5235","note":"cannot drive"},{"last":"Caldwell","first":"Elias","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"870-316-1165","note":""},{"last":"Caldwell","first":"Miranda","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-319-0133","note":""},{"last":"Canada","first":"LaRaven","station":"Pine Bluff","status":"PRN","role":"EMT/FD","phone":"870-413-3370","note":""},{"last":"Chiles","first":"Cindy","station":"Warren","status":"FULL TIME","role":"SUPERVISOR","phone":"870-643-0521","note":""},{"last":"Clark","first":"Eleecia","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-209-1687","note":""},{"last":"Clement","first":"Belinda","station":"Pine Bluff","status":"PRN","role":"EVO","phone":"501-690-2846","note":""},{"last":"Collins","first":"David","station":"Pine Bluff","status":"FULL TIME","role":"SUPERVISOR","phone":"501-269-9041","note":""},{"last":"Craig","first":"Dwayne","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-295-6135","note":""},{"last":"Croft","first":"Megan","station":"Pine Bluff","status":"FULL TIME","role":"DISPATCHER","phone":"870-794-6553","note":""},{"last":"Cumblidge","first":"Taylor","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-257-7418","note":""},{"last":"Cuthbertson","first":"Brayden","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-484-3394","note":""},{"last":"Earvin","first":"Tina","station":"Warren","status":"FULL TIME","role":"PARAMEDIC","phone":"870-501-1484","note":""},{"last":"Edgin","first":"Tiffany","station":"Rison","status":"PRN","role":"EMT","phone":"870-807-4245","note":""},{"last":"Edgin JR","first":"William","station":"Rison","status":"FULL TIME","role":"EMT","phone":"870-220-2368","note":""},{"last":"Fowler","first":"Brittany","station":"Pine Bluff","status":"PRN","role":"EVO","phone":"870-370-8102","note":""},{"last":"Freeman","first":"Holly","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-486-8089","note":""},{"last":"Fudge","first":"Greg","station":"England","status":"FULL TIME","role":"PARAMEDIC","phone":"501-563-0585","note":""},{"last":"Garrett","first":"Irene","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"501-499-0741","note":""},{"last":"Garrison","first":"Lindsay","station":"Warren","status":"FULL TIME","role":"EMT","phone":"870-608-9025","note":""},{"last":"Gilmore","first":"Shyanne","station":"Rison","status":"FULL TIME","role":"EMT","phone":"870-312-4775","note":""},{"last":"Givens","first":"Amber","station":"Pine Bluff","status":"FULL TIME","role":"DISPATCHER","phone":"501-864-5620","note":""},{"last":"Glason","first":"Dennis","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-247-2814","note":""},{"last":"Godwin","first":"Courtney","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"501-553-8313","note":""},{"last":"Godwin","first":"Terri Jo","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"","note":""},{"last":"Goehle III","first":"Charles","station":"Pine Bluff","status":"medical","role":"PARAMEDIC","phone":"239-872-6907","note":""},{"last":"Gorman","first":"Amber","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"501-647-4830","note":""},{"last":"Gorman","first":"Ricky","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"870-718-1502","note":""},{"last":"Goudelock","first":"Kelly","station":"Warren","status":"FULL TIME","role":"EMT","phone":"870-830-5595","note":""},{"last":"Goudelock","first":"LeKesha","station":"Warren","status":"PRN","role":"EMT","phone":"870-820-5018","note":""},{"last":"Greenlaw","first":"Carnell","station":"Pine Bluff","status":"PRN","role":"EMT/ FD","phone":"870-718-8609","note":"cannot drive"},{"last":"Hall","first":"Dakota","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-489-3034","note":""},{"last":"Hall","first":"Tonya","station":"Pine Bluff","status":"FULL TIME","role":"OFFICE","phone":"870-370-3426","note":""},{"last":"Hampton","first":"Joshua","station":"Pine Bluff","status":"FULL TIME","role":"EVO","phone":"501-363-2258","note":""},{"last":"Harden","first":"William","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"501-353-4281","note":""},{"last":"Hardin","first":"Gary","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"903-691-9861","note":""},{"last":"Hartwig","first":"Clayton","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"479-222-3637","note":""},{"last":"Hawkins","first":"Robert","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-773-6478","note":""},{"last":"Herrin","first":"Dennis","station":"DeWitt","status":"FULL TIME","role":"SUPERVISOR","phone":"870-718-6518","note":""},{"last":"Herrin","first":"Monica","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"call Dennis","note":""},{"last":"Hickman","first":"Cody","station":"Pine Bluff","status":"PRN","role":"EMT / FD","phone":"870-489-2272","note":""},{"last":"Hill","first":"Brodie(Jason)","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"870-377-1508","note":""},{"last":"Holiman","first":"Jamie","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"732-788-0314","note":""},{"last":"House","first":"Shawn","station":"DeWitt","status":"FULL TIME","role":"EMT","phone":"870-623-2822","note":""},{"last":"Howell","first":"Angela","station":"England","status":"FULL TIME","role":"EMT","phone":"501-672-2776","note":""},{"last":"Huntley-Johnson","first":"Andrea","station":"Star City","status":"FULL TIME","role":"EMT","phone":"870-352-1558","note":""},{"last":"Isenhour","first":"Dylan","station":"Pine Bluff","status":"PRN","role":"EMR","phone":"870-461-0911","note":""},{"last":"Jackson","first":"Ian","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"870-805-1088","note":""},{"last":"Johnson","first":"Bubba","station":"Star City","status":"FULL TIME","role":"PARAMEDIC","phone":"870-659-6316","note":""},{"last":"Johnson","first":"Erica","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"501-412-0788","note":"cannot drive"},{"last":"Kindall","first":"Micha","station":"Clarendon","status":"FULL TIME","role":"A-EMT","phone":"985-348-7419","note":""},{"last":"King","first":"Jennifer","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"501-339-1617","note":""},{"last":"Kirtley","first":"Stephen","station":"Warren","status":"FULL TIME","role":"PARAMEDIC","phone":"870-794-7025","note":""},{"last":"Lalonde","first":"Courtney","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"501-912-5192","note":""},{"last":"Lang","first":"Robert","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-858-8090","note":""},{"last":"Leister","first":"Cory","station":"DeWitt","status":"FULL TIME","role":"EMT","phone":"479-264-0456","note":""},{"last":"Leister","first":"Erica","station":"DeWitt","status":"FULL TIME","role":"PARAMEDIC","phone":"479-477-4356","note":""},{"last":"Linker","first":"Ciara","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-200-7681","note":""},{"last":"Lowe","first":"Diamond","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-663-4055","note":""},{"last":"Lowe","first":"Logan","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"501-589-5334","note":""},{"last":"Mackey","first":"Briana","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-718-4716","note":""},{"last":"Masters","first":"Amanda","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-329-1510","note":""},{"last":"Mattis","first":"Damian","station":"Clarendon","status":"FULL TIME","role":"EMR","phone":"501-237-6507","note":""},{"last":"Mays","first":"Isiah","station":"Pine Bluff","status":"PRN","role":"EMT / FD","phone":"870-502-9974","note":""},{"last":"McClanahan","first":"Steven","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-351-4943","note":""},{"last":"McClure","first":"Ayeshia","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"501-418-1702","note":""},{"last":"McDaniel","first":"Clyde","station":"Pine Bluff","status":"FULL TIME","role":"OPS SUPER","phone":"870-329-1448","note":""},{"last":"McDonel","first":"Shanna","station":"Pine Bluff","status":"FULL TIME","role":"SUPERVISOR","phone":"870-329-2491","note":""},{"last":"McDonel","first":"Traci","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-510-0271","note":""},{"last":"McFadden","first":"Stephanie","station":"DeWitt","status":"FULL TIME","role":"PARAMEDIC","phone":"501-470-8630","note":""},{"last":"McKinley","first":"Courtney","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-540-6936","note":""},{"last":"McNeill","first":"Laura","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"870-318-0037","note":""},{"last":"Mealler","first":"Carter","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"501-285-5454","note":""},{"last":"Miller","first":"Marilyn","station":"Pine Bluff","status":"FULL TIME","role":"SUPERVISOR","phone":"870-510-4844","note":""},{"last":"Miller","first":"Paul","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-331-2775","note":""},{"last":"Moeri","first":"Nathaniel","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"501-428-5054","note":""},{"last":"Moody","first":"Greg","station":"Pine Bluff","status":"FULL TIME","role":"OFF MGR","phone":"870-643-9456","note":""},{"last":"Moring","first":"Elizabeth","station":"Pine Bluff","status":"FULL TIME","role":"EMR/DISPATCH","phone":"870-489-6414","note":""},{"last":"Moring","first":"Joseph","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-917-5622","note":""},{"last":"Motes","first":"Houston","station":"Pine Bluff","status":"PRN","role":"EMT /FD","phone":"501-271-9717","note":""},{"last":"Murphy","first":"Seth","station":"Rison","status":"FULL TIME","role":"PARAMEDIC","phone":"318-245-9209","note":""},{"last":"Nutz","first":"Jeremy","station":"Pine Bluff","status":"PRN","role":"EVO","phone":"501-425-8327","note":""},{"last":"Odom","first":"Sedric","station":"Pine Bluff","status":"PRN","role":"EMT /FD","phone":"870-329-8153","note":""},{"last":"Oliver","first":"Amber","station":"Pine Bluff","status":"PRN","role":"DISPATCHER","phone":"870-592-0221","note":""},{"last":"Oliver","first":"Denishia","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-897-8131","note":""},{"last":"Pack","first":"Brandi","station":"Pine Bluff","status":"FULL TIME","role":"A-EMT","phone":"601-433-4929","note":""},{"last":"Page","first":"Alivia","station":"Pine Bluff","status":"FULL TIME","role":"EMR","phone":"501-765-0593","note":""},{"last":"Pritchard","first":"Susan","station":"Pine Bluff","status":"FULL TIME","role":"EMR/DISPATCH","phone":"870-510-3481","note":""},{"last":"Reyna-Durham","first":"Daphne","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"501-764-8919","note":""},{"last":"Richardson","first":"Mykayla","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-723-7024","note":""},{"last":"Rivera","first":"Daniel","station":"England","status":"FULL TIME","role":"PARAMEDIC","phone":"870-362-0318","note":""},{"last":"Robertson","first":"Joshua","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"870-377-6228","note":""},{"last":"Robinson-Perdue","first":"Tana","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"870-489-8113","note":""},{"last":"Rushing","first":"Ashton","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-592-2164","note":""},{"last":"Russell","first":"Devin","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"501-838-9045","note":""},{"last":"Russell","first":"Thomas","station":"Pine Bluff","status":"PRN","role":"EMT /FD","phone":"870-489-8177","note":""},{"last":"Shannon","first":"Chasity","station":"Pine Bluff","status":"FULL TIME","role":"DISPATCHER","phone":"870-209-4279","note":""},{"last":"Shelley","first":"Patrick","station":"DeWitt","status":"FULL TIME","role":"EMT","phone":"870-540-6986","note":""},{"last":"Shoptaw","first":"John","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"479-264-4941","note":""},{"last":"Sidwell","first":"Autumn","station":"Pine Bluff","status":"FULL TIME","role":"DISPATCHER","phone":"870-663-1350","note":""},{"last":"Sidwell","first":"Chris","station":"Rison","status":"FULL TIME","role":"PARAMEDIC","phone":"903-280-4528","note":""},{"last":"Sinclair-Davis","first":"NiKayla","station":"Pine Bluff","status":"FULL TIME","role":"EVO","phone":"857-757-0823","note":""},{"last":"Smith","first":"Cheryl","station":"Pine Bluff","status":"FULL TIME","role":"OPS ADM","phone":"870-718-2909","note":""},{"last":"Smith","first":"Lance","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"501-541-1016","note":"cannot drive"},{"last":"Smith","first":"Richard","station":"Pine Bluff","status":"FULL TIME","role":"A-EMT","phone":"501-437-3003","note":""},{"last":"Smith","first":"Sara Bri","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"501-439-0884","note":""},{"last":"Spivey","first":"Ben","station":"Star City","status":"FULL TIME","role":"SUPERVISOR","phone":"870-949-1489","note":""},{"last":"Spriggs","first":"Harvey","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"870-556-0887","note":""},{"last":"Spriggs JR","first":"John","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"870-830-0562","note":""},{"last":"Stayton","first":"James","station":"Pine Bluff","status":"FULL TIME","role":"SUPERVISOR","phone":"870-718-2920","note":""},{"last":"Stayton","first":"Scott","station":"Pine Bluff","status":"FULL TIME","role":"DISPATCHER","phone":"870-209-7358","note":""},{"last":"Stufflebean","first":"Danielle","station":"Star City","status":"FULL TIME","role":"EMT","phone":"785-207-5793","note":""},{"last":"Tallent","first":"Phillip","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"501-240-3478","note":""},{"last":"Thomas","first":"Christina","station":"Pine Bluff","status":"FULL TIME","role":"DISPATCHER","phone":"870-377-1294","note":""},{"last":"Twomey","first":"Lauren","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"479-755-1526","note":""},{"last":"Visconti","first":"Christopher","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"718-614-9120","note":""},{"last":"Walker","first":"Courtland","station":"England","status":"FULL TIME","role":"EMT","phone":"870-556-0477","note":""},{"last":"Walker","first":"TK","station":"Pine Bluff","status":"FULL TIME","role":"EMR","phone":"501-200-0240","note":""},{"last":"Watkins","first":"Faith","station":"Pine Bluff","status":"FULL TIME","role":"DISPATCHER","phone":"870-329-8453","note":""},{"last":"West","first":"Tyisha","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-360-5999","note":""},{"last":"Whipple","first":"Rebekah","station":"Pine Bluff","status":"PRN","role":"EMT","phone":"870-370-1945","note":""},{"last":"Whitney","first":"Tim","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-718-3812","note":""},{"last":"Williams","first":"Adam","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"501-799-6099","note":""},{"last":"Williams","first":"Kiersten","station":"Pine Bluff","status":"FULL TIME","role":"EMT","phone":"870-659-7818","note":""},{"last":"Wilson","first":"Kyle","station":"Warren","status":"FULL TIME","role":"PARAMEDIC","phone":"432-81-35289","note":""},{"last":"Wise","first":"Jill","station":"Pine Bluff","status":"PRN","role":"PARAMEDIC","phone":"501-201-0610","note":""},{"last":"Wise","first":"Neil","station":"Pine Bluff","status":"FULL TIME","role":"PARAMEDIC","phone":"501-201-1226","note":""},{"last":"Wood","first":"Tammy","station":"Pine Bluff","status":"FULL TIME","role":"FTO COOR","phone":"870-556-1301","note":""},{"last":"Woolridge","first":"Katherine","station":"Pine Bluff","status":"FULL TIME","role":"OFFICE","phone":"870-718-4282","note":""},{"last":"Young","first":"Ronald","station":"Warren","status":"FULL TIME","role":"EMT","phone":"870-489-0427","note":""}];
 
 /* ════════════════════════════════════════
    ROSTER ROWS DEFINITION
@@ -2975,6 +2981,20 @@ function saveRoster() {
   }
 }
 
+function showCarryForwardPrompt(){
+  const existing = document.getElementById('carry-fwd-prompt');
+  if(existing) existing.remove();
+  const bar = document.createElement('div');
+  bar.id = 'carry-fwd-prompt';
+  bar.style.cssText = 'position:fixed;bottom:84px;left:50%;transform:translateX(-50%);background:#1a2030;border:1px solid rgba(94,234,212,.35);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;z-index:320;max-width:340px;width:calc(100% - 32px);box-shadow:0 6px 24px rgba(0,0,0,.55);animation:slideUp .2s ease';
+  bar.innerHTML = `<div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--text)">Yesterday's roster available</div><div style="font-size:11px;color:var(--muted);margin-top:1px">Carry forward to today?</div></div><button id="cfp-yes" style="background:var(--accent);color:#0b0d10;border:none;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0">Yes</button><button id="cfp-no" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:2px 4px;flex-shrink:0;line-height:1">×</button>`;
+  document.body.appendChild(bar);
+  const dismiss = () => bar.remove();
+  document.getElementById('cfp-yes').addEventListener('click', () => { dismiss(); carryForwardFromYesterday(); });
+  document.getElementById('cfp-no').addEventListener('click', dismiss);
+  setTimeout(dismiss, 9000);
+}
+
 function loadRoster(date) {
   const saved = localStorage.getItem(rosterKey(date));
   if (saved) {
@@ -2989,6 +3009,11 @@ function loadRoster(date) {
         notes: ''
       };
     });
+    // Offer carry-forward when today's roster has no saved data but yesterday does
+    if(date === todayStr()){
+      const d = new Date(date + 'T12:00:00'); d.setDate(d.getDate() - 1);
+      if(localStorage.getItem(rosterKey(d.toISOString().slice(0,10)))) setTimeout(showCarryForwardPrompt, 800);
+    }
   }
   buildRosterDOM();
   // Background Firestore sync
@@ -3999,6 +4024,18 @@ function initProfilesTab() {
     if (file) { importProfilesFile(file); e.target.value = ''; }
   });
 
+  // Stations section collapse toggle
+  const stationsHd = document.getElementById('prof-stations-hd');
+  const stationsList = document.getElementById('stations-list');
+  const stationsChevron = document.getElementById('prof-stations-chevron');
+  if (stationsHd && stationsList) {
+    stationsHd.addEventListener('click', () => {
+      const isOpen = stationsList.style.display !== 'none';
+      stationsList.style.display = isOpen ? 'none' : '';
+      if (stationsChevron) stationsChevron.textContent = isOpen ? '▸' : '▾';
+    });
+  }
+
   document.querySelectorAll('[data-tab="profiles"]').forEach(btn => {
     btn.addEventListener('click', () => {
       renderStationsPanel();
@@ -4165,9 +4202,17 @@ function renderLog(){
   const list = document.getElementById('log-list');
   if(!list) return;
   list.innerHTML = '';
-  const filtered = logFilter === 'All' ? logData : logData.filter(e => e.type === logFilter);
+  const q = (document.getElementById('log-search')?.value || '').toLowerCase().trim();
+  let filtered = logFilter === 'All' ? logData : logData.filter(e => e.type === logFilter);
+  if(q) filtered = filtered.filter(e =>
+    (e.desc||'').toLowerCase().includes(q) ||
+    (e.who||'').toLowerCase().includes(q) ||
+    (e.unit||'').toLowerCase().includes(q) ||
+    (e.type||'').toLowerCase().includes(q)
+  );
   if(!filtered.length){
-    list.innerHTML = `<div class="log-empty">No ${logFilter === 'All' ? '' : logFilter.toLowerCase()+' '}entries logged.<br><span style="font-size:12px">Tap <b>+ Log Entry</b> to add.</span></div>`;
+    const label = q ? `No entries matching "${q}".` : `No ${logFilter === 'All' ? '' : logFilter.toLowerCase()+' '}entries logged.<br><span style="font-size:12px">Tap <b>+ Log Entry</b> to add.</span>`;
+    list.innerHTML = `<div class="log-empty">${label}</div>`;
     return;
   }
   filtered.forEach(e => list.appendChild(buildLogEntry(e)));
@@ -4386,6 +4431,8 @@ function initLog(){
     document.querySelectorAll('.log-chip').forEach(c => c.classList.toggle('active', c === chip));
     renderLog();
   });
+
+  document.getElementById('log-search')?.addEventListener('input', renderLog);
 }
 
 /* ════════════════════════════════════════
@@ -5159,6 +5206,7 @@ function saveRptData(){
   collectRptFromDOM();
   localStorage.setItem(rptKey(date), JSON.stringify(rptData));
   renderReportHistory();
+  renderMiniCal();
   showToast('Report saved ✓');
 }
 
@@ -5170,6 +5218,7 @@ function autoSaveRptData(){
     const el = document.getElementById('autosave-indicator');
     if(el){ const t = new Date().toTimeString().slice(0,5); el.textContent = 'Auto-saved at ' + t; }
     renderReportHistory();
+    renderMiniCal();
   } catch(e){}
 }
 
@@ -5739,9 +5788,7 @@ function updateDashboard(){
 function initDashboard(){
   updateDashboard();
 
-  document.getElementById('dash-btn-wrapup')?.addEventListener('click', openWrapUp);
-  document.getElementById('dash-btn-generate-report')?.addEventListener('click', openRptPreview);
-  document.getElementById('dash-btn-carry-forward')?.addEventListener('click', carryForwardFromYesterday);
+  document.getElementById('dash-btn-report-tab')?.addEventListener('click', () => switchTab('report'));
 
   // Auto-save every 60 seconds
   setInterval(autoSaveRptData, 60000);
@@ -6299,12 +6346,16 @@ function initShiftReport(){
   dateInput.addEventListener('change', () => { loadRptData(dateInput.value); renderStaffing(); });
   setTimeout(() => {
     const supEl = document.getElementById('rpt-supervisor');
-    if(supEl && !supEl.value){
-      try {
-        const user = typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser;
-        if(user) supEl.value = user.displayName || user.email || '';
-        if(supEl.value && !rptData.supervisor) rptData.supervisor = supEl.value;
-      } catch(e){}
+    if(supEl){
+      if(!supEl.value){
+        try {
+          let n = localStorage.getItem('pat_supervisor_name') || '';
+          if(!n){ try{ const t=JSON.parse(localStorage.getItem('pat_tos_v1')||'null'); if(t&&t.first) n=(t.first+' '+(t.last||'')).trim(); }catch(_){} }
+          if(!n){ const u=typeof firebase!=='undefined'&&firebase.auth&&firebase.auth().currentUser; if(u) n=u.displayName||u.email||''; }
+          if(n){ supEl.value=n; if(!rptData.supervisor) rptData.supervisor=n; }
+        } catch(e){}
+      }
+      supEl.addEventListener('input', () => { if(supEl.value.trim()) localStorage.setItem('pat_supervisor_name', supEl.value.trim()); });
     }
   }, 500);
 
@@ -6437,38 +6488,87 @@ function initWrapUp(){
 }
 
 /* ────────────────────────────────────────
-   PAST REPORT DATE BROWSER
+   MINI CALENDAR DATE PICKER (Report tab)
    ──────────────────────────────────────── */
-function renderReportDateBrowser(){
-  const bar = document.getElementById('rpt-date-browser');
-  if(!bar) return;
-  const today = todayStr();
-  const active = document.getElementById('roster-date')?.value || today;
-  const pills = [];
-  for(let i = 0; i < 10; i++){
-    const d = new Date(today + 'T12:00:00');
-    d.setDate(d.getDate() - i);
-    const ds = d.toISOString().slice(0,10);
-    const hasData = !!localStorage.getItem(rptKey(ds));
-    const label = i === 0 ? 'Today' : i === 1 ? 'Yesterday' : (d.getMonth()+1)+'/'+d.getDate();
-    pills.push({ ds, label, hasData, active: ds === active });
+let _calViewYear = null, _calViewMonth = null;
+
+function renderMiniCal(){
+  const container = document.getElementById('rpt-date-browser');
+  if(!container) return;
+
+  const todayISO = todayStr();
+  const todayD   = new Date(todayISO + 'T12:00:00');
+  if(_calViewYear === null){ _calViewYear = todayD.getFullYear(); _calViewMonth = todayD.getMonth(); }
+
+  const active   = document.getElementById('roster-date')?.value || todayISO;
+  const year     = _calViewYear, month = _calViewMonth;
+  const isCurrentMonth = year === todayD.getFullYear() && month === todayD.getMonth();
+  const monthLabel = new Date(year, month, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  const firstDow    = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const prevMonthDays = new Date(year, month, 0).getDate();
+
+  const cells = [];
+  for(let i = firstDow - 1; i >= 0; i--){
+    const d = prevMonthDays - i;
+    const pm = month === 0 ? 11 : month - 1;
+    const py = month === 0 ? year - 1 : year;
+    cells.push({ ds: `${py}-${String(pm+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`, day: d, thisMonth: false });
   }
-  bar.innerHTML = pills.map(p => {
-    let cls = 'rpt-date-pill';
-    if(p.hasData) cls += ' has-data';
-    if(p.active) cls += ' active';
-    return `<button class="${cls}" data-rpt-date="${p.ds}">${p.label}${p.hasData?' ●':''}</button>`;
-  }).join('');
-  bar.querySelectorAll('[data-rpt-date]').forEach(btn => {
+  for(let d = 1; d <= daysInMonth; d++){
+    cells.push({ ds: `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`, day: d, thisMonth: true });
+  }
+  const trailing = (7 - cells.length % 7) % 7;
+  const nm = month === 11 ? 0 : month + 1, ny = month === 11 ? year + 1 : year;
+  for(let d = 1; d <= trailing; d++){
+    cells.push({ ds: `${ny}-${String(nm+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`, day: d, thisMonth: false });
+  }
+
+  container.innerHTML = `<div class="rpt-mini-cal">
+    <div class="rpt-mini-cal-hdr">
+      <button class="rpt-mini-cal-nav" id="cal-prev">‹</button>
+      <span class="rpt-mini-cal-title">${monthLabel}</span>
+      <button class="rpt-mini-cal-nav" id="cal-next"${isCurrentMonth ? ' disabled style="opacity:.3;pointer-events:none"' : ''}>›</button>
+    </div>
+    <div class="rpt-mini-cal-grid">
+      ${'Su Mo Tu We Th Fr Sa'.split(' ').map(d => `<div class="rpt-mini-cal-dow">${d}</div>`).join('')}
+      ${cells.map(c => {
+        const isFuture   = c.ds > todayISO;
+        const isToday    = c.ds === todayISO;
+        const isSelected = c.ds === active;
+        const hasData    = !!localStorage.getItem(rptKey(c.ds));
+        let cls = 'rpt-mini-cal-day';
+        if(!c.thisMonth) cls += ' other-month';
+        if(isFuture)     cls += ' future';
+        if(isToday)      cls += ' today';
+        if(hasData)      cls += ' has-data';
+        if(isSelected)   cls += ' selected';
+        return `<button class="${cls}" data-cal-date="${c.ds}">${c.day}</button>`;
+      }).join('')}
+    </div>
+  </div>`;
+
+  container.querySelector('#cal-prev').addEventListener('click', () => {
+    if(_calViewMonth === 0){ _calViewMonth = 11; _calViewYear--; } else { _calViewMonth--; }
+    renderMiniCal();
+  });
+  container.querySelector('#cal-next')?.addEventListener('click', () => {
+    if(_calViewMonth === 11){ _calViewMonth = 0; _calViewYear++; } else { _calViewMonth++; }
+    renderMiniCal();
+  });
+  container.querySelectorAll('[data-cal-date]').forEach(btn => {
     btn.addEventListener('click', () => {
-      const ds = btn.dataset.rptDate;
+      const ds = btn.dataset.calDate;
       const dateInput = document.getElementById('roster-date');
       if(dateInput) dateInput.value = ds;
       loadRptData(ds);
-      renderReportDateBrowser();
+      renderMiniCal();
     });
   });
 }
+
+function renderReportDateBrowser(){ renderMiniCal(); }
 
 function pullLogIntoReport(){
   const logEntries = logData.filter(e => e.includeInReport);
