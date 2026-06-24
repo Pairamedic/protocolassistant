@@ -4,12 +4,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>PAT — Supervisor Tools</title>
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" type="image/svg+xml" href="star-of-life.svg" />
-  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png" />
+  <link rel="manifest" href="supervisor-manifest.json" />
+  <link rel="icon" type="image/png" sizes="192x192" href="supervisor-icon-192.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="supervisor-icon-180.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="PAT" />
+  <meta name="apple-mobile-web-app-title" content="Supervisor" />
   <meta name="theme-color" content="#0b0d10" />
   <style>
     /* ── CSS Variables ── */
@@ -179,6 +179,9 @@
       font-weight: 600;
     }
     .action-btn.save-btn:hover { background: #4dd4c0; }
+
+    /* unified button sizing */
+    .action-btn, .rpt-email-btn { height: 40px; padding: 0 16px; display: inline-flex; align-items: center; }
 
     /* ── Section Header ── */
     .section-header {
@@ -1036,6 +1039,74 @@
 
     /* Search highlight */
     .rvr-wrapper.search-match .rvr-summary { background: rgba(94,234,212,.04); }
+
+    /* ─── DASHBOARD TAB ─── */
+    .dash-header { margin-bottom: 18px; }
+    .dash-date { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    .dash-shift-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .dash-shift-row select { background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 14px; padding: 9px 14px; font-family: inherit; flex: 1; outline: none; }
+    .dash-stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+    .dash-stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+    .dash-stat-num { font-size: 34px; font-weight: 800; color: var(--accent); line-height: 1; }
+    .dash-stat-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-top: 5px; }
+    .dash-section-title { font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    .dash-quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+    .dash-quick-btn { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px 16px; font-size: 14px; font-weight: 700; color: var(--text); cursor: pointer; font-family: inherit; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; transition: background .15s, border-color .15s; width: 100%; }
+    .dash-quick-btn:hover { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.18); }
+    .dash-quick-btn.primary { border-color: rgba(94,234,212,.35); background: rgba(94,234,212,.07); color: var(--accent); }
+    .dash-quick-btn.primary:hover { background: rgba(94,234,212,.14); }
+    .dash-quick-icon { font-size: 26px; line-height: 1; }
+    .dash-quick-sub { font-size: 11px; color: var(--muted); font-weight: 500; }
+    .dash-recent { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .dash-recent-empty { color: var(--muted); font-size: 13px; padding: 20px; text-align: center; }
+    .dash-log-item { padding: 12px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+    .dash-log-item:last-child { border-bottom: none; }
+    .dash-log-time { font-size: 12px; font-weight: 700; color: var(--accent); flex-shrink: 0; min-width: 40px; }
+    .dash-log-type { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 5px; flex-shrink: 0; text-transform: uppercase; background: rgba(255,255,255,.08); color: var(--muted); }
+    .dash-log-desc { font-size: 13px; color: var(--text); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* ─── ACTIVITY LOG TAB ─── */
+    .log-topbar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+    .log-topbar-title { flex: 1; font-size: 16px; font-weight: 700; }
+    .log-add-btn { background: var(--accent); color: #0b0d10; border: none; border-radius: 10px; height: 40px; padding: 0 18px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; flex-shrink: 0; }
+    .log-filter-row { display: flex; gap: 6px; margin-bottom: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
+    .log-filter-row::-webkit-scrollbar { display: none; }
+    .log-chip { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 5px 13px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--muted); white-space: nowrap; flex-shrink: 0; transition: background .15s, border-color .15s; }
+    .log-chip.active { background: rgba(94,234,212,.1); border-color: rgba(94,234,212,.4); color: var(--accent); }
+    .log-entry { background: var(--card); border: 1px solid var(--border); border-radius: 13px; padding: 13px 14px; margin-bottom: 8px; position: relative; }
+    .log-entry-hdr { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+    .log-time-badge { font-size: 12px; font-weight: 700; color: var(--accent); background: rgba(94,234,212,.1); border: 1px solid rgba(94,234,212,.25); border-radius: 6px; padding: 3px 9px; white-space: nowrap; }
+    .log-type-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 5px; white-space: nowrap; text-transform: uppercase; }
+    .log-type-incident  { background: rgba(248,113,113,.15); color: #f87171; }
+    .log-type-callin    { background: rgba(251,191,36,.15); color: #fbbf24; }
+    .log-type-narcotic  { background: rgba(168,85,247,.15); color: #c084fc; }
+    .log-type-equipment { background: rgba(96,165,250,.15); color: #60a5fa; }
+    .log-type-event     { background: rgba(74,222,128,.15); color: #4ade80; }
+    .log-type-note      { background: rgba(255,255,255,.08); color: var(--muted); }
+    .log-include-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+    .log-include-label { font-size: 12px; color: var(--muted); flex: 1; }
+    .log-include-toggle { accent-color: var(--accent); width: 18px; height: 18px; cursor: pointer; }
+    .log-del-btn { position: absolute; top: 10px; right: 12px; background: none; border: none; color: var(--muted); font-size: 17px; cursor: pointer; line-height: 1; padding: 2px; }
+    .log-del-btn:hover { color: #f87171; }
+    .log-empty { color: var(--muted); font-size: 14px; padding: 40px 0; text-align: center; line-height: 1.9; }
+    .log-inp { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 14px; padding: 9px 12px; width: 100%; font-family: inherit; outline: none; }
+    .log-inp:focus { border-color: var(--accent); }
+    .log-sel { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 14px; padding: 9px 12px; width: 100%; font-family: inherit; outline: none; }
+    .log-sel option { background: var(--card); }
+    .log-ta { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 14px; padding: 9px 12px; width: 100%; font-family: inherit; resize: vertical; outline: none; min-height: 60px; }
+    .log-ta:focus { border-color: var(--accent); }
+    .log-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    @media(max-width:500px) { .log-fields { grid-template-columns: 1fr; } }
+
+    /* ─── REPORT staffing display ─── */
+    .rpt-staffing-display { padding: 4px 0; }
+    .rpt-staffing-section { margin-bottom: 10px; }
+    .rpt-staffing-sec-hd { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--accent); margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+    .rpt-staffing-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,.04); font-size: 13px; }
+    .rpt-staffing-row:last-child { border-bottom: none; }
+    .rpt-staffing-unit { font-size: 11px; font-weight: 700; color: var(--accent); min-width: 90px; flex-shrink: 0; }
+    .rpt-staffing-crew { font-size: 13px; color: var(--text); }
+
   </style>
 </head>
 <body>
@@ -1065,18 +1136,68 @@
 
   <div class="tab-bar-wrap">
     <div class="tab-bar">
-      <button class="tab-btn active" data-tab="roster">📋 Roster</button>
+      <button class="tab-btn active" data-tab="dashboard">🏠 Dash</button>
+      <button class="tab-btn" data-tab="roster">📋 Roster</button>
+      <button class="tab-btn" data-tab="log">📋 Log</button>
       <button class="tab-btn" data-tab="directory">📞 Directory</button>
-      <button class="tab-btn" data-tab="incidents">🚨 Incidents</button>
-      <button class="tab-btn" data-tab="report">📝 Report</button>
       <button class="tab-btn" data-tab="profiles">👤 Profiles</button>
-      <button class="tab-btn" data-tab="forms">📄 Forms</button>
+      <button class="tab-btn" data-tab="report">📝 Report</button>
     </div>
   </div>
 
   <!-- ── TAB: ROSTER ── -->
   <div class="content">
-    <div id="tab-roster" class="tab-panel active">
+    <!-- ── TAB: DASHBOARD ── -->
+    <div id="tab-dashboard" class="tab-panel active">
+      <div class="dash-header">
+        <div class="dash-date" id="dash-date-display"></div>
+        <div class="dash-shift-row">
+          <select id="dash-shift-type">
+            <option value="day">Day Shift (0600–1800)</option>
+            <option value="night">Night Shift (1800–0600)</option>
+          </select>
+        </div>
+      </div>
+      <div class="dash-stats-row">
+        <div class="dash-stat-card">
+          <div class="dash-stat-num" id="dash-stat-staffed">—</div>
+          <div class="dash-stat-label">Units Staffed</div>
+        </div>
+        <div class="dash-stat-card">
+          <div class="dash-stat-num" id="dash-stat-log">0</div>
+          <div class="dash-stat-label">Log Entries</div>
+        </div>
+      </div>
+      <div class="dash-section-title">Quick Log</div>
+      <div class="dash-quick-grid" style="margin-bottom:20px">
+        <button class="dash-quick-btn primary" id="dash-btn-log-entry">
+          <span class="dash-quick-icon">📝</span>
+          <span>Log Entry</span>
+          <span class="dash-quick-sub">Add to activity log</span>
+        </button>
+        <button class="dash-quick-btn" id="dash-btn-callin">
+          <span class="dash-quick-icon">📵</span>
+          <span>Call-In</span>
+          <span class="dash-quick-sub">Staff calling out</span>
+        </button>
+        <button class="dash-quick-btn" id="dash-btn-narc">
+          <span class="dash-quick-icon">💊</span>
+          <span>Narc Change</span>
+          <span class="dash-quick-sub">Log narcotic event</span>
+        </button>
+        <button class="dash-quick-btn" id="dash-btn-incident">
+          <span class="dash-quick-icon">🚨</span>
+          <span>Incident</span>
+          <span class="dash-quick-sub">Log active incident</span>
+        </button>
+      </div>
+      <div class="dash-section-title">Recent Activity</div>
+      <div class="dash-recent" id="dash-recent-log">
+        <div class="dash-recent-empty">No activity logged yet.</div>
+      </div>
+    </div>
+
+    <div id="tab-roster" class="tab-panel">
       <!-- Search bar — full width, always visible -->
       <div class="roster-search-row" id="roster-search-row">
         <span class="roster-search-icon">🔍</span>
@@ -1158,44 +1279,93 @@
     <!-- ── TAB: SHIFT REPORT ── -->
     <div id="tab-report" class="tab-panel">
       <div class="rpt-topbar">
-        <select id="rpt-shift-type">
-          <option value="day">Day Shift (0600–1800)</option>
-          <option value="night">Night Shift (1800–0600)</option>
-        </select>
         <button class="action-btn save-btn" id="btn-rpt-save">💾 Save</button>
         <button class="rpt-email-btn" id="btn-rpt-email">✉️ Email Report</button>
       </div>
 
-      <!-- Call-Outs -->
+      <!-- Administrative -->
       <div class="rpt-section">
         <div class="rpt-section-hd">
-          <span class="rpt-section-title">📵 Call-Outs</span>
-          <button class="rpt-add-btn" id="btn-add-callout">+ Add</button>
-        </div>
-        <div class="rpt-section-body">
-          <div id="callouts-list"><div class="rpt-empty">No call-outs recorded.</div></div>
-        </div>
-      </div>
-
-      <!-- Significant Events -->
-      <div class="rpt-section">
-        <div class="rpt-section-hd">
-          <span class="rpt-section-title">⚡ Significant Events</span>
-          <button class="rpt-add-btn" id="btn-add-event">+ Add</button>
-        </div>
-        <div class="rpt-section-body">
-          <div id="events-list"><div class="rpt-empty">No significant events recorded.</div></div>
-        </div>
-      </div>
-
-      <!-- Admin Actions -->
-      <div class="rpt-section">
-        <div class="rpt-section-hd">
-          <span class="rpt-section-title">📋 Administrative Actions</span>
+          <span class="rpt-section-title">📋 Administrative</span>
           <button class="rpt-add-btn" id="btn-add-admin">+ Add</button>
         </div>
         <div class="rpt-section-body">
-          <div id="admin-list"><div class="rpt-empty">No administrative actions recorded.</div></div>
+          <div id="admin-list"><div class="rpt-empty">No administrative items recorded.</div></div>
+        </div>
+      </div>
+
+      <!-- Staffing (auto-pulled from roster) -->
+      <div class="rpt-section">
+        <div class="rpt-section-hd">
+          <span class="rpt-section-title">👥 Staffing</span>
+          <button class="rpt-add-btn" id="btn-refresh-staffing">↻ Refresh</button>
+        </div>
+        <div class="rpt-section-body">
+          <div id="staffing-display" class="rpt-staffing-display"><div class="rpt-empty">Tap Refresh to pull from today's roster.</div></div>
+        </div>
+      </div>
+
+      <!-- Call-in's / Coverage -->
+      <div class="rpt-section">
+        <div class="rpt-section-hd">
+          <span class="rpt-section-title">📵 Call-in's / Coverage</span>
+          <button class="rpt-add-btn" id="btn-add-callout">+ Add</button>
+        </div>
+        <div class="rpt-section-body">
+          <div id="callouts-list"><div class="rpt-empty">No call-ins recorded.</div></div>
+        </div>
+      </div>
+
+      <!-- 3rd Riders & Orientation -->
+      <div class="rpt-section">
+        <div class="rpt-section-hd">
+          <span class="rpt-section-title">🎓 3rd Riders &amp; Orientation</span>
+          <button class="rpt-add-btn" id="btn-add-rider">+ Add</button>
+        </div>
+        <div class="rpt-section-body">
+          <div id="riders-list"><div class="rpt-empty">No ride-alongs or orientees.</div></div>
+        </div>
+      </div>
+
+      <!-- PCR's / Call Totals -->
+      <div class="rpt-section">
+        <div class="rpt-section-hd">
+          <span class="rpt-section-title">📊 PCR's / Call Totals</span>
+          <button class="rpt-add-btn" id="btn-add-pcr">+ Add Provider</button>
+        </div>
+        <div class="rpt-section-body">
+          <div id="pcrs-list"><div class="rpt-empty">No PCR counts entered.</div></div>
+          <div class="rpt-totals-row">Total calls this shift: <b id="total-calls-count">0</b></div>
+        </div>
+      </div>
+
+      <!-- Units / Equipment Issues -->
+      <div class="rpt-section">
+        <div class="rpt-section-hd">
+          <span class="rpt-section-title">🚑 Units / Equipment Issues</span>
+          <button class="rpt-add-btn" id="btn-add-unit-issue">+ Add</button>
+        </div>
+        <div class="rpt-section-body">
+          <div id="unit-issues-list"><div class="rpt-empty">No unit or equipment issues.</div></div>
+        </div>
+      </div>
+
+      <!-- Prior to Shift -->
+      <div class="rpt-section">
+        <div class="rpt-section-hd"><span class="rpt-section-title">⏮ Prior to Shift</span></div>
+        <div class="rpt-section-body rpt-notes">
+          <textarea id="rpt-preshift-text" rows="3" placeholder="Issues or notes from previous shift…"></textarea>
+        </div>
+      </div>
+
+      <!-- Notable Events -->
+      <div class="rpt-section">
+        <div class="rpt-section-hd">
+          <span class="rpt-section-title">⚡ Notable Events</span>
+          <button class="rpt-add-btn" id="btn-add-event">+ Add</button>
+        </div>
+        <div class="rpt-section-body">
+          <div id="events-list"><div class="rpt-empty">No notable events recorded.</div></div>
         </div>
       </div>
 
@@ -1211,15 +1381,22 @@
         </div>
       </div>
 
-      <!-- Call Totals & Verification -->
+      <!-- Unit Checks -->
+      <div class="rpt-section">
+        <div class="rpt-section-hd"><span class="rpt-section-title">✅ Unit Checks</span></div>
+        <div class="rpt-section-body rpt-notes">
+          <textarea id="rpt-unit-checks-text" rows="3" placeholder="Unit check status and notes…"></textarea>
+        </div>
+      </div>
+
+      <!-- Unlocked PCR's -->
       <div class="rpt-section">
         <div class="rpt-section-hd">
-          <span class="rpt-section-title">📊 Call Totals &amp; Assessment Verification</span>
-          <button class="rpt-add-btn" id="btn-add-total">+ Add Unit</button>
+          <span class="rpt-section-title">🔓 Unlocked PCR's</span>
+          <button class="rpt-add-btn" id="btn-add-unlocked-pcr">+ Add</button>
         </div>
         <div class="rpt-section-body">
-          <div id="totals-list"><div class="rpt-empty">No units entered yet.</div></div>
-          <div class="rpt-totals-row">Total calls this shift: <b id="total-calls-count">0</b></div>
+          <div id="unlocked-pcrs-list"><div class="rpt-empty">No unlocked PCRs.</div></div>
         </div>
       </div>
 
@@ -1227,7 +1404,26 @@
       <div class="rpt-section">
         <div class="rpt-section-hd"><span class="rpt-section-title">📝 Additional Notes</span></div>
         <div class="rpt-section-body rpt-notes">
-          <textarea id="rpt-notes-text" rows="4" placeholder="Any additional notes, follow-ups, or observations…"></textarea>
+          <textarea id="rpt-notes-text" rows="3" placeholder="Any additional notes, follow-ups, or observations…"></textarea>
+        </div>
+      </div>
+
+      <!-- Supervisor -->
+      <div class="rpt-section">
+        <div class="rpt-section-hd"><span class="rpt-section-title">👤 Supervisor</span></div>
+        <div class="rpt-section-body">
+          <input type="text" id="rpt-supervisor" placeholder="Supervisor name…" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;padding:10px 12px;width:100%;font-family:inherit;outline:none" />
+        </div>
+      </div>
+
+      <!-- Pull from activity log -->
+      <div class="rpt-section" style="border-color:rgba(94,234,212,.2);background:rgba(94,234,212,.03)">
+        <div class="rpt-section-hd">
+          <span class="rpt-section-title" style="color:var(--accent)">↻ Pull from Activity Log</span>
+          <button class="rpt-add-btn" id="btn-pull-log" style="background:rgba(94,234,212,.1);border-color:rgba(94,234,212,.3);color:var(--accent)">Pull</button>
+        </div>
+        <div class="rpt-section-body">
+          <div style="font-size:12px;color:var(--muted)">Import entries from Activity Log that are marked "Include in Report".</div>
         </div>
       </div>
 
@@ -1235,17 +1431,22 @@
       <div id="rpt-copy-area" class="rpt-copy-area"></div>
     </div>
 
-    <!-- ── TAB: INCIDENTS ── -->
-    <div id="tab-incidents" class="tab-panel">
-      <div class="inc-topbar">
-        <div style="flex:1">
-          <div style="font-size:16px;font-weight:700">Active Incidents</div>
-          <div id="inc-date-label" style="font-size:11px;color:var(--muted);margin-top:2px"></div>
-        </div>
-        <button class="inc-add-btn" id="btn-add-incident">+ Add Incident</button>
+    <!-- ── TAB: ACTIVITY LOG ── -->
+    <div id="tab-log" class="tab-panel">
+      <div class="log-topbar">
+        <div class="log-topbar-title">Activity Log</div>
+        <button class="log-add-btn" id="btn-add-log">+ Log Entry</button>
       </div>
-      <div id="inc-stats-bar" class="inc-count-bar"></div>
-      <div id="incidents-list"></div>
+      <div class="log-filter-row" id="log-filter-row">
+        <button class="log-chip active" data-filter="All">All</button>
+        <button class="log-chip" data-filter="Incident">Incidents</button>
+        <button class="log-chip" data-filter="Call-In">Call-Ins</button>
+        <button class="log-chip" data-filter="Narcotic">Narcotics</button>
+        <button class="log-chip" data-filter="Equipment">Equipment</button>
+        <button class="log-chip" data-filter="Event">Events</button>
+        <button class="log-chip" data-filter="Note">Notes</button>
+      </div>
+      <div id="log-list"></div>
     </div>
 
     <!-- ── TAB: PROFILES ── -->
@@ -1267,7 +1468,7 @@
       <div class="prof-section">
         <div class="prof-section-hd">
           <span class="prof-section-title">👤 Employee Profiles</span>
-          <span class="prof-section-hint">Employee number and usual unit — select as Lead Provider on roster to reveal the → quick-fill button</span>
+          <span class="prof-section-hint">Phone number and usual unit — select as Lead Provider on roster to reveal the → quick-fill button</span>
         </div>
         <div class="prof-emp-search">
           <input type="search" id="prof-emp-search" placeholder="Search by name…" autocomplete="off" />
@@ -1363,12 +1564,12 @@ Shift Start/End    0600
 
 <!-- Mobile Bottom Nav -->
 <nav class="mobile-nav">
-  <button class="mobile-nav-btn active" data-tab="roster"><span class="nav-icon">📋</span>Roster</button>
-  <button class="mobile-nav-btn" data-tab="incidents"><span class="nav-icon">🚨</span>Incidents</button>
+  <button class="mobile-nav-btn active" data-tab="dashboard"><span class="nav-icon">🏠</span>Home</button>
+  <button class="mobile-nav-btn" data-tab="roster"><span class="nav-icon">📋</span>Roster</button>
+  <button class="mobile-nav-btn" data-tab="log"><span class="nav-icon">📒</span>Log</button>
   <button class="mobile-nav-btn" data-tab="directory"><span class="nav-icon">📞</span>Directory</button>
-  <button class="mobile-nav-btn" data-tab="report"><span class="nav-icon">📝</span>Report</button>
   <button class="mobile-nav-btn" data-tab="profiles"><span class="nav-icon">👤</span>Profiles</button>
-  <button class="mobile-nav-btn" data-tab="forms"><span class="nav-icon">📄</span>Forms</button>
+  <button class="mobile-nav-btn" data-tab="report"><span class="nav-icon">📝</span>Report</button>
 </nav>
 
 <!-- Form Add/Edit Modal -->
@@ -1660,7 +1861,7 @@ function switchService(id) {
   loadStationInfo();
   loadEmpProfiles();
   loadRoster(date);
-  loadIncidents(date);
+  loadLog(date);
   loadCustomEmployees();
   loadForms();
   renderDirectory();
@@ -3229,11 +3430,11 @@ function renderEmpProfilesPanel() {
 
     const noField = document.createElement('div');
     noField.className = 'prof-field';
-    noField.innerHTML = '<label>Emp #</label>';
+    noField.innerHTML = '<label>Phone</label>';
     const noInp = document.createElement('input');
-    noInp.className = 'prof-inp prof-inp-sm';
-    noInp.type = 'text';
-    noInp.placeholder = '001';
+    noInp.className = 'prof-inp prof-inp-md';
+    noInp.type = 'tel';
+    noInp.placeholder = '555-867-5309';
     noInp.autocomplete = 'off';
     noInp.dataset.empkey = key;
     noInp.dataset.field = 'empNo';
@@ -3461,267 +3662,155 @@ function closeAssignModal() {
 }
 
 /* ════════════════════════════════════════
-   ACTIVE INCIDENTS
+   ACTIVITY LOG
    ════════════════════════════════════════ */
-const INC_STATUSES   = ['Active','Monitoring','Resolved','Cancelled'];
-const INC_PRIORITIES = ['P1 — Critical','P2 — Urgent','P3 — Routine'];
+const LOG_TYPES = ['Incident','Call-In','Narcotic','Equipment','Event','Note'];
+let logData = [];
+let logFilter = 'All';
 
-let incidentsData = [];
+function logKey(date){ return svcKey('activity_log_v1_') + date; }
 
-function incKey(date) { return svcKey('incidents_v1_') + date; }
-
-function loadIncidents(date) {
+function loadLog(date){
   try {
-    const s = localStorage.getItem(incKey(date));
-    incidentsData = s ? JSON.parse(s) : [];
-  } catch(e) { incidentsData = []; }
-  renderIncidents();
-  updateIncDateLabel(date);
+    const s = localStorage.getItem(logKey(date));
+    logData = s ? JSON.parse(s) : [];
+    // migrate old incidents data
+    const oldKey = svcKey('incidents_v1_') + date;
+    const oldS = localStorage.getItem(oldKey);
+    if(oldS && !logData.length){
+      try {
+        const oldInc = JSON.parse(oldS);
+        logData = oldInc.map(i => ({ id:i.id||('log_'+Date.now()), time:i.time||'', type:'Incident', desc:i.nature||(i.notes||''), unit:i.unit||'', who:'', includeInReport:false }));
+      } catch(e){}
+    }
+  } catch(e){ logData = []; }
+  renderLog();
+  updateDashboard();
 }
 
-function saveIncidentsNow() {
+function saveLog(){
   const date = currentDate() || todayStr();
-  collectIncidentsFromDOM();
-  localStorage.setItem(incKey(date), JSON.stringify(incidentsData));
+  localStorage.setItem(logKey(date), JSON.stringify(logData));
+  updateDashboard();
 }
 
-function collectIncidentsFromDOM() {
-  const list = document.getElementById('incidents-list');
-  if (!list) return;
-  const entries = list.querySelectorAll('.inc-entry');
-  incidentsData = Array.from(entries).map(entry => ({
-    id: entry.dataset.incId || ('inc_' + Date.now()),
-    time:     entry.querySelector('[data-if="inc-time"]')?.value     || '',
-    unit:     entry.querySelector('[data-if="inc-unit"]')?.value     || '',
-    location: entry.querySelector('[data-if="inc-location"]')?.value || '',
-    nature:   entry.querySelector('[data-if="inc-nature"]')?.value   || '',
-    status:   entry.querySelector('[data-if="inc-status"]')?.value   || 'Active',
-    priority: entry.querySelector('[data-if="inc-priority"]')?.value || 'P3 — Routine',
-    notes:    entry.querySelector('[data-if="inc-notes"]')?.value    || '',
-  }));
-}
-
-function updateIncDateLabel(date) {
-  const el = document.getElementById('inc-date-label');
-  if (el) el.textContent = date ? formatDateDisplay(date) : '';
-}
-
-function renderIncStats() {
-  const bar = document.getElementById('inc-stats-bar');
-  if (!bar) return;
-  const active = incidentsData.filter(i => i.status === 'Active').length;
-  const monitoring = incidentsData.filter(i => i.status === 'Monitoring').length;
-  const resolved = incidentsData.filter(i => i.status === 'Resolved').length;
-  bar.innerHTML = '';
-  if (!incidentsData.length) return;
-  const chips = [
-    { label:'Active', count:active, color:'#f87171' },
-    { label:'Monitoring', count:monitoring, color:'#fbbf24' },
-    { label:'Resolved', count:resolved, color:'#4ade80' },
-  ];
-  chips.forEach(c => {
-    if (!c.count) return;
-    const chip = document.createElement('div');
-    chip.className = 'inc-count-chip';
-    chip.style.color = c.color;
-    chip.innerHTML = c.label + '<b>' + c.count + '</b>';
-    bar.appendChild(chip);
-  });
-}
-
-function renderIncidents() {
-  const list = document.getElementById('incidents-list');
-  if (!list) return;
+function renderLog(){
+  const list = document.getElementById('log-list');
+  if(!list) return;
   list.innerHTML = '';
-  renderIncStats();
-  if (!incidentsData.length) {
-    const empty = document.createElement('div');
-    empty.className = 'inc-empty';
-    empty.innerHTML = 'No incidents logged.<br><span style="font-size:12px">Tap <strong>+ Add Incident</strong> to start tracking a call.</span>';
-    list.appendChild(empty);
+  const filtered = logFilter === 'All' ? logData : logData.filter(e => e.type === logFilter);
+  if(!filtered.length){
+    list.innerHTML = `<div class="log-empty">No ${logFilter === 'All' ? '' : logFilter.toLowerCase()+' '}entries logged.<br><span style="font-size:12px">Tap <b>+ Log Entry</b> to add.</span></div>`;
     return;
   }
-  incidentsData.forEach(inc => list.appendChild(buildIncidentEntry(inc)));
+  filtered.forEach(e => list.appendChild(buildLogEntry(e)));
 }
 
-function buildIncidentEntry(inc) {
-  if (!inc.id) inc.id = 'inc_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
-  const now = new Date().toTimeString().slice(0, 5);
-  const statusCls = (inc.status || 'active').toLowerCase().replace(/\s.*$/, '');
-  const prioKey   = (inc.priority || 'P3').replace(/\s.*$/, '').toLowerCase();
-
+function buildLogEntry(e){
+  if(!e.id) e.id = 'log_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
   const div = document.createElement('div');
-  div.className = 'inc-entry priority-' + prioKey;
-  if (statusCls === 'resolved' || statusCls === 'cancelled') div.classList.add('status-resolved');
-  div.dataset.incId = inc.id;
+  div.className = 'log-entry';
+  div.dataset.logId = e.id;
 
-  // Delete button
-  const delBtn = document.createElement('button');
-  delBtn.className = 'inc-del-btn';
-  delBtn.title = 'Remove incident';
-  delBtn.textContent = '✕';
-  delBtn.addEventListener('click', () => {
-    collectIncidentsFromDOM();
-    incidentsData = incidentsData.filter(x => x.id !== inc.id);
-    saveIncidentsNow();
-    renderIncidents();
+  const delBtnEl = document.createElement('button');
+  delBtnEl.className = 'log-del-btn';
+  delBtnEl.title = 'Remove entry';
+  delBtnEl.textContent = '✕';
+  delBtnEl.addEventListener('click', () => {
+    logData = logData.filter(x => x.id !== e.id);
+    saveLog();
+    renderLog();
   });
-  div.appendChild(delBtn);
+  div.appendChild(delBtnEl);
 
-  // Header: time badge + status badge + unit name
+  const typeCls = 'log-type-' + (e.type||'note').toLowerCase().replace(/[^a-z]/g,'');
   const hdr = document.createElement('div');
-  hdr.className = 'inc-entry-hdr';
-
-  const timeBadge = document.createElement('span');
-  timeBadge.className = 'inc-time-badge';
-  timeBadge.textContent = inc.time || now;
-  hdr.appendChild(timeBadge);
-
-  const statusBadge = document.createElement('span');
-  statusBadge.className = 'inc-status-badge ' + statusCls;
-  statusBadge.textContent = inc.status || 'Active';
-  hdr.appendChild(statusBadge);
-
-  if (inc.unit) {
-    const unitSpan = document.createElement('span');
-    unitSpan.style.cssText = 'font-size:12px;font-weight:600;color:var(--text)';
-    unitSpan.textContent = inc.unit;
-    hdr.appendChild(unitSpan);
-  }
+  hdr.className = 'log-entry-hdr';
+  hdr.innerHTML = `<span class="log-time-badge">${e.time||'--:--'}</span><span class="log-type-badge ${typeCls}">${e.type||'Note'}</span>`;
   div.appendChild(hdr);
 
-  // Row 1: time + unit
-  const g1 = document.createElement('div');
-  g1.className = 'inc-grid';
+  const fields = document.createElement('div');
+  fields.className = 'log-fields';
+
   const timeField = document.createElement('div');
   timeField.className = 'rpt-field';
-  timeField.innerHTML = '<label>Time</label>';
   const timeInp = document.createElement('input');
-  timeInp.type = 'time'; timeInp.className = 'inc-inp'; timeInp.setAttribute('data-if','inc-time');
-  timeInp.value = inc.time || now;
+  timeInp.type = 'time'; timeInp.className = 'log-inp'; timeInp.value = e.time||'';
+  timeField.innerHTML = '<label>Time</label>';
   timeField.appendChild(timeInp);
+  timeInp.addEventListener('change', () => { e.time = timeInp.value; hdr.querySelector('.log-time-badge').textContent = e.time||'--:--'; saveLog(); });
+
+  const typeField = document.createElement('div');
+  typeField.className = 'rpt-field';
+  const typeSel = document.createElement('select');
+  typeSel.className = 'log-sel';
+  LOG_TYPES.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; if(t===e.type) o.selected=true; typeSel.appendChild(o); });
+  typeField.innerHTML = '<label>Type</label>';
+  typeField.appendChild(typeSel);
+  typeSel.addEventListener('change', () => {
+    e.type = typeSel.value;
+    const nc = 'log-type-' + e.type.toLowerCase().replace(/[^a-z]/g,'');
+    const badge = hdr.querySelector('.log-type-badge');
+    badge.className = 'log-type-badge ' + nc;
+    badge.textContent = e.type;
+    saveLog();
+  });
+
+  fields.appendChild(timeField);
+  fields.appendChild(typeField);
+  div.appendChild(fields);
 
   const unitField = document.createElement('div');
   unitField.className = 'rpt-field';
-  unitField.innerHTML = '<label>Unit / Callsign</label>';
+  unitField.style.marginBottom = '8px';
   const unitInp = document.createElement('input');
-  unitInp.type = 'text'; unitInp.className = 'inc-inp'; unitInp.setAttribute('data-if','inc-unit');
-  unitInp.placeholder = '279-ALS-PB…'; unitInp.value = inc.unit || '';
+  unitInp.type = 'text'; unitInp.className = 'log-inp'; unitInp.placeholder = 'Unit / Name (optional)'; unitInp.value = e.unit||'';
+  unitField.innerHTML = '<label>Unit / Who</label>';
   unitField.appendChild(unitInp);
+  unitInp.addEventListener('change', () => { e.unit = unitInp.value; saveLog(); });
+  div.appendChild(unitField);
 
-  g1.appendChild(timeField); g1.appendChild(unitField);
-  div.appendChild(g1);
+  const descField = document.createElement('div');
+  descField.className = 'rpt-field';
+  const descTA = document.createElement('textarea');
+  descTA.className = 'log-ta'; descTA.placeholder = 'Description / Notes…'; descTA.rows = 2;
+  descTA.value = e.desc||'';
+  descField.innerHTML = '<label>Description</label>';
+  descField.appendChild(descTA);
+  descTA.addEventListener('blur', () => { e.desc = descTA.value; saveLog(); });
+  div.appendChild(descField);
 
-  // Row 2: location + nature
-  const g2 = document.createElement('div');
-  g2.className = 'inc-grid';
-  const locField = document.createElement('div');
-  locField.className = 'rpt-field';
-  locField.innerHTML = '<label>Location</label>';
-  const locInp = document.createElement('input');
-  locInp.type = 'text'; locInp.className = 'inc-inp'; locInp.setAttribute('data-if','inc-location');
-  locInp.placeholder = 'Address or landmark…'; locInp.value = inc.location || '';
-  locField.appendChild(locInp);
-
-  const natField = document.createElement('div');
-  natField.className = 'rpt-field';
-  natField.innerHTML = '<label>Nature of Call</label>';
-  const natInp = document.createElement('input');
-  natInp.type = 'text'; natInp.className = 'inc-inp'; natInp.setAttribute('data-if','inc-nature');
-  natInp.placeholder = 'Chest pain, MVA…'; natInp.value = inc.nature || '';
-  natField.appendChild(natInp);
-
-  g2.appendChild(locField); g2.appendChild(natField);
-  div.appendChild(g2);
-
-  // Row 3: priority + status
-  const g3 = document.createElement('div');
-  g3.className = 'inc-grid';
-  const prioField = document.createElement('div');
-  prioField.className = 'rpt-field';
-  prioField.innerHTML = '<label>Priority</label>';
-  const prioSel = document.createElement('select');
-  prioSel.className = 'inc-sel'; prioSel.setAttribute('data-if','inc-priority');
-  INC_PRIORITIES.forEach(p => {
-    const opt = document.createElement('option');
-    opt.value = p; opt.textContent = p;
-    if (p === inc.priority) opt.selected = true;
-    prioSel.appendChild(opt);
-  });
-  prioField.appendChild(prioSel);
-
-  const statField = document.createElement('div');
-  statField.className = 'rpt-field';
-  statField.innerHTML = '<label>Status</label>';
-  const statSel = document.createElement('select');
-  statSel.className = 'inc-sel'; statSel.setAttribute('data-if','inc-status');
-  INC_STATUSES.forEach(s => {
-    const opt = document.createElement('option');
-    opt.value = s; opt.textContent = s;
-    if (s === inc.status) opt.selected = true;
-    statSel.appendChild(opt);
-  });
-  statField.appendChild(statSel);
-
-  g3.appendChild(prioField); g3.appendChild(statField);
-  div.appendChild(g3);
-
-  // Notes textarea
-  const notesDiv = document.createElement('div');
-  notesDiv.className = 'rpt-field';
-  const notesLabel = document.createElement('label');
-  notesLabel.textContent = 'Notes / Updates';
-  const notesTA = document.createElement('textarea');
-  notesTA.className = 'inc-ta'; notesTA.setAttribute('data-if','inc-notes');
-  notesTA.rows = 2; notesTA.placeholder = 'Running notes, updates, additional details…';
-  notesTA.value = inc.notes || '';
-  notesDiv.appendChild(notesLabel);
-  notesDiv.appendChild(notesTA);
-  div.appendChild(notesDiv);
-
-  // Auto-save + update badges on change
-  div.addEventListener('change', () => {
-    const tVal = div.querySelector('[data-if="inc-time"]')?.value;
-    if (tVal) timeBadge.textContent = tVal;
-    const sVal = div.querySelector('[data-if="inc-status"]')?.value || 'Active';
-    const sCls = sVal.toLowerCase().replace(/\s.*$/, '');
-    statusBadge.className = 'inc-status-badge ' + sCls;
-    statusBadge.textContent = sVal;
-    div.classList.toggle('status-resolved', sCls === 'resolved' || sCls === 'cancelled');
-    const pVal = div.querySelector('[data-if="inc-priority"]')?.value || 'P3 — Routine';
-    const pKey = pVal.replace(/\s.*$/, '').toLowerCase();
-    div.className = div.className.replace(/priority-\S+/, 'priority-' + pKey);
-    saveIncidentsNow();
-    renderIncStats();
-  });
-
-  // Also save on textarea blur
-  notesTA.addEventListener('blur', saveIncidentsNow);
+  const includeRow = document.createElement('div');
+  includeRow.className = 'log-include-row';
+  const inclCb = document.createElement('input');
+  inclCb.type = 'checkbox'; inclCb.className = 'log-include-toggle'; inclCb.checked = !!e.includeInReport;
+  inclCb.addEventListener('change', () => { e.includeInReport = inclCb.checked; saveLog(); });
+  includeRow.innerHTML = '<span class="log-include-label">Include in shift report</span>';
+  includeRow.appendChild(inclCb);
+  div.appendChild(includeRow);
 
   return div;
 }
 
-function initIncidents() {
+function initLog(){
   const date = currentDate() || todayStr();
-  loadIncidents(date);
+  loadLog(date);
 
-  document.getElementById('btn-add-incident').addEventListener('click', () => {
-    const list = document.getElementById('incidents-list');
-    const empty = list.querySelector('.inc-empty');
-    if (empty) empty.remove();
-    const now = new Date().toTimeString().slice(0, 5);
-    const newInc = {
-      id: 'inc_' + Date.now(),
-      time: now, unit: '', location: '', nature: '',
-      status: 'Active', priority: 'P3 — Routine', notes: ''
-    };
-    incidentsData.push(newInc);
-    const entry = buildIncidentEntry(newInc);
-    list.appendChild(entry);
-    saveIncidentsNow();
-    renderIncStats();
-    entry.querySelector('.inc-inp')?.focus();
-    entry.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  document.getElementById('btn-add-log').addEventListener('click', () => {
+    const now = new Date().toTimeString().slice(0,5);
+    const newEntry = { id:'log_'+Date.now(), time:now, type:'Note', desc:'', unit:'', includeInReport:false };
+    logData.unshift(newEntry);
+    saveLog();
+    renderLog();
+    document.getElementById('log-list').firstElementChild?.scrollIntoView({behavior:'smooth'});
+  });
+
+  document.getElementById('log-filter-row')?.addEventListener('click', e => {
+    const chip = e.target.closest('.log-chip');
+    if(!chip) return;
+    logFilter = chip.dataset.filter || 'All';
+    document.querySelectorAll('.log-chip').forEach(c => c.classList.toggle('active', c === chip));
+    renderLog();
   });
 }
 
@@ -4282,7 +4371,7 @@ function initApp() {
   dateInput.addEventListener('change', () => {
     closeActiveAC();
     loadRoster(dateInput.value);
-    loadIncidents(dateInput.value);
+    loadLog(dateInput.value);
   });
 
   // Firestore
@@ -4387,8 +4476,11 @@ function initApp() {
   // Shift report
   initShiftReport();
 
-  // Incidents
-  initIncidents();
+  // Dashboard
+  initDashboard();
+
+  // Activity Log
+  initLog();
 
   // Forms
   initForms();
@@ -4444,24 +4536,37 @@ function initApp() {
 /* ════════════════════════════════════════
    SHIFT REPORT
    ════════════════════════════════════════ */
-const RPT_CALLOUT_REASONS  = ['Sick','Personal','No-Show','Late','FMLA','Other'];
-const RPT_EVENT_CATS       = ['Equipment Issue','Patient Complaint','Accident / Incident','Use of Force','Behavioral','EMS Run — Notable','Administrative','Other'];
-const RPT_ADMIN_TYPES      = ['Verbal Counseling','Written Warning','Final Warning','Termination','Commendation','Incident Report Filed','Narcotic Discrepancy Report','Other'];
-const RPT_DRUGS            = ['Fentanyl','Morphine','Midazolam (Versed)','Ketamine','Etomidate','Epinephrine','Other'];
-const RPT_NARC_CHANGE      = ['Administered / Used','Wasted','Discrepancy','Breakage','Addition / Restock','Transfer','Other'];
+const RPT_CALLOUT_REASONS = ['Sick','Personal','No-Show','Late','FMLA','Other'];
+const RPT_EVENT_CATS      = ['Equipment Issue','Patient Complaint','Accident / Incident','Use of Force','Behavioral','EMS Run — Notable','Administrative','Other'];
+const RPT_ADMIN_TYPES     = ['Verbal Counseling','Written Warning','Final Warning','Termination','Commendation','Incident Report Filed','Narcotic Discrepancy Report','Other'];
+const RPT_DRUGS           = ['Fentanyl','Morphine','Midazolam (Versed)','Ketamine','Etomidate','Epinephrine','Other'];
+const RPT_NARC_CHANGE     = ['Administered / Used','Wasted','Discrepancy','Breakage','Addition / Restock','Transfer','Other'];
 
-let rptData = { shiftType:'day', callouts:[], events:[], admin:[], narcotics:[], totals:[], notes:'' };
+function makeEmptyRpt(){
+  return { shiftType:'day', supervisor:'', admin:[], callins:[], riders:[], pcrs:[], unitIssues:[], preshift:'', events:[], narcotics:[], unitChecks:'', unlockedPcrs:[], notes:'' };
+}
+let rptData = makeEmptyRpt();
 
-function rptKey(date){ return svcKey('shift_report_v1_') + date; }
+function rptKey(date){ return svcKey('shift_report_v2_') + date; }
 
 function loadRptData(date){
   try {
     const s = localStorage.getItem(rptKey(date));
-    if(s) rptData = JSON.parse(s);
-    else   rptData = { shiftType:'day', callouts:[], events:[], admin:[], narcotics:[], totals:[], notes:'' };
-  } catch(e) {
-    rptData = { shiftType:'day', callouts:[], events:[], admin:[], narcotics:[], totals:[], notes:'' };
-  }
+    if(s){
+      const saved = JSON.parse(s);
+      rptData = Object.assign(makeEmptyRpt(), saved);
+      // migrate old totals→pcrs
+      if(!rptData.pcrs.length && saved.totals && saved.totals.length){
+        rptData.pcrs = saved.totals.map(t => ({ 'pcr-provider':t['tot-provider']||'', 'pcr-unit':t['tot-unit']||'', 'pcr-count':t['tot-calls']||'' }));
+      }
+      // migrate old callouts→callins
+      if(!rptData.callins.length && saved.callouts && saved.callouts.length){
+        rptData.callins = saved.callouts;
+      }
+    } else {
+      rptData = makeEmptyRpt();
+    }
+  } catch(e) { rptData = makeEmptyRpt(); }
   renderRpt();
 }
 
@@ -4473,17 +4578,29 @@ function saveRptData(){
 }
 
 function collectRptFromDOM(){
-  rptData.shiftType = document.getElementById('rpt-shift-type').value;
-  rptData.notes     = document.getElementById('rpt-notes-text').value;
-  rptData.callouts  = collectEntries('callouts-list',  ['co-name','co-pos','co-time','co-reason','co-covered']);
-  rptData.events    = collectEntries('events-list',    ['ev-time','ev-cat','ev-desc']);
-  rptData.admin     = collectEntries('admin-list',     ['ad-name','ad-type','ad-desc']);
-  rptData.narcotics = collectEntries('narcotics-list', ['nc-unit','nc-prov','nc-drug','nc-change','nc-amt','nc-reason','nc-witness']);
-  rptData.totals    = collectEntries('totals-list',    ['tot-provider','tot-unit','tot-calls','tot-pcr','tot-assess']);
+  const st = document.getElementById('rpt-shift-type');
+  if(st) rptData.shiftType = st.value;
+  const sup = document.getElementById('rpt-supervisor');
+  if(sup) rptData.supervisor = sup.value;
+  const ps = document.getElementById('rpt-preshift-text');
+  if(ps) rptData.preshift = ps.value;
+  const uc = document.getElementById('rpt-unit-checks-text');
+  if(uc) rptData.unitChecks = uc.value;
+  const nt = document.getElementById('rpt-notes-text');
+  if(nt) rptData.notes = nt.value;
+  rptData.admin        = collectEntries('admin-list',         ['ad-text']);
+  rptData.callins      = collectEntries('callouts-list',      ['co-name','co-pos','co-time','co-reason','co-covered']);
+  rptData.riders       = collectEntries('riders-list',        ['rd-name','rd-desc']);
+  rptData.pcrs         = collectEntries('pcrs-list',          ['pcr-count','pcr-provider','pcr-unit']);
+  rptData.unitIssues   = collectEntries('unit-issues-list',   ['ui-unit','ui-issue']);
+  rptData.events       = collectEntries('events-list',        ['ev-time','ev-cat','ev-desc']);
+  rptData.narcotics    = collectEntries('narcotics-list',     ['nc-unit','nc-prov','nc-drug','nc-change','nc-amt','nc-reason','nc-witness']);
+  rptData.unlockedPcrs = collectEntries('unlocked-pcrs-list', ['up-run','up-reason']);
 }
 
 function collectEntries(listId, fields){
   const list = document.getElementById(listId);
+  if(!list) return [];
   const entries = list.querySelectorAll('.rpt-entry');
   return Array.from(entries).map(entry => {
     const obj = {};
@@ -4496,13 +4613,25 @@ function collectEntries(listId, fields){
 }
 
 function renderRpt(){
-  document.getElementById('rpt-shift-type').value = rptData.shiftType || 'day';
-  document.getElementById('rpt-notes-text').value  = rptData.notes || '';
+  const st = document.getElementById('rpt-shift-type');
+  if(st) st.value = rptData.shiftType || 'day';
+  const sup = document.getElementById('rpt-supervisor');
+  if(sup) sup.value = rptData.supervisor || '';
+  const ps = document.getElementById('rpt-preshift-text');
+  if(ps) ps.value = rptData.preshift || '';
+  const uc = document.getElementById('rpt-unit-checks-text');
+  if(uc) uc.value = rptData.unitChecks || '';
+  const nt = document.getElementById('rpt-notes-text');
+  if(nt) nt.value = rptData.notes || '';
+  renderAdminItems();
   renderCallouts();
+  renderRiders();
+  renderPcrs();
+  renderUnitIssues();
   renderEvents();
-  renderAdminActions();
   renderNarcotics();
-  renderTotals();
+  renderUnlockedPcrs();
+  renderStaffing();
 }
 
 /* ── helpers ── */
@@ -4515,14 +4644,29 @@ function inp(dataF, placeholder='', val='', type='text'){
 }
 function delBtn(){ return '<button class="rpt-del-btn" onclick="this.closest(\'.rpt-entry\').remove();updateTotalsCount()">✕</button>'; }
 function rptField(label, content){ return `<div class="rpt-field"><label>${label}</label>${content}</div>`; }
-function noEntries(list, msg){ if(!list.querySelector('.rpt-entry')) list.innerHTML=`<div class="rpt-empty">${msg}</div>`; }
+function noEntries(list, msg){ if(list && !list.querySelector('.rpt-entry')) list.innerHTML=`<div class="rpt-empty">${msg}</div>`; }
 
-/* ── Callouts ── */
+/* ── Administrative ── */
+function renderAdminItems(){
+  const list = document.getElementById('admin-list');
+  if(!list) return;
+  list.innerHTML = '';
+  (rptData.admin||[]).forEach(a => list.appendChild(buildAdminItem(a)));
+  noEntries(list,'No administrative items recorded.');
+}
+function buildAdminItem(a={}){
+  const div = document.createElement('div'); div.className = 'rpt-entry';
+  div.innerHTML = delBtn() + `<div class="rpt-field"><textarea data-f="ad-text" rows="2" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:7px 10px;width:100%;font-family:inherit;resize:vertical;outline:none" placeholder="Administrative note or action…">${(a['ad-text']||'').replace(/</g,'&lt;')}</textarea></div>`;
+  return div;
+}
+
+/* ── Call-ins / Coverage ── */
 function renderCallouts(){
   const list = document.getElementById('callouts-list');
+  if(!list) return;
   list.innerHTML = '';
-  (rptData.callouts||[]).forEach(c => list.appendChild(buildCalloutEntry(c)));
-  noEntries(list,'No call-outs recorded.');
+  (rptData.callins||[]).forEach(c => list.appendChild(buildCalloutEntry(c)));
+  noEntries(list,'No call-ins recorded.');
 }
 function buildCalloutEntry(c={}){
   const div = document.createElement('div'); div.className = 'rpt-entry';
@@ -4532,19 +4676,82 @@ function buildCalloutEntry(c={}){
       ${rptField('Position / Unit', inp('co-pos','BLS 6AM / 193-BLS-PB…',c['co-pos']||''))}
     </div>
     <div class="rpt-entry-grid g3">
-      ${rptField('Time Called', inp('co-time','',c['co-time']||'','time'))}
+      ${rptField('Time', inp('co-time','',c['co-time']||'','time'))}
       ${rptField('Reason', sel(RPT_CALLOUT_REASONS,'co-reason',c['co-reason']||''))}
-      ${rptField('Covered By', inp('co-covered','Name or N/A',c['co-covered']||''))}
+      ${rptField('Covered By', inp('co-covered','Name or NONE',c['co-covered']||''))}
     </div>`;
   return div;
 }
 
-/* ── Significant Events ── */
+/* ── 3rd Riders ── */
+function renderRiders(){
+  const list = document.getElementById('riders-list');
+  if(!list) return;
+  list.innerHTML = '';
+  (rptData.riders||[]).forEach(r => list.appendChild(buildRiderEntry(r)));
+  noEntries(list,'No ride-alongs or orientees.');
+}
+function buildRiderEntry(r={}){
+  const div = document.createElement('div'); div.className = 'rpt-entry';
+  div.innerHTML = delBtn() + `
+    <div class="rpt-entry-grid g2">
+      ${rptField('Name', inp('rd-name','Student / Orientee…',r['rd-name']||''))}
+      ${rptField('Program / Description', inp('rd-desc','e.g. 24-hr student, School of EMS',r['rd-desc']||''))}
+    </div>`;
+  return div;
+}
+
+/* ── PCR's / Call Totals ── */
+function renderPcrs(){
+  const list = document.getElementById('pcrs-list');
+  if(!list) return;
+  list.innerHTML = '';
+  (rptData.pcrs||[]).forEach(p => list.appendChild(buildPcrEntry(p)));
+  noEntries(list,'No PCR counts entered.');
+  updateTotalsCount();
+}
+function buildPcrEntry(p={}){
+  const div = document.createElement('div'); div.className = 'rpt-entry';
+  div.innerHTML = delBtn() + `
+    <div class="rpt-entry-grid g3">
+      ${rptField('PCR Count', `<input type="number" inputmode="numeric" data-f="pcr-count" placeholder="0" value="${p['pcr-count']||''}" min="0" oninput="updateTotalsCount()" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:7px 10px;width:100%;font-family:inherit;outline:none" />`)}
+      ${rptField('Provider', inp('pcr-provider','Last name…',p['pcr-provider']||''))}
+      ${rptField('Unit #', inp('pcr-unit','e.g. 279-ALS',p['pcr-unit']||''))}
+    </div>`;
+  return div;
+}
+function updateTotalsCount(){
+  let total = 0;
+  document.querySelectorAll('[data-f="pcr-count"]').forEach(el => total += parseInt(el.value)||0);
+  const el = document.getElementById('total-calls-count');
+  if(el) el.textContent = total;
+}
+
+/* ── Unit Issues ── */
+function renderUnitIssues(){
+  const list = document.getElementById('unit-issues-list');
+  if(!list) return;
+  list.innerHTML = '';
+  (rptData.unitIssues||[]).forEach(u => list.appendChild(buildUnitIssueEntry(u)));
+  noEntries(list,'No unit or equipment issues.');
+}
+function buildUnitIssueEntry(u={}){
+  const div = document.createElement('div'); div.className = 'rpt-entry';
+  div.innerHTML = delBtn() + `
+    <div class="rpt-entry-grid g2">
+      ${rptField('Unit #', inp('ui-unit','e.g. 193-BLS',u['ui-unit']||''))}
+      ${rptField('Issue', inp('ui-issue','Describe the issue…',u['ui-issue']||''))}
+    </div>`;
+  return div;
+}
+
+/* ── Notable Events ── */
 function renderEvents(){
   const list = document.getElementById('events-list');
+  if(!list) return;
   list.innerHTML = '';
   (rptData.events||[]).forEach(e => list.appendChild(buildEventEntry(e)));
-  noEntries(list,'No significant events recorded.');
+  noEntries(list,'No notable events recorded.');
 }
 function buildEventEntry(e={}){
   const now = new Date().toTimeString().slice(0,5);
@@ -4561,30 +4768,10 @@ function buildEventEntry(e={}){
   return div;
 }
 
-/* ── Admin Actions ── */
-function renderAdminActions(){
-  const list = document.getElementById('admin-list');
-  list.innerHTML = '';
-  (rptData.admin||[]).forEach(a => list.appendChild(buildAdminEntry(a)));
-  noEntries(list,'No administrative actions recorded.');
-}
-function buildAdminEntry(a={}){
-  const div = document.createElement('div'); div.className = 'rpt-entry';
-  div.innerHTML = delBtn() + `
-    <div class="rpt-entry-grid g2" style="margin-bottom:6px">
-      ${rptField('Employee Name', inp('ad-name','Name…',a['ad-name']||''))}
-      ${rptField('Action Type', sel(RPT_ADMIN_TYPES,'ad-type',a['ad-type']||''))}
-    </div>
-    <div class="rpt-field">
-      <label>Description / Details</label>
-      <textarea data-f="ad-desc" rows="2" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:7px 10px;width:100%;font-family:inherit;resize:vertical;outline:none" placeholder="Describe the action taken…">${a['ad-desc']||''}</textarea>
-    </div>`;
-  return div;
-}
-
 /* ── Narcotics ── */
 function renderNarcotics(){
   const list = document.getElementById('narcotics-list');
+  if(!list) return;
   list.innerHTML = '';
   (rptData.narcotics||[]).forEach(n => list.appendChild(buildNarcEntry(n)));
   noEntries(list,'No narcotic changes recorded.');
@@ -4609,180 +4796,180 @@ function buildNarcEntry(n={}){
   return div;
 }
 
-/* ── Call Totals ── */
-function renderTotals(){
-  const list = document.getElementById('totals-list');
+/* ── Unlocked PCRs ── */
+function renderUnlockedPcrs(){
+  const list = document.getElementById('unlocked-pcrs-list');
+  if(!list) return;
   list.innerHTML = '';
-  (rptData.totals||[]).forEach(t => list.appendChild(buildTotalEntry(t)));
-  noEntries(list,'No units entered yet.');
-  updateTotalsCount();
+  (rptData.unlockedPcrs||[]).forEach(u => list.appendChild(buildUnlockedPcrEntry(u)));
+  noEntries(list,'No unlocked PCRs.');
 }
-function calcStatus(calls, pcr, assess){
-  const c=parseInt(calls)||0, p=parseInt(pcr)||0, a=parseInt(assess)||0;
-  if(!c) return '';
-  if(p===c && a===c) return '<span class="status-badge status-ok">✓ Complete</span>';
-  if(p<c || a<c) return '<span class="status-badge status-warn">⚠ Incomplete</span>';
-  return '<span class="status-badge status-err">✗ Discrepancy</span>';
-}
-function buildTotalEntry(t={}){
+function buildUnlockedPcrEntry(u={}){
   const div = document.createElement('div'); div.className = 'rpt-entry';
   div.innerHTML = delBtn() + `
-    <div class="rpt-entry-grid g2" style="margin-bottom:6px">
-      ${rptField('Provider Name', inp('tot-provider','Name…',t['tot-provider']||''))}
-      ${rptField('Unit #', inp('tot-unit','279-ALS-PB',t['tot-unit']||''))}
-    </div>
-    <div class="rpt-entry-grid g3">
-      ${rptField('Calls Ran', `<input type="number" inputmode="numeric" data-f="tot-calls" placeholder="0" value="${t['tot-calls']||''}" min="0" oninput="updateTotalsCount()" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:7px 10px;width:100%;font-family:inherit;outline:none" />`)}
-      ${rptField('PCR Completed', `<input type="number" inputmode="numeric" data-f="tot-pcr" placeholder="0" value="${t['tot-pcr']||''}" min="0" oninput="updateTotalsCount()" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:7px 10px;width:100%;font-family:inherit;outline:none" />`)}
-      ${rptField('Assessments Verified', `<input type="number" inputmode="numeric" data-f="tot-assess" placeholder="0" value="${t['tot-assess']||''}" min="0" oninput="updateTotalsCount()" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:7px 10px;width:100%;font-family:inherit;outline:none" />`)}
-    </div>
-    <div class="status-line" style="margin-top:6px;min-height:20px">${calcStatus(t['tot-calls'],t['tot-pcr'],t['tot-assess'])}</div>`;
-  div.querySelectorAll('[data-f^="tot-"]').forEach(inp => {
-    inp.addEventListener('input', () => {
-      const calls  = div.querySelector('[data-f="tot-calls"]').value;
-      const pcr    = div.querySelector('[data-f="tot-pcr"]').value;
-      const assess = div.querySelector('[data-f="tot-assess"]').value;
-      div.querySelector('.status-line').innerHTML = calcStatus(calls,pcr,assess);
-    });
-  });
+    <div class="rpt-entry-grid g2">
+      ${rptField('Run # / PCR ID', inp('up-run','e.g. 2026-04812',u['up-run']||''))}
+      ${rptField('Reason / Action', inp('up-reason','e.g. Call type changed',u['up-reason']||''))}
+    </div>`;
   return div;
 }
-function updateTotalsCount(){
-  let total = 0;
-  document.querySelectorAll('[data-f="tot-calls"]').forEach(el => total += parseInt(el.value)||0);
-  document.getElementById('total-calls-count').textContent = total;
+
+/* ── Staffing display (auto-pulled from roster) ── */
+function renderStaffing(){
+  const container = document.getElementById('staffing-display');
+  if(!container) return;
+  try {
+    const date = document.getElementById('roster-date').value || todayStr();
+    const savedRoster = JSON.parse(localStorage.getItem(rosterKey(date)) || 'null');
+    if(!savedRoster){ container.innerHTML = '<div class="rpt-empty">No roster saved for this date. Fill out the Roster tab first.</div>'; return; }
+    const sections = {};
+    ROSTER_ROWS.forEach(row => {
+      const rd = savedRoster[row.id];
+      const lead = rd && rd.lead ? rd.lead : '';
+      const sec  = rd && rd.secondary ? rd.secondary : '';
+      if(!lead && !sec) return;
+      if(!sections[row.section]) sections[row.section] = [];
+      const unit = (rd && rd.unit) ? rd.unit : (row.defaultUnit || '');
+      sections[row.section].push({ label:row.label, unit, lead, sec });
+    });
+    const sectionNames = Object.keys(sections);
+    if(!sectionNames.length){ container.innerHTML = '<div class="rpt-empty">No staffed units on roster.</div>'; return; }
+    let html = '';
+    sectionNames.forEach(sName => {
+      html += `<div class="rpt-staffing-section"><div class="rpt-staffing-sec-hd">${sName}</div>`;
+      sections[sName].forEach(row => {
+        html += `<div class="rpt-staffing-row"><span class="rpt-staffing-unit">${row.unit||'—'}</span><span class="rpt-staffing-crew">${row.lead}${row.sec ? ' / '+row.sec : ''}</span></div>`;
+      });
+      html += '</div>';
+    });
+    container.innerHTML = html;
+  } catch(e) { container.innerHTML = '<div class="rpt-empty">Unable to load roster data.</div>'; }
 }
 
-/* ── Email Report ── */
+/* ── Generate report text ── */
 function generateReportText(){
   collectRptFromDOM();
-  const date  = document.getElementById('roster-date').value || todayStr();
-  const shift = rptData.shiftType === 'night' ? 'Night Shift (1800–0600)' : 'Day Shift (0600–1800)';
-  const d     = new Date(date + 'T12:00:00');
-  const dateStr = d.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  const user  = (typeof firebase !== 'undefined' && firebase.auth().currentUser) ? (firebase.auth().currentUser.displayName || firebase.auth().currentUser.email) : '';
+  const date    = document.getElementById('roster-date').value || todayStr();
+  const shift   = rptData.shiftType === 'night' ? 'Night Shift (1800–0600)' : 'Day Shift (0600–1800)';
+  const d       = new Date(date + 'T12:00:00');
+  const dateStr = (d.getMonth()+1) + '/' + d.getDate() + '/' + String(d.getFullYear()).slice(2);
   let r = '';
-  r += '════════════════════════════════════\n';
-  r += '       EASI — DAILY SHIFT REPORT\n';
-  r += '════════════════════════════════════\n';
-  r += `Date:       ${dateStr}\n`;
-  r += `Shift:      ${shift}\n`;
-  if(user) r += `Supervisor: ${user}\n`;
+  r += `Shift Report ${dateStr}\n`;
+  r += `Subject: Central end of shift report\n`;
+  r += `Shift: ${shift}\n\n`;
+
+  r += 'Administrative:\n';
+  if(!rptData.admin.length){ r += ' None\n'; }
+  else rptData.admin.forEach(a => { if(a['ad-text']) r += ' ' + a['ad-text'].replace(/\n/g, '\n ') + '\n'; });
   r += '\n';
 
-  // Pine Bluff unit assignments (pulled from saved roster)
-  r += '── PINE BLUFF UNIT ASSIGNMENTS ──────────\n';
+  r += 'Staffing\n';
   try {
     const savedRoster = JSON.parse(localStorage.getItem(rosterKey(date)) || 'null');
-    const pbRows = ROSTER_ROWS.filter(row => row.section === 'Pine Bluff');
-    let anyPB = false;
-    pbRows.forEach(row => {
+    const sections = {};
+    ROSTER_ROWS.forEach(row => {
       const rd = savedRoster ? savedRoster[row.id] : null;
-      const unit  = (rd && rd.unit)      ? rd.unit      : row.defaultUnit;
-      const lead  = (rd && rd.lead)      ? rd.lead      : '';
-      const sec   = (rd && rd.secondary) ? rd.secondary : '';
-      if(!lead && !sec && !unit) return;
-      anyPB = true;
-      const unitLabel = unit || '—';
-      r += `  ${unitLabel.padEnd(18)} ${row.label}\n`;
-      r += `    Lead:      ${lead || 'Unstaffed'}\n`;
-      r += `    Secondary: ${sec  || 'Unstaffed'}\n`;
+      const lead = rd && rd.lead ? rd.lead : '';
+      const sec  = rd && rd.secondary ? rd.secondary : '';
+      if(!lead && !sec) return;
+      if(!sections[row.section]) sections[row.section] = [];
+      const unit = (rd && rd.unit) ? rd.unit : (row.defaultUnit || '');
+      sections[row.section].push({ label:row.label, unit, lead, sec });
     });
-    if(!anyPB) r += '  No Pine Bluff roster entered.\n';
-  } catch(e) { r += '  (roster data unavailable)\n'; }
+    const sectionNames = Object.keys(sections);
+    if(!sectionNames.length){ r += ' No staffing entered.\n'; }
+    else {
+      sectionNames.forEach(sName => {
+        if(sectionNames.length > 1) r += sName + '\n';
+        sections[sName].forEach(row => {
+          const parts = row.label.split(' ');
+          const typeAbbr = parts[0] || '';
+          const timeStr  = parts[1] || '';
+          r += `${typeAbbr} ${timeStr} ${row.unit} ${row.lead}${row.sec ? '/'+row.sec : ''}\n`;
+        });
+      });
+    }
+  } catch(e){ r += ' (roster data unavailable)\n'; }
   r += '\n';
 
-  // Call-outs
-  r += '── CALL-OUTS (' + (rptData.callouts.length||'0') + ') ─────────────────\n';
-  if(!rptData.callouts.length){ r += '  None\n'; }
-  else rptData.callouts.forEach(c => {
-    r += `  • ${c['co-name']||'—'} | ${c['co-pos']||'—'} | ${c['co-time']||''} | ${c['co-reason']||''} | Covered: ${c['co-covered']||'N/A'}\n`;
-  });
+  r += "Call in's/Coverage\n";
+  if(!rptData.callins.length){ r += ' NONE!!\n'; }
+  else rptData.callins.forEach(c => { r += ` ${c['co-name']||'—'} | ${c['co-pos']||'—'} | ${c['co-time']||''} | ${c['co-reason']||''} | Covered: ${c['co-covered']||'N/A'}\n`; });
   r += '\n';
 
-  // Events
-  r += '── SIGNIFICANT EVENTS (' + (rptData.events.length||'0') + ') ─────────\n';
-  if(!rptData.events.length){ r += '  None\n'; }
+  r += '3rd Riders and Orientation\n';
+  if(!rptData.riders.length){ r += ' None\n'; }
+  else rptData.riders.forEach(rd => { r += ` ${rd['rd-name']||'—'}${rd['rd-desc'] ? ' – '+rd['rd-desc'] : ''}\n`; });
+  r += '\n';
+
+  r += "PCR's\n";
+  if(!rptData.pcrs.length){ r += ' None entered\n'; }
+  else rptData.pcrs.forEach(p => { r += ` ${p['pcr-count']||'0'} – ${p['pcr-provider']||'—'}${p['pcr-unit'] ? ' ('+p['pcr-unit']+')' : ''}\n`; });
+  r += '\n';
+
+  r += 'Units\n';
+  if(!rptData.unitIssues.length){ r += ' None\n'; }
+  else rptData.unitIssues.forEach(u => { r += ` ${u['ui-unit']||'—'} – ${u['ui-issue']||''}\n`; });
+  r += '\n';
+
+  if(rptData.preshift && rptData.preshift.trim()){
+    r += 'Prior to Shift\n';
+    r += rptData.preshift.trim().split('\n').map(l=>' '+l).join('\n') + '\n\n';
+  }
+
+  r += 'Notable Events\n';
+  if(!rptData.events.length){ r += ' None\n'; }
   else rptData.events.forEach(e => {
-    r += `  [${e['ev-time']||'??:??'}] ${e['ev-cat']||''}\n`;
-    if(e['ev-desc']) r += `    ${e['ev-desc']}\n`;
+    r += ` [${e['ev-time']||'??:??'}] ${e['ev-cat']||''}\n`;
+    if(e['ev-desc']) r += `  ${e['ev-desc']}\n`;
   });
   r += '\n';
 
-  // Admin
-  r += '── ADMINISTRATIVE ACTIONS (' + (rptData.admin.length||'0') + ') ──────\n';
-  if(!rptData.admin.length){ r += '  None\n'; }
-  else rptData.admin.forEach(a => {
-    r += `  • ${a['ad-name']||'—'} — ${a['ad-type']||''}\n`;
-    if(a['ad-desc']) r += `    ${a['ad-desc']}\n`;
-  });
-  r += '\n';
-
-  // Narcotics
-  r += '── NARCOTIC CHANGES (' + (rptData.narcotics.length||'0') + ') ────────\n';
-  if(!rptData.narcotics.length){ r += '  None\n'; }
+  r += 'Narcotics\n';
+  if(!rptData.narcotics.length){ r += ' None\n'; }
   else rptData.narcotics.forEach(n => {
-    r += `  • Unit ${n['nc-unit']||'—'} | ${n['nc-prov']||'—'} | ${n['nc-drug']||'—'} | ${n['nc-change']||''} | ${n['nc-amt']||''}\n`;
-    r += `    Reason: ${n['nc-reason']||'—'} | Witnessed by: ${n['nc-witness']||'—'}\n`;
+    r += ` ${n['nc-unit']||'—'} – ${n['nc-drug']||'—'} ${n['nc-change']||''}${n['nc-amt'] ? ' ('+n['nc-amt']+')' : ''}\n`;
+    if(n['nc-prov']) r += `  Provider: ${n['nc-prov']}\n`;
+    if(n['nc-reason']) r += `  ${n['nc-reason']}\n`;
+    if(n['nc-witness']) r += `  Witnessed by: ${n['nc-witness']}\n`;
   });
   r += '\n';
 
-  // Call totals
-  let totalCalls = 0;
-  rptData.totals.forEach(t => totalCalls += parseInt(t['tot-calls'])||0);
-  r += `── CALL TOTALS & ASSESSMENT VERIFICATION ─\n`;
-  r += `  TOTAL CALLS THIS SHIFT: ${totalCalls}\n\n`;
-  if(!rptData.totals.length){ r += '  No units entered.\n'; }
-  else {
-    r += '  Provider            Unit              Calls  PCR   Assess  Status\n';
-    r += '  ─────────────────────────────────────────────────────────────────\n';
-    rptData.totals.forEach(t => {
-      const c=parseInt(t['tot-calls'])||0, p=parseInt(t['tot-pcr'])||0, a=parseInt(t['tot-assess'])||0;
-      let status = c===0 ? '' : (p===c && a===c ? '✓ Complete' : (p<c||a<c ? '⚠ Incomplete' : '✗ Discrepancy'));
-      r += `  ${(t['tot-provider']||'—').padEnd(20)} ${(t['tot-unit']||'—').padEnd(18)} ${String(c).padEnd(7)} ${String(p).padEnd(6)} ${String(a).padEnd(8)} ${status}\n`;
-    });
+  if(rptData.unitChecks && rptData.unitChecks.trim()){
+    r += 'Unit Checks\n';
+    r += rptData.unitChecks.trim().split('\n').map(l=>' '+l).join('\n') + '\n\n';
   }
+
+  r += "Unlocked PCR's\n";
+  if(!rptData.unlockedPcrs.length){ r += ' None\n'; }
+  else rptData.unlockedPcrs.forEach(u => { r += ` ${u['up-run']||'—'} ${u['up-reason']||''}\n`; });
   r += '\n';
 
-  // Active incidents (pulled from current incidentsData state)
-  if (incidentsData.length) {
-    r += '── INCIDENTS LOGGED (' + incidentsData.length + ') ──────────────\n';
-    incidentsData.forEach(inc => {
-      r += `  [${inc.time||'??:??'}] ${inc.priority||'P3'} — ${inc.nature||'—'} | ${inc.status||'—'}\n`;
-      if (inc.unit)     r += `    Unit: ${inc.unit}\n`;
-      if (inc.location) r += `    Location: ${inc.location}\n`;
-      if (inc.notes)    r += `    Notes: ${inc.notes}\n`;
-    });
-    r += '\n';
-  }
-
-  // Notes
   if(rptData.notes && rptData.notes.trim()){
-    r += '── ADDITIONAL NOTES ──────────────────────\n';
-    r += rptData.notes.trim().split('\n').map(l=>'  '+l).join('\n') + '\n\n';
+    r += 'Notes\n';
+    r += rptData.notes.trim().split('\n').map(l=>' '+l).join('\n') + '\n\n';
   }
 
-  r += '══════════════════════════════════════════\n';
-  r += 'Generated by EASI Supervisor App\n';
+  r += 'Supervisor\n';
+  r += (rptData.supervisor || '—') + '\n';
   return r;
 }
 
 function emailReport(){
-  const text = generateReportText();
-  const date = document.getElementById('roster-date').value || todayStr();
+  const text    = generateReportText();
+  const date    = document.getElementById('roster-date').value || todayStr();
   const subject = encodeURIComponent('EASI Daily Shift Report — ' + date);
   const body    = encodeURIComponent(text);
   const mailto  = `mailto:?subject=${subject}&body=${body}`;
   if(mailto.length < 8000){
     window.location.href = mailto;
   } else {
-    // Too long for mailto — show copy area
     const area = document.getElementById('rpt-copy-area');
     area.textContent = text;
     area.style.display = 'block';
     area.scrollIntoView({behavior:'smooth'});
-    if(navigator.clipboard){ navigator.clipboard.writeText(text).then(()=>showToast('Report copied to clipboard ✓')); }
-    showToast('Report too long for email — copied to clipboard, paste manually.');
+    if(navigator.clipboard){ navigator.clipboard.writeText(text).then(()=>showToast('Report copied ✓')); }
+    showToast('Copied to clipboard — paste manually.');
   }
 }
 
@@ -5006,44 +5193,158 @@ function completeNarcRestock(){
   showToast('Restock logged ✓');
 }
 
+/* ════════════════════════════════════════
+   DASHBOARD
+   ════════════════════════════════════════ */
+function updateDashboard(){
+  // Date display
+  const dateEl = document.getElementById('dash-date-display');
+  if(dateEl){
+    const date = currentDate() || todayStr();
+    const d = new Date(date+'T12:00:00');
+    dateEl.textContent = d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  }
+  // Stats
+  const statLog = document.getElementById('dash-stat-log');
+  if(statLog) statLog.textContent = logData.length;
+
+  const statStaffed = document.getElementById('dash-stat-staffed');
+  if(statStaffed){
+    try {
+      const date = currentDate() || todayStr();
+      const savedRoster = JSON.parse(localStorage.getItem(rosterKey(date)) || 'null');
+      if(!savedRoster){ statStaffed.textContent = '—'; }
+      else {
+        let count = 0;
+        ROSTER_ROWS.forEach(row => {
+          const rd = savedRoster[row.id];
+          if(rd && (rd.lead || rd.secondary)) count++;
+        });
+        statStaffed.textContent = count;
+      }
+    } catch(e){ statStaffed.textContent = '—'; }
+  }
+
+  // Recent log
+  const recentEl = document.getElementById('dash-recent-log');
+  if(!recentEl) return;
+  if(!logData.length){ recentEl.innerHTML = '<div class="dash-recent-empty">No activity logged yet.</div>'; return; }
+  const recent = logData.slice(0,5);
+  const typeCls = { Incident:'log-type-incident', 'Call-In':'log-type-callin', Narcotic:'log-type-narcotic', Equipment:'log-type-equipment', Event:'log-type-event', Note:'log-type-note' };
+  recentEl.innerHTML = recent.map(e => `
+    <div class="dash-log-item">
+      <span class="dash-log-time">${e.time||'—'}</span>
+      <span class="dash-log-type ${typeCls[e.type]||''}">${e.type||'Note'}</span>
+      <span class="dash-log-desc">${e.desc||e.unit||'No description'}</span>
+    </div>`).join('');
+}
+
+function initDashboard(){
+  updateDashboard();
+
+  // Shift type sync with report tab
+  const dashShift = document.getElementById('dash-shift-type');
+  if(dashShift){
+    dashShift.addEventListener('change', () => {
+      const rptShift = document.getElementById('rpt-shift-type');
+      if(rptShift) rptShift.value = dashShift.value;
+      rptData.shiftType = dashShift.value;
+    });
+  }
+
+  // Quick log buttons → navigate to Log tab and open add entry
+  document.getElementById('dash-btn-log-entry')?.addEventListener('click', () => {
+    switchTab('log');
+    document.getElementById('btn-add-log')?.click();
+  });
+  document.getElementById('dash-btn-callin')?.addEventListener('click', () => {
+    switchTab('log');
+    const now = new Date().toTimeString().slice(0,5);
+    const e = { id:'log_'+Date.now(), time:now, type:'Call-In', desc:'', unit:'', includeInReport:true };
+    logData.unshift(e);
+    saveLog();
+    renderLog();
+  });
+  document.getElementById('dash-btn-narc')?.addEventListener('click', () => {
+    switchTab('report');
+    openNarcModal();
+  });
+  document.getElementById('dash-btn-incident')?.addEventListener('click', () => {
+    switchTab('log');
+    const now = new Date().toTimeString().slice(0,5);
+    const e = { id:'log_'+Date.now(), time:now, type:'Incident', desc:'', unit:'', includeInReport:true };
+    logData.unshift(e);
+    saveLog();
+    renderLog();
+  });
+}
+
 function initShiftReport(){
-  // Load report when date changes (roster-date is shared)
   const dateInput = document.getElementById('roster-date');
   loadRptData(dateInput.value || todayStr());
-  dateInput.addEventListener('change', () => loadRptData(dateInput.value));
+  dateInput.addEventListener('change', () => { loadRptData(dateInput.value); renderStaffing(); });
+
   document.getElementById('btn-rpt-save').addEventListener('click', saveRptData);
   document.getElementById('btn-rpt-email').addEventListener('click', emailReport);
   document.getElementById('btn-restock').addEventListener('click', openNarcModal);
-  // Add-entry buttons
-  document.getElementById('btn-add-callout').addEventListener('click', ()=>{
-    const list = document.getElementById('callouts-list');
+  document.getElementById('btn-refresh-staffing')?.addEventListener('click', renderStaffing);
+
+  function addTo(listId, buildFn){
+    const list = document.getElementById(listId);
+    if(!list) return;
     const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
-    list.appendChild(buildCalloutEntry());
-  });
-  document.getElementById('btn-add-event').addEventListener('click', ()=>{
-    const list = document.getElementById('events-list');
-    const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
-    list.appendChild(buildEventEntry());
-  });
-  document.getElementById('btn-add-admin').addEventListener('click', ()=>{
-    const list = document.getElementById('admin-list');
-    const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
-    list.appendChild(buildAdminEntry());
-  });
-  document.getElementById('btn-add-narc').addEventListener('click', ()=>{
-    const list = document.getElementById('narcotics-list');
-    const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
-    list.appendChild(buildNarcEntry());
-  });
-  document.getElementById('btn-add-total').addEventListener('click', ()=>{
-    const list = document.getElementById('totals-list');
-    const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
-    list.appendChild(buildTotalEntry());
-  });
-  // Close modal on backdrop tap
+    list.appendChild(buildFn());
+  }
+
+  document.getElementById('btn-add-admin')?.addEventListener('click', ()=> addTo('admin-list', buildAdminItem));
+  document.getElementById('btn-add-callout')?.addEventListener('click', ()=> addTo('callouts-list', buildCalloutEntry));
+  document.getElementById('btn-add-rider')?.addEventListener('click', ()=> addTo('riders-list', buildRiderEntry));
+  document.getElementById('btn-add-pcr')?.addEventListener('click', ()=> addTo('pcrs-list', buildPcrEntry));
+  document.getElementById('btn-add-unit-issue')?.addEventListener('click', ()=> addTo('unit-issues-list', buildUnitIssueEntry));
+  document.getElementById('btn-add-event')?.addEventListener('click', ()=> addTo('events-list', buildEventEntry));
+  document.getElementById('btn-add-narc')?.addEventListener('click', ()=> addTo('narcotics-list', buildNarcEntry));
+  document.getElementById('btn-add-unlocked-pcr')?.addEventListener('click', ()=> addTo('unlocked-pcrs-list', buildUnlockedPcrEntry));
+
+  document.getElementById('btn-pull-log')?.addEventListener('click', pullLogIntoReport);
+
   document.getElementById('narc-modal').addEventListener('click', e => {
     if(e.target === document.getElementById('narc-modal')) closeNarcModal();
   });
+}
+
+function pullLogIntoReport(){
+  const logEntries = logData.filter(e => e.includeInReport);
+  if(!logEntries.length){ showToast('No log entries marked for report.'); return; }
+  let added = 0;
+  logEntries.forEach(e => {
+    const type = (e.type||'').toLowerCase();
+    if(type === 'call-in'){
+      const list = document.getElementById('callouts-list');
+      const empty = list?.querySelector('.rpt-empty'); if(empty) empty.remove();
+      if(list) list.appendChild(buildCalloutEntry({ 'co-name':e.who||'', 'co-pos':e.unit||'', 'co-time':e.time||'', 'co-reason':e.desc||'' }));
+      added++;
+    } else if(type === 'narcotic'){
+      const list = document.getElementById('narcotics-list');
+      const empty = list?.querySelector('.rpt-empty'); if(empty) empty.remove();
+      if(list) list.appendChild(buildNarcEntry({ 'nc-unit':e.unit||'', 'nc-reason':e.desc||'' }));
+      added++;
+    } else if(type === 'incident' || type === 'event'){
+      const list = document.getElementById('events-list');
+      const empty = list?.querySelector('.rpt-empty'); if(empty) empty.remove();
+      if(list) list.appendChild(buildEventEntry({ 'ev-time':e.time||'', 'ev-desc':e.desc||'' }));
+      added++;
+    } else if(type === 'equipment'){
+      const list = document.getElementById('unit-issues-list');
+      const empty = list?.querySelector('.rpt-empty'); if(empty) empty.remove();
+      if(list) list.appendChild(buildUnitIssueEntry({ 'ui-unit':e.unit||'', 'ui-issue':e.desc||'' }));
+      added++;
+    } else if(type === 'note'){
+      const nt = document.getElementById('rpt-notes-text');
+      if(nt && e.desc) nt.value = (nt.value ? nt.value + '\n' : '') + e.desc;
+      added++;
+    }
+  });
+  showToast(`Pulled ${added} log entr${added===1?'y':'ies'} into report ✓`);
 }
 
 </script>
