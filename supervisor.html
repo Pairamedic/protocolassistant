@@ -1177,9 +1177,70 @@
     .dash-generate-sub { font-size: 11px; color: var(--muted); font-weight: 500; margin-top: 2px; }
     .dash-generate-arrow { font-size: 22px; flex-shrink: 0; margin-left: 12px; }
 
+    /* ─── PAST REPORT DATE BROWSER ─── */
+    .rpt-date-browser { overflow-x: auto; -webkit-overflow-scrolling: touch; display: flex; gap: 8px; padding: 10px 0 8px; }
+    .rpt-date-browser::-webkit-scrollbar { display: none; }
+    .rpt-date-pill { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--muted); white-space: nowrap; flex-shrink: 0; transition: all .15s; }
+    .rpt-date-pill.active { background: rgba(94,234,212,.1); border-color: rgba(94,234,212,.4); color: var(--accent); }
+    .rpt-date-pill.has-data { color: var(--text); border-color: rgba(255,255,255,.2); }
+    .rpt-date-pill.has-data.active { color: var(--accent); border-color: rgba(94,234,212,.4); }
+
+    /* ─── WRAP-UP CHECKLIST MODAL ─── */
+    #wrapup-modal { position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:400; display:none; align-items:flex-end; justify-content:center; }
+    #wrapup-modal.open { display:flex; }
+    #wrapup-sheet { background:var(--card); border-radius:20px 20px 0 0; width:100%; max-width:600px; max-height:80vh; overflow-y:auto; padding:6px 20px 48px; animation:slideUp .22s ease; }
+    .wrapup-row { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--border); cursor:pointer; }
+    .wrapup-row:last-child { border-bottom:none; }
+    .wrapup-status { font-size:20px; flex-shrink:0; width:28px; text-align:center; line-height:1; }
+    .wrapup-info { flex:1; }
+    .wrapup-label { font-size:15px; font-weight:600; }
+    .wrapup-count { font-size:12px; color:var(--muted); margin-top:1px; }
+    .wrapup-arrow { font-size:18px; color:var(--muted); flex-shrink:0; }
+    .wrapup-complete-btn { background:var(--accent); color:#0b0d10; border:none; border-radius:14px; width:100%; padding:16px; font-size:17px; font-weight:800; cursor:pointer; font-family:inherit; margin-top:20px; }
+    .wrapup-warning { background:rgba(251,191,36,.1); border:1px solid rgba(251,191,36,.25); border-radius:12px; padding:12px 14px; font-size:13px; color:#fbbf24; margin-bottom:16px; display:none; }
+
+    /* ─── REPORT PREVIEW MODAL ─── */
+    #rpt-preview-modal { position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:400; display:none; align-items:flex-end; justify-content:center; }
+    #rpt-preview-modal.open { display:flex; }
+    #rpt-preview-sheet { background:var(--card); border-radius:20px 20px 0 0; width:100%; max-width:600px; max-height:88vh; overflow-y:auto; padding:6px 20px 44px; animation:slideUp .22s ease; }
+    #rpt-preview-text { background:var(--input-bg); border:1px solid var(--border); border-radius:10px; padding:14px 14px; font-size:12px; font-family:'Courier New',Courier,monospace; color:var(--text); white-space:pre-wrap; word-break:break-word; line-height:1.65; margin-bottom:16px; max-height:54vh; overflow-y:auto; }
+    .rpt-preview-actions { display:flex; gap:10px; }
+    .rpt-preview-copy { background:var(--accent); color:#0b0d10; border:none; border-radius:12px; flex:1; padding:14px; font-size:16px; font-weight:800; cursor:pointer; font-family:inherit; }
+    .rpt-preview-email { background:rgba(255,255,255,.06); border:1px solid var(--border); border-radius:12px; flex:1; padding:14px; font-size:14px; font-weight:700; color:var(--text); cursor:pointer; font-family:inherit; }
+
   </style>
 </head>
 <body>
+
+<!-- ── WRAP-UP CHECKLIST MODAL ── -->
+<div id="wrapup-modal" role="dialog" aria-modal="true">
+  <div id="wrapup-sheet">
+    <div class="qm-handle"></div>
+    <div class="qm-hdr">
+      <span class="qm-title">✅ Shift Wrap-Up</span>
+      <button class="qm-close" onclick="closeWrapUp()" aria-label="Close">✕</button>
+    </div>
+    <div class="wrapup-warning" id="wrapup-warning">Some sections are empty — review before generating your report.</div>
+    <div id="wrapup-checklist"></div>
+    <button class="wrapup-complete-btn" id="wrapup-generate-btn">📄 Generate Shift Report</button>
+  </div>
+</div>
+
+<!-- ── REPORT PREVIEW MODAL ── -->
+<div id="rpt-preview-modal" role="dialog" aria-modal="true">
+  <div id="rpt-preview-sheet">
+    <div class="qm-handle"></div>
+    <div class="qm-hdr">
+      <span class="qm-title">Report Preview</span>
+      <button class="qm-close" onclick="closeRptPreview()" aria-label="Close">✕</button>
+    </div>
+    <pre id="rpt-preview-text"></pre>
+    <div class="rpt-preview-actions">
+      <button class="rpt-preview-copy" id="rpt-preview-copy-btn">📋 Copy to Clipboard</button>
+      <button class="rpt-preview-email" id="rpt-preview-email-btn">✉️ Email</button>
+    </div>
+  </div>
+</div>
 
 <!-- ── QUICK-LOG BOTTOM SHEET MODAL ── -->
 <div id="quick-modal" role="dialog" aria-modal="true">
@@ -1239,12 +1300,6 @@
     <div id="tab-dashboard" class="tab-panel active">
       <div class="dash-header">
         <div class="dash-date" id="dash-date-display"></div>
-        <div class="dash-shift-row">
-          <select id="dash-shift-type">
-            <option value="day">Day Shift (0600–1800)</option>
-            <option value="night">Night Shift (1800–0600)</option>
-          </select>
-        </div>
       </div>
       <div class="dash-stats-row">
         <div class="dash-stat-card">
@@ -1260,7 +1315,6 @@
           <div class="dash-stat-label">Call-Ins</div>
         </div>
       </div>
-      <div id="dash-shift-remaining" style="font-size:13px;color:var(--muted);margin-bottom:16px;text-align:center"></div>
       <div class="dash-section-title">Quick Log</div>
       <div class="dash-quick-grid" style="margin-bottom:12px">
         <button class="dash-quick-btn" data-qa="callin">
@@ -1304,10 +1358,17 @@
           <span class="dash-quick-sub">Administrative item</span>
         </button>
       </div>
+      <button class="dash-generate-btn" id="dash-btn-wrapup" style="margin-bottom:8px">
+        <div>
+          <div class="dash-generate-label">✅ Shift Wrap-Up</div>
+          <div class="dash-generate-sub">Check report completeness</div>
+        </div>
+        <span class="dash-generate-arrow">›</span>
+      </button>
       <button class="dash-generate-btn" id="dash-btn-generate-report">
         <div>
           <div class="dash-generate-label">📄 Generate Shift Report</div>
-          <div class="dash-generate-sub">Build report from logged entries</div>
+          <div class="dash-generate-sub">Preview and copy your report</div>
         </div>
         <span class="dash-generate-arrow">›</span>
       </button>
@@ -1398,10 +1459,10 @@
 
     <!-- ── TAB: SHIFT REPORT ── -->
     <div id="tab-report" class="tab-panel">
+      <div class="rpt-date-browser" id="rpt-date-browser"></div>
       <div class="rpt-topbar">
         <button class="action-btn save-btn" id="btn-rpt-save">💾 Save</button>
-        <button class="rpt-email-btn" id="btn-rpt-email">✉️ Email</button>
-        <button class="rpt-email-btn" id="btn-rpt-copy" style="background:rgba(94,234,212,.1);border-color:rgba(94,234,212,.3);color:var(--accent)">📋 Copy</button>
+        <button class="rpt-email-btn" id="btn-rpt-preview" style="background:rgba(94,234,212,.1);border-color:rgba(94,234,212,.3);color:var(--accent)">👁 Preview &amp; Copy</button>
       </div>
 
       <!-- Administrative -->
@@ -2403,6 +2464,44 @@ function buildRowEditor(row) {
   // Callout + clear buttons
   const actionsDiv = document.createElement('div');
   actionsDiv.className = 'rvr-editor-actions';
+
+  const logBtn = document.createElement('button');
+  logBtn.className = 'slot-callout-btn';
+  logBtn.type = 'button';
+  logBtn.title = 'Quick-log for this unit';
+  logBtn.textContent = '📝';
+  logBtn.style.background = 'rgba(94,234,212,.08)';
+  logBtn.style.borderColor = 'rgba(94,234,212,.25)';
+  logBtn.style.color = 'var(--accent)';
+  logBtn.addEventListener('click', () => {
+    const rd2 = rowData[row.id] || {};
+    const unitVal = rd2.unit || row.defaultUnit || '';
+    const nameVal = rd2.lead || '';
+    const labelTxt = [nameVal, unitVal].filter(Boolean).join(' / ');
+    openQuickModal('📝 Log Entry — ' + (row.label || 'Unit'), `
+      <div class="qm-group">
+        <label class="qm-label">Type</label>
+        <select id="qm-rl-type" class="qm-sel">
+          <option>Note</option>
+          <option>Event</option>
+          <option>Equipment</option>
+          <option>Incident</option>
+        </select>
+      </div>
+      <div class="qm-group">
+        <label class="qm-label">Description</label>
+        <textarea id="qm-rl-desc" class="qm-ta" placeholder="What happened…">${labelTxt ? labelTxt + ' — ' : ''}</textarea>
+      </div>`, () => {
+      const type = qmVal('qm-rl-type') || 'Note';
+      const desc = qmVal('qm-rl-desc');
+      if(!desc){ showToast('Enter a description.'); return; }
+      const incl = qmChecked('qm-include-chk');
+      addQuickLogEntry(type, desc, unitVal, incl);
+      showToast('Entry logged ✓');
+      closeQuickModal();
+    }, 'Pre-filled with this unit\'s crew information.');
+  });
+  actionsDiv.appendChild(logBtn);
 
   const calloutBtn = document.createElement('button');
   calloutBtn.className = 'slot-callout-btn';
@@ -4598,6 +4697,10 @@ function initApp() {
   // Quick-log mini-wizard
   initQuickModal();
 
+  // Report preview + wrap-up modals
+  initRptPreview();
+  initWrapUp();
+
   // Activity Log
   initLog();
 
@@ -4662,7 +4765,7 @@ const RPT_DRUGS           = ['Fentanyl','Morphine','Midazolam (Versed)','Ketamin
 const RPT_NARC_CHANGE     = ['Administered / Used','Wasted','Discrepancy','Breakage','Addition / Restock','Transfer','Other'];
 
 function makeEmptyRpt(){
-  return { shiftType:'day', supervisor:'', admin:[], callins:[], riders:[], pcrs:[], unitIssues:[], preshift:'', events:[], narcotics:[], unitChecks:[], unlockedPcrs:[], notes:'' };
+  return { supervisor:'', admin:[], callins:[], riders:[], pcrs:[], unitIssues:[], preshift:'', events:[], narcotics:[], unitChecks:[], unlockedPcrs:[], notes:'' };
 }
 let rptData = makeEmptyRpt();
 
@@ -4697,8 +4800,6 @@ function saveRptData(){
 }
 
 function collectRptFromDOM(){
-  const st = document.getElementById('rpt-shift-type');
-  if(st) rptData.shiftType = st.value;
   const sup = document.getElementById('rpt-supervisor');
   if(sup) rptData.supervisor = sup.value;
   const ps = document.getElementById('rpt-preshift-text');
@@ -4731,8 +4832,6 @@ function collectEntries(listId, fields){
 }
 
 function renderRpt(){
-  const st = document.getElementById('rpt-shift-type');
-  if(st) st.value = rptData.shiftType || 'day';
   const sup = document.getElementById('rpt-supervisor');
   if(sup) sup.value = rptData.supervisor || '';
   const ps = document.getElementById('rpt-preshift-text');
@@ -5056,13 +5155,11 @@ function renderStaffing(){
 function generateReportText(){
   collectRptFromDOM();
   const date    = document.getElementById('roster-date').value || todayStr();
-  const shift   = rptData.shiftType === 'night' ? 'Night Shift (1800–0600)' : 'Day Shift (0600–1800)';
   const d       = new Date(date + 'T12:00:00');
   const dateStr = (d.getMonth()+1) + '/' + d.getDate() + '/' + String(d.getFullYear()).slice(2);
   let r = '';
   r += `Shift Report ${dateStr}\n`;
-  r += `Subject: Central end of shift report\n`;
-  r += `Shift: ${shift}\n\n`;
+  r += `Subject: Central end of shift report\n\n`;
 
   r += 'Administrative:\n';
   if(!rptData.admin.length){ r += ' None\n'; }
@@ -5225,30 +5322,6 @@ function updateDashboard(){
       <span class="dash-log-type ${typeCls[e.type]||''}">${e.type||'Note'}</span>
       <span class="dash-log-desc">${e.desc||e.unit||'No description'}</span>
     </div>`).join('');
-  // Shift time remaining
-  const remainEl = document.getElementById('dash-shift-remaining');
-  if(remainEl){
-    const shiftType = rptData.shiftType || 'day';
-    const now2 = new Date();
-    const nowMins = now2.getHours() * 60 + now2.getMinutes();
-    let endMins, inShift;
-    if(shiftType === 'day'){
-      endMins = 18 * 60;
-      inShift = nowMins >= 6 * 60 && nowMins < 18 * 60;
-    } else {
-      endMins = 6 * 60;
-      inShift = nowMins >= 18 * 60 || nowMins < 6 * 60;
-    }
-    if(inShift){
-      let rem = endMins - nowMins;
-      if(rem < 0) rem += 24 * 60;
-      const rh = Math.floor(rem / 60);
-      const rm = rem % 60;
-      remainEl.textContent = rh + 'h ' + rm + 'm remaining in shift';
-    } else {
-      remainEl.textContent = '';
-    }
-  }
   // Callout badge
   const callInCount = logData.filter(e => e.type === 'Call-In').length;
   const callinsCard = document.getElementById('dash-stat-callins-card');
@@ -5262,20 +5335,8 @@ function updateDashboard(){
 function initDashboard(){
   updateDashboard();
 
-  // Shift type sync with report tab
-  const dashShift = document.getElementById('dash-shift-type');
-  if(dashShift){
-    dashShift.addEventListener('change', () => {
-      const rptShift = document.getElementById('rpt-shift-type');
-      if(rptShift) rptShift.value = dashShift.value;
-      rptData.shiftType = dashShift.value;
-    });
-  }
-
-  // Generate report CTA → switch to report tab
-  document.getElementById('dash-btn-generate-report')?.addEventListener('click', () => {
-    switchTab('report');
-  });
+  document.getElementById('dash-btn-wrapup')?.addEventListener('click', openWrapUp);
+  document.getElementById('dash-btn-generate-report')?.addEventListener('click', openRptPreview);
 }
 
 /* ════════════════════════════════════════
@@ -5608,15 +5669,9 @@ function initShiftReport(){
   }, 500);
 
   document.getElementById('btn-rpt-save').addEventListener('click', saveRptData);
-  document.getElementById('btn-rpt-email').addEventListener('click', emailReport);
-  document.getElementById('btn-rpt-copy')?.addEventListener('click', ()=>{
-    const text = generateReportText();
-    navigator.clipboard?.writeText(text).then(()=>showToast('Report copied ✓')).catch(()=>{
-      const area = document.getElementById('rpt-copy-area');
-      area.textContent = text; area.style.display='block'; area.scrollIntoView({behavior:'smooth'});
-    });
-  });
+  document.getElementById('btn-rpt-preview')?.addEventListener('click', openRptPreview);
   document.getElementById('btn-refresh-staffing')?.addEventListener('click', renderStaffing);
+  renderReportDateBrowser();
 
   function addTo(listId, buildFn){
     const list = document.getElementById(listId);
@@ -5637,6 +5692,118 @@ function initShiftReport(){
 
   document.getElementById('btn-pull-log')?.addEventListener('click', pullLogIntoReport);
   document.getElementById('btn-load-unit-checks')?.addEventListener('click', loadUnitChecksFromRoster);
+}
+
+/* ────────────────────────────────────────
+   REPORT PREVIEW MODAL
+   ──────────────────────────────────────── */
+function openRptPreview(){
+  collectRptFromDOM();
+  const text = generateReportText();
+  document.getElementById('rpt-preview-text').textContent = text;
+  document.getElementById('rpt-preview-modal').classList.add('open');
+}
+function closeRptPreview(){
+  document.getElementById('rpt-preview-modal').classList.remove('open');
+}
+function initRptPreview(){
+  document.getElementById('rpt-preview-modal').addEventListener('click', e => {
+    if(e.target === document.getElementById('rpt-preview-modal')) closeRptPreview();
+  });
+  document.getElementById('rpt-preview-copy-btn').addEventListener('click', () => {
+    const text = document.getElementById('rpt-preview-text').textContent;
+    navigator.clipboard?.writeText(text).then(() => { showToast('Report copied ✓'); closeRptPreview(); }).catch(() => {
+      showToast('Copy failed — select all text manually.');
+    });
+  });
+  document.getElementById('rpt-preview-email-btn').addEventListener('click', () => {
+    closeRptPreview();
+    emailReport();
+  });
+}
+
+/* ────────────────────────────────────────
+   WRAP-UP CHECKLIST
+   ──────────────────────────────────────── */
+function openWrapUp(){
+  collectRptFromDOM();
+  const sections = [
+    { key:'admin',       label:'Administrative',        count: rptData.admin.filter(a=>a['ad-text']).length,           tab:'report', emptyOk:true  },
+    { key:'callins',     label:"Call-in's / Coverage",  count: rptData.callins.length,                                  tab:'report', emptyOk:true  },
+    { key:'riders',      label:'3rd Riders',            count: rptData.riders.filter(r=>r['rd-name']).length,           tab:'report', emptyOk:true  },
+    { key:'pcrs',        label:"PCR's / Call Totals",   count: rptData.pcrs.filter(p=>p['pcr-provider']).length,        tab:'report', emptyOk:false },
+    { key:'unitIssues',  label:'Unit / Equipment Issues',count: rptData.unitIssues.filter(u=>u['ui-unit']).length,      tab:'report', emptyOk:true  },
+    { key:'events',      label:'Notable Events',        count: rptData.events.filter(e=>e['ev-desc']).length,           tab:'report', emptyOk:true  },
+    { key:'narcotics',   label:'Narcotic Changes',      count: rptData.narcotics.filter(n=>n['nc-drug']).length,        tab:'report', emptyOk:true  },
+    { key:'unitChecks',  label:'Unit Checks',           count: (Array.isArray(rptData.unitChecks)?rptData.unitChecks:[]).length, tab:'report', emptyOk:false },
+    { key:'supervisor',  label:'Supervisor Name',       count: rptData.supervisor ? 1 : 0,                              tab:'report', emptyOk:false },
+  ];
+  const missing = sections.filter(s => !s.emptyOk && s.count === 0);
+  const warn = document.getElementById('wrapup-warning');
+  if(warn) { warn.style.display = missing.length ? '' : 'none'; }
+  const list = document.getElementById('wrapup-checklist');
+  if(list){
+    list.innerHTML = sections.map(s => {
+      const done = s.count > 0;
+      const icon = done ? '✅' : (s.emptyOk ? '⬜' : '⚠️');
+      const countTxt = done ? (s.key==='supervisor' ? rptData.supervisor : s.count + (s.count===1?' entry':' entries')) : (s.emptyOk ? 'None — OK' : 'Not filled');
+      return `<div class="wrapup-row" onclick="closeWrapUp();switchTab('report')">
+        <span class="wrapup-status">${icon}</span>
+        <div class="wrapup-info">
+          <div class="wrapup-label">${s.label}</div>
+          <div class="wrapup-count">${countTxt}</div>
+        </div>
+        <span class="wrapup-arrow">›</span>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('wrapup-modal').classList.add('open');
+}
+function closeWrapUp(){
+  document.getElementById('wrapup-modal').classList.remove('open');
+}
+function initWrapUp(){
+  document.getElementById('wrapup-modal').addEventListener('click', e => {
+    if(e.target === document.getElementById('wrapup-modal')) closeWrapUp();
+  });
+  document.getElementById('wrapup-generate-btn').addEventListener('click', () => {
+    closeWrapUp();
+    openRptPreview();
+  });
+}
+
+/* ────────────────────────────────────────
+   PAST REPORT DATE BROWSER
+   ──────────────────────────────────────── */
+function renderReportDateBrowser(){
+  const bar = document.getElementById('rpt-date-browser');
+  if(!bar) return;
+  const today = todayStr();
+  const active = document.getElementById('roster-date')?.value || today;
+  const pills = [];
+  for(let i = 0; i < 10; i++){
+    const d = new Date(today + 'T12:00:00');
+    d.setDate(d.getDate() - i);
+    const ds = d.toISOString().slice(0,10);
+    const hasData = !!localStorage.getItem(rptKey(ds));
+    const label = i === 0 ? 'Today' : i === 1 ? 'Yesterday' : (d.getMonth()+1)+'/'+d.getDate();
+    pills.push({ ds, label, hasData, active: ds === active });
+  }
+  bar.innerHTML = pills.map(p => {
+    let cls = 'rpt-date-pill';
+    if(p.hasData) cls += ' has-data';
+    if(p.active) cls += ' active';
+    return `<button class="${cls}" data-rpt-date="${p.ds}">${p.label}${p.hasData?' ●':''}</button>`;
+  }).join('');
+  bar.querySelectorAll('[data-rpt-date]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const ds = btn.dataset.rptDate;
+      const dateInput = document.getElementById('roster-date');
+      if(dateInput) dateInput.value = ds;
+      loadRptData(ds);
+      renderReportDateBrowser();
+    });
+  });
 }
 
 function pullLogIntoReport(){
