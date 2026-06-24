@@ -1113,9 +1113,91 @@
     .rpt-staffing-unit { font-size: 11px; font-weight: 700; color: var(--accent); min-width: 90px; flex-shrink: 0; }
     .rpt-staffing-crew { font-size: 13px; color: var(--text); }
 
+    /* ─── QUICK-LOG BOTTOM SHEET MODAL ─── */
+    #quick-modal {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.65);
+      z-index: 400;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    #quick-modal.open { display: flex; }
+    #quick-modal-sheet {
+      background: var(--card);
+      border-radius: 20px 20px 0 0;
+      width: 100%;
+      max-width: 600px;
+      max-height: 82vh;
+      overflow-y: auto;
+      padding: 6px 20px 48px;
+      animation: slideUp .22s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(60px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .qm-handle { width: 40px; height: 4px; background: rgba(255,255,255,.18); border-radius: 2px; margin: 10px auto 18px; }
+    .qm-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .qm-title { font-size: 20px; font-weight: 800; }
+    .qm-close { background: none; border: none; color: var(--muted); font-size: 24px; cursor: pointer; padding: 2px 6px; line-height: 1; }
+    .qm-note { font-size: 12px; color: var(--muted); margin: -12px 0 18px; line-height: 1.5; }
+    .qm-label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+    .qm-group { margin-bottom: 16px; }
+    .qm-row { display: grid; gap: 12px; margin-bottom: 16px; }
+    .qm-row.g2 { grid-template-columns: 1fr 1fr; }
+    .qm-row.g3 { grid-template-columns: 1fr 1fr 1fr; }
+    @media(max-width:480px) { .qm-row.g2, .qm-row.g3 { grid-template-columns: 1fr; } }
+    .qm-inp, .qm-sel, .qm-ta {
+      background: var(--input-bg); border: 1px solid var(--border);
+      border-radius: 10px; color: var(--text); font-size: 16px;
+      padding: 12px 14px; width: 100%; font-family: inherit; outline: none;
+    }
+    .qm-inp:focus, .qm-sel:focus, .qm-ta:focus { border-color: var(--accent); }
+    .qm-sel option { background: var(--card); }
+    .qm-ta { resize: vertical; min-height: 72px; }
+    .qm-include-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+    .qm-include-row input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--accent); cursor: pointer; }
+    .qm-include-row label { font-size: 14px; color: var(--text); cursor: pointer; flex: 1; }
+    .qm-submit {
+      background: var(--accent); color: #0b0d10; border: none;
+      border-radius: 14px; width: 100%; padding: 16px;
+      font-size: 17px; font-weight: 800; cursor: pointer; font-family: inherit;
+      transition: opacity .15s;
+    }
+    .qm-submit:active { opacity: .8; }
+    /* Dashboard generate CTA */
+    .dash-generate-btn {
+      background: linear-gradient(135deg, rgba(94,234,212,.18) 0%, rgba(94,234,212,.08) 100%);
+      border: 1px solid rgba(94,234,212,.4);
+      border-radius: 16px; width: 100%; padding: 18px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; font-family: inherit; color: var(--accent);
+      margin-top: 10px; transition: background .15s;
+    }
+    .dash-generate-btn:hover { background: linear-gradient(135deg, rgba(94,234,212,.28) 0%, rgba(94,234,212,.14) 100%); }
+    .dash-generate-label { font-size: 16px; font-weight: 800; text-align: left; }
+    .dash-generate-sub { font-size: 11px; color: var(--muted); font-weight: 500; margin-top: 2px; }
+    .dash-generate-arrow { font-size: 22px; flex-shrink: 0; margin-left: 12px; }
+
   </style>
 </head>
 <body>
+
+<!-- ── QUICK-LOG BOTTOM SHEET MODAL ── -->
+<div id="quick-modal" role="dialog" aria-modal="true">
+  <div id="quick-modal-sheet">
+    <div class="qm-handle"></div>
+    <div class="qm-hdr">
+      <span class="qm-title" id="qm-title">Log Entry</span>
+      <button class="qm-close" onclick="closeQuickModal()" aria-label="Close">✕</button>
+    </div>
+    <div id="qm-note" class="qm-note" style="display:none"></div>
+    <div id="qm-body"></div>
+    <div class="qm-include-row" id="qm-include-row">
+      <input type="checkbox" id="qm-include-chk" checked />
+      <label for="qm-include-chk">Include in Shift Report</label>
+    </div>
+    <button class="qm-submit" id="qm-submit">Log It ✓</button>
+  </div>
+</div>
 
 <!-- Auth Loading -->
 <div id="auth-loading">
@@ -1180,33 +1262,55 @@
       </div>
       <div id="dash-shift-remaining" style="font-size:13px;color:var(--muted);margin-bottom:16px;text-align:center"></div>
       <div class="dash-section-title">Quick Log</div>
-      <div class="dash-quick-grid" style="margin-bottom:20px">
-        <button class="dash-quick-btn primary" id="dash-btn-log-entry">
-          <span class="dash-quick-icon">📝</span>
-          <span>Log Entry</span>
-          <span class="dash-quick-sub">Add to activity log</span>
-        </button>
-        <button class="dash-quick-btn" id="dash-btn-callin">
+      <div class="dash-quick-grid" style="margin-bottom:12px">
+        <button class="dash-quick-btn" data-qa="callin">
           <span class="dash-quick-icon">📵</span>
           <span>Call-In</span>
           <span class="dash-quick-sub">Staff calling out</span>
         </button>
-        <button class="dash-quick-btn" id="dash-btn-narc">
+        <button class="dash-quick-btn" data-qa="narc">
           <span class="dash-quick-icon">💊</span>
           <span>Narc Change</span>
           <span class="dash-quick-sub">Log narcotic event</span>
         </button>
-        <button class="dash-quick-btn" id="dash-btn-incident">
+        <button class="dash-quick-btn" data-qa="event">
           <span class="dash-quick-icon">🚨</span>
-          <span>Incident</span>
-          <span class="dash-quick-sub">Log active incident</span>
+          <span>Notable Event</span>
+          <span class="dash-quick-sub">Incident or event</span>
         </button>
-        <button class="dash-quick-btn" id="dash-btn-forms">
-          <span class="dash-quick-icon">📄</span>
-          <span>Forms</span>
-          <span class="dash-quick-sub">Reference &amp; checklists</span>
+        <button class="dash-quick-btn" data-qa="equipment">
+          <span class="dash-quick-icon">🔧</span>
+          <span>Equipment</span>
+          <span class="dash-quick-sub">Unit / equipment issue</span>
+        </button>
+        <button class="dash-quick-btn" data-qa="rider">
+          <span class="dash-quick-icon">🎓</span>
+          <span>3rd Rider</span>
+          <span class="dash-quick-sub">Ride-along / orientee</span>
+        </button>
+        <button class="dash-quick-btn" data-qa="pcr">
+          <span class="dash-quick-icon">📋</span>
+          <span>PCR Count</span>
+          <span class="dash-quick-sub">Add provider call total</span>
+        </button>
+        <button class="dash-quick-btn" data-qa="unlockpcr">
+          <span class="dash-quick-icon">🔓</span>
+          <span>Unlock PCR</span>
+          <span class="dash-quick-sub">Log unlocked PCR</span>
+        </button>
+        <button class="dash-quick-btn" data-qa="admin">
+          <span class="dash-quick-icon">📝</span>
+          <span>Admin Note</span>
+          <span class="dash-quick-sub">Administrative item</span>
         </button>
       </div>
+      <button class="dash-generate-btn" id="dash-btn-generate-report">
+        <div>
+          <div class="dash-generate-label">📄 Generate Shift Report</div>
+          <div class="dash-generate-sub">Build report from logged entries</div>
+        </div>
+        <span class="dash-generate-arrow">›</span>
+      </button>
       <div class="dash-section-title">Recent Activity</div>
       <div class="dash-recent" id="dash-recent-log">
         <div class="dash-recent-empty">No activity logged yet.</div>
@@ -4491,6 +4595,9 @@ function initApp() {
   // Dashboard
   initDashboard();
 
+  // Quick-log mini-wizard
+  initQuickModal();
+
   // Activity Log
   initLog();
 
@@ -5165,33 +5272,322 @@ function initDashboard(){
     });
   }
 
-  // Quick log buttons → navigate to Log tab and open add entry
-  document.getElementById('dash-btn-log-entry')?.addEventListener('click', () => {
-    switchTab('log');
-    document.getElementById('btn-add-log')?.click();
-  });
-  document.getElementById('dash-btn-callin')?.addEventListener('click', () => {
-    switchTab('log');
-    const now = new Date().toTimeString().slice(0,5);
-    const e = { id:'log_'+Date.now(), time:now, type:'Call-In', desc:'', unit:'', includeInReport:true };
-    logData.unshift(e);
-    saveLog();
-    renderLog();
-  });
-  document.getElementById('dash-btn-narc')?.addEventListener('click', () => {
+  // Generate report CTA → switch to report tab
+  document.getElementById('dash-btn-generate-report')?.addEventListener('click', () => {
     switchTab('report');
-    setTimeout(() => { document.getElementById('narcotics-list')?.scrollIntoView({behavior:'smooth'}); }, 100);
   });
-  document.getElementById('dash-btn-incident')?.addEventListener('click', () => {
-    switchTab('log');
-    const now = new Date().toTimeString().slice(0,5);
-    const e = { id:'log_'+Date.now(), time:now, type:'Incident', desc:'', unit:'', includeInReport:true };
-    logData.unshift(e);
-    saveLog();
-    renderLog();
+}
+
+/* ════════════════════════════════════════
+   QUICK-LOG MINI-WIZARD
+   ════════════════════════════════════════ */
+
+let _qmSubmitHandler = null;
+
+function openQuickModal(title, bodyHTML, onSubmit, noteText){
+  const modal = document.getElementById('quick-modal');
+  document.getElementById('qm-title').textContent = title;
+  document.getElementById('qm-body').innerHTML = bodyHTML;
+  const noteEl = document.getElementById('qm-note');
+  if(noteText){ noteEl.textContent = noteText; noteEl.style.display = ''; }
+  else { noteEl.style.display = 'none'; }
+  document.getElementById('qm-include-chk').checked = true;
+  if(_qmSubmitHandler){
+    document.getElementById('qm-submit').removeEventListener('click', _qmSubmitHandler);
+  }
+  _qmSubmitHandler = onSubmit;
+  document.getElementById('qm-submit').addEventListener('click', _qmSubmitHandler);
+  modal.classList.add('open');
+  // Focus first input
+  setTimeout(() => { document.querySelector('#qm-body input, #qm-body select, #qm-body textarea')?.focus(); }, 80);
+}
+
+function closeQuickModal(){
+  const modal = document.getElementById('quick-modal');
+  modal.classList.remove('open');
+  if(_qmSubmitHandler){
+    document.getElementById('qm-submit').removeEventListener('click', _qmSubmitHandler);
+    _qmSubmitHandler = null;
+  }
+}
+
+function qmVal(id){ return (document.getElementById(id)?.value || '').trim(); }
+function qmChecked(id){ return document.getElementById(id)?.checked || false; }
+
+function addQuickLogEntry(type, desc, unit, includeInReport){
+  const now = new Date().toTimeString().slice(0,5);
+  const entry = { id:'log_'+Date.now(), time:now, type, desc, unit, includeInReport };
+  logData.unshift(entry);
+  saveLog();
+  renderLog();
+  updateDashboard();
+  return entry;
+}
+
+function addToRptList(listId, buildFn, data){
+  const list = document.getElementById(listId);
+  if(!list) return;
+  const empty = list.querySelector('.rpt-empty'); if(empty) empty.remove();
+  list.appendChild(buildFn(data));
+}
+
+// ── 1. Call-In
+function qaCallIn(){
+  const now = new Date().toTimeString().slice(0,5);
+  openQuickModal('📵 Call-In', `
+    <div class="qm-row g2">
+      <div class="qm-group">
+        <label class="qm-label">Employee Name</label>
+        <input id="qm-ci-name" class="qm-inp" type="text" placeholder="First Last" autocomplete="off" />
+      </div>
+      <div class="qm-group">
+        <label class="qm-label">Position / Unit</label>
+        <input id="qm-ci-pos" class="qm-inp" type="text" placeholder="BLS 6AM / 193-BLS-PB" autocomplete="off" />
+      </div>
+    </div>
+    <div class="qm-row g2">
+      <div class="qm-group">
+        <label class="qm-label">Time</label>
+        <input id="qm-ci-time" class="qm-inp" type="time" value="${now}" />
+      </div>
+      <div class="qm-group">
+        <label class="qm-label">Reason</label>
+        <select id="qm-ci-reason" class="qm-sel">
+          ${RPT_CALLOUT_REASONS.map(r=>`<option>${r}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="qm-group">
+      <label class="qm-label">Covered By</label>
+      <input id="qm-ci-covered" class="qm-inp" type="text" placeholder="Name or NONE" autocomplete="off" />
+    </div>`, () => {
+    const name = qmVal('qm-ci-name');
+    const pos  = qmVal('qm-ci-pos');
+    const time = qmVal('qm-ci-time');
+    const reason = qmVal('qm-ci-reason');
+    const covered = qmVal('qm-ci-covered');
+    const incl = qmChecked('qm-include-chk');
+    const desc = [name, reason, covered ? 'covered by '+covered : ''].filter(Boolean).join(' · ');
+    addQuickLogEntry('Call-In', desc, pos, incl);
+    if(incl){
+      addToRptList('callouts-list', buildCalloutEntry, { 'co-name':name, 'co-pos':pos, 'co-time':time, 'co-reason':reason, 'co-covered':covered });
+    }
+    showToast('Call-In logged ✓');
+    closeQuickModal();
+  }, 'Logs to Activity Log and Call-ins section of Shift Report.');
+}
+
+// ── 2. Narc Change
+function qaNarc(){
+  const now = new Date().toTimeString().slice(0,5);
+  openQuickModal('💊 Narc Change', `
+    <div class="qm-row g3">
+      <div class="qm-group">
+        <label class="qm-label">Unit #</label>
+        <input id="qm-nc-unit" class="qm-inp" type="text" placeholder="279-ALS-PB" autocomplete="off" />
+      </div>
+      <div class="qm-group">
+        <label class="qm-label">Provider</label>
+        <input id="qm-nc-prov" class="qm-inp" type="text" placeholder="Last name" autocomplete="off" />
+      </div>
+      <div class="qm-group">
+        <label class="qm-label">Drug</label>
+        <select id="qm-nc-drug" class="qm-sel">
+          ${RPT_DRUGS.map(d=>`<option>${d}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="qm-row g3">
+      <div class="qm-group">
+        <label class="qm-label">Change Type</label>
+        <select id="qm-nc-change" class="qm-sel">
+          ${RPT_NARC_CHANGE.map(c=>`<option>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="qm-group">
+        <label class="qm-label">Amount</label>
+        <input id="qm-nc-amt" class="qm-inp" type="text" placeholder="e.g. 200 mcg" autocomplete="off" />
+      </div>
+      <div class="qm-group">
+        <label class="qm-label">Witnessed By</label>
+        <input id="qm-nc-witness" class="qm-inp" type="text" placeholder="Name" autocomplete="off" />
+      </div>
+    </div>
+    <div class="qm-group">
+      <label class="qm-label">Reason / Notes</label>
+      <input id="qm-nc-reason" class="qm-inp" type="text" placeholder="Patient admin, breakage, etc." autocomplete="off" />
+    </div>`, () => {
+    const unit = qmVal('qm-nc-unit'), prov = qmVal('qm-nc-prov'), drug = qmVal('qm-nc-drug');
+    const change = qmVal('qm-nc-change'), amt = qmVal('qm-nc-amt'), witness = qmVal('qm-nc-witness'), reason = qmVal('qm-nc-reason');
+    const incl = qmChecked('qm-include-chk');
+    const desc = [drug, change, amt, reason].filter(Boolean).join(' · ');
+    addQuickLogEntry('Narcotic', desc, unit, incl);
+    if(incl){
+      addToRptList('narcotics-list', buildNarcEntry, { 'nc-unit':unit, 'nc-prov':prov, 'nc-drug':drug, 'nc-change':change, 'nc-amt':amt, 'nc-reason':reason, 'nc-witness':witness });
+    }
+    showToast('Narc change logged ✓');
+    closeQuickModal();
+  }, 'Logs to Activity Log and Narcotics section of Shift Report.');
+}
+
+// ── 3. Notable Event
+function qaEvent(){
+  const now = new Date().toTimeString().slice(0,5);
+  openQuickModal('🚨 Notable Event', `
+    <div class="qm-row g2">
+      <div class="qm-group">
+        <label class="qm-label">Time</label>
+        <input id="qm-ev-time" class="qm-inp" type="time" value="${now}" />
+      </div>
+      <div class="qm-group">
+        <label class="qm-label">Category</label>
+        <select id="qm-ev-cat" class="qm-sel">
+          ${RPT_EVENT_CATS.map(c=>`<option>${c}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="qm-group">
+      <label class="qm-label">Unit / Resource</label>
+      <input id="qm-ev-unit" class="qm-inp" type="text" placeholder="Unit # (optional)" autocomplete="off" />
+    </div>
+    <div class="qm-group">
+      <label class="qm-label">Description</label>
+      <textarea id="qm-ev-desc" class="qm-ta" placeholder="Describe what happened…"></textarea>
+    </div>`, () => {
+    const time = qmVal('qm-ev-time'), cat = qmVal('qm-ev-cat'), unit = qmVal('qm-ev-unit'), desc = qmVal('qm-ev-desc');
+    const incl = qmChecked('qm-include-chk');
+    addQuickLogEntry('Event', [cat, desc].filter(Boolean).join(': '), unit, incl);
+    if(incl){
+      addToRptList('events-list', buildEventEntry, { 'ev-time':time, 'ev-cat':cat, 'ev-desc':desc });
+    }
+    showToast('Event logged ✓');
+    closeQuickModal();
+  }, 'Logs to Activity Log and Notable Events section of Shift Report.');
+}
+
+// ── 4. Equipment Issue
+function qaEquipment(){
+  openQuickModal('🔧 Equipment Issue', `
+    <div class="qm-group">
+      <label class="qm-label">Unit #</label>
+      <input id="qm-eq-unit" class="qm-inp" type="text" placeholder="e.g. 193-BLS" autocomplete="off" />
+    </div>
+    <div class="qm-group">
+      <label class="qm-label">Issue Description</label>
+      <textarea id="qm-eq-issue" class="qm-ta" placeholder="Describe the equipment or unit issue…"></textarea>
+    </div>`, () => {
+    const unit = qmVal('qm-eq-unit'), issue = qmVal('qm-eq-issue');
+    const incl = qmChecked('qm-include-chk');
+    addQuickLogEntry('Equipment', issue, unit, incl);
+    if(incl){
+      addToRptList('unit-issues-list', buildUnitIssueEntry, { 'ui-unit':unit, 'ui-issue':issue });
+    }
+    showToast('Equipment issue logged ✓');
+    closeQuickModal();
+  }, 'Logs to Activity Log and Units/Equipment section of Shift Report.');
+}
+
+// ── 5. 3rd Rider / Orientee
+function qaRider(){
+  openQuickModal('🎓 3rd Rider / Orientee', `
+    <div class="qm-group">
+      <label class="qm-label">Name</label>
+      <input id="qm-rd-name" class="qm-inp" type="text" placeholder="Student / Orientee full name" autocomplete="off" />
+    </div>
+    <div class="qm-group">
+      <label class="qm-label">Program / Description</label>
+      <input id="qm-rd-desc" class="qm-inp" type="text" placeholder="e.g. 24-hr student, School of EMS" autocomplete="off" />
+    </div>`, () => {
+    const name = qmVal('qm-rd-name'), desc = qmVal('qm-rd-desc');
+    const incl = qmChecked('qm-include-chk');
+    addQuickLogEntry('Event', '3rd Rider: ' + name + (desc ? ' — '+desc : ''), '', incl);
+    if(incl){
+      addToRptList('riders-list', buildRiderEntry, { 'rd-name':name, 'rd-desc':desc });
+    }
+    showToast('3rd Rider logged ✓');
+    closeQuickModal();
+  }, 'Logs to Activity Log and 3rd Riders section of Shift Report.');
+}
+
+// ── 6. PCR Count
+function qaPcr(){
+  openQuickModal('📋 PCR Count', `
+    <div class="qm-row g3">
+      <div class="qm-group">
+        <label class="qm-label">PCR Count</label>
+        <input id="qm-pcr-count" class="qm-inp" type="number" inputmode="numeric" min="0" placeholder="0" />
+      </div>
+      <div class="qm-group">
+        <label class="qm-label">Provider</label>
+        <input id="qm-pcr-prov" class="qm-inp" type="text" placeholder="Last name" autocomplete="off" />
+      </div>
+      <div class="qm-group">
+        <label class="qm-label">Unit #</label>
+        <input id="qm-pcr-unit" class="qm-inp" type="text" placeholder="279-ALS" autocomplete="off" />
+      </div>
+    </div>`, () => {
+    const count = qmVal('qm-pcr-count'), prov = qmVal('qm-pcr-prov'), unit = qmVal('qm-pcr-unit');
+    const incl = qmChecked('qm-include-chk');
+    addQuickLogEntry('Note', `PCR Count: ${count} — ${prov} (${unit})`, unit, incl);
+    if(incl){
+      addToRptList('pcrs-list', buildPcrEntry, { 'pcr-count':count, 'pcr-provider':prov, 'pcr-unit':unit });
+      updateTotalsCount();
+    }
+    showToast('PCR count logged ✓');
+    closeQuickModal();
+  }, 'Logs to Activity Log and PCR\'s section of Shift Report.');
+}
+
+// ── 7. Unlock PCR
+function qaUnlockPcr(){
+  openQuickModal('🔓 Unlock PCR', `
+    <div class="qm-group">
+      <label class="qm-label">Run # / PCR ID</label>
+      <input id="qm-up-run" class="qm-inp" type="text" placeholder="e.g. 2026-04812" autocomplete="off" />
+    </div>
+    <div class="qm-group">
+      <label class="qm-label">Reason / Action Taken</label>
+      <input id="qm-up-reason" class="qm-inp" type="text" placeholder="e.g. Call type changed" autocomplete="off" />
+    </div>`, () => {
+    const run = qmVal('qm-up-run'), reason = qmVal('qm-up-reason');
+    const incl = qmChecked('qm-include-chk');
+    addQuickLogEntry('Note', `Unlocked PCR ${run}: ${reason}`, '', incl);
+    if(incl){
+      addToRptList('unlocked-pcrs-list', buildUnlockedPcrEntry, { 'up-run':run, 'up-reason':reason });
+    }
+    showToast('Unlocked PCR logged ✓');
+    closeQuickModal();
+  }, 'Logs to Activity Log and Unlocked PCR\'s section of Shift Report.');
+}
+
+// ── 8. Admin Note
+function qaAdmin(){
+  openQuickModal('📝 Admin Note', `
+    <div class="qm-group">
+      <label class="qm-label">Administrative Note</label>
+      <textarea id="qm-ad-text" class="qm-ta" placeholder="Administrative note or action taken…" rows="4"></textarea>
+    </div>`, () => {
+    const text = qmVal('qm-ad-text');
+    if(!text){ showToast('Enter a note first.'); return; }
+    const incl = qmChecked('qm-include-chk');
+    addQuickLogEntry('Note', text, '', incl);
+    if(incl){
+      addToRptList('admin-list', buildAdminItem, { 'ad-text':text });
+    }
+    showToast('Admin note logged ✓');
+    closeQuickModal();
+  }, 'Logs to Activity Log and Administrative section of Shift Report.');
+}
+
+function initQuickModal(){
+  const map = { callin:qaCallIn, narc:qaNarc, event:qaEvent, equipment:qaEquipment, rider:qaRider, pcr:qaPcr, unlockpcr:qaUnlockPcr, admin:qaAdmin };
+  document.querySelectorAll('[data-qa]').forEach(btn => {
+    const fn = map[btn.dataset.qa];
+    if(fn) btn.addEventListener('click', fn);
   });
-  document.getElementById('dash-btn-forms')?.addEventListener('click', () => {
-    showTab('forms');
+  // Dismiss on backdrop click
+  document.getElementById('quick-modal').addEventListener('click', e => {
+    if(e.target === document.getElementById('quick-modal')) closeQuickModal();
   });
 }
 
