@@ -1116,8 +1116,11 @@
     .log-topbar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
     .log-topbar-title { flex: 1; font-size: 16px; font-weight: 700; }
     .log-add-btn { background: var(--accent); color: #0b0d10; border: none; border-radius: 10px; height: 40px; padding: 0 18px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; flex-shrink: 0; }
-    .log-filter-row { display: flex; gap: 6px; margin-bottom: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
+    .log-filter-row { display: flex; gap: 6px; margin-bottom: 8px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
     .log-filter-row::-webkit-scrollbar { display: none; }
+    .log-search-wrap { margin-bottom: 12px; }
+    .log-search-wrap input { width: 100%; background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 13px; padding: 9px 12px; font-family: inherit; outline: none; box-sizing: border-box; }
+    .log-search-wrap input:focus { border-color: rgba(94,234,212,.4); }
     .log-chip { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 5px 13px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--muted); white-space: nowrap; flex-shrink: 0; transition: background .15s, border-color .15s; }
     .log-chip.active { background: rgba(94,234,212,.1); border-color: rgba(94,234,212,.4); color: var(--accent); }
     .log-entry { background: var(--card); border: 1px solid var(--border); border-radius: 13px; padding: 13px 14px; margin-bottom: 8px; position: relative; }
@@ -1269,13 +1272,22 @@
     .dash-generate-sub { font-size: 11px; color: var(--muted); font-weight: 500; margin-top: 2px; }
     .dash-generate-arrow { font-size: 22px; flex-shrink: 0; margin-left: 12px; }
 
-    /* ─── PAST REPORT DATE BROWSER ─── */
-    .rpt-date-browser { overflow-x: auto; -webkit-overflow-scrolling: touch; display: flex; gap: 8px; padding: 10px 0 8px; }
-    .rpt-date-browser::-webkit-scrollbar { display: none; }
-    .rpt-date-pill { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--muted); white-space: nowrap; flex-shrink: 0; transition: all .15s; }
-    .rpt-date-pill.active { background: rgba(94,234,212,.1); border-color: rgba(94,234,212,.4); color: var(--accent); }
-    .rpt-date-pill.has-data { color: var(--text); border-color: rgba(255,255,255,.2); }
-    .rpt-date-pill.has-data.active { color: var(--accent); border-color: rgba(94,234,212,.4); }
+    /* ─── MINI CALENDAR DATE PICKER ─── */
+    .rpt-mini-cal { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 12px 10px 10px; margin: 6px 0 10px; }
+    .rpt-mini-cal-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .rpt-mini-cal-title { font-size: 14px; font-weight: 700; color: var(--text); }
+    .rpt-mini-cal-nav { background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 18px; width: 30px; height: 30px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: inherit; line-height: 1; padding: 0; }
+    .rpt-mini-cal-nav:active { background: rgba(255,255,255,.07); }
+    .rpt-mini-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; }
+    .rpt-mini-cal-dow { font-size: 9px; font-weight: 700; color: var(--muted); text-align: center; padding: 2px 0 5px; }
+    .rpt-mini-cal-day { font-size: 12px; font-weight: 600; text-align: center; padding: 6px 1px; border-radius: 8px; cursor: pointer; color: var(--muted); position: relative; border: none; background: none; font-family: inherit; width: 100%; }
+    .rpt-mini-cal-day.other-month { opacity: .25; }
+    .rpt-mini-cal-day.today { color: var(--text); font-weight: 800; }
+    .rpt-mini-cal-day.has-data { color: var(--text); }
+    .rpt-mini-cal-day.has-data::after { content: ''; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; border-radius: 50%; background: var(--accent); opacity: .7; }
+    .rpt-mini-cal-day.selected { background: var(--accent) !important; color: #0b0d10 !important; font-weight: 800; }
+    .rpt-mini-cal-day.selected::after { display: none; }
+    .rpt-mini-cal-day.future { opacity: .25; pointer-events: none; }
 
     /* ─── WRAP-UP CHECKLIST MODAL ─── */
     #wrapup-modal { position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:400; display:none; align-items:flex-end; justify-content:center; }
@@ -1692,6 +1704,7 @@
         <button class="log-chip" data-filter="Event">Events</button>
         <button class="log-chip" data-filter="Note">Notes</button>
       </div>
+      <div class="log-search-wrap"><input type="search" id="log-search" placeholder="Search entries…" autocomplete="off" /></div>
       <div id="log-list"></div>
     </div>
 
@@ -2968,6 +2981,20 @@ function saveRoster() {
   }
 }
 
+function showCarryForwardPrompt(){
+  const existing = document.getElementById('carry-fwd-prompt');
+  if(existing) existing.remove();
+  const bar = document.createElement('div');
+  bar.id = 'carry-fwd-prompt';
+  bar.style.cssText = 'position:fixed;bottom:84px;left:50%;transform:translateX(-50%);background:#1a2030;border:1px solid rgba(94,234,212,.35);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;z-index:320;max-width:340px;width:calc(100% - 32px);box-shadow:0 6px 24px rgba(0,0,0,.55);animation:slideUp .2s ease';
+  bar.innerHTML = `<div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--text)">Yesterday's roster available</div><div style="font-size:11px;color:var(--muted);margin-top:1px">Carry forward to today?</div></div><button id="cfp-yes" style="background:var(--accent);color:#0b0d10;border:none;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0">Yes</button><button id="cfp-no" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:2px 4px;flex-shrink:0;line-height:1">×</button>`;
+  document.body.appendChild(bar);
+  const dismiss = () => bar.remove();
+  document.getElementById('cfp-yes').addEventListener('click', () => { dismiss(); carryForwardFromYesterday(); });
+  document.getElementById('cfp-no').addEventListener('click', dismiss);
+  setTimeout(dismiss, 9000);
+}
+
 function loadRoster(date) {
   const saved = localStorage.getItem(rosterKey(date));
   if (saved) {
@@ -2982,6 +3009,11 @@ function loadRoster(date) {
         notes: ''
       };
     });
+    // Offer carry-forward when today's roster has no saved data but yesterday does
+    if(date === todayStr()){
+      const d = new Date(date + 'T12:00:00'); d.setDate(d.getDate() - 1);
+      if(localStorage.getItem(rosterKey(d.toISOString().slice(0,10)))) setTimeout(showCarryForwardPrompt, 800);
+    }
   }
   buildRosterDOM();
   // Background Firestore sync
@@ -4170,9 +4202,17 @@ function renderLog(){
   const list = document.getElementById('log-list');
   if(!list) return;
   list.innerHTML = '';
-  const filtered = logFilter === 'All' ? logData : logData.filter(e => e.type === logFilter);
+  const q = (document.getElementById('log-search')?.value || '').toLowerCase().trim();
+  let filtered = logFilter === 'All' ? logData : logData.filter(e => e.type === logFilter);
+  if(q) filtered = filtered.filter(e =>
+    (e.desc||'').toLowerCase().includes(q) ||
+    (e.who||'').toLowerCase().includes(q) ||
+    (e.unit||'').toLowerCase().includes(q) ||
+    (e.type||'').toLowerCase().includes(q)
+  );
   if(!filtered.length){
-    list.innerHTML = `<div class="log-empty">No ${logFilter === 'All' ? '' : logFilter.toLowerCase()+' '}entries logged.<br><span style="font-size:12px">Tap <b>+ Log Entry</b> to add.</span></div>`;
+    const label = q ? `No entries matching "${q}".` : `No ${logFilter === 'All' ? '' : logFilter.toLowerCase()+' '}entries logged.<br><span style="font-size:12px">Tap <b>+ Log Entry</b> to add.</span>`;
+    list.innerHTML = `<div class="log-empty">${label}</div>`;
     return;
   }
   filtered.forEach(e => list.appendChild(buildLogEntry(e)));
@@ -4391,6 +4431,8 @@ function initLog(){
     document.querySelectorAll('.log-chip').forEach(c => c.classList.toggle('active', c === chip));
     renderLog();
   });
+
+  document.getElementById('log-search')?.addEventListener('input', renderLog);
 }
 
 /* ════════════════════════════════════════
@@ -5164,6 +5206,7 @@ function saveRptData(){
   collectRptFromDOM();
   localStorage.setItem(rptKey(date), JSON.stringify(rptData));
   renderReportHistory();
+  renderMiniCal();
   showToast('Report saved ✓');
 }
 
@@ -5175,6 +5218,7 @@ function autoSaveRptData(){
     const el = document.getElementById('autosave-indicator');
     if(el){ const t = new Date().toTimeString().slice(0,5); el.textContent = 'Auto-saved at ' + t; }
     renderReportHistory();
+    renderMiniCal();
   } catch(e){}
 }
 
@@ -6302,12 +6346,16 @@ function initShiftReport(){
   dateInput.addEventListener('change', () => { loadRptData(dateInput.value); renderStaffing(); });
   setTimeout(() => {
     const supEl = document.getElementById('rpt-supervisor');
-    if(supEl && !supEl.value){
-      try {
-        try { const tos = JSON.parse(localStorage.getItem('pat_tos_v1') || 'null'); if(tos && tos.first) { supEl.value = (tos.first + ' ' + (tos.last||'')).trim(); } } catch(e2){}
-        if(!supEl.value) { const user = typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser; if(user) supEl.value = user.displayName || user.email || ''; }
-        if(supEl.value && !rptData.supervisor) rptData.supervisor = supEl.value;
-      } catch(e){}
+    if(supEl){
+      if(!supEl.value){
+        try {
+          let n = localStorage.getItem('pat_supervisor_name') || '';
+          if(!n){ try{ const t=JSON.parse(localStorage.getItem('pat_tos_v1')||'null'); if(t&&t.first) n=(t.first+' '+(t.last||'')).trim(); }catch(_){} }
+          if(!n){ const u=typeof firebase!=='undefined'&&firebase.auth&&firebase.auth().currentUser; if(u) n=u.displayName||u.email||''; }
+          if(n){ supEl.value=n; if(!rptData.supervisor) rptData.supervisor=n; }
+        } catch(e){}
+      }
+      supEl.addEventListener('input', () => { if(supEl.value.trim()) localStorage.setItem('pat_supervisor_name', supEl.value.trim()); });
     }
   }, 500);
 
@@ -6440,38 +6488,87 @@ function initWrapUp(){
 }
 
 /* ────────────────────────────────────────
-   PAST REPORT DATE BROWSER
+   MINI CALENDAR DATE PICKER (Report tab)
    ──────────────────────────────────────── */
-function renderReportDateBrowser(){
-  const bar = document.getElementById('rpt-date-browser');
-  if(!bar) return;
-  const today = todayStr();
-  const active = document.getElementById('roster-date')?.value || today;
-  const pills = [];
-  for(let i = 0; i < 10; i++){
-    const d = new Date(today + 'T12:00:00');
-    d.setDate(d.getDate() - i);
-    const ds = d.toISOString().slice(0,10);
-    const hasData = !!localStorage.getItem(rptKey(ds));
-    const label = i === 0 ? 'Today' : i === 1 ? 'Yesterday' : (d.getMonth()+1)+'/'+d.getDate();
-    pills.push({ ds, label, hasData, active: ds === active });
+let _calViewYear = null, _calViewMonth = null;
+
+function renderMiniCal(){
+  const container = document.getElementById('rpt-date-browser');
+  if(!container) return;
+
+  const todayISO = todayStr();
+  const todayD   = new Date(todayISO + 'T12:00:00');
+  if(_calViewYear === null){ _calViewYear = todayD.getFullYear(); _calViewMonth = todayD.getMonth(); }
+
+  const active   = document.getElementById('roster-date')?.value || todayISO;
+  const year     = _calViewYear, month = _calViewMonth;
+  const isCurrentMonth = year === todayD.getFullYear() && month === todayD.getMonth();
+  const monthLabel = new Date(year, month, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  const firstDow    = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const prevMonthDays = new Date(year, month, 0).getDate();
+
+  const cells = [];
+  for(let i = firstDow - 1; i >= 0; i--){
+    const d = prevMonthDays - i;
+    const pm = month === 0 ? 11 : month - 1;
+    const py = month === 0 ? year - 1 : year;
+    cells.push({ ds: `${py}-${String(pm+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`, day: d, thisMonth: false });
   }
-  bar.innerHTML = pills.map(p => {
-    let cls = 'rpt-date-pill';
-    if(p.hasData) cls += ' has-data';
-    if(p.active) cls += ' active';
-    return `<button class="${cls}" data-rpt-date="${p.ds}">${p.label}${p.hasData?' ●':''}</button>`;
-  }).join('');
-  bar.querySelectorAll('[data-rpt-date]').forEach(btn => {
+  for(let d = 1; d <= daysInMonth; d++){
+    cells.push({ ds: `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`, day: d, thisMonth: true });
+  }
+  const trailing = (7 - cells.length % 7) % 7;
+  const nm = month === 11 ? 0 : month + 1, ny = month === 11 ? year + 1 : year;
+  for(let d = 1; d <= trailing; d++){
+    cells.push({ ds: `${ny}-${String(nm+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`, day: d, thisMonth: false });
+  }
+
+  container.innerHTML = `<div class="rpt-mini-cal">
+    <div class="rpt-mini-cal-hdr">
+      <button class="rpt-mini-cal-nav" id="cal-prev">‹</button>
+      <span class="rpt-mini-cal-title">${monthLabel}</span>
+      <button class="rpt-mini-cal-nav" id="cal-next"${isCurrentMonth ? ' disabled style="opacity:.3;pointer-events:none"' : ''}>›</button>
+    </div>
+    <div class="rpt-mini-cal-grid">
+      ${'Su Mo Tu We Th Fr Sa'.split(' ').map(d => `<div class="rpt-mini-cal-dow">${d}</div>`).join('')}
+      ${cells.map(c => {
+        const isFuture   = c.ds > todayISO;
+        const isToday    = c.ds === todayISO;
+        const isSelected = c.ds === active;
+        const hasData    = !!localStorage.getItem(rptKey(c.ds));
+        let cls = 'rpt-mini-cal-day';
+        if(!c.thisMonth) cls += ' other-month';
+        if(isFuture)     cls += ' future';
+        if(isToday)      cls += ' today';
+        if(hasData)      cls += ' has-data';
+        if(isSelected)   cls += ' selected';
+        return `<button class="${cls}" data-cal-date="${c.ds}">${c.day}</button>`;
+      }).join('')}
+    </div>
+  </div>`;
+
+  container.querySelector('#cal-prev').addEventListener('click', () => {
+    if(_calViewMonth === 0){ _calViewMonth = 11; _calViewYear--; } else { _calViewMonth--; }
+    renderMiniCal();
+  });
+  container.querySelector('#cal-next')?.addEventListener('click', () => {
+    if(_calViewMonth === 11){ _calViewMonth = 0; _calViewYear++; } else { _calViewMonth++; }
+    renderMiniCal();
+  });
+  container.querySelectorAll('[data-cal-date]').forEach(btn => {
     btn.addEventListener('click', () => {
-      const ds = btn.dataset.rptDate;
+      const ds = btn.dataset.calDate;
       const dateInput = document.getElementById('roster-date');
       if(dateInput) dateInput.value = ds;
       loadRptData(ds);
-      renderReportDateBrowser();
+      renderMiniCal();
     });
   });
 }
+
+function renderReportDateBrowser(){ renderMiniCal(); }
 
 function pullLogIntoReport(){
   const logEntries = logData.filter(e => e.includeInReport);
