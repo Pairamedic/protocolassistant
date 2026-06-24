@@ -694,63 +694,65 @@
     .forms-edit-btn:hover { background:rgba(255,255,255,.12); }
 
     /* ── Mobile Bottom Navigation ── */
-    .mobile-nav { display:none; }
+    /* ── Bottom Navigation: phones + tablets (≤960px) ── */
+    .mobile-nav { display: none; }
 
-    @media (max-width: 640px) {
-      /* Hide top tab bar, show bottom nav */
-      .tab-bar-wrap { display:none; }
+    @media (max-width: 960px) {
+      /* Hide top tab bar; bottom nav takes over */
+      .tab-bar-wrap { display: none; }
+
       .mobile-nav {
         display: flex;
         position: fixed;
         bottom: 0; left: 0; right: 0;
-        background: rgba(20,24,32,.96);
+        background: rgba(13, 17, 24, .97);
         border-top: 1px solid var(--border);
         z-index: 200;
         padding-bottom: env(safe-area-inset-bottom, 0);
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
       }
-      .mobile-nav::-webkit-scrollbar { display:none; }
+
       .mobile-nav-btn {
-        flex: 1 0 auto;
-        min-width: 56px;
+        flex: 1;
+        min-width: 0;
         background: none;
         border: none;
         color: var(--muted);
-        font-size: 9px;
+        font-size: 10px;
         font-weight: 600;
-        padding: 8px 4px 6px;
+        padding: 8px 2px 10px;
         cursor: pointer;
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: center;
         gap: 3px;
         font-family: inherit;
         transition: color .15s;
         letter-spacing: .2px;
         white-space: nowrap;
-        position: relative;
+        -webkit-tap-highlight-color: transparent;
       }
+
       .mobile-nav-btn.active { color: var(--accent); }
-      .mobile-nav-btn.active::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 20%; right: 20%;
-        height: 2px;
-        background: var(--accent);
-        border-radius: 0 0 2px 2px;
+
+      /* iOS-style pill indicator behind icon */
+      .nav-pill {
+        display: block;
+        border-radius: 16px;
+        padding: 4px 18px;
+        transition: background .2s;
+        line-height: 1;
       }
-      .mobile-nav-btn .nav-icon { font-size: 20px; line-height: 1; }
+      .mobile-nav-btn.active .nav-pill { background: rgba(94,234,212,.18); }
+      .mobile-nav-btn .nav-icon { font-size: 22px; line-height: 1; display: block; }
 
-      /* Content area: bottom padding for nav bar */
-      .content { padding-bottom: calc(70px + env(safe-area-inset-bottom, 8px)); }
+      /* Content padding so bottom nav doesn't cover content */
+      .content { padding-bottom: calc(74px + env(safe-area-inset-bottom, 8px)); }
+      #toast { bottom: calc(82px + env(safe-area-inset-bottom, 8px)); }
 
-      /* Toast: above nav bar */
-      #toast { bottom: calc(78px + env(safe-area-inset-bottom, 8px)); }
-
-      /* Compact header on mobile */
+      /* Compact header on phone */
       .header-title p { display: none; }
       header { padding: 10px 14px 8px; }
       #btn-svc-settings { display: none; }
@@ -762,6 +764,27 @@
       /* Modals: taller on mobile */
       #assign-modal > div,
       #import-modal .import-modal-body { max-height: 93vh; }
+    }
+
+    /* ── Tablet sizing (iPad portrait + small landscape, 641-960px) ── */
+    @media (min-width: 641px) and (max-width: 960px) {
+      .mobile-nav-btn {
+        font-size: 12px;
+        gap: 4px;
+        padding: 10px 4px 12px;
+      }
+      .mobile-nav-btn .nav-icon { font-size: 28px; }
+      .nav-pill { padding: 5px 24px; border-radius: 20px; }
+
+      /* Taller nav → more content padding */
+      .content { padding-bottom: calc(88px + env(safe-area-inset-bottom, 8px)); }
+      #toast { bottom: calc(96px + env(safe-area-inset-bottom, 8px)); }
+
+      /* Restore header elements hidden by the phone rule above */
+      .header-title p { display: block; }
+      header { padding: 14px 20px 12px; }
+      #btn-svc-settings { display: flex; }
+      #svc-switcher { max-width: 150px; font-size: 12px; }
     }
 
     /* ══════════════════════════════════════════════
@@ -1139,9 +1162,10 @@
     body.shanna-mode header,
     body.shanna-mode .tab-bar-wrap,
     body.shanna-mode .tab-bar { background: #ffffff; border-color: rgba(232,62,140,.15); }
-    body.shanna-mode .mob-nav { background: rgba(255,255,255,.92); border-color: rgba(232,62,140,.15); }
+    body.shanna-mode .mobile-nav { background: rgba(255,255,255,.97); border-color: rgba(232,62,140,.15); }
     body.shanna-mode .tab-btn.active { color: #e83e8c; border-bottom-color: #e83e8c; }
-    body.shanna-mode .mob-nav-btn.active { color: #e83e8c; }
+    body.shanna-mode .mobile-nav-btn.active { color: #e83e8c; }
+    body.shanna-mode .mobile-nav-btn.active .nav-pill { background: rgba(232,62,140,.15); }
     body.shanna-mode .spin { border-top-color: #e83e8c; }
     #shanna-toggle {
       display: none;
@@ -1804,12 +1828,12 @@ Shift Start/End    0600
 
 <!-- Mobile Bottom Nav -->
 <nav class="mobile-nav">
-  <button class="mobile-nav-btn active" data-tab="dashboard"><span class="nav-icon">🏠</span>Home</button>
-  <button class="mobile-nav-btn" data-tab="roster"><span class="nav-icon">📋</span>Roster</button>
-  <button class="mobile-nav-btn" data-tab="log"><span class="nav-icon">📒</span>Log</button>
-  <button class="mobile-nav-btn" data-tab="directory"><span class="nav-icon">📞</span>Directory</button>
-  <button class="mobile-nav-btn" data-tab="profiles"><span class="nav-icon">👤</span>Profiles</button>
-  <button class="mobile-nav-btn" data-tab="report"><span class="nav-icon">📝</span>Report</button>
+  <button class="mobile-nav-btn active" data-tab="dashboard"><span class="nav-pill"><span class="nav-icon">🏠</span></span><span class="nav-label">Home</span></button>
+  <button class="mobile-nav-btn" data-tab="roster"><span class="nav-pill"><span class="nav-icon">📋</span></span><span class="nav-label">Roster</span></button>
+  <button class="mobile-nav-btn" data-tab="log"><span class="nav-pill"><span class="nav-icon">📒</span></span><span class="nav-label">Log</span></button>
+  <button class="mobile-nav-btn" data-tab="directory"><span class="nav-pill"><span class="nav-icon">📞</span></span><span class="nav-label">Directory</span></button>
+  <button class="mobile-nav-btn" data-tab="profiles"><span class="nav-pill"><span class="nav-icon">👤</span></span><span class="nav-label">Profiles</span></button>
+  <button class="mobile-nav-btn" data-tab="report"><span class="nav-pill"><span class="nav-icon">📝</span></span><span class="nav-label">Report</span></button>
 </nav>
 
 <!-- Form Add/Edit Modal -->
