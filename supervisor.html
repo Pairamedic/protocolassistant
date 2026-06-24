@@ -680,23 +680,25 @@
         display: flex;
         position: fixed;
         bottom: 0; left: 0; right: 0;
-        background: var(--card);
+        background: rgba(20,24,32,.96);
         border-top: 1px solid var(--border);
         z-index: 200;
         padding-bottom: env(safe-area-inset-bottom, 0);
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
       }
       .mobile-nav::-webkit-scrollbar { display:none; }
       .mobile-nav-btn {
-        flex: 0 0 auto;
-        min-width: 60px;
+        flex: 1 0 auto;
+        min-width: 56px;
         background: none;
         border: none;
         color: var(--muted);
         font-size: 9px;
         font-weight: 600;
-        padding: 8px 6px 6px;
+        padding: 8px 4px 6px;
         cursor: pointer;
         display: flex;
         flex-direction: column;
@@ -706,23 +708,30 @@
         transition: color .15s;
         letter-spacing: .2px;
         white-space: nowrap;
+        position: relative;
       }
       .mobile-nav-btn.active { color: var(--accent); }
-      .mobile-nav-btn .nav-icon { font-size: 21px; line-height: 1; }
+      .mobile-nav-btn.active::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 20%; right: 20%;
+        height: 2px;
+        background: var(--accent);
+        border-radius: 0 0 2px 2px;
+      }
+      .mobile-nav-btn .nav-icon { font-size: 20px; line-height: 1; }
 
       /* Content area: bottom padding for nav bar */
-      .content { padding-bottom: calc(68px + env(safe-area-inset-bottom, 8px)); }
+      .content { padding-bottom: calc(70px + env(safe-area-inset-bottom, 8px)); }
 
       /* Toast: above nav bar */
-      #toast { bottom: calc(76px + env(safe-area-inset-bottom, 8px)); }
+      #toast { bottom: calc(78px + env(safe-area-inset-bottom, 8px)); }
 
       /* Compact header on mobile */
       .header-title p { display: none; }
       header { padding: 10px 14px 8px; }
-
-      /* Roster topbar: allow horizontal scroll */
-      .roster-topbar { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-      .roster-topbar::-webkit-scrollbar { display:none; }
+      #btn-svc-settings { display: none; }
+      #svc-switcher { max-width: 110px; font-size: 11px; }
 
       /* Bigger tap targets for name inputs */
       .name-input { font-size: 16px; padding: 10px 11px; }
@@ -732,6 +741,301 @@
       #import-modal .import-modal-body,
       #narc-modal > div { max-height: 93vh; }
     }
+
+    /* ══════════════════════════════════════════════
+       ROSTER REDESIGN — COMPACT MOBILE-FIRST VIEW
+       ══════════════════════════════════════════════ */
+
+    /* Controls bar — date + save + more */
+    .roster-ctrl-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: nowrap;
+    }
+    .roster-ctrl-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      min-width: 0;
+    }
+    .roster-ctrl-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    /* Full-width search bar */
+    .roster-search-row {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0 14px;
+      margin-bottom: 12px;
+      height: 46px;
+      transition: border-color .15s;
+    }
+    .roster-search-row:focus-within { border-color: var(--accent); }
+    .roster-search-icon { color: var(--muted); font-size: 15px; margin-right: 10px; flex-shrink: 0; }
+    .roster-search-row input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+      min-width: 0;
+    }
+    .roster-search-row input::placeholder { color: var(--muted); opacity: .7; }
+    .roster-search-clear {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px 2px 4px 8px;
+      line-height: 1;
+      display: none;
+      flex-shrink: 0;
+    }
+    .roster-search-row.has-query .roster-search-clear { display: block; }
+
+    /* More actions button */
+    .roster-more-btn {
+      background: rgba(255,255,255,.07);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 18px;
+      width: 36px; height: 36px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background .15s, color .15s;
+      font-family: inherit;
+      letter-spacing: 1px;
+      padding: 0;
+    }
+    .roster-more-btn:hover { background: rgba(255,255,255,.12); color: var(--text); }
+
+    /* More actions dropdown menu */
+    .roster-more-menu {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 6px;
+      margin-bottom: 10px;
+      display: none;
+      flex-direction: column;
+      gap: 2px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.4);
+    }
+    .roster-more-menu.open { display: flex; }
+    .roster-more-item {
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 13px;
+      font-family: inherit;
+      padding: 10px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: left;
+      transition: background .12s;
+    }
+    .roster-more-item:hover { background: rgba(255,255,255,.07); }
+
+    /* Section card container */
+    .roster-section-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .roster-section-card.hidden { display: none !important; }
+
+    /* Section card header */
+    .roster-sec-hdr {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 14px;
+      cursor: pointer;
+      user-select: none;
+      background: rgba(94,234,212,.06);
+      border-bottom: 1px solid var(--border);
+      transition: background .15s;
+    }
+    .roster-sec-hdr:hover { background: rgba(94,234,212,.1); }
+    .roster-sec-hdr:active { background: rgba(94,234,212,.15); }
+
+    .roster-sec-name {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      flex: 1;
+    }
+    .roster-sec-addr {
+      font-size: 10px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .roster-sec-addr .sta-no {
+      background: rgba(255,255,255,.08);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 5px;
+      margin-right: 4px;
+      font-size: 10px;
+    }
+
+    /* Section body — collapses */
+    .roster-sec-body { overflow: hidden; }
+    .roster-sec-body.collapsed { display: none; }
+
+    /* ── Compact roster row (rvr = roster view row) ── */
+    .rvr-wrapper {
+      border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+    .rvr-wrapper:last-child { border-bottom: none; }
+    .rvr-wrapper.hidden { display: none !important; }
+
+    .rvr-summary {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: background .1s;
+      min-height: 52px;
+    }
+    .rvr-summary:hover { background: rgba(255,255,255,.03); }
+    .rvr-summary:active { background: rgba(255,255,255,.06); }
+
+    /* Type indicator bar */
+    .rvr-type {
+      width: 4px;
+      border-radius: 2px;
+      align-self: stretch;
+      min-height: 36px;
+      flex-shrink: 0;
+    }
+    .rvr-type.als       { background: #3b82f6; }
+    .rvr-type.bls       { background: #22c55e; }
+    .rvr-type.dispatch  { background: #a855f7; }
+    .rvr-type.supervisor { background: #f59e0b; }
+    .rvr-type.oncall    { background: rgba(255,255,255,.2); }
+
+    /* Position + unit # column */
+    .rvr-meta {
+      flex: 0 0 108px;
+      min-width: 0;
+    }
+    @media (max-width: 360px) { .rvr-meta { flex: 0 0 88px; } }
+
+    .rvr-pos {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      color: var(--muted);
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .rvr-unit-num {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .rvr-unit-num.empty { color: var(--muted); font-style: italic; font-weight: 500; }
+
+    /* Crew names column */
+    .rvr-crew { flex: 1; min-width: 0; }
+
+    .rvr-lead {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.3;
+    }
+    .rvr-lead.empty {
+      color: var(--muted);
+      font-style: italic;
+      font-size: 12px;
+    }
+    .rvr-sec-name {
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+      line-height: 1.3;
+    }
+
+    /* Edit toggle button */
+    .rvr-edit-btn {
+      background: none;
+      border: 1px solid transparent;
+      color: var(--muted);
+      font-size: 14px;
+      cursor: pointer;
+      padding: 5px 8px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      transition: all .15s;
+      font-family: inherit;
+      line-height: 1;
+    }
+    .rvr-edit-btn:hover { color: var(--accent); border-color: rgba(94,234,212,.3); background: rgba(94,234,212,.08); }
+    .rvr-edit-btn.active { color: var(--accent); background: rgba(94,234,212,.1); border-color: rgba(94,234,212,.3); }
+
+    /* Inline editor panel */
+    .rvr-editor {
+      display: none;
+      padding: 12px 14px 14px;
+      border-top: 1px solid var(--border);
+      background: rgba(0,0,0,.15);
+    }
+    .rvr-editor.open { display: block; }
+
+    .rvr-editor-toprow {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .rvr-editor-unit-wrap { display: flex; flex-direction: column; gap: 3px; }
+    .rvr-editor-actions {
+      display: flex;
+      gap: 6px;
+      margin-left: auto;
+      flex-shrink: 0;
+      padding-bottom: 1px;
+    }
+
+    /* Search highlight */
+    .rvr-wrapper.search-match .rvr-summary { background: rgba(94,234,212,.04); }
   </style>
 </head>
 <body>
@@ -773,16 +1077,29 @@
   <!-- ── TAB: ROSTER ── -->
   <div class="content">
     <div id="tab-roster" class="tab-panel active">
-      <div class="roster-topbar">
-        <label for="roster-date">Date</label>
-        <input type="date" id="roster-date" />
-        <button class="action-btn save-btn" id="btn-save">💾 Save</button>
-        <button class="action-btn" id="btn-export">🖨 Export</button>
-        <button class="action-btn" id="btn-import">📄 Import</button>
-        <button class="action-btn" id="btn-copy-prev">📋 Copy Previous</button>
-        <span class="sync-badge local" id="sync-badge">💾 Local</span>
-        <input type="search" id="roster-search" placeholder="Search unit # or name…" autocomplete="off"
-          style="flex:1;min-width:140px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:8px 10px;outline:none;font-family:inherit">
+      <!-- Search bar — full width, always visible -->
+      <div class="roster-search-row" id="roster-search-row">
+        <span class="roster-search-icon">🔍</span>
+        <input type="search" id="roster-search" placeholder="Search unit # or name…" autocomplete="off" />
+        <button class="roster-search-clear" id="roster-search-clear" type="button" title="Clear search">✕</button>
+      </div>
+      <!-- Controls row: date + save + sync + more -->
+      <div class="roster-ctrl-bar">
+        <div class="roster-ctrl-left">
+          <label for="roster-date" style="font-size:13px;color:var(--muted);font-weight:500;white-space:nowrap">Date</label>
+          <input type="date" id="roster-date" />
+        </div>
+        <div class="roster-ctrl-right">
+          <button class="action-btn save-btn" id="btn-save">💾 Save</button>
+          <span class="sync-badge local" id="sync-badge">💾 Local</span>
+          <button class="roster-more-btn" id="btn-roster-more" type="button" title="More actions">···</button>
+        </div>
+      </div>
+      <!-- More actions menu (hidden by default) -->
+      <div class="roster-more-menu" id="roster-more-menu">
+        <button class="roster-more-item" id="btn-export">🖨 Export / Print</button>
+        <button class="roster-more-item" id="btn-import">📄 Import Roster</button>
+        <button class="roster-more-item" id="btn-copy-prev">📋 Copy Previous Day</button>
       </div>
       <div id="roster-rows-container"></div>
     </div>
@@ -1580,13 +1897,33 @@ function updateBadge(badgeEl, phone) {
 }
 
 /* ════════════════════════════════════════
-   BUILD ROSTER DOM
+   BUILD ROSTER DOM — COMPACT SECTION CARDS
    ════════════════════════════════════════ */
+function getRosterRowType(label) {
+  const l = label.toUpperCase();
+  if (l.includes('ALS')) return 'als';
+  if (l.includes('BLS')) return 'bls';
+  if (l.includes('DISPATCH')) return 'dispatch';
+  if (l.includes('SUPERVISOR')) return 'supervisor';
+  return 'oncall';
+}
+
 function buildRosterDOM() {
   const container = document.getElementById('roster-rows-container');
   container.innerHTML = '';
 
-  // Pre-compute filled/total counts per section
+  // Group rows by section preserving order
+  const sectionOrder = [];
+  const sectionRows = {};
+  ROSTER_ROWS.forEach(row => {
+    if (!sectionRows[row.section]) {
+      sectionRows[row.section] = [];
+      sectionOrder.push(row.section);
+    }
+    sectionRows[row.section].push(row);
+  });
+
+  // Fill counts per section
   const sectionCounts = {};
   ROSTER_ROWS.forEach(row => {
     if (!sectionCounts[row.section]) sectionCounts[row.section] = { filled:0, total:0 };
@@ -1595,278 +1932,378 @@ function buildRosterDOM() {
     if (rd?.lead || rd?.secondary) sectionCounts[row.section].filled++;
   });
 
-  let lastSection = null;
+  sectionOrder.forEach(sectionName => {
+    const rows = sectionRows[sectionName];
+    const c = sectionCounts[sectionName];
+    const si = stationInfo[sectionName] || {};
+    const isCollapsed = collapsedSections.has(sectionName);
 
-  ROSTER_ROWS.forEach(row => {
-    // Section header (with optional station number + address + count badge + collapse chevron)
-    if (row.section !== lastSection) {
-      lastSection = row.section;
-      const hdr = document.createElement('div');
-      hdr.className = 'section-header';
-      hdr.dataset.section = row.section;
-
-      const nameSpan = document.createElement('span');
-      nameSpan.textContent = row.section;
-      hdr.appendChild(nameSpan);
-
-      const si = stationInfo[row.section] || {};
-      if (si.stateNo || si.address) {
-        const detail = document.createElement('span');
-        detail.className = 'sec-detail';
-        if (si.stateNo) {
-          const noSpan = document.createElement('span');
-          noSpan.className = 'sec-detail-no';
-          noSpan.textContent = 'Sta. ' + si.stateNo;
-          detail.appendChild(noSpan);
-        }
-        if (si.stateNo && si.address) detail.appendChild(document.createTextNode(' · '));
-        if (si.address) {
-          const addrSpan = document.createElement('span');
-          addrSpan.textContent = si.address;
-          detail.appendChild(addrSpan);
-        }
-        hdr.appendChild(detail);
-      }
-
-      // Slot fill count badge
-      const c = sectionCounts[row.section];
-      const badge = document.createElement('span');
-      badge.className = 'sec-count-badge' + (c.filled === c.total ? ' complete' : '');
-      badge.textContent = c.filled + '/' + c.total;
-      hdr.appendChild(badge);
-
-      // Collapse chevron
-      const chevron = document.createElement('span');
-      chevron.className = 'sec-chevron';
-      chevron.textContent = collapsedSections.has(row.section) ? '▸' : '▾';
-      hdr.appendChild(chevron);
-
-      hdr.addEventListener('click', () => toggleSection(row.section));
-      container.appendChild(hdr);
-    }
-
-    // Card
+    // Section card
     const card = document.createElement('div');
-    card.className = 'roster-card';
-    card.dataset.rowId = row.id;
-    // Color-coded left border by unit type
-    const lbl = row.label.toUpperCase();
-    if (lbl.includes('ALS')) card.classList.add('type-als');
-    else if (lbl.includes('BLS')) card.classList.add('type-bls');
-    else if (lbl.includes('DISPATCH')) card.classList.add('type-dispatch');
-    else if (lbl.includes('SUPERVISOR')) card.classList.add('type-supervisor');
-    else card.classList.add('type-oncall');
-    // Hide if section is collapsed
-    if (collapsedSections.has(row.section)) card.style.display = 'none';
+    card.className = 'roster-section-card';
+    card.dataset.section = sectionName;
 
-    // Top bar: label + unit input + usual-unit button + action buttons
-    const top = document.createElement('div');
-    top.className = 'roster-card-top';
+    // Section header
+    const hdr = document.createElement('div');
+    hdr.className = 'roster-sec-hdr';
 
-    const labelEl = document.createElement('div');
-    labelEl.className = 'roster-label';
-    labelEl.textContent = row.label;
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'roster-sec-name';
+    nameSpan.textContent = sectionName;
+    hdr.appendChild(nameSpan);
 
-    const unitInput = document.createElement('input');
-    unitInput.className = 'unit-input';
-    unitInput.type = 'text';
-    unitInput.placeholder = 'Unit #';
-    unitInput.value = rowData[row.id]?.unit ?? row.defaultUnit;
-    unitInput.setAttribute('autocomplete', 'off');
-    unitInput.addEventListener('input', () => {
-      ensureRowData(row.id);
-      rowData[row.id].unit = unitInput.value;
-    });
+    if (si.stateNo || si.address) {
+      const addr = document.createElement('span');
+      addr.className = 'roster-sec-addr';
+      if (si.stateNo) {
+        const noSpan = document.createElement('span');
+        noSpan.className = 'sta-no';
+        noSpan.textContent = 'Sta. ' + si.stateNo;
+        addr.appendChild(noSpan);
+      }
+      if (si.address) addr.appendChild(document.createTextNode(si.address));
+      hdr.appendChild(addr);
+    }
 
-    // "Use usual unit" button — shown when lead has a usualUnit profile
-    const usualUnitBtn = document.createElement('button');
-    usualUnitBtn.className = 'usual-unit-btn';
-    usualUnitBtn.type = 'button';
-    usualUnitBtn.style.display = 'none';
-    usualUnitBtn.addEventListener('click', () => {
-      unitInput.value = usualUnitBtn.dataset.unit || '';
-      ensureRowData(row.id);
-      rowData[row.id].unit = unitInput.value;
-    });
+    const badge = document.createElement('span');
+    badge.className = 'sec-count-badge' + (c.filled === c.total ? ' complete' : '');
+    badge.textContent = c.filled + '/' + c.total;
+    hdr.appendChild(badge);
 
-    // Initialize button state if lead is already populated
-    const savedLead = rowData[row.id]?.lead ?? '';
-    if (savedLead) {
-      const initEmp = lookupByName(savedLead.trim());
-      if (initEmp) {
-        const initProf = getEmpProfile(initEmp);
-        if (initProf.usualUnit) {
-          usualUnitBtn.textContent = '→ ' + initProf.usualUnit;
-          usualUnitBtn.dataset.unit = initProf.usualUnit;
-          usualUnitBtn.style.display = '';
+    const chevron = document.createElement('span');
+    chevron.className = 'sec-chevron';
+    chevron.textContent = isCollapsed ? '▸' : '▾';
+    hdr.appendChild(chevron);
+
+    hdr.addEventListener('click', () => toggleSection(sectionName));
+    card.appendChild(hdr);
+
+    // Section body
+    const body = document.createElement('div');
+    body.className = 'roster-sec-body' + (isCollapsed ? ' collapsed' : '');
+    body.dataset.section = sectionName;
+
+    rows.forEach(row => body.appendChild(buildRosterRow(row)));
+
+    card.appendChild(body);
+    container.appendChild(card);
+  });
+}
+
+function buildRosterRow(row) {
+  const rd = rowData[row.id] || {};
+  const type = getRosterRowType(row.label);
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'rvr-wrapper';
+  wrapper.dataset.rowId = row.id;
+
+  // ── Summary line (compact, tap to expand editor) ──
+  const summary = document.createElement('div');
+  summary.className = 'rvr-summary';
+
+  const typeBar = document.createElement('div');
+  typeBar.className = 'rvr-type ' + type;
+  summary.appendChild(typeBar);
+
+  const meta = document.createElement('div');
+  meta.className = 'rvr-meta';
+
+  const posEl = document.createElement('div');
+  posEl.className = 'rvr-pos';
+  posEl.textContent = row.label;
+  meta.appendChild(posEl);
+
+  const unitNumEl = document.createElement('div');
+  const unitVal = rd.unit || row.defaultUnit || '';
+  unitNumEl.className = 'rvr-unit-num' + (unitVal ? '' : ' empty');
+  unitNumEl.textContent = unitVal || '—';
+  meta.appendChild(unitNumEl);
+  summary.appendChild(meta);
+
+  const crewEl = document.createElement('div');
+  crewEl.className = 'rvr-crew';
+
+  const leadEl = document.createElement('div');
+  leadEl.className = 'rvr-lead' + (rd.lead ? '' : ' empty');
+  leadEl.textContent = rd.lead || 'Unstaffed';
+  crewEl.appendChild(leadEl);
+
+  const secNameEl = document.createElement('div');
+  secNameEl.className = 'rvr-sec-name';
+  secNameEl.textContent = rd.secondary || (rd.lead ? '— No secondary' : '');
+  crewEl.appendChild(secNameEl);
+  summary.appendChild(crewEl);
+
+  const editBtn = document.createElement('button');
+  editBtn.className = 'rvr-edit-btn';
+  editBtn.type = 'button';
+  editBtn.title = 'Edit slot';
+  editBtn.textContent = '✎';
+  editBtn.addEventListener('click', e => { e.stopPropagation(); toggleRowEditor(row.id); });
+  summary.appendChild(editBtn);
+
+  summary.addEventListener('click', () => toggleRowEditor(row.id));
+  wrapper.appendChild(summary);
+
+  // ── Inline editor (hidden until expanded) ──
+  wrapper.appendChild(buildRowEditor(row));
+
+  return wrapper;
+}
+
+function buildRowEditor(row) {
+  const editor = document.createElement('div');
+  editor.className = 'rvr-editor';
+  editor.dataset.editorFor = row.id;
+
+  // Top row: Unit # + usual-unit btn + action buttons
+  const topRow = document.createElement('div');
+  topRow.className = 'rvr-editor-toprow';
+
+  const unitWrap = document.createElement('div');
+  unitWrap.className = 'rvr-editor-unit-wrap';
+
+  const unitLabel = document.createElement('div');
+  unitLabel.className = 'field-label';
+  unitLabel.textContent = 'Unit #';
+  unitWrap.appendChild(unitLabel);
+
+  const unitInput = document.createElement('input');
+  unitInput.className = 'unit-input';
+  unitInput.type = 'text';
+  unitInput.placeholder = 'Unit #';
+  unitInput.value = rowData[row.id]?.unit ?? row.defaultUnit;
+  unitInput.setAttribute('autocomplete', 'off');
+  unitInput.addEventListener('input', () => {
+    ensureRowData(row.id);
+    rowData[row.id].unit = unitInput.value;
+    updateRowSummary(row.id);
+  });
+  unitWrap.appendChild(unitInput);
+  topRow.appendChild(unitWrap);
+
+  // Usual-unit quick-fill button
+  const usualUnitBtn = document.createElement('button');
+  usualUnitBtn.className = 'usual-unit-btn';
+  usualUnitBtn.type = 'button';
+  usualUnitBtn.style.display = 'none';
+  usualUnitBtn.style.alignSelf = 'flex-end';
+  usualUnitBtn.addEventListener('click', () => {
+    unitInput.value = usualUnitBtn.dataset.unit || '';
+    ensureRowData(row.id);
+    rowData[row.id].unit = unitInput.value;
+    updateRowSummary(row.id);
+  });
+  topRow.appendChild(usualUnitBtn);
+
+  // Callout + clear buttons
+  const actionsDiv = document.createElement('div');
+  actionsDiv.className = 'rvr-editor-actions';
+
+  const calloutBtn = document.createElement('button');
+  calloutBtn.className = 'slot-callout-btn';
+  calloutBtn.type = 'button';
+  calloutBtn.title = 'Mark called out in Shift Report';
+  calloutBtn.textContent = '📵';
+  calloutBtn.addEventListener('click', () => {
+    const rd = rowData[row.id] || {};
+    const name = rd.lead || '';
+    if (!name) { showToast('No lead entered to call out'); return; }
+    if (!rptData.callouts) rptData.callouts = [];
+    const now = new Date().toTimeString().slice(0,5);
+    rptData.callouts.push({ 'co-name': name, 'co-pos': row.label + (rd.unit ? ' / ' + rd.unit : ''), 'co-time': now, 'co-reason': 'Sick', 'co-covered': '' });
+    renderCallouts();
+    showToast(name + ' added to call-outs');
+  });
+  actionsDiv.appendChild(calloutBtn);
+
+  const clearBtn = document.createElement('button');
+  clearBtn.className = 'slot-clear-btn';
+  clearBtn.type = 'button';
+  clearBtn.title = 'Clear this slot';
+  clearBtn.textContent = '✕';
+  clearBtn.addEventListener('click', () => {
+    rowData[row.id] = { unit: row.defaultUnit, lead: '', leadPhone: '', secondary: '', secondaryPhone: '', notes: '' };
+    buildRosterDOM();
+  });
+  actionsDiv.appendChild(clearBtn);
+  topRow.appendChild(actionsDiv);
+  editor.appendChild(topRow);
+
+  // Name fields grid
+  const fieldsGrid = document.createElement('div');
+  fieldsGrid.className = 'roster-fields';
+  fieldsGrid.style.marginTop = '10px';
+
+  function makeNameField(fieldKey, phoneKey, labelText) {
+    const group = document.createElement('div');
+    group.className = 'field-group';
+
+    const fLabel = document.createElement('div');
+    fLabel.className = 'field-label';
+    fLabel.textContent = labelText;
+    group.appendChild(fLabel);
+
+    const wrap = document.createElement('div');
+    wrap.className = 'field-wrap';
+    wrap.style.position = 'relative';
+
+    const nameInput = document.createElement('input');
+    nameInput.className = 'name-input';
+    nameInput.type = 'text';
+    nameInput.placeholder = 'Name…';
+    nameInput.setAttribute('autocomplete', 'off');
+    nameInput.value = rowData[row.id]?.[fieldKey] ?? '';
+
+    const badgeWrap = document.createElement('span');
+    badgeWrap.className = 'badge-wrap';
+    updateBadge(badgeWrap, rowData[row.id]?.[phoneKey] ?? '');
+
+    function applyUsualUnit(emp) {
+      if (fieldKey !== 'lead') return;
+      const prof = getEmpProfile(emp);
+      if (prof.usualUnit) {
+        usualUnitBtn.textContent = '→ ' + prof.usualUnit;
+        usualUnitBtn.dataset.unit = prof.usualUnit;
+        usualUnitBtn.style.display = '';
+      } else {
+        usualUnitBtn.style.display = 'none';
+      }
+    }
+
+    if (fieldKey === 'lead') {
+      const savedLead = rowData[row.id]?.lead ?? '';
+      if (savedLead) {
+        const initEmp = lookupByName(savedLead.trim());
+        if (initEmp) {
+          const initProf = getEmpProfile(initEmp);
+          if (initProf.usualUnit) {
+            usualUnitBtn.textContent = '→ ' + initProf.usualUnit;
+            usualUnitBtn.dataset.unit = initProf.usualUnit;
+            usualUnitBtn.style.display = '';
+          }
         }
       }
     }
 
-    // Callout button — adds lead to Shift Report callouts
-    const calloutBtn = document.createElement('button');
-    calloutBtn.className = 'slot-callout-btn';
-    calloutBtn.type = 'button';
-    calloutBtn.title = 'Mark called out in Shift Report';
-    calloutBtn.textContent = '📵';
-    calloutBtn.addEventListener('click', () => {
-      const rd = rowData[row.id] || {};
-      const name = rd.lead || '';
-      if (!name) { showToast('No lead entered to call out'); return; }
-      if (!rptData.callouts) rptData.callouts = [];
-      const now = new Date().toTimeString().slice(0,5);
-      rptData.callouts.push({
-        'co-name': name,
-        'co-pos': row.label + (rd.unit ? ' / ' + rd.unit : ''),
-        'co-time': now,
-        'co-reason': 'Sick',
-        'co-covered': ''
-      });
-      renderCallouts();
-      showToast(name + ' added to call-outs');
-    });
-
-    // Clear slot button
-    const clearBtn = document.createElement('button');
-    clearBtn.className = 'slot-clear-btn';
-    clearBtn.type = 'button';
-    clearBtn.title = 'Clear this slot';
-    clearBtn.textContent = '✕';
-    clearBtn.addEventListener('click', () => {
-      rowData[row.id] = {
-        unit: row.defaultUnit,
-        lead: '', leadPhone: '',
-        secondary: '', secondaryPhone: '',
-        notes: ''
-      };
-      buildRosterDOM();
-    });
-
-    top.appendChild(labelEl);
-    top.appendChild(unitInput);
-    top.appendChild(usualUnitBtn);
-    top.appendChild(calloutBtn);
-    top.appendChild(clearBtn);
-    card.appendChild(top);
-
-    // Name fields grid
-    const fieldsGrid = document.createElement('div');
-    fieldsGrid.className = 'roster-fields';
-
-    // Helper to create a name field (lead or secondary)
-    function makeNameField(fieldKey, phoneKey, labelText) {
-      const group = document.createElement('div');
-      group.className = 'field-group';
-
-      const fLabel = document.createElement('div');
-      fLabel.className = 'field-label';
-      fLabel.textContent = labelText;
-      group.appendChild(fLabel);
-
-      const wrap = document.createElement('div');
-      wrap.className = 'field-wrap';
-      wrap.style.position = 'relative';
-
-      const nameInput = document.createElement('input');
-      nameInput.className = 'name-input';
-      nameInput.type = 'text';
-      nameInput.placeholder = 'Name…';
-      nameInput.setAttribute('autocomplete', 'off');
-      nameInput.value = rowData[row.id]?.[fieldKey] ?? '';
-
-      const badgeWrap = document.createElement('span');
-      badgeWrap.className = 'badge-wrap';
-      updateBadge(badgeWrap, rowData[row.id]?.[phoneKey] ?? '');
-
-      function applyUsualUnit(emp) {
-        if (fieldKey !== 'lead') return;
-        const prof = getEmpProfile(emp);
-        if (prof.usualUnit) {
-          usualUnitBtn.textContent = '→ ' + prof.usualUnit;
-          usualUnitBtn.dataset.unit = prof.usualUnit;
-          usualUnitBtn.style.display = '';
-        } else {
-          usualUnitBtn.style.display = 'none';
-        }
-      }
-
-      // Input handler — trigger autocomplete
-      nameInput.addEventListener('input', () => {
-        ensureRowData(row.id);
-        const val = nameInput.value.trim();
-        rowData[row.id][fieldKey] = nameInput.value;
-        if (!val) {
-          rowData[row.id][phoneKey] = '';
-          updateBadge(badgeWrap, '');
-          closeActiveAC();
-          if (fieldKey === 'lead') usualUnitBtn.style.display = 'none';
-          updateSectionCounts();
-          return;
-        }
-        // Check exact match first
-        const exact = lookupByName(val);
-        if (exact) {
-          rowData[row.id][phoneKey] = exact.phone;
-          updateBadge(badgeWrap, exact.phone);
-          applyUsualUnit(exact);
-        } else {
-          rowData[row.id][phoneKey] = '';
-          updateBadge(badgeWrap, '');
-        }
+    nameInput.addEventListener('input', () => {
+      ensureRowData(row.id);
+      const val = nameInput.value.trim();
+      rowData[row.id][fieldKey] = nameInput.value;
+      if (!val) {
+        rowData[row.id][phoneKey] = '';
+        updateBadge(badgeWrap, '');
+        closeActiveAC();
+        if (fieldKey === 'lead') usualUnitBtn.style.display = 'none';
         updateSectionCounts();
-        // Build AC
+        updateRowSummary(row.id);
+        return;
+      }
+      const exact = lookupByName(val);
+      if (exact) {
+        rowData[row.id][phoneKey] = exact.phone;
+        updateBadge(badgeWrap, exact.phone);
+        applyUsualUnit(exact);
+      } else {
+        rowData[row.id][phoneKey] = '';
+        updateBadge(badgeWrap, '');
+      }
+      updateSectionCounts();
+      updateRowSummary(row.id);
+      buildAC(nameInput, emp => {
+        nameInput.value = displayName(emp);
+        rowData[row.id][fieldKey] = nameInput.value;
+        rowData[row.id][phoneKey] = emp.phone;
+        updateBadge(badgeWrap, emp.phone);
+        applyUsualUnit(emp);
+        updateSectionCounts();
+        updateRowSummary(row.id);
+      });
+    });
+
+    nameInput.addEventListener('focus', () => {
+      if (nameInput.value.trim().length >= 2) {
         buildAC(nameInput, emp => {
           nameInput.value = displayName(emp);
+          ensureRowData(row.id);
           rowData[row.id][fieldKey] = nameInput.value;
           rowData[row.id][phoneKey] = emp.phone;
           updateBadge(badgeWrap, emp.phone);
           applyUsualUnit(emp);
-          updateSectionCounts();
+          updateRowSummary(row.id);
         });
-      });
-
-      nameInput.addEventListener('focus', () => {
-        if (nameInput.value.trim().length >= 2) {
-          buildAC(nameInput, emp => {
-            nameInput.value = displayName(emp);
-            ensureRowData(row.id);
-            rowData[row.id][fieldKey] = nameInput.value;
-            rowData[row.id][phoneKey] = emp.phone;
-            updateBadge(badgeWrap, emp.phone);
-            applyUsualUnit(emp);
-          });
-        }
-      });
-
-      nameInput.addEventListener('blur', () => {
-        // Small delay so mousedown on AC item fires first
-        setTimeout(closeActiveAC, 150);
-      });
-
-      wrap.appendChild(nameInput);
-      wrap.appendChild(badgeWrap);
-      group.appendChild(wrap);
-      return group;
-    }
-
-    fieldsGrid.appendChild(makeNameField('lead', 'leadPhone', 'Lead Provider'));
-    fieldsGrid.appendChild(makeNameField('secondary', 'secondaryPhone', 'Secondary Provider'));
-    card.appendChild(fieldsGrid);
-
-    // Notes
-    const notesInput = document.createElement('input');
-    notesInput.className = 'notes-input';
-    notesInput.type = 'text';
-    notesInput.placeholder = 'Notes…';
-    notesInput.value = rowData[row.id]?.notes ?? '';
-    notesInput.addEventListener('input', () => {
-      ensureRowData(row.id);
-      rowData[row.id].notes = notesInput.value;
+      }
     });
-    card.appendChild(notesInput);
 
-    container.appendChild(card);
+    nameInput.addEventListener('blur', () => { setTimeout(closeActiveAC, 150); });
+
+    wrap.appendChild(nameInput);
+    wrap.appendChild(badgeWrap);
+    group.appendChild(wrap);
+    return group;
+  }
+
+  fieldsGrid.appendChild(makeNameField('lead', 'leadPhone', 'Lead Provider'));
+  fieldsGrid.appendChild(makeNameField('secondary', 'secondaryPhone', 'Secondary Provider'));
+  editor.appendChild(fieldsGrid);
+
+  // Notes input
+  const notesInput = document.createElement('input');
+  notesInput.className = 'notes-input';
+  notesInput.type = 'text';
+  notesInput.placeholder = 'Notes…';
+  notesInput.value = rowData[row.id]?.notes ?? '';
+  notesInput.addEventListener('input', () => {
+    ensureRowData(row.id);
+    rowData[row.id].notes = notesInput.value;
   });
+  editor.appendChild(notesInput);
+
+  return editor;
+}
+
+function toggleRowEditor(rowId) {
+  const wrapper = document.querySelector(`.rvr-wrapper[data-row-id="${rowId}"]`);
+  if (!wrapper) return;
+  const editor = wrapper.querySelector('.rvr-editor');
+  const editBtn = wrapper.querySelector('.rvr-edit-btn');
+  const isOpen = editor.classList.contains('open');
+
+  // Close all other open editors
+  document.querySelectorAll('.rvr-editor.open').forEach(e => {
+    e.classList.remove('open');
+    const btn = e.closest('.rvr-wrapper')?.querySelector('.rvr-edit-btn');
+    if (btn) btn.classList.remove('active');
+  });
+
+  if (!isOpen) {
+    editor.classList.add('open');
+    if (editBtn) editBtn.classList.add('active');
+    setTimeout(() => wrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+  }
+}
+
+function updateRowSummary(rowId) {
+  const wrapper = document.querySelector(`.rvr-wrapper[data-row-id="${rowId}"]`);
+  if (!wrapper) return;
+  const rd = rowData[rowId] || {};
+  const row = ROSTER_ROWS.find(r => r.id === rowId);
+  if (!row) return;
+
+  const unitEl = wrapper.querySelector('.rvr-unit-num');
+  if (unitEl) {
+    const unit = rd.unit || row.defaultUnit || '';
+    unitEl.textContent = unit || '—';
+    unitEl.className = 'rvr-unit-num' + (unit ? '' : ' empty');
+  }
+  const leadEl = wrapper.querySelector('.rvr-lead');
+  if (leadEl) {
+    leadEl.textContent = rd.lead || 'Unstaffed';
+    leadEl.className = 'rvr-lead' + (rd.lead ? '' : ' empty');
+  }
+  const secEl = wrapper.querySelector('.rvr-sec-name');
+  if (secEl) secEl.textContent = rd.secondary || (rd.lead ? '— No secondary' : '');
 }
 
 function ensureRowData(id) {
@@ -1881,14 +2318,13 @@ function ensureRowData(id) {
 function toggleSection(section) {
   if (collapsedSections.has(section)) collapsedSections.delete(section);
   else collapsedSections.add(section);
-  document.querySelectorAll('.roster-card').forEach(card => {
-    const id = +card.dataset.rowId;
-    const r = ROSTER_ROWS.find(x => x.id === id);
-    if (r) card.style.display = collapsedSections.has(r.section) ? 'none' : '';
-  });
-  document.querySelectorAll('.section-header[data-section]').forEach(hdr => {
-    const chev = hdr.querySelector('.sec-chevron');
-    if (chev) chev.textContent = collapsedSections.has(hdr.dataset.section) ? '▸' : '▾';
+  const isNowCollapsed = collapsedSections.has(section);
+
+  const body = document.querySelector(`.roster-sec-body[data-section="${section}"]`);
+  if (body) body.classList.toggle('collapsed', isNowCollapsed);
+
+  document.querySelectorAll(`.roster-section-card[data-section="${section}"] .sec-chevron`).forEach(chev => {
+    chev.textContent = isNowCollapsed ? '▸' : '▾';
   });
 }
 
@@ -1900,9 +2336,9 @@ function updateSectionCounts() {
     const rd = rowData[row.id];
     if (rd?.lead || rd?.secondary) counts[row.section].filled++;
   });
-  document.querySelectorAll('.section-header[data-section]').forEach(hdr => {
-    const sec = hdr.dataset.section;
-    const badge = hdr.querySelector('.sec-count-badge');
+  document.querySelectorAll('.roster-section-card').forEach(card => {
+    const sec = card.dataset.section;
+    const badge = card.querySelector('.sec-count-badge');
     if (!badge || !counts[sec]) return;
     const c = counts[sec];
     badge.textContent = c.filled + '/' + c.total;
@@ -2257,6 +2693,23 @@ function initTabs() {
   document.getElementById('roster-search')?.addEventListener('input', e => filterRoster(e.target.value));
   document.getElementById('roster-search')?.addEventListener('search', e => filterRoster(e.target.value));
 
+  // More actions menu toggle
+  document.getElementById('btn-roster-more')?.addEventListener('click', e => {
+    e.stopPropagation();
+    document.getElementById('roster-more-menu')?.classList.toggle('open');
+  });
+  // Close more menu on outside click
+  document.addEventListener('click', () => {
+    document.getElementById('roster-more-menu')?.classList.remove('open');
+  });
+
+  // Search clear button
+  document.getElementById('roster-search-clear')?.addEventListener('click', () => {
+    const inp = document.getElementById('roster-search');
+    if (inp) { inp.value = ''; inp.focus(); }
+    filterRoster('');
+  });
+
   document.querySelectorAll('.tab-btn, .mobile-nav-btn').forEach(btn => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   });
@@ -2285,24 +2738,39 @@ function initGlobalDismiss() {
    ════════════════════════════════════════ */
 function filterRoster(query) {
   const q = (query || '').toLowerCase().trim();
-  document.querySelectorAll('.roster-card').forEach(card => {
-    if (!q) { card.classList.remove('hidden'); return; }
-    const id = +card.dataset.rowId;
-    const rd = rowData[id] || {};
-    const unit = (rd.unit || ROSTER_ROWS.find(r=>r.id===id)?.defaultUnit || '').toLowerCase();
-    const lead = (rd.lead || '').toLowerCase();
-    const sec  = (rd.secondary || '').toLowerCase();
-    card.classList.toggle('hidden', !(unit.includes(q) || lead.includes(q) || sec.includes(q)));
-  });
-  // Hide section headers whose cards are all hidden
-  document.querySelectorAll('.section-header').forEach(hdr => {
-    let sib = hdr.nextElementSibling;
-    let hasVisible = false;
-    while (sib && !sib.classList.contains('section-header')) {
-      if (!sib.classList.contains('hidden')) { hasVisible = true; break; }
-      sib = sib.nextElementSibling;
+
+  // Toggle clear button visibility
+  const searchRow = document.getElementById('roster-search-row');
+  if (searchRow) searchRow.classList.toggle('has-query', !!q);
+
+  document.querySelectorAll('.rvr-wrapper').forEach(wrapper => {
+    if (!q) {
+      wrapper.classList.remove('hidden', 'search-match');
+      return;
     }
-    hdr.classList.toggle('hidden', !hasVisible && !!q);
+    const id = +wrapper.dataset.rowId;
+    const rd = rowData[id] || {};
+    const row = ROSTER_ROWS.find(r => r.id === id);
+    const unit  = (rd.unit || row?.defaultUnit || '').toLowerCase();
+    const lead  = (rd.lead || '').toLowerCase();
+    const sec   = (rd.secondary || '').toLowerCase();
+    const label = (row?.label || '').toLowerCase();
+    const matches = unit.includes(q) || lead.includes(q) || sec.includes(q) || label.includes(q);
+    wrapper.classList.toggle('hidden', !matches);
+    wrapper.classList.toggle('search-match', matches);
+  });
+
+  // Show/hide section cards; expand collapsed sections that have matches
+  document.querySelectorAll('.roster-section-card').forEach(card => {
+    const wrappers = card.querySelectorAll('.rvr-wrapper');
+    const hasVisible = Array.from(wrappers).some(w => !w.classList.contains('hidden'));
+    card.classList.toggle('hidden', !!q && !hasVisible);
+    if (q && hasVisible) {
+      const body = card.querySelector('.roster-sec-body');
+      if (body) body.classList.remove('collapsed');
+      const chev = card.querySelector('.sec-chevron');
+      if (chev) chev.textContent = '▾';
+    }
   });
 }
 function openImportModal() {
