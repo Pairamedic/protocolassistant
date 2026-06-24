@@ -557,8 +557,13 @@
     #import-textarea:focus { border-color: var(--accent); }
     .import-file-label { display: inline-block; margin-top: 10px; font-size: 13px; color: var(--accent); cursor: pointer; text-decoration: underline; }
     #import-result { font-size: 13px; min-height: 18px; margin-top: 8px; }
-
-
+    .import-preview-table { width:100%; border-collapse:collapse; font-size:12px; margin:4px 0; }
+    .import-preview-table th { color:var(--muted); font-weight:600; text-align:left; padding:3px 6px; border-bottom:1px solid var(--border); font-size:11px; }
+    .import-preview-table td { color:var(--text); padding:3px 6px; border-bottom:1px solid rgba(255,255,255,.04); vertical-align:top; }
+    .import-preview-table tr:last-child td { border-bottom:none; }
+    .import-preview-table td.no-match { color:var(--muted); font-style:italic; }
+    .qm-polish-btn { background:rgba(94,234,212,.12); border:1px solid rgba(94,234,212,.3); border-radius:6px; color:var(--accent); font-size:11px; font-weight:700; padding:3px 10px; cursor:pointer; font-family:inherit; line-height:1.4; }
+    .qm-polish-btn:disabled { opacity:.5; cursor:not-allowed; }
 
     /* ── Station-Header Info ── */
     .section-header { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
@@ -1295,6 +1300,25 @@
     .rpt-preview-copy { background:var(--accent); color:#0b0d10; border:none; border-radius:12px; flex:1; padding:14px; font-size:16px; font-weight:800; cursor:pointer; font-family:inherit; }
     .rpt-preview-email { background:rgba(255,255,255,.06); border:1px solid var(--border); border-radius:12px; flex:1; padding:14px; font-size:14px; font-weight:700; color:var(--text); cursor:pointer; font-family:inherit; }
 
+    /* ─── REPORT HQ (Report tab redesign) ─── */
+    .rpt-hq-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:8px 0; }
+    .rpt-hq-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px 14px 14px; display:flex; flex-direction:column; align-items:flex-start; gap:2px; cursor:pointer; font-family:inherit; text-align:left; transition:background .15s; width:100%; }
+    .rpt-hq-card:active { background:rgba(255,255,255,.05); }
+    .rpt-hq-icon { font-size:26px; margin-bottom:5px; line-height:1; }
+    .rpt-hq-label { font-size:14px; font-weight:700; color:var(--text); line-height:1.2; }
+    .rpt-hq-sub { font-size:11px; color:var(--muted); margin-top:2px; }
+    /* Report History cards */
+    .rpt-hist-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px 16px; margin-bottom:8px; }
+    .rpt-hist-hdr { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:10px; }
+    .rpt-hist-date { font-size:14px; font-weight:700; color:var(--text); }
+    .rpt-hist-sup { font-size:12px; color:var(--muted); margin-top:2px; }
+    .rpt-hist-stats { display:flex; flex-wrap:wrap; gap:4px; justify-content:flex-end; flex-shrink:0; }
+    .rpt-hist-badge { background:rgba(94,234,212,.12); border:1px solid rgba(94,234,212,.3); border-radius:20px; font-size:11px; font-weight:700; color:var(--accent); padding:2px 8px; white-space:nowrap; }
+    .rpt-hist-chip { background:rgba(255,255,255,.06); border:1px solid var(--border); border-radius:20px; font-size:11px; color:var(--muted); padding:2px 7px; white-space:nowrap; }
+    .rpt-hist-actions { display:flex; gap:8px; }
+    .rpt-hist-btn { flex:1; background:rgba(255,255,255,.06); border:1px solid var(--border); border-radius:10px; color:var(--text); font-size:13px; font-weight:600; padding:9px 8px; cursor:pointer; font-family:inherit; transition:background .15s; }
+    .rpt-hist-btn:active { background:rgba(255,255,255,.12); }
+
   </style>
 </head>
 <body>
@@ -1558,164 +1582,113 @@
       <div id="dir-results" class="dir-results"></div>
     </div>
 
-    <!-- ── TAB: SHIFT REPORT ── -->
+    <!-- ── TAB: SHIFT REPORT (Reports HQ) ── -->
     <div id="tab-report" class="tab-panel">
+
+      <!-- Scrollable date browser -->
       <div class="rpt-date-browser" id="rpt-date-browser"></div>
-      <div class="rpt-topbar">
-        <button class="action-btn save-btn" id="btn-rpt-save">💾 Save</button>
-        <button class="rpt-email-btn" id="btn-rpt-preview" style="background:rgba(94,234,212,.1);border-color:rgba(94,234,212,.3);color:var(--accent)">👁 Day Report</button>
-        <button class="rpt-email-btn" id="btn-rpt-combined" style="background:rgba(94,234,212,.06);border-color:rgba(94,234,212,.2);color:var(--accent)">📅 2-Day</button>
+
+      <!-- Section title -->
+      <div class="dash-section-title" style="margin-top:4px">Reports</div>
+
+      <!-- Primary CTA: Shift Wrap-Up -->
+      <button class="dash-generate-btn" id="btn-rpt-wrapup" style="margin-bottom:8px">
+        <div>
+          <div class="dash-generate-label">✅ Shift Wrap-Up</div>
+          <div class="dash-generate-sub">Review completeness before generating</div>
+        </div>
+        <span class="dash-generate-arrow">›</span>
+      </button>
+
+      <!-- Generate grid: Day Report + 2-Day Report -->
+      <div class="rpt-hq-grid">
+        <button class="rpt-hq-card" id="btn-rpt-preview">
+          <span class="rpt-hq-icon">📄</span>
+          <span class="rpt-hq-label">Day Report</span>
+          <span class="rpt-hq-sub">Current shift</span>
+        </button>
+        <button class="rpt-hq-card" id="btn-rpt-combined">
+          <span class="rpt-hq-icon">📅</span>
+          <span class="rpt-hq-label">2-Day Report</span>
+          <span class="rpt-hq-sub">Day 1 + Day 2</span>
+        </button>
       </div>
 
-      <!-- Administrative -->
-      <div class="rpt-section">
-        <div class="rpt-section-hd">
-          <span class="rpt-section-title">📋 Administrative</span>
-          <button class="rpt-add-btn" id="btn-add-admin">+ Add</button>
+      <!-- Carry Forward -->
+      <button class="dash-generate-btn" id="btn-rpt-carry" style="margin-top:8px;border-color:rgba(168,85,247,.35);background:rgba(168,85,247,.07)">
+        <div>
+          <div class="dash-generate-label" style="color:#c084fc">📋 Carry Forward</div>
+          <div class="dash-generate-sub">Copy roster + prior shift notes from yesterday</div>
         </div>
-        <div class="rpt-section-body">
-          <div id="admin-list"><div class="rpt-empty">No administrative items recorded.</div></div>
-        </div>
+        <span class="dash-generate-arrow" style="color:#c084fc">›</span>
+      </button>
+
+      <!-- Report History -->
+      <div class="dash-section-title" style="margin-top:20px">History</div>
+      <div id="rpt-history-list">
+        <div style="font-size:13px;color:var(--muted);text-align:center;padding:20px 0">No saved reports found.</div>
       </div>
 
-      <!-- Staffing (auto-pulled from roster) -->
-      <div class="rpt-section">
-        <div class="rpt-section-hd">
-          <span class="rpt-section-title">👥 Staffing</span>
-          <button class="rpt-add-btn" id="btn-refresh-staffing">↻ Refresh</button>
+      <!-- ── Hidden data containers — populated by renderRpt / collectRptFromDOM, never shown ── -->
+      <div style="display:none" aria-hidden="true">
+        <button id="btn-rpt-save">Save</button>
+        <div class="rpt-section">
+          <div class="rpt-section-hd"><span class="rpt-section-title">📋 Administrative</span><button class="rpt-add-btn" id="btn-add-admin">+ Add</button></div>
+          <div class="rpt-section-body"><div id="admin-list"><div class="rpt-empty">No administrative items recorded.</div></div></div>
         </div>
-        <div class="rpt-section-body">
-          <div id="staffing-display" class="rpt-staffing-display"><div class="rpt-empty">Tap Refresh to pull from today's roster.</div></div>
+        <div class="rpt-section">
+          <div class="rpt-section-hd"><span class="rpt-section-title">👥 Staffing</span><button class="rpt-add-btn" id="btn-refresh-staffing">↻ Refresh</button></div>
+          <div class="rpt-section-body"><div id="staffing-display" class="rpt-staffing-display"><div class="rpt-empty">Tap Refresh to pull from today's roster.</div></div></div>
         </div>
+        <div class="rpt-section">
+          <div class="rpt-section-hd"><span class="rpt-section-title">📵 Call-in's</span><button class="rpt-add-btn" id="btn-add-callout">+ Add</button></div>
+          <div class="rpt-section-body"><div id="callouts-list"><div class="rpt-empty">No call-ins recorded.</div></div></div>
+        </div>
+        <div class="rpt-section">
+          <div class="rpt-section-hd"><span class="rpt-section-title">🎓 3rd Riders</span><button class="rpt-add-btn" id="btn-add-rider">+ Add</button></div>
+          <div class="rpt-section-body"><div id="riders-list"><div class="rpt-empty">No ride-alongs or orientees.</div></div></div>
+        </div>
+        <div class="rpt-section">
+          <div class="rpt-section-hd"><span class="rpt-section-title">📊 PCRs</span><button class="rpt-add-btn" id="btn-prefill-pcr">↻ From Roster</button><button class="rpt-add-btn" id="btn-add-pcr">+ Add</button></div>
+          <div class="rpt-section-body"><div id="pcrs-list"><div class="rpt-empty">No PCR counts entered.</div></div><div class="rpt-totals-row">Total calls this shift: <b id="total-calls-count">0</b></div></div>
+        </div>
+        <div class="rpt-section">
+          <div class="rpt-section-hd"><span class="rpt-section-title">🚑 Unit Issues</span><button class="rpt-add-btn" id="btn-add-unit-issue">+ Add</button></div>
+          <div class="rpt-section-body"><div id="unit-issues-list"><div class="rpt-empty">No unit or equipment issues.</div></div></div>
+        </div>
+        <div class="rpt-section">
+          <div class="rpt-section-hd"><span class="rpt-section-title">⏮ Prior to Shift</span></div>
+          <div class="rpt-section-body rpt-notes"><textarea id="rpt-preshift-text" rows="3" placeholder="Issues or notes from previous shift…"></textarea></div>
+        </div>
+        <div class="rpt-section">
+          <div class="rpt-section-hd"><span class="rpt-section-title">⚡ Notable Events</span><button class="rpt-add-btn" id="btn-add-event">+ Add</button></div>
+          <div class="rpt-section-body"><div id="events-list"><div class="rpt-empty">No notable events recorded.</div></div></div>
+        </div>
+        <div class="rpt-section">
+          <div class="rpt-section-hd"><span class="rpt-section-title">💊 Narcotic Changes</span><button class="rpt-add-btn" id="btn-add-narc">+ Add</button></div>
+          <div class="rpt-section-body"><div id="narcotics-list"><div class="rpt-empty">No narcotic changes recorded.</div></div></div>
+        </div>
+        <div class="rpt-section">
+          <div class="rpt-section-hd"><span class="rpt-section-title">✅ Unit Checks</span><button class="rpt-add-btn" id="btn-load-unit-checks">↻ Load Units</button></div>
+          <div class="rpt-section-body"><div id="unit-checks-list"><div class="rpt-empty">Tap Load Units to populate from today's roster.</div></div></div>
+        </div>
+        <div class="rpt-section">
+          <div class="rpt-section-hd"><span class="rpt-section-title">🔓 Unlocked PCRs</span><button class="rpt-add-btn" id="btn-add-unlocked-pcr">+ Add</button></div>
+          <div class="rpt-section-body"><div id="unlocked-pcrs-list"><div class="rpt-empty">No unlocked PCRs.</div></div></div>
+        </div>
+        <div class="rpt-section">
+          <div class="rpt-section-hd"><span class="rpt-section-title">📝 Notes</span></div>
+          <div class="rpt-section-body rpt-notes"><textarea id="rpt-notes-text" rows="3" placeholder="Any additional notes…"></textarea></div>
+        </div>
+        <div class="rpt-section">
+          <div class="rpt-section-hd"><span class="rpt-section-title">👤 Supervisor</span></div>
+          <div class="rpt-section-body"><input type="text" id="rpt-supervisor" placeholder="Supervisor name…" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;padding:10px 12px;width:100%;font-family:inherit;outline:none" /></div>
+        </div>
+        <div class="rpt-section">
+          <div class="rpt-section-hd"><span class="rpt-section-title">↻ Pull from Log</span><button class="rpt-add-btn" id="btn-pull-log">Pull</button></div>
+        </div>
+        <div id="rpt-copy-area" class="rpt-copy-area"></div>
       </div>
-
-      <!-- Call-in's / Coverage -->
-      <div class="rpt-section">
-        <div class="rpt-section-hd">
-          <span class="rpt-section-title">📵 Call-in's / Coverage</span>
-          <button class="rpt-add-btn" id="btn-add-callout">+ Add</button>
-        </div>
-        <div class="rpt-section-body">
-          <div id="callouts-list"><div class="rpt-empty">No call-ins recorded.</div></div>
-        </div>
-      </div>
-
-      <!-- 3rd Riders & Orientation -->
-      <div class="rpt-section">
-        <div class="rpt-section-hd">
-          <span class="rpt-section-title">🎓 3rd Riders &amp; Orientation</span>
-          <button class="rpt-add-btn" id="btn-add-rider">+ Add</button>
-        </div>
-        <div class="rpt-section-body">
-          <div id="riders-list"><div class="rpt-empty">No ride-alongs or orientees.</div></div>
-        </div>
-      </div>
-
-      <!-- PCR's / Call Totals -->
-      <div class="rpt-section">
-        <div class="rpt-section-hd">
-          <span class="rpt-section-title">📊 PCR's / Call Totals</span>
-          <button class="rpt-add-btn" id="btn-prefill-pcr" style="margin-right:6px">↻ From Roster</button>
-          <button class="rpt-add-btn" id="btn-add-pcr">+ Add Provider</button>
-        </div>
-        <div class="rpt-section-body">
-          <div id="pcrs-list"><div class="rpt-empty">No PCR counts entered.</div></div>
-          <div class="rpt-totals-row">Total calls this shift: <b id="total-calls-count">0</b></div>
-        </div>
-      </div>
-
-      <!-- Units / Equipment Issues -->
-      <div class="rpt-section">
-        <div class="rpt-section-hd">
-          <span class="rpt-section-title">🚑 Units / Equipment Issues</span>
-          <button class="rpt-add-btn" id="btn-add-unit-issue">+ Add</button>
-        </div>
-        <div class="rpt-section-body">
-          <div id="unit-issues-list"><div class="rpt-empty">No unit or equipment issues.</div></div>
-        </div>
-      </div>
-
-      <!-- Prior to Shift -->
-      <div class="rpt-section">
-        <div class="rpt-section-hd"><span class="rpt-section-title">⏮ Prior to Shift</span></div>
-        <div class="rpt-section-body rpt-notes">
-          <textarea id="rpt-preshift-text" rows="3" placeholder="Issues or notes from previous shift…"></textarea>
-        </div>
-      </div>
-
-      <!-- Notable Events -->
-      <div class="rpt-section">
-        <div class="rpt-section-hd">
-          <span class="rpt-section-title">⚡ Notable Events</span>
-          <button class="rpt-add-btn" id="btn-add-event">+ Add</button>
-        </div>
-        <div class="rpt-section-body">
-          <div id="events-list"><div class="rpt-empty">No notable events recorded.</div></div>
-        </div>
-      </div>
-
-      <!-- Narcotic Changes -->
-      <div class="rpt-section">
-        <div class="rpt-section-hd">
-          <span class="rpt-section-title">💊 Narcotic Changes</span>
-          <button class="rpt-add-btn" id="btn-add-narc">+ Add</button>
-        </div>
-        <div class="rpt-section-body">
-          <div id="narcotics-list"><div class="rpt-empty">No narcotic changes recorded.</div></div>
-        </div>
-      </div>
-
-      <!-- Unit Checks -->
-      <div class="rpt-section">
-        <div class="rpt-section-hd">
-          <span class="rpt-section-title">✅ Unit Checks</span>
-          <button class="rpt-add-btn" id="btn-load-unit-checks">↻ Load Units</button>
-        </div>
-        <div class="rpt-section-body">
-          <div id="unit-checks-list"><div class="rpt-empty">Tap Load Units to populate from today's roster.</div></div>
-        </div>
-      </div>
-
-      <!-- Unlocked PCR's -->
-      <div class="rpt-section">
-        <div class="rpt-section-hd">
-          <span class="rpt-section-title">🔓 Unlocked PCR's</span>
-          <button class="rpt-add-btn" id="btn-add-unlocked-pcr">+ Add</button>
-        </div>
-        <div class="rpt-section-body">
-          <div id="unlocked-pcrs-list"><div class="rpt-empty">No unlocked PCRs.</div></div>
-        </div>
-      </div>
-
-      <!-- Notes -->
-      <div class="rpt-section">
-        <div class="rpt-section-hd"><span class="rpt-section-title">📝 Additional Notes</span></div>
-        <div class="rpt-section-body rpt-notes">
-          <textarea id="rpt-notes-text" rows="3" placeholder="Any additional notes, follow-ups, or observations…"></textarea>
-        </div>
-      </div>
-
-      <!-- Supervisor -->
-      <div class="rpt-section">
-        <div class="rpt-section-hd"><span class="rpt-section-title">👤 Supervisor</span></div>
-        <div class="rpt-section-body">
-          <input type="text" id="rpt-supervisor" placeholder="Supervisor name…" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;padding:10px 12px;width:100%;font-family:inherit;outline:none" />
-        </div>
-      </div>
-
-      <!-- Pull from activity log -->
-      <div class="rpt-section" style="border-color:rgba(94,234,212,.2);background:rgba(94,234,212,.03)">
-        <div class="rpt-section-hd">
-          <span class="rpt-section-title" style="color:var(--accent)">↻ Pull from Activity Log</span>
-          <button class="rpt-add-btn" id="btn-pull-log" style="background:rgba(94,234,212,.1);border-color:rgba(94,234,212,.3);color:var(--accent)">Pull</button>
-        </div>
-        <div class="rpt-section-body">
-          <div style="font-size:12px;color:var(--muted)">Import entries from Activity Log that are marked "Include in Report".</div>
-        </div>
-      </div>
-
-      <!-- Copy area (shown after email attempt) -->
-      <div id="rpt-copy-area" class="rpt-copy-area"></div>
     </div>
 
     <!-- ── TAB: ACTIVITY LOG ── -->
@@ -3331,6 +3304,10 @@ function openImportModal() {
 function closeImportModal() {
   document.getElementById('import-modal').style.display = 'none';
   document.body.style.overflow = '';
+  if (_rosterImportSnapshot !== null) {
+    rowData = _rosterImportSnapshot;
+    _rosterImportSnapshot = null;
+  }
 }
 
 function stripPhone(name) {
@@ -3666,11 +3643,153 @@ function importRosterFromText(text) {
   return imported;
 }
 
+/* ── Snapshot for daily-list preview rollback ── */
+let _rosterImportSnapshot = null;
+
+/* Detect columnar daily-list format: rows where first token is a unit type / number
+   followed by tab or 2+ spaces and a name — e.g. "ALS 6AM  JOHN  JANE" */
+function isStructuredDailyList(text) {
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 2);
+  // First column is unit type (ALS/BLS/number) + optional time/shift, then whitespace, then a name
+  const colRx = /^(?:ALS|BLS|ALS\/BLS|\d{3,4})[\w\s\/\-]{0,18}(?:\t|\s{2,})[A-Za-z]/i;
+  const slashRx = /^(?:ALS|BLS|\d{3,4})[\w\s\/\-]{0,20}:\s*[A-Za-z].{0,40}\/\s*[A-Za-z]/i;
+  return lines.filter(l => colRx.test(l) || slashRx.test(l)).length >= 2;
+}
+
+/* Parse columnar daily-list:
+   Section header lines → station context
+   Data lines: [unit/time label] [tab or 2+sp] [lead] [tab or 2+sp] [partner]
+   Modifies rowData directly; caller must snapshot first.
+   Returns { imported, preview[] } */
+function importRosterFromDailyList(text) {
+  text = text.replace(/[￼â€]/g, '').replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '');
+
+  const SECTION_MAP = {
+    'pinebluff':'Pine Bluff','pine bluff':'Pine Bluff','pb':'Pine Bluff',
+    'england':'England',
+    'starcity':'Star City','star city':'Star City',
+    'warren':'Warren',
+    'rison':'Rison',
+    'dewitt':'DeWitt','dewhitt':'DeWitt','de witt':'DeWitt',
+    'clarendon':'Clarendon',
+    'dispatch':'Dispatch',
+    'oncall':'On Call','on call':'On Call',
+  };
+  function resolveSection(raw) {
+    const clean = raw.replace(/^[^a-zA-Z]+/,'').toLowerCase().trim();
+    return SECTION_MAP[clean.replace(/\s/g,'')] || SECTION_MAP[clean] || null;
+  }
+  function unitTypeOf(u) {
+    return /ALS/i.test(u) ? 'ALS' : /BLS/i.test(u) ? 'BLS' : null;
+  }
+  function findRow(section, type, timeLabel) {
+    let pool = ROSTER_ROWS.filter(r => r.section === section);
+    if (!pool.length) return null;
+    if (type) { const t2 = pool.filter(r => r.label.startsWith(type)); if (t2.length) pool = t2; }
+    if (timeLabel) { const t2 = pool.filter(r => r.label.includes(timeLabel)); if (t2.length) pool = t2; }
+    if (pool.length === 1) return pool[0];
+    return pool.find(r => !rowData[r.id] || (!rowData[r.id].lead && !rowData[r.id].secondary)) || pool[0];
+  }
+
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  let section = null;
+  const preview = [];
+  let imported = 0;
+
+  for (const rawLine of lines) {
+    // Section header: matches a known station, no tab, no slash columns
+    const sec = resolveSection(rawLine);
+    if (sec && !/\t/.test(rawLine) && !/\s{2,}/.test(rawLine) && !rawLine.includes('/')) {
+      section = sec;
+      continue;
+    }
+    if (!section) continue;
+
+    // Split into columns by tab, double-space, or colon+slash
+    let cols = [];
+    if (rawLine.includes('\t')) {
+      cols = rawLine.split('\t').map(c => c.trim()).filter(Boolean);
+    } else if (/\s{2,}/.test(rawLine)) {
+      cols = rawLine.split(/\s{2,}/).map(c => c.trim()).filter(Boolean);
+    } else {
+      const m = rawLine.match(/^(.+?):\s*(.+?)\s*\/\s*(.*)$/);
+      if (m) cols = [m[1].trim(), m[2].trim(), m[3].trim()];
+    }
+
+    if (cols.length < 2) continue;
+
+    const label   = cols[0];
+    const lead    = cols[1] !== 'NA' && cols[1] !== '—' ? stripPhone(cols[1]) : '';
+    const partner = cols[2] && cols[2] !== 'NA' && cols[2] !== '—' ? stripPhone(cols[2]) : '';
+
+    const type = unitTypeOf(label);
+    // Try to extract a time token from the label (e.g. "ALS 6AM" → "6AM")
+    const timePart = label.replace(/^(?:ALS|BLS|ALS\/BLS|\d{3,4})\s*/i, '').trim();
+    const tl = parseTimeLabel(timePart) || parseTimeLabel(label);
+    const row = findRow(section, type, tl);
+
+    if (row) {
+      ensureRowData(row.id);
+      if (lead)    rowData[row.id].lead      = lead;
+      if (partner) rowData[row.id].secondary = partner;
+      imported++;
+    }
+    preview.push({ section, label, lead: lead || '—', partner: partner || '—', matched: !!row });
+  }
+
+  return { imported, preview };
+}
+
 function doImport() {
   const text = document.getElementById('import-textarea').value.trim();
   if (!text) { showToast('Paste or upload a roster first.'); return; }
-  const count = isOCRFormat(text) ? importRosterFromOCR(text) : importRosterFromText(text);
   const resultEl = document.getElementById('import-result');
+
+  if (isStructuredDailyList(text)) {
+    // Snapshot rowData so cancel can roll back
+    _rosterImportSnapshot = JSON.parse(JSON.stringify(rowData));
+    const { imported, preview } = importRosterFromDailyList(text);
+
+    if (imported === 0) {
+      rowData = _rosterImportSnapshot;
+      _rosterImportSnapshot = null;
+      resultEl.style.color = '#f59e0b';
+      resultEl.textContent = '⚠ No rows matched — check column format (tabs or double spaces between names).';
+      return;
+    }
+
+    resultEl.style.color = '';
+    resultEl.innerHTML = `
+      <div style="margin-top:6px">
+        <div style="font-size:12px;color:var(--accent);font-weight:700;margin-bottom:6px">${imported} unit${imported!==1?'s':''} detected — review then confirm:</div>
+        <div style="overflow-x:auto;max-height:220px;overflow-y:auto">
+          <table class="import-preview-table">
+            <thead><tr><th>Station</th><th>Shift</th><th>Lead</th><th>Partner</th></tr></thead>
+            <tbody>${preview.map(r =>
+              `<tr>
+                <td>${r.section}</td>
+                <td>${r.label}</td>
+                <td class="${r.matched?'':'no-match'}">${r.lead}</td>
+                <td class="${r.partner==='—'?'no-match':''}">${r.partner}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+        <button id="import-preview-confirm" style="margin-top:10px;width:100%;padding:10px;border-radius:10px;border:none;background:var(--accent);color:#0b0d10;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">✓ Confirm Import (${imported} row${imported!==1?'s':''})</button>
+      </div>`;
+
+    document.getElementById('import-preview-confirm').addEventListener('click', () => {
+      _rosterImportSnapshot = null;
+      buildRosterDOM();
+      saveRoster();
+      closeImportModal();
+      showToast(`Imported ${imported} row${imported!==1?'s':''} ✓`);
+    });
+    return;
+  }
+
+  // Legacy: OCR column-scan or key-value text format
+  const count = isOCRFormat(text) ? importRosterFromOCR(text) : importRosterFromText(text);
   if (count === 0) {
     resultEl.style.color = '#f59e0b';
     resultEl.textContent = '⚠ No rows matched — check the format matches the template.';
@@ -4140,6 +4259,44 @@ function buildLogEntry(e){
   return div;
 }
 
+/* ── AI Description Polisher ── */
+async function polishText(rawText) {
+  let key = (localStorage.getItem('pat_anthropic_key') || '').trim();
+  if (!key) {
+    key = (prompt('Enter your Anthropic API key to use ✨ Polish:\n(Saved locally, never uploaded to our servers)') || '').trim();
+    if (!key) return null;
+    localStorage.setItem('pat_anthropic_key', key);
+  }
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-allow-browser': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 300,
+        messages: [{
+          role: 'user',
+          content: `You are an EMS supervisor log assistant. Fix all spelling and grammar errors, then rewrite the following activity log entry to sound professional and concise — like it was written by an experienced EMS supervisor. Keep the facts identical. Return ONLY the improved text, nothing else:\n\n${rawText}`
+        }]
+      })
+    });
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.error?.message || `HTTP ${resp.status}`);
+    }
+    const data = await resp.json();
+    return data.content?.[0]?.text?.trim() || null;
+  } catch (e) {
+    showToast('Polish failed: ' + (e.message || 'Unknown error'));
+    return null;
+  }
+}
+
 function openLogEntrySheet(){
   const providers = getRosterProviders();
   const pickerHtml = providers.length ? `
@@ -4168,7 +4325,10 @@ function openLogEntrySheet(){
       <input id="qml-unit" class="qm-inp" type="text" placeholder="Unit # or crew name…" autocomplete="off" />
     </div>
     <div class="qm-group">
-      <label class="qm-label">Description</label>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <label class="qm-label" style="margin-bottom:0">Description</label>
+        <button type="button" id="qml-polish-btn" class="qm-polish-btn">✨ Polish</button>
+      </div>
       <textarea id="qml-desc" class="qm-ta" rows="3" placeholder="What happened…"></textarea>
     </div>`, () => {
     const time = qmVal('qml-time') || now;
@@ -4196,6 +4356,21 @@ function openLogEntrySheet(){
       if(descEl) descEl.focus();
     });
   });
+
+  // Wire polish button
+  const polishBtn = document.getElementById('qml-polish-btn');
+  if (polishBtn) {
+    polishBtn.addEventListener('click', async () => {
+      const descEl = document.getElementById('qml-desc');
+      if (!descEl || !descEl.value.trim()) { showToast('Type a description first.'); return; }
+      polishBtn.disabled = true;
+      polishBtn.textContent = '…';
+      const result = await polishText(descEl.value);
+      polishBtn.disabled = false;
+      polishBtn.textContent = '✨ Polish';
+      if (result) { descEl.value = result; descEl.dispatchEvent(new Event('input')); }
+    });
+  }
 }
 
 function initLog(){
@@ -4983,6 +5158,7 @@ function saveRptData(){
   const date = document.getElementById('roster-date').value || todayStr();
   collectRptFromDOM();
   localStorage.setItem(rptKey(date), JSON.stringify(rptData));
+  renderReportHistory();
   showToast('Report saved ✓');
 }
 
@@ -4993,6 +5169,7 @@ function autoSaveRptData(){
     localStorage.setItem(rptKey(date), JSON.stringify(rptData));
     const el = document.getElementById('autosave-indicator');
     if(el){ const t = new Date().toTimeString().slice(0,5); el.textContent = 'Auto-saved at ' + t; }
+    renderReportHistory();
   } catch(e){}
 }
 
@@ -6052,11 +6229,74 @@ function initReportSectionCollapse(){
   });
 }
 
+/* ─── REPORT HISTORY ─── */
+function renderReportHistory(){
+  const container = document.getElementById('rpt-history-list');
+  if(!container) return;
+  const prefix = 'shift_report_v2_';
+  const keys = [];
+  for(let i = 0; i < localStorage.length; i++){
+    const k = localStorage.key(i);
+    if(k && k.startsWith(prefix)) keys.push(k);
+  }
+  keys.sort((a,b) => b.localeCompare(a)); // most recent first
+  if(keys.length === 0){
+    container.innerHTML = '<div style="font-size:13px;color:var(--muted);text-align:center;padding:20px 0">No saved reports yet — generate a shift report to see history.</div>';
+    return;
+  }
+  container.innerHTML = '';
+  keys.slice(0,20).forEach(key => {
+    const dateStr = key.slice(prefix.length);
+    let data = {};
+    try { data = JSON.parse(localStorage.getItem(key)) || {}; } catch(e){}
+    const pcrs = data.pcrs || [];
+    const totalCalls = pcrs.reduce((s,p) => s + (parseInt(p.count)||0), 0);
+    const supervisor = data.supervisor || '';
+    const d = new Date(dateStr + 'T12:00:00');
+    const dateLabel = d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+    const chips = [
+      (data.admin||[]).length > 0 && `Admin: ${data.admin.length}`,
+      (data.callouts||[]).length > 0 && `Call-Ins: ${data.callouts.length}`,
+      (data.events||[]).length > 0 && `Events: ${data.events.length}`,
+      (data.narcs||[]).length > 0 && `Narcs: ${data.narcs.length}`,
+      pcrs.length > 0 && `PCRs: ${pcrs.length}`,
+    ].filter(Boolean);
+
+    const card = document.createElement('div');
+    card.className = 'rpt-hist-card';
+    card.innerHTML = `
+      <div class="rpt-hist-hdr">
+        <div>
+          <div class="rpt-hist-date">${dateLabel}</div>
+          ${supervisor ? `<div class="rpt-hist-sup">${supervisor}</div>` : ''}
+        </div>
+        <div class="rpt-hist-stats">
+          ${totalCalls > 0 ? `<span class="rpt-hist-badge">${totalCalls} call${totalCalls!==1?'s':''}</span>` : ''}
+          ${chips.map(c=>`<span class="rpt-hist-chip">${c}</span>`).join('')}
+        </div>
+      </div>
+      <div class="rpt-hist-actions">
+        <button class="rpt-hist-btn">👁 Preview</button>
+        <button class="rpt-hist-btn">📋 Copy</button>
+      </div>`;
+    const [previewBtn, copyBtn] = card.querySelectorAll('.rpt-hist-btn');
+    const getText = () => generateReportText(loadRptDataForDate(dateStr), dateStr);
+    previewBtn.addEventListener('click', () => {
+      document.getElementById('rpt-preview-text').textContent = getText();
+      document.getElementById('rpt-preview-modal').classList.add('open');
+    });
+    copyBtn.addEventListener('click', () => {
+      const txt = getText();
+      navigator.clipboard?.writeText(txt).then(()=>showToast('Report copied ✓')).catch(()=>showToast('Copy failed'));
+    });
+    container.appendChild(card);
+  });
+}
+
 function initShiftReport(){
   const dateInput = document.getElementById('roster-date');
   loadRptData(dateInput.value || todayStr());
   dateInput.addEventListener('change', () => { loadRptData(dateInput.value); renderStaffing(); });
-  // Auto-fill supervisor name from logged-in user if field is empty
   setTimeout(() => {
     const supEl = document.getElementById('rpt-supervisor');
     if(supEl && !supEl.value){
@@ -6068,11 +6308,14 @@ function initShiftReport(){
     }
   }, 500);
 
-  document.getElementById('btn-rpt-save').addEventListener('click', saveRptData);
+  document.getElementById('btn-rpt-save')?.addEventListener('click', saveRptData);
   document.getElementById('btn-rpt-preview')?.addEventListener('click', openRptPreview);
   document.getElementById('btn-rpt-combined')?.addEventListener('click', openCombinedRptPreview);
+  document.getElementById('btn-rpt-wrapup')?.addEventListener('click', openWrapUp);
+  document.getElementById('btn-rpt-carry')?.addEventListener('click', carryForwardFromYesterday);
   document.getElementById('btn-refresh-staffing')?.addEventListener('click', renderStaffing);
   renderReportDateBrowser();
+  renderReportHistory();
   initReportSectionCollapse();
 
   function addTo(listId, buildFn){
@@ -6091,7 +6334,6 @@ function initShiftReport(){
   document.getElementById('btn-add-event')?.addEventListener('click', ()=> addTo('events-list', buildEventEntry));
   document.getElementById('btn-add-narc')?.addEventListener('click', ()=> addTo('narcotics-list', buildNarcEntry));
   document.getElementById('btn-add-unlocked-pcr')?.addEventListener('click', ()=> addTo('unlocked-pcrs-list', buildUnlockedPcrEntry));
-
   document.getElementById('btn-pull-log')?.addEventListener('click', pullLogIntoReport);
   document.getElementById('btn-load-unit-checks')?.addEventListener('click', loadUnitChecksFromRoster);
 }
