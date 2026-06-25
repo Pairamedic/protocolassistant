@@ -512,6 +512,43 @@
         </div>
         <div id="peds-strip" class="brose-strip"></div>
         <div id="peds-result" class="brose-empty" style="display:none"></div>
+
+        <!-- Apgar embedded in PQR -->
+        <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" id="pqr-apgar-toggle">
+            <span style="font-size:12px;font-weight:700;color:#c084fc;text-transform:uppercase;letter-spacing:.7px">👶 APGAR Score</span>
+            <span id="pqr-apgar-chev" style="font-size:11px;color:var(--muted)">▾</span>
+          </div>
+          <div id="pqr-apgar-body" style="display:none;margin-top:10px">
+            <div class="calc-grid g2">
+              <div class="calc-field">
+                <label>Appearance</label>
+                <select id="pqr-apgar-a"><option value="0">0 — Blue/Pale all over</option><option value="1">1 — Body pink, limbs blue</option><option value="2">2 — Completely pink</option></select>
+              </div>
+              <div class="calc-field">
+                <label>Pulse</label>
+                <select id="pqr-apgar-p"><option value="0">0 — Absent</option><option value="1">1 — &lt;100 bpm</option><option value="2">2 — ≥100 bpm</option></select>
+              </div>
+              <div class="calc-field">
+                <label>Grimace / Reflex</label>
+                <select id="pqr-apgar-g"><option value="0">0 — No response</option><option value="1">1 — Grimace</option><option value="2">2 — Cough / Sneeze / Cry</option></select>
+              </div>
+              <div class="calc-field">
+                <label>Activity / Tone</label>
+                <select id="pqr-apgar-ac"><option value="0">0 — Limp</option><option value="1">1 — Some flexion</option><option value="2">2 — Active motion</option></select>
+              </div>
+              <div class="calc-field">
+                <label>Respiration</label>
+                <select id="pqr-apgar-r"><option value="0">0 — Absent</option><option value="1">1 — Slow / Irregular</option><option value="2">2 — Good cry</option></select>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <button id="pqr-apgar-calc" class="calc-btn primary">Score</button>
+              <button id="pqr-apgar-reset" class="calc-btn secondary">Reset</button>
+            </div>
+            <div id="pqr-apgar-result" class="calc-result"></div>
+          </div>
+        </div>
       </div>
 
       <!-- ── DOSE CALCULATORS ── -->
@@ -575,10 +612,28 @@
           <span class="calc-chev">▾</span>
         </div>
         <div class="calc-card-body" id="calc-body-std">
-          <p class="calc-hint">(Dose ordered ÷ Dose on hand) × Volume on hand = mL to draw</p>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+            <p class="calc-hint" style="margin:0;flex:1">(Dose ordered ÷ Dose on hand) × Volume on hand = mL to draw</p>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--muted);white-space:nowrap;user-select:none">
+              <span>⚖️ Weight-Based</span>
+              <div id="std-wt-toggle" role="switch" aria-checked="false" style="width:36px;height:20px;border-radius:10px;background:rgba(255,255,255,.12);border:1px solid var(--border);position:relative;cursor:pointer;transition:background .15s;flex-shrink:0">
+                <div id="std-wt-knob" style="width:14px;height:14px;border-radius:50%;background:var(--muted);position:absolute;top:2px;left:2px;transition:left .15s,background .15s"></div>
+              </div>
+            </label>
+          </div>
+          <!-- Weight row (hidden unless toggle is on) -->
+          <div id="std-wt-row" style="display:none;margin-bottom:10px">
+            <div class="calc-field">
+              <label>Patient Weight</label>
+              <div class="wt-row">
+                <input id="std-wt" type="number" inputmode="decimal" placeholder="e.g. 70" />
+                <select id="std-wt-unit"><option value="kg">kg</option><option value="lb">lb</option></select>
+              </div>
+            </div>
+          </div>
           <div class="calc-grid g3">
             <div class="calc-field">
-              <label>Dose ordered</label>
+              <label id="std-ordered-label">Dose ordered</label>
               <input id="std-dose-ordered" type="number" inputmode="decimal" placeholder="e.g. 5" />
               <div id="std-prefill-note" style="font-size:11px;color:var(--accent);margin-top:3px;min-height:14px"></div>
             </div>
@@ -606,14 +661,14 @@
       <!-- ── IV INFUSION & DRIP ── -->
       <div class="calc-section-hd">
         <span class="calc-section-dot" style="background:#7dd3fc"></span>
-        <span class="calc-section-title" style="color:#7dd3fc">IV Infusion &amp; Drip</span>
+        <span class="calc-section-title" style="color:#7dd3fc">Rx Infusion &amp; Drip</span>
       </div>
 
       <div class="calc-card">
         <div class="calc-card-hd calc-toggle" data-target="calc-body-iv">
           <div class="calc-card-title">
             <div class="calc-icon" style="background:rgba(125,211,252,.12)">💉</div>
-            IV Infusion (mcg/kg/min)
+            Rx Infusion (mcg/kg/min)
           </div>
           <span class="calc-chev">▾</span>
         </div>
@@ -5156,19 +5211,77 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   document.querySelector('#pump-result').innerHTML = '';
 });
 
+  // Draw-Up Calc — weight-based toggle
+  let _stdWtOn = false;
+  const _stdToggle = document.getElementById('std-wt-toggle');
+  const _stdKnob   = document.getElementById('std-wt-knob');
+  const _stdWtRow  = document.getElementById('std-wt-row');
+  const _stdLabel  = document.getElementById('std-ordered-label');
+  _stdToggle.addEventListener('click', ()=>{
+    _stdWtOn = !_stdWtOn;
+    _stdToggle.style.background = _stdWtOn ? 'rgba(94,234,212,.35)' : 'rgba(255,255,255,.12)';
+    _stdKnob.style.left  = _stdWtOn ? '18px' : '2px';
+    _stdKnob.style.background = _stdWtOn ? 'var(--accent)' : 'var(--muted)';
+    _stdToggle.setAttribute('aria-checked', _stdWtOn);
+    _stdWtRow.style.display = _stdWtOn ? '' : 'none';
+    _stdLabel.textContent = _stdWtOn ? 'Dose (per kg)' : 'Dose ordered';
+    $('#std-result').innerHTML = '';
+  });
+
   // Standard Dose → Volume
   $('#std-calc').addEventListener('click', ()=>{
-    const ordered = parseFloat($('#std-dose-ordered').value||'0');
+    let ordered = parseFloat($('#std-dose-ordered').value||'0');
     const onhand = parseFloat($('#std-dose-onhand').value||'0');
     const vol = parseFloat($('#std-vol-onhand').value||'0');
     const conc = parseFloat($('#std-conc').value||'0');
+    if(_stdWtOn){
+      let wt = parseFloat(document.getElementById('std-wt').value||'0');
+      wt = toKg(wt, document.getElementById('std-wt-unit').value);
+      if(!wt){ $('#std-result').innerHTML='Enter patient weight.'; return; }
+      ordered = ordered * wt;
+    }
     let mL = NaN;
-    if(ordered && onhand && vol){ mL = (ordered/onhand)*vol }
-    else if(ordered && conc){ mL = ordered/conc }
-    const txt = isFinite(mL) ? `Draw: <b>${fmt(mL,2)} mL</b>` : 'Enter ordered + on‑hand + volume, or ordered + concentration.';
+    if(ordered && onhand && vol){ mL = (ordered/onhand)*vol; }
+    else if(ordered && conc){ mL = ordered/conc; }
+    const wtNote = _stdWtOn ? ` (${fmt(ordered,2)} mg total dose)` : '';
+    const txt = isFinite(mL) ? `Draw: <b>${fmt(mL,2)} mL</b>${wtNote}` : 'Enter ordered + on‑hand + volume, or ordered + concentration.';
     $('#std-result').innerHTML = txt;
   });
-  $('#std-reset').addEventListener('click', ()=>{ ['std-dose-ordered','std-dose-onhand','std-vol-onhand','std-conc'].forEach(id=> $('#'+id).value=''); $('#std-result').innerHTML=''; const n=document.getElementById('std-prefill-note'); if(n) n.textContent=''; });
+  $('#std-reset').addEventListener('click', ()=>{
+    ['std-dose-ordered','std-dose-onhand','std-vol-onhand','std-conc','std-wt'].forEach(id=>{ const el=$('#'+id); if(el) el.value=''; });
+    $('#std-result').innerHTML='';
+    const n=document.getElementById('std-prefill-note'); if(n) n.textContent='';
+    if(_stdWtOn){
+      _stdWtOn=false; _stdToggle.style.background='rgba(255,255,255,.12)'; _stdKnob.style.left='2px';
+      _stdKnob.style.background='var(--muted)'; _stdToggle.setAttribute('aria-checked',false);
+      _stdWtRow.style.display='none'; _stdLabel.textContent='Dose ordered';
+    }
+  });
+
+  // PQR embedded Apgar
+  document.getElementById('pqr-apgar-toggle').addEventListener('click', ()=>{
+    const body = document.getElementById('pqr-apgar-body');
+    const chev = document.getElementById('pqr-apgar-chev');
+    const open = body.style.display !== 'none';
+    body.style.display = open ? 'none' : '';
+    chev.textContent = open ? '▾' : '▴';
+  });
+  document.getElementById('pqr-apgar-calc').addEventListener('click', ()=>{
+    const vals = ['pqr-apgar-a','pqr-apgar-p','pqr-apgar-g','pqr-apgar-ac','pqr-apgar-r']
+      .map(id => parseInt(document.getElementById(id).value||'0'));
+    const score = vals.reduce((a,b)=>a+b, 0);
+    let interp, color;
+    if(score >= 7)      { interp='Normal — reassess at 5 min';       color='#4ade80'; }
+    else if(score >= 4) { interp='Moderate concern — stimulate, O₂';  color='#fbbf24'; }
+    else                { interp='Severe — immediate resuscitation';   color='#f87171'; }
+    document.getElementById('pqr-apgar-result').innerHTML =
+      `Score: <b style="font-size:22px;color:${color}">${score}/10</b> — <span style="color:${color}">${interp}</span>`;
+  });
+  document.getElementById('pqr-apgar-reset').addEventListener('click', ()=>{
+    ['pqr-apgar-a','pqr-apgar-p','pqr-apgar-g','pqr-apgar-ac','pqr-apgar-r']
+      .forEach(id=>{ document.getElementById(id).selectedIndex=0; });
+    document.getElementById('pqr-apgar-result').innerHTML='';
+  });
 
   // IV Infusion gtts/min
   $('#iv-calc').addEventListener('click', ()=>{
@@ -6698,6 +6811,25 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     _btnForms.style.background = '';
     _btnForms.style.borderColor = '';
   }));
+
+  // --- Home Screen shortcut deep links (?jump=X) ---
+  (function(){
+    const jump = new URLSearchParams(location.search).get('jump');
+    if (!jump) return;
+    const map = {
+      'drawup':     ['resources', 'calc-body-std'],
+      'rxinfusion': ['resources', 'calc-body-iv'],
+      'pqr':        ['resources', 'peds-ref-section'],
+      'gcs':        ['resources', 'calc-body-gcs'],
+      'stemi':      ['resources', 'calc-body-stemi'],
+    };
+    const target = map[jump];
+    if (!target) return;
+    setTimeout(() => {
+      activateTab(target[0]);
+      setTimeout(() => jumpToSection(target[1]), 250);
+    }, 400);
+  })();
 
   // --- Source protection (deterrents) ---
   document.addEventListener('contextmenu', e => e.preventDefault());

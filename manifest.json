@@ -12,5 +12,42 @@
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
     { "src": "star-of-life.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Draw-Up Med",
+      "short_name": "Draw Med",
+      "description": "Calculate mL to draw, with optional weight-based dosing",
+      "url": "ProtocolAssistant.html?jump=drawup",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Rx Infusion",
+      "short_name": "Rx Infusion",
+      "description": "IV drip rate and mL/hr from mcg/kg/min",
+      "url": "ProtocolAssistant.html?jump=rxinfusion",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Pediatric Quick Reference",
+      "short_name": "Peds Ref",
+      "description": "Broselow-Luten pediatric dosing with APGAR",
+      "url": "ProtocolAssistant.html?jump=pqr",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Glasgow Coma Scale",
+      "short_name": "GCS",
+      "description": "Neurological assessment — GCS scoring",
+      "url": "ProtocolAssistant.html?jump=gcs",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "STEMI Localization",
+      "short_name": "STEMI",
+      "description": "12-lead STEMI territory and culprit artery",
+      "url": "ProtocolAssistant.html?jump=stemi",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
   ]
 }
