@@ -244,6 +244,11 @@
     }
     .unit-btn.active { background: rgba(94,234,212,.15); color: var(--accent); }
 
+    /* ── Option Button Group ── */
+    .opt-group { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 6px; }
+    .opt-btn { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 500; padding: 7px 12px; line-height: 1.3; transition: background .15s, border-color .15s, color .15s; -webkit-tap-highlight-color: transparent; }
+    .opt-btn.sel { background: rgba(94,234,212,.15); border-color: rgba(94,234,212,.4); color: var(--accent); }
+
     /* ── Labs Grid ── */
     .labs-grid {
       display: grid;
@@ -793,12 +798,114 @@
   <!-- ── Tab Content ── -->
   <div class="tab-content" id="main-scroll">
 
-    <!-- TAB: Rx -->
-    <div class="tab-panel active" id="tab-meds">
+    <!-- TAB: Patient -->
+    <div class="tab-panel active" id="tab-patient">
+      <div class="tab-inner">
+
+        <!-- Patient Info -->
+        <div class="card">
+          <div class="card-hdr"><span class="card-title">Patient Info</span></div>
+          <div class="card-body">
+            <div class="field">
+              <label for="rpt-cc">Chief Complaint</label>
+              <input type="text" id="rpt-cc" placeholder="e.g. Chest pain, difficulty breathing..." autocomplete="off" />
+            </div>
+            <div class="field">
+              <label>Patient Weight</label>
+              <div class="weight-row">
+                <input type="number" id="rpt-weight" placeholder="0" min="0" step="0.1" />
+                <div class="unit-toggle">
+                  <button class="unit-btn active" data-unit="kg">kg</button>
+                  <button class="unit-btn" data-unit="lb">lb</button>
+                </div>
+              </div>
+            </div>
+            <div class="field">
+              <label for="rpt-allergies">Allergies</label>
+              <input type="text" id="rpt-allergies" placeholder="NKDA or list allergies" autocomplete="off" />
+            </div>
+            <div class="field">
+              <label for="rpt-hx">Pertinent Hx</label>
+              <textarea id="rpt-hx" rows="3" placeholder="Brief past medical / surgical history, current medications, relevant history..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Current Status -->
+        <div class="card">
+          <div class="card-hdr"><span class="card-title">Current Status</span></div>
+          <div class="card-body">
+            <div class="status-grid">
+              <div class="field">
+                <label for="st-hr">HR (bpm)</label>
+                <input type="number" id="st-hr" placeholder="72" />
+              </div>
+              <div class="field">
+                <label for="st-spo2">SpO&#8322; (%)</label>
+                <input type="number" id="st-spo2" min="0" max="100" placeholder="98" />
+              </div>
+              <div class="field">
+                <label for="st-bps">BP Systolic</label>
+                <input type="number" id="st-bps" placeholder="120" />
+              </div>
+              <div class="field">
+                <label for="st-bpd">BP Diastolic</label>
+                <input type="number" id="st-bpd" placeholder="80" />
+              </div>
+              <div class="field">
+                <label for="st-etco2">EtCO&#8322; (mmHg)</label>
+                <input type="number" id="st-etco2" placeholder="38" />
+              </div>
+              <div class="field">
+                <label for="st-rr">RR (/min)</label>
+                <input type="number" id="st-rr" placeholder="16" />
+              </div>
+              <div class="field">
+                <label for="st-temp">Temp (°F)</label>
+                <input type="number" id="st-temp" step="0.1" placeholder="98.6" />
+              </div>
+              <div class="field">
+                <label for="st-bgl">BGL (mg/dL)</label>
+                <input type="number" id="st-bgl" placeholder="100" />
+              </div>
+              <div class="field">
+                <label for="st-gcs">GCS</label>
+                <input type="number" id="st-gcs" min="3" max="15" placeholder="15" />
+              </div>
+            </div>
+            <div class="field" style="margin-top:8px">
+              <label>Airway</label>
+              <input type="hidden" id="st-airway" value="" />
+              <div class="opt-group" id="st-airway-grp">
+                <button type="button" class="opt-btn" data-val="Patent — room air">Patent — room air</button>
+                <button type="button" class="opt-btn" data-val="NPA">NPA</button>
+                <button type="button" class="opt-btn" data-val="OPA">OPA</button>
+                <button type="button" class="opt-btn" data-val="BVM">BVM</button>
+                <button type="button" class="opt-btn" data-val="King LT">King LT</button>
+                <button type="button" class="opt-btn" data-val="i-gel">i-gel</button>
+                <button type="button" class="opt-btn" data-val="Intubated-OTI">Intubated — OTI</button>
+                <button type="button" class="opt-btn" data-val="Surgical cric">Surgical cric</button>
+                <button type="button" class="opt-btn" data-val="CPAP">CPAP</button>
+                <button type="button" class="opt-btn" data-val="High-flow NC">High-flow NC</button>
+                <button type="button" class="opt-btn" data-val="Other">Other</button>
+              </div>
+            </div>
+            <div class="field hidden" id="vent-mode-field">
+              <label for="st-vent">Vent Mode / Settings</label>
+              <input type="text" id="st-vent" placeholder="AC/VC: TV 450, RR 14, PEEP 5, FiO2 40%" autocomplete="off" />
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB: Meds -->
+    <div class="tab-panel" id="tab-meds">
       <div class="tab-inner">
 
         <div class="btn-row">
-          <button class="btn accent" id="btn-add-med">+ Add Rx</button>
+          <button class="btn accent" id="btn-add-med">+ Add Med</button>
           <button class="btn" id="btn-add-site">+ IV Site</button>
         </div>
 
@@ -812,18 +919,18 @@
           </div>
         </div>
 
-        <!-- Active Rx -->
-        <div class="section-title">Active Rx</div>
+        <!-- Active Meds -->
+        <div class="section-title">Active Medications</div>
         <div id="active-meds-list">
           <div class="empty-state">
             <div class="empty-icon">💊</div>
-            <div>No active Rx</div>
+            <div>No active medications</div>
           </div>
         </div>
 
-        <!-- Discontinued Rx -->
+        <!-- Discontinued Meds -->
         <div class="collapsible-hdr" id="dc-meds-toggle">
-          <span class="section-title" style="margin:0">Discontinued Rx</span>
+          <span class="section-title" style="margin:0">Discontinued</span>
           <span class="caret">▼</span>
         </div>
         <div class="collapsible-body" id="dc-meds-list">
@@ -886,9 +993,13 @@
 
   <!-- ── Bottom Nav ── -->
   <nav class="bottom-nav">
-    <button class="nav-btn active" data-tab="meds">
+    <button class="nav-btn active" data-tab="patient">
+      <span class="nav-pill"><span class="nav-icon">🧑</span></span>
+      <span>Patient</span>
+    </button>
+    <button class="nav-btn" data-tab="meds">
       <span class="nav-pill"><span class="nav-icon">💊</span></span>
-      <span>Rx</span>
+      <span>Meds</span>
     </button>
     <button class="nav-btn" data-tab="timeline">
       <span class="nav-pill"><span class="nav-icon">🕐</span></span>
@@ -1159,7 +1270,7 @@ $('btn-new-run').addEventListener('click', function() {
     saveState();
     addTimelineEntry('runstart', 'Run Started', {});
     renderAll();
-    switchTab('meds');
+    switchTab('patient');
     setTimeout(function() {
       var el = $('rpt-cc');
       if (el) el.focus();
@@ -1240,6 +1351,21 @@ function bindReportInputs() {
     var key = pair[1];
     if (!el) return;
     el.value = cs[key] || '';
+    // sync button group if this field has one (e.g. st-airway)
+    var grp = document.getElementById(pair[0] + '-grp');
+    if (grp) {
+      grp.querySelectorAll('.opt-btn').forEach(function(b) {
+        b.classList.toggle('sel', b.dataset.val === el.value);
+        b.addEventListener('click', function() {
+          grp.querySelectorAll('.opt-btn').forEach(function(x) { x.classList.remove('sel'); });
+          b.classList.add('sel');
+          el.value = b.dataset.val;
+          STATE.report.currentStatus[key] = el.value;
+          saveState();
+          if (pair[0] === 'st-airway') toggleVentField();
+        });
+      });
+    }
     el.addEventListener('input', function() {
       STATE.report.currentStatus[key] = el.value;
       saveState();
@@ -1326,39 +1452,43 @@ function mkField(labelText, inputType, id, placeholder, value) {
   return wrap;
 }
 
-function mkSelect(labelText, id, options, currentVal) {
+function mkBtnGroup(labelText, id, options, currentVal) {
   var wrap = document.createElement('div');
   wrap.className = 'field';
   var lbl = document.createElement('label');
   lbl.textContent = labelText;
-  lbl.setAttribute('for', id);
-  var sel = document.createElement('select');
-  sel.id = id;
-  var def = document.createElement('option');
-  def.value = '';
-  def.textContent = 'Select...';
-  sel.appendChild(def);
+  var hidden = document.createElement('input');
+  hidden.type = 'hidden';
+  hidden.id = id;
+  hidden.value = currentVal !== undefined && currentVal !== null ? String(currentVal) : '';
+  var grp = document.createElement('div');
+  grp.className = 'opt-group';
   options.forEach(function(opt) {
-    var o = document.createElement('option');
-    if (typeof opt === 'object') {
-      o.value = opt.value;
-      o.textContent = opt.label;
-    } else {
-      o.value = opt;
-      o.textContent = opt;
-    }
-    if (currentVal !== undefined && o.value === String(currentVal)) o.selected = true;
-    sel.appendChild(o);
+    var val = typeof opt === 'object' ? String(opt.value) : String(opt);
+    var txt = typeof opt === 'object' ? opt.label : opt;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'opt-btn' + (hidden.value === val ? ' sel' : '');
+    btn.textContent = txt;
+    btn.dataset.val = val;
+    btn.addEventListener('click', function() {
+      grp.querySelectorAll('.opt-btn').forEach(function(b) { b.classList.remove('sel'); });
+      btn.classList.add('sel');
+      hidden.value = val;
+      hidden.dispatchEvent(new Event('change'));
+    });
+    grp.appendChild(btn);
   });
   wrap.appendChild(lbl);
-  wrap.appendChild(sel);
+  wrap.appendChild(hidden);
+  wrap.appendChild(grp);
   return wrap;
 }
 
 function openAddSiteSheet() {
   var frag = document.createDocumentFragment();
   frag.appendChild(mkField('Site Label', 'text', 'site-lbl', 'e.g. R AC 18g', ''));
-  frag.appendChild(mkSelect('Type', 'site-type', ['PIV','EJ','Central','IO','Arterial'], ''));
+  frag.appendChild(mkBtnGroup('Type', 'site-type', ['PIV','EJ','Central','IO','Arterial'], ''));
 
   var actions = document.createElement('div');
   actions.className = 'sheet-actions';
@@ -1398,8 +1528,8 @@ function openAddMedSheet(existingMed) {
   var frag = document.createDocumentFragment();
   frag.appendChild(mkField('Drug Name', 'text', 'med-name', 'e.g. Dopamine', med.name || ''));
   frag.appendChild(mkField('Dose / Rate', 'text', 'med-dose', 'e.g. 5 mcg/kg/min', med.dose || ''));
-  frag.appendChild(mkSelect('Route', 'med-route', ['IV Infusion','IV Push','IM','SQ','Nebulized','Other'], med.route || ''));
-  frag.appendChild(mkSelect('IV Site', 'med-site', siteOptions, med.ivSiteId || 'N/A'));
+  frag.appendChild(mkBtnGroup('Route', 'med-route', ['IV Infusion','IV Push','IM','SQ','Nebulized','Other'], med.route || ''));
+  frag.appendChild(mkBtnGroup('IV Site', 'med-site', siteOptions, med.ivSiteId || 'N/A'));
   frag.appendChild(mkField('Concentration', 'text', 'med-conc', 'e.g. 400mg in 250mL NS', med.concentration || ''));
 
   var volRow = document.createElement('div');
@@ -1501,7 +1631,7 @@ function renderMeds() {
     ei.className = 'empty-icon';
     ei.textContent = '💊';
     var em = document.createElement('div');
-    em.textContent = 'No active Rx';
+    em.textContent = 'No active medications';
     empty.appendChild(ei);
     empty.appendChild(em);
     activeList.appendChild(empty);
@@ -1783,12 +1913,12 @@ function openQuickLogSheet(key) {
     doseRow.className = 'inline-row';
     var doseF = mkField('Dose', 'number', 'mg-dose', '0', '');
     doseF.style.marginBottom = '0';
-    var unitF = mkSelect('Unit', 'mg-unit', ['mg','mcg','mEq','g','mL'], 'mg');
+    var unitF = mkBtnGroup('Unit', 'mg-unit', ['mg','mcg','mEq','g','mL'], 'mg');
     unitF.style.marginBottom = '0';
     doseRow.appendChild(doseF);
     doseRow.appendChild(unitF);
     frag.appendChild(doseRow);
-    frag.appendChild(mkSelect('Route', 'mg-route', ['IV','IO','IM','IN','SL','PO','PR','INH','ETT'], ''));
+    frag.appendChild(mkBtnGroup('Route', 'mg-route', ['IV','IO','IM','IN','SL','PO','PR','INH','ETT'], ''));
     frag.appendChild(mkField('Site (optional)', 'text', 'mg-site', 'e.g. R deltoid, R AC', ''));
 
     addActions(function() {
@@ -1805,10 +1935,10 @@ function openQuickLogSheet(key) {
     });
 
   } else if (key === 'ivaccess') {
-    frag.appendChild(mkSelect('Type', 'iv-type', ['IV','IO'], 'IV'));
-    frag.appendChild(mkSelect('Gauge', 'iv-gauge', ['14','16','18','20','22','24'], '18'));
-    frag.appendChild(mkSelect('Site', 'iv-site', ['R AC','L AC','R EJ','L EJ','R hand','L hand','IO — tibia','IO — sternum','Other'], ''));
-    frag.appendChild(mkSelect('Attempts', 'iv-attempts', ['1','2','3','Failed'], '1'));
+    frag.appendChild(mkBtnGroup('Type', 'iv-type', ['IV','IO'], 'IV'));
+    frag.appendChild(mkBtnGroup('Gauge', 'iv-gauge', ['14','16','18','20','22','24'], '18'));
+    frag.appendChild(mkBtnGroup('Site', 'iv-site', ['R AC','L AC','R EJ','L EJ','R hand','L hand','IO — tibia','IO — sternum','Other'], ''));
+    frag.appendChild(mkBtnGroup('Attempts', 'iv-attempts', ['1','2','3','Failed'], '1'));
     frag.appendChild(mkField('Note (optional)', 'text', 'iv-note', 'e.g. patent, blood return', ''));
 
     addActions(function() {
@@ -1825,7 +1955,7 @@ function openQuickLogSheet(key) {
     });
 
   } else if (key === 'airway') {
-    frag.appendChild(mkSelect('Intervention', 'aw-type', [
+    frag.appendChild(mkBtnGroup('Intervention', 'aw-type', [
       'BVM','NPA','OPA','King LT','i-gel','Intubation','Surgical cric','CPAP','High-flow NC'
     ], ''));
     frag.appendChild(mkField('Note (optional)', 'textarea', 'aw-note', 'e.g. blade size, tube size, confirmation...', ''));
@@ -1841,7 +1971,7 @@ function openQuickLogSheet(key) {
     });
 
   } else if (key === 'ecg12') {
-    frag.appendChild(mkSelect('Interpretation', 'ecg-interp', [
+    frag.appendChild(mkBtnGroup('Interpretation', 'ecg-interp', [
       'NSR','Sinus tachycardia','Sinus bradycardia','AFib','VT','VF',
       '1st degree block','2nd degree block','3rd degree block',
       'STEMI','STEMI equivalent','Other'
@@ -1861,7 +1991,7 @@ function openQuickLogSheet(key) {
     });
 
   } else if (key === 'cardiac') {
-    frag.appendChild(mkSelect('Event', 'ca-event', [
+    frag.appendChild(mkBtnGroup('Event', 'ca-event', [
       'VF arrest','PEA arrest','Asystole','ROSC','Defibrillation','Cardioversion','Pacing'
     ], ''));
     frag.appendChild(mkField('Joules / Rate (if applicable)', 'text', 'ca-joules', 'e.g. 200J, 80 ppm', ''));
@@ -1879,7 +2009,7 @@ function openQuickLogSheet(key) {
     });
 
   } else if (key === 'procedure') {
-    frag.appendChild(mkSelect('Procedure', 'pr-type', [
+    frag.appendChild(mkBtnGroup('Procedure', 'pr-type', [
       'Tourniquet','Wound packing','Needle decompression','Chest seal',
       'Splint','Immobilization','Blood glucose check','12-lead ECG',
       'External pacing','Cricothyrotomy','Other'
@@ -2234,7 +2364,7 @@ function buildExportText() {
 
   var activeMeds = STATE.meds.filter(function(m) { return m.active; });
   if (activeMeds.length) {
-    lines.push('=== ACTIVE RX ===');
+    lines.push('=== ACTIVE MEDICATIONS ===');
     activeMeds.forEach(function(m) {
       var s = '• ' + m.name;
       if (m.dose) s += ' ' + m.dose;
@@ -2250,7 +2380,7 @@ function buildExportText() {
 
   var dcMeds = STATE.meds.filter(function(m) { return !m.active; });
   if (dcMeds.length) {
-    lines.push('=== DISCONTINUED RX ===');
+    lines.push('=== DISCONTINUED MEDICATIONS ===');
     dcMeds.forEach(function(m) {
       var s = '• ' + m.name;
       if (m.dose) s += ' ' + m.dose;

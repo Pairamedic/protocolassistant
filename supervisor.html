@@ -1331,6 +1331,10 @@
     .rpt-hist-btn { flex:1; background:rgba(255,255,255,.06); border:1px solid var(--border); border-radius:10px; color:var(--text); font-size:13px; font-weight:600; padding:9px 8px; cursor:pointer; font-family:inherit; transition:background .15s; }
     .rpt-hist-btn:active { background:rgba(255,255,255,.12); }
 
+    .opt-group { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 6px; }
+    .opt-btn { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 500; padding: 7px 12px; line-height: 1.3; transition: background .15s, border-color .15s, color .15s; -webkit-tap-highlight-color: transparent; }
+    .opt-btn.sel { background: rgba(94,234,212,.15); border-color: rgba(94,234,212,.4); color: var(--accent); }
+
   </style>
 </head>
 <body>
@@ -1403,7 +1407,8 @@
       </div>
       <div style="display:flex;gap:8px;align-items:center">
         <div id="offline-dot" title="Online"></div>
-        <select id="svc-switcher" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;cursor:pointer;font-family:inherit;max-width:130px"></select>
+        <input type="hidden" id="svc-switcher" value="">
+        <div class="opt-group" id="svc-switcher-group" style="flex-wrap:nowrap;gap:4px"></div>
         <button id="btn-svc-settings" style="background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:13px;font-family:inherit;cursor:pointer;padding:7px 11px;white-space:nowrap" title="Manage Services">⚙ Services</button>
         <button id="shanna-toggle" title="Toggle Shanna Mode">🩷</button>
         <a href="dashboard.html" style="padding:8px 14px;border-radius:10px;border:1px solid rgba(94,234,212,.35);background:rgba(94,234,212,.08);color:#5eead4;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap">← Home</a>
@@ -1544,29 +1549,31 @@
       <div id="dir-filter-panel" class="dir-filter-panel" style="display:none">
         <div class="dir-filter-row">
           <span class="dir-filter-label">Station</span>
-          <select id="dir-station-sel" class="dir-filter-sel">
-            <option value="All">All Stations</option>
-            <option value="Pine Bluff">Pine Bluff</option>
-            <option value="England">England</option>
-            <option value="Star City">Star City</option>
-            <option value="Warren">Warren</option>
-            <option value="Rison">Rison</option>
-            <option value="DeWitt">DeWitt</option>
-            <option value="Clarendon">Clarendon</option>
-          </select>
+          <input type="hidden" id="dir-station-sel" value="All">
+          <div class="opt-group">
+            <button type="button" class="opt-btn sel" data-val="All">All Stations</button>
+            <button type="button" class="opt-btn" data-val="Pine Bluff">Pine Bluff</button>
+            <button type="button" class="opt-btn" data-val="England">England</button>
+            <button type="button" class="opt-btn" data-val="Star City">Star City</button>
+            <button type="button" class="opt-btn" data-val="Warren">Warren</button>
+            <button type="button" class="opt-btn" data-val="Rison">Rison</button>
+            <button type="button" class="opt-btn" data-val="DeWitt">DeWitt</button>
+            <button type="button" class="opt-btn" data-val="Clarendon">Clarendon</button>
+          </div>
         </div>
         <div class="dir-filter-row">
           <span class="dir-filter-label">Role</span>
-          <select id="dir-role-sel" class="dir-filter-sel">
-            <option value="All">All Roles</option>
-            <option value="Paramedic">Paramedic</option>
-            <option value="AEMT">A-EMT</option>
-            <option value="EMT">EMT</option>
-            <option value="EMR">EMR</option>
-            <option value="EVO">EVO</option>
-            <option value="SUPERVISOR">Supervisor</option>
-            <option value="DISPATCHER">Dispatcher</option>
-          </select>
+          <input type="hidden" id="dir-role-sel" value="All">
+          <div class="opt-group">
+            <button type="button" class="opt-btn sel" data-val="All">All Roles</button>
+            <button type="button" class="opt-btn" data-val="Paramedic">Paramedic</button>
+            <button type="button" class="opt-btn" data-val="AEMT">A-EMT</button>
+            <button type="button" class="opt-btn" data-val="EMT">EMT</button>
+            <button type="button" class="opt-btn" data-val="EMR">EMR</button>
+            <button type="button" class="opt-btn" data-val="EVO">EVO</button>
+            <button type="button" class="opt-btn" data-val="SUPERVISOR">Supervisor</button>
+            <button type="button" class="opt-btn" data-val="DISPATCHER">Dispatcher</button>
+          </div>
         </div>
         <div class="dir-filter-row">
           <span class="dir-filter-label">Status</span>
@@ -1856,15 +1863,16 @@ Shift Start/End    0600
       </div>
       <div class="rpt-field">
         <label>Station</label>
-        <select id="em-station" class="dir-filter-sel" style="width:100%">
-          <option value="Pine Bluff">Pine Bluff</option>
-          <option value="England">England</option>
-          <option value="Star City">Star City</option>
-          <option value="Warren">Warren</option>
-          <option value="Rison">Rison</option>
-          <option value="DeWitt">DeWitt</option>
-          <option value="Clarendon">Clarendon</option>
-        </select>
+        <input type="hidden" id="em-station" value="Pine Bluff">
+        <div class="opt-group">
+          <button type="button" class="opt-btn sel" data-val="Pine Bluff">Pine Bluff</button>
+          <button type="button" class="opt-btn" data-val="England">England</button>
+          <button type="button" class="opt-btn" data-val="Star City">Star City</button>
+          <button type="button" class="opt-btn" data-val="Warren">Warren</button>
+          <button type="button" class="opt-btn" data-val="Rison">Rison</button>
+          <button type="button" class="opt-btn" data-val="DeWitt">DeWitt</button>
+          <button type="button" class="opt-btn" data-val="Clarendon">Clarendon</button>
+        </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div class="rpt-field">
@@ -1877,10 +1885,11 @@ Shift Start/End    0600
         </div>
         <div class="rpt-field">
           <label>Status</label>
-          <select id="em-status" class="dir-filter-sel" style="width:100%">
-            <option value="FULL TIME">Full Time</option>
-            <option value="PRN">PRN</option>
-          </select>
+          <input type="hidden" id="em-status" value="FULL TIME">
+          <div class="opt-group">
+            <button type="button" class="opt-btn sel" data-val="FULL TIME">Full Time</button>
+            <button type="button" class="opt-btn" data-val="PRN">PRN</button>
+          </div>
         </div>
       </div>
       <div class="rpt-field"><label>Phone</label><input type="tel" id="em-phone" class="inc-inp" placeholder="870-555-0000" autocomplete="tel" /></div>
@@ -2153,23 +2162,35 @@ function getRosterRows() {
 function updateHeaderServiceName() {
   const el = document.getElementById('svc-name-display');
   if (el) el.textContent = getActiveService().name;
-  const sel = document.getElementById('svc-switcher');
-  if (sel) sel.value = activeServiceId;
+  const hidden = document.getElementById('svc-switcher');
+  if (hidden) hidden.value = activeServiceId;
+  const grp = document.getElementById('svc-switcher-group');
+  if (grp) grp.querySelectorAll('.opt-btn').forEach(b => { b.classList.toggle('sel', b.dataset.val === activeServiceId); });
 }
 
 function updateStationDropdowns() {
   const stations = getActiveService().stations || [];
   ['dir-station-sel', 'em-station'].forEach(id => {
-    const sel = document.getElementById(id);
-    if (!sel) return;
-    const cur = sel.value;
-    Array.from(sel.options).forEach(o => { if (o.value !== 'All') o.remove(); });
-    stations.forEach(st => {
-      const o = document.createElement('option');
-      o.value = o.textContent = st;
-      sel.appendChild(o);
+    const hidden = document.getElementById(id);
+    if (!hidden) return;
+    const grp = hidden.nextElementSibling;
+    if (!grp || !grp.classList.contains('opt-group')) return;
+    const cur = hidden.value;
+    // Remove all buttons except 'All' (dir-station-sel has 'All', em-station doesn't)
+    Array.from(grp.querySelectorAll('.opt-btn')).forEach(btn => {
+      if (btn.dataset.val !== 'All') btn.remove();
     });
-    if (stations.includes(cur)) sel.value = cur;
+    stations.forEach(st => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'opt-btn' + (st === cur ? ' sel' : '');
+      btn.dataset.val = st;
+      btn.textContent = st;
+      grp.appendChild(btn);
+    });
+    if (stations.includes(cur)) {
+      hidden.value = cur;
+    }
   });
 }
 
@@ -2593,12 +2614,7 @@ function buildRowEditor(row) {
     openQuickModal('📝 Log Entry — ' + (row.label || 'Unit'), `
       <div class="qm-group">
         <label class="qm-label">Type</label>
-        <select id="qm-rl-type" class="qm-sel">
-          <option>Note</option>
-          <option>Event</option>
-          <option>Equipment</option>
-          <option>Incident</option>
-        </select>
+        <input type="hidden" id="qm-rl-type" value="Note"><div class="opt-group"><button type="button" class="opt-btn sel" data-val="Note">Note</button><button type="button" class="opt-btn" data-val="Event">Event</button><button type="button" class="opt-btn" data-val="Equipment">Equipment</button><button type="button" class="opt-btn" data-val="Incident">Incident</button></div>
       </div>
       <div class="qm-group">
         <label class="qm-label">Description</label>
@@ -4362,7 +4378,7 @@ function openLogEntrySheet(){
       </div>
       <div class="qm-group">
         <label class="qm-label">Type</label>
-        <select id="qml-type" class="qm-sel">${LOG_TYPES.map(t=>`<option>${t}</option>`).join('')}</select>
+        <input type="hidden" id="qml-type" value="Incident"><div class="opt-group">${LOG_TYPES.map(t=>`<button type="button" class="opt-btn${t==='Incident'?' sel':''}" data-val="${t}">${t}</button>`).join('')}</div>
       </div>
     </div>
     <div class="qm-group">
@@ -4910,16 +4926,19 @@ function deleteSvc() {
 }
 
 function rebuildSvcSwitcher() {
-  const sel = document.getElementById('svc-switcher');
-  if (!sel) return;
-  sel.innerHTML = '';
+  const hidden = document.getElementById('svc-switcher');
+  const grp = document.getElementById('svc-switcher-group');
+  if (!hidden || !grp) return;
+  grp.innerHTML = '';
   servicesData.forEach(svc => {
-    const o = document.createElement('option');
-    o.value = svc.id;
-    o.textContent = svc.name;
-    sel.appendChild(o);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'opt-btn' + (svc.id === activeServiceId ? ' sel' : '');
+    btn.dataset.val = svc.id;
+    btn.textContent = svc.name;
+    grp.appendChild(btn);
   });
-  sel.value = activeServiceId;
+  hidden.value = activeServiceId;
 }
 
 /* ════════════════════════════════════════
@@ -5276,8 +5295,9 @@ function renderRpt(){
 
 /* ── helpers ── */
 function sel(options, dataF, val=''){
-  return '<select data-f="'+dataF+'" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:7px 10px;width:100%;font-family:inherit">'
-    + options.map(o=>`<option value="${o}"${val===o?' selected':''}>${o}</option>`).join('')+'</select>';
+  const defVal = val || (options[0] || '');
+  const btns = options.map(o=>`<button type="button" class="opt-btn${o===defVal?' sel':''}" data-val="${o}">${o}</button>`).join('');
+  return `<input type="hidden" data-f="${dataF}" value="${defVal.replace(/"/g,'&quot;')}"><div class="opt-group">${btns}</div>`;
 }
 function inp(dataF, placeholder='', val='', type='text'){
   return `<input type="${type}" data-f="${dataF}" placeholder="${placeholder}" value="${val.replace(/"/g,'&quot;')}" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:7px 10px;width:100%;font-family:inherit;outline:none" />`;
@@ -5932,9 +5952,7 @@ function qaCallIn(){
       </div>
       <div class="qm-group">
         <label class="qm-label">Reason</label>
-        <select id="qm-ci-reason" class="qm-sel">
-          ${RPT_CALLOUT_REASONS.map(r=>`<option>${r}</option>`).join('')}
-        </select>
+        <input type="hidden" id="qm-ci-reason" value="Sick"><div class="opt-group">${RPT_CALLOUT_REASONS.map((r,i)=>`<button type="button" class="opt-btn${i===0?' sel':''}" data-val="${r}">${r}</button>`).join('')}</div>
       </div>
     </div>
     <div class="qm-group">
@@ -5972,17 +5990,13 @@ function qaNarc(){
       </div>
       <div class="qm-group">
         <label class="qm-label">Drug</label>
-        <select id="qm-nc-drug" class="qm-sel">
-          ${RPT_DRUGS.map(d=>`<option>${d}</option>`).join('')}
-        </select>
+        <input type="hidden" id="qm-nc-drug" value="Fentanyl"><div class="opt-group">${RPT_DRUGS.map((d,i)=>`<button type="button" class="opt-btn${i===0?' sel':''}" data-val="${d}">${d}</button>`).join('')}</div>
       </div>
     </div>
     <div class="qm-row g3">
       <div class="qm-group">
         <label class="qm-label">Change Type</label>
-        <select id="qm-nc-change" class="qm-sel">
-          ${RPT_NARC_CHANGE.map(c=>`<option>${c}</option>`).join('')}
-        </select>
+        <input type="hidden" id="qm-nc-change" value="Administered / Used"><div class="opt-group">${RPT_NARC_CHANGE.map((c,i)=>`<button type="button" class="opt-btn${i===0?' sel':''}" data-val="${c}">${c}</button>`).join('')}</div>
       </div>
       <div class="qm-group">
         <label class="qm-label">Amount</label>
@@ -6021,9 +6035,7 @@ function qaEvent(){
       </div>
       <div class="qm-group">
         <label class="qm-label">Category</label>
-        <select id="qm-ev-cat" class="qm-sel">
-          ${RPT_EVENT_CATS.map(c=>`<option>${c}</option>`).join('')}
-        </select>
+        <input type="hidden" id="qm-ev-cat" value="Equipment Issue"><div class="opt-group">${RPT_EVENT_CATS.map((c,i)=>`<button type="button" class="opt-btn${i===0?' sel':''}" data-val="${c}">${c}</button>`).join('')}</div>
       </div>
     </div>
     <div class="qm-group">
@@ -6638,6 +6650,7 @@ if ('serviceWorker' in navigator) {
 
 function showAppUpdateBanner(reg) {
   if (document.getElementById('app-update-banner')) return; // already shown
+
   const banner = document.createElement('div');
   banner.id = 'app-update-banner';
   banner.style.cssText = [
@@ -6662,6 +6675,35 @@ function showAppUpdateBanner(reg) {
     }
   });
 }
+
+document.querySelectorAll('.opt-group').forEach(function(grp) {
+  var hiddenId = grp.previousElementSibling && grp.previousElementSibling.type === 'hidden' ? grp.previousElementSibling.id : null;
+  if (!hiddenId) return;
+  var hidden = document.getElementById(hiddenId);
+  grp.querySelectorAll('.opt-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      grp.querySelectorAll('.opt-btn').forEach(function(b) { b.classList.remove('sel'); });
+      btn.classList.add('sel');
+      hidden.value = btn.dataset.val;
+      hidden.dispatchEvent(new Event('change'));
+      hidden.dispatchEvent(new Event('input'));
+    });
+  });
+});
+
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('.opt-btn');
+  if (!btn) return;
+  var grp = btn.closest('.opt-group');
+  if (!grp) return;
+  var prev = grp.previousElementSibling;
+  if (!prev || prev.type !== 'hidden') return;
+  grp.querySelectorAll('.opt-btn').forEach(function(b) { b.classList.remove('sel'); });
+  btn.classList.add('sel');
+  prev.value = btn.dataset.val;
+  prev.dispatchEvent(new Event('change'));
+  prev.dispatchEvent(new Event('input'));
+});
 </script>
 </body>
 </html>

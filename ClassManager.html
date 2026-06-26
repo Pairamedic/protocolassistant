@@ -179,6 +179,9 @@
     .ftype-img{background:rgba(147,197,253,.12);border-color:rgba(147,197,253,.25)}
     .ftype-doc{background:rgba(96,165,250,.12);border-color:rgba(96,165,250,.25)}
     .ftype-other{background:rgba(167,176,190,.12);border-color:rgba(167,176,190,.2)}
+    .opt-group { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 6px; }
+    .opt-btn { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 500; padding: 7px 12px; line-height: 1.3; transition: background .15s, border-color .15s, color .15s; -webkit-tap-highlight-color: transparent; }
+    .opt-btn.sel { background: rgba(94,234,212,.15); border-color: rgba(94,234,212,.4); color: var(--accent); }
   </style>
 </head>
 <body>
@@ -352,17 +355,23 @@
           <span class="search-icon">🔍</span>
           <input type="text" id="class-search" placeholder="Search classes…" />
         </div>
-        <select id="class-filter-type" style="width:auto;flex:none;padding:10px 12px">
-          <option value="">All Types</option>
-          <option>ACLS</option><option>PALS</option><option>BLS</option>
-          <option>Stop the Bleed</option><option>Heartsaver</option>
-          <option>Instructor Course</option><option>Other</option>
-        </select>
-        <select id="class-filter-time" style="width:auto;flex:none;padding:10px 12px">
-          <option value="upcoming">Upcoming</option>
-          <option value="past">Past</option>
-          <option value="all">All</option>
-        </select>
+        <input type="hidden" id="class-filter-type" value="">
+        <div class="opt-group">
+          <button type="button" class="opt-btn sel" data-val="">All Types</button>
+          <button type="button" class="opt-btn" data-val="ACLS">ACLS</button>
+          <button type="button" class="opt-btn" data-val="PALS">PALS</button>
+          <button type="button" class="opt-btn" data-val="BLS">BLS</button>
+          <button type="button" class="opt-btn" data-val="Stop the Bleed">Stop the Bleed</button>
+          <button type="button" class="opt-btn" data-val="Heartsaver">Heartsaver</button>
+          <button type="button" class="opt-btn" data-val="Instructor Course">Instructor Course</button>
+          <button type="button" class="opt-btn" data-val="Other">Other</button>
+        </div>
+        <input type="hidden" id="class-filter-time" value="upcoming">
+        <div class="opt-group">
+          <button type="button" class="opt-btn sel" data-val="upcoming">Upcoming</button>
+          <button type="button" class="opt-btn" data-val="past">Past</button>
+          <button type="button" class="opt-btn" data-val="all">All</button>
+        </div>
       </div>
       <div id="classes-list"></div>
     </div>
@@ -430,7 +439,18 @@
   <div class="modal">
     <div class="modal-hd"><div class="modal-title">Schedule New Class</div><button class="close-btn" data-close="modal-new-class">×</button></div>
     <div class="fg"><label>Class Type *</label>
-      <select id="nc-type"><option value="">Select type…</option><option>ACLS</option><option>ACLS-EP</option><option>PALS</option><option>BLS</option><option>Stop the Bleed</option><option>Heartsaver</option><option>Heartsaver AED</option><option>Instructor Course</option><option>Other</option></select>
+      <input type="hidden" id="nc-type" value="">
+      <div class="opt-group">
+        <button type="button" class="opt-btn" data-val="ACLS">ACLS</button>
+        <button type="button" class="opt-btn" data-val="ACLS-EP">ACLS-EP</button>
+        <button type="button" class="opt-btn" data-val="PALS">PALS</button>
+        <button type="button" class="opt-btn" data-val="BLS">BLS</button>
+        <button type="button" class="opt-btn" data-val="Stop the Bleed">Stop the Bleed</button>
+        <button type="button" class="opt-btn" data-val="Heartsaver">Heartsaver</button>
+        <button type="button" class="opt-btn" data-val="Heartsaver AED">Heartsaver AED</button>
+        <button type="button" class="opt-btn" data-val="Instructor Course">Instructor Course</button>
+        <button type="button" class="opt-btn" data-val="Other">Other</button>
+      </div>
     </div>
     <div class="row2">
       <div class="fg" style="margin:0"><label>Date *</label><input type="date" id="nc-date" /></div>
@@ -518,7 +538,16 @@
         <div class="fg" style="margin:0"><label>Last Name *</label><input type="text" id="ar-last" /></div>
       </div>
       <div style="margin-top:10px" class="fg"><label>License Level</label>
-        <select id="ar-level"><option value="">Select…</option><option>EMT</option><option>AEMT</option><option>Paramedic</option><option>RN</option><option>MD/DO</option><option>Layperson</option><option>Other</option></select>
+        <input type="hidden" id="ar-level" value="">
+        <div class="opt-group">
+          <button type="button" class="opt-btn" data-val="EMT">EMT</button>
+          <button type="button" class="opt-btn" data-val="AEMT">AEMT</button>
+          <button type="button" class="opt-btn" data-val="Paramedic">Paramedic</button>
+          <button type="button" class="opt-btn" data-val="RN">RN</button>
+          <button type="button" class="opt-btn" data-val="MD/DO">MD/DO</button>
+          <button type="button" class="opt-btn" data-val="Layperson">Layperson</button>
+          <button type="button" class="opt-btn" data-val="Other">Other</button>
+        </div>
       </div>
       <div class="fg"><label>Phone</label><input type="tel" id="ar-phone" placeholder="(555) 000-0000" /></div>
       <div class="fg"><label>Email</label><input type="email" id="ar-email" placeholder="student@email.com" /></div>
@@ -556,7 +585,16 @@
         <div class="fg" style="margin:0"><label>Last Name</label><input type="text" id="sp-last" /></div>
       </div>
       <div style="margin-top:10px" class="fg"><label>License Level</label>
-        <select id="sp-level"><option value="">Select…</option><option>EMT</option><option>AEMT</option><option>Paramedic</option><option>RN</option><option>MD/DO</option><option>Layperson</option><option>Other</option></select>
+        <input type="hidden" id="sp-level" value="">
+        <div class="opt-group">
+          <button type="button" class="opt-btn" data-val="EMT">EMT</button>
+          <button type="button" class="opt-btn" data-val="AEMT">AEMT</button>
+          <button type="button" class="opt-btn" data-val="Paramedic">Paramedic</button>
+          <button type="button" class="opt-btn" data-val="RN">RN</button>
+          <button type="button" class="opt-btn" data-val="MD/DO">MD/DO</button>
+          <button type="button" class="opt-btn" data-val="Layperson">Layperson</button>
+          <button type="button" class="opt-btn" data-val="Other">Other</button>
+        </div>
       </div>
       <div class="fg"><label>Phone</label><input type="tel" id="sp-phone" /></div>
       <div class="fg"><label>Email</label><input type="email" id="sp-email" /></div>
@@ -586,11 +624,12 @@
     <div class="modal-hd"><div class="modal-title">AHA Card — <span id="aha-student-name"></span></div><button class="close-btn" data-close="modal-aha-card">×</button></div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:14px" id="aha-class-label"></div>
     <div class="fg"><label>Card Type</label>
-      <select id="aha-card-type">
-        <option value="">Not Issued</option>
-        <option value="eCard">eCard</option>
-        <option value="Physical">Physical Card</option>
-      </select>
+      <input type="hidden" id="aha-card-type" value="">
+      <div class="opt-group">
+        <button type="button" class="opt-btn sel" data-val="">Not Issued</button>
+        <button type="button" class="opt-btn" data-val="eCard">eCard</button>
+        <button type="button" class="opt-btn" data-val="Physical">Physical Card</button>
+      </div>
     </div>
     <div id="aha-card-fields">
       <div class="fg"><label>Card Number</label><input type="text" id="aha-card-number" placeholder="Optional" /></div>
@@ -623,7 +662,14 @@
   <div class="modal">
     <div class="modal-hd"><div class="modal-title">Add Certification</div><button class="close-btn" data-close="modal-new-cert">×</button></div>
     <div class="fg"><label>Category</label>
-      <select id="cert-category"><option value="instructor">Instructor Certification</option><option value="nremt">NREMT</option><option value="state">State License/Certification</option><option value="aha">Personal AHA Certification</option><option value="other">Other</option></select>
+      <input type="hidden" id="cert-category" value="instructor">
+      <div class="opt-group">
+        <button type="button" class="opt-btn sel" data-val="instructor">Instructor Certification</button>
+        <button type="button" class="opt-btn" data-val="nremt">NREMT</button>
+        <button type="button" class="opt-btn" data-val="state">State License/Certification</button>
+        <button type="button" class="opt-btn" data-val="aha">Personal AHA Certification</button>
+        <button type="button" class="opt-btn" data-val="other">Other</button>
+      </div>
     </div>
     <div class="fg"><label>Certification Name / Type *</label><input type="text" id="cert-name" placeholder="e.g. ACLS Instructor, NREMT-P" /></div>
     <div class="fg" id="cert-loginurl-field"><label>Login URL (renewal portal)</label><input type="url" id="cert-loginurl" placeholder="https://instructornetwork.heart.org" /></div>
@@ -664,13 +710,14 @@
       <div class="fg"><label>Cert Name *</label><input type="text" id="certd-e-name" /></div>
       <div class="row2">
         <div class="fg" style="margin:0"><label>Category</label>
-          <select id="certd-e-category">
-            <option value="instructor">Instructor Certification</option>
-            <option value="nremt">NREMT</option>
-            <option value="state">State License</option>
-            <option value="aha">AHA Certification</option>
-            <option value="other">Other</option>
-          </select>
+          <input type="hidden" id="certd-e-category" value="instructor">
+          <div class="opt-group">
+            <button type="button" class="opt-btn sel" data-val="instructor">Instructor Certification</button>
+            <button type="button" class="opt-btn" data-val="nremt">NREMT</button>
+            <button type="button" class="opt-btn" data-val="state">State License</button>
+            <button type="button" class="opt-btn" data-val="aha">AHA Certification</button>
+            <button type="button" class="opt-btn" data-val="other">Other</button>
+          </div>
         </div>
         <div class="fg" style="margin:0"><label>State / Issuer</label><input type="text" id="certd-e-state" /></div>
       </div>
@@ -696,7 +743,17 @@
   <div class="modal">
     <div class="modal-hd"><div class="modal-title">Add Expense</div><button class="close-btn" data-close="modal-new-expense">×</button></div>
     <div class="fg"><label>Type</label>
-      <select id="exp-type"><option>Supplies / Materials</option><option>Equipment</option><option>Venue / Space Rental</option><option>Manikins / AED Trainers</option><option>Certification / Renewal Fee</option><option>Marketing / Advertising</option><option>Travel</option><option>Other</option></select>
+      <input type="hidden" id="exp-type" value="Supplies / Materials">
+      <div class="opt-group">
+        <button type="button" class="opt-btn sel" data-val="Supplies / Materials">Supplies / Materials</button>
+        <button type="button" class="opt-btn" data-val="Equipment">Equipment</button>
+        <button type="button" class="opt-btn" data-val="Venue / Space Rental">Venue / Space Rental</button>
+        <button type="button" class="opt-btn" data-val="Manikins / AED Trainers">Manikins / AED Trainers</button>
+        <button type="button" class="opt-btn" data-val="Certification / Renewal Fee">Certification / Renewal Fee</button>
+        <button type="button" class="opt-btn" data-val="Marketing / Advertising">Marketing / Advertising</button>
+        <button type="button" class="opt-btn" data-val="Travel">Travel</button>
+        <button type="button" class="opt-btn" data-val="Other">Other</button>
+      </div>
     </div>
     <div class="fg"><label>Description *</label><input type="text" id="exp-desc" placeholder="What was purchased/paid?" /></div>
     <div class="row2">
@@ -704,7 +761,10 @@
       <div class="fg" style="margin:0"><label>Date</label><input type="date" id="exp-date" /></div>
     </div>
     <div class="fg" style="margin-top:10px"><label>Link to Class (optional)</label>
-      <select id="exp-class"><option value="">General expense (no class)</option></select>
+      <input type="hidden" id="exp-class" value="">
+      <div class="opt-group" id="exp-class-group">
+        <button type="button" class="opt-btn sel" data-val="">General expense (no class)</button>
+      </div>
     </div>
     <div id="exp-err" style="color:#f87171;font-size:13px;min-height:18px;margin-bottom:8px"></div>
     <button class="btn primary full" id="exp-save-btn">Save Expense</button>
@@ -720,7 +780,16 @@
       <div class="fg" style="margin:0"><label>Last Name *</label><input type="text" id="ns-last" /></div>
     </div>
     <div style="margin-top:10px" class="fg"><label>License Level</label>
-      <select id="ns-level"><option value="">Select level…</option><option>EMT</option><option>AEMT</option><option>Paramedic</option><option>RN</option><option>MD/DO</option><option>Layperson</option><option>Other</option></select>
+      <input type="hidden" id="ns-level" value="">
+      <div class="opt-group">
+        <button type="button" class="opt-btn" data-val="EMT">EMT</button>
+        <button type="button" class="opt-btn" data-val="AEMT">AEMT</button>
+        <button type="button" class="opt-btn" data-val="Paramedic">Paramedic</button>
+        <button type="button" class="opt-btn" data-val="RN">RN</button>
+        <button type="button" class="opt-btn" data-val="MD/DO">MD/DO</button>
+        <button type="button" class="opt-btn" data-val="Layperson">Layperson</button>
+        <button type="button" class="opt-btn" data-val="Other">Other</button>
+      </div>
     </div>
     <div class="fg"><label>Phone</label><input type="tel" id="ns-phone" placeholder="(555) 000-0000" /></div>
     <div class="fg"><label>Email</label><input type="email" id="ns-email" /></div>
@@ -735,7 +804,17 @@
     <div class="modal-hd"><div class="modal-title">Add Course Material</div><button class="close-btn" data-close="modal-new-material">×</button></div>
     <div class="fg"><label>Name *</label><input type="text" id="mat-name" placeholder="e.g. ACLS Written Exam Answer Key 2024" /></div>
     <div class="fg"><label>Category</label>
-      <select id="mat-category"><option>ACLS</option><option>ACLS-EP</option><option>PALS</option><option>BLS</option><option>Stop the Bleed</option><option>Heartsaver</option><option>Instructor</option><option>General</option></select>
+      <input type="hidden" id="mat-category" value="ACLS">
+      <div class="opt-group">
+        <button type="button" class="opt-btn sel" data-val="ACLS">ACLS</button>
+        <button type="button" class="opt-btn" data-val="ACLS-EP">ACLS-EP</button>
+        <button type="button" class="opt-btn" data-val="PALS">PALS</button>
+        <button type="button" class="opt-btn" data-val="BLS">BLS</button>
+        <button type="button" class="opt-btn" data-val="Stop the Bleed">Stop the Bleed</button>
+        <button type="button" class="opt-btn" data-val="Heartsaver">Heartsaver</button>
+        <button type="button" class="opt-btn" data-val="Instructor">Instructor</button>
+        <button type="button" class="opt-btn" data-val="General">General</button>
+      </div>
     </div>
     <div class="fg"><label>Description</label><textarea id="mat-desc" placeholder="Notes about this material…" style="min-height:60px"></textarea></div>
     <div class="toggle-row" style="margin-bottom:14px">
@@ -774,7 +853,17 @@
     <div id="matd-edit-form" style="display:none">
       <div class="fg"><label>Name *</label><input type="text" id="matd-e-name" /></div>
       <div class="fg"><label>Category</label>
-        <select id="matd-e-cat"><option>ACLS</option><option>ACLS-EP</option><option>PALS</option><option>BLS</option><option>Stop the Bleed</option><option>Heartsaver</option><option>Instructor</option><option>General</option></select>
+        <input type="hidden" id="matd-e-cat" value="ACLS">
+        <div class="opt-group">
+          <button type="button" class="opt-btn sel" data-val="ACLS">ACLS</button>
+          <button type="button" class="opt-btn" data-val="ACLS-EP">ACLS-EP</button>
+          <button type="button" class="opt-btn" data-val="PALS">PALS</button>
+          <button type="button" class="opt-btn" data-val="BLS">BLS</button>
+          <button type="button" class="opt-btn" data-val="Stop the Bleed">Stop the Bleed</button>
+          <button type="button" class="opt-btn" data-val="Heartsaver">Heartsaver</button>
+          <button type="button" class="opt-btn" data-val="Instructor">Instructor</button>
+          <button type="button" class="opt-btn" data-val="General">General</button>
+        </div>
       </div>
       <div class="fg"><label>Description</label><textarea id="matd-e-desc" style="min-height:60px"></textarea></div>
       <div class="toggle-row" style="margin-bottom:14px">
@@ -831,6 +920,14 @@ const unsubs=[];
 // ============================================================
 const $=id=>document.getElementById(id);
 const fmt$=n=>'$'+(parseFloat(n)||0).toFixed(2);
+
+function syncOptGroup(id, val) {
+  const hidden = $(id); if (!hidden) return;
+  hidden.value = val;
+  const grp = hidden.nextElementSibling;
+  if (!grp || !grp.classList.contains('opt-group')) return;
+  grp.querySelectorAll('.opt-btn').forEach(b => b.classList.toggle('sel', b.dataset.val === String(val)));
+}
 const today=()=>new Date().toISOString().slice(0,10);
 
 function classTypeKey(t=''){
@@ -1520,7 +1617,7 @@ $('certd-delete-btn').addEventListener('click',async()=>{
 $('certd-edit-btn').addEventListener('click',()=>{
   const c=allCerts.find(x=>x.id===currentCertId);if(!c)return;
   $('certd-e-name').value=c.name||'';
-  $('certd-e-category').value=c.category||'other';
+  syncOptGroup('certd-e-category', c.category||'other');
   $('certd-e-state').value=c.state||'';
   $('certd-e-number').value=c.certNumber||'';
   $('certd-e-issue').value=c.issue||'';
@@ -1635,7 +1732,7 @@ function renderFinances(){
 }
 $('new-expense-btn').addEventListener('click',()=>{
   ['exp-desc','exp-amount'].forEach(id=>$(id).value='');$('exp-type').value='Supplies / Materials';$('exp-date').value=today();$('exp-err').textContent='';
-  $('exp-class').innerHTML='<option value="">General expense (no class)</option>'+allClasses.map(c=>`<option value="${c.id}">${c.type} – ${formatDate(c.date)}</option>`).join('');
+  const expClassGrp=document.getElementById('exp-class-group');if(expClassGrp){expClassGrp.innerHTML='<button type="button" class="opt-btn sel" data-val="">General expense (no class)</button>'+allClasses.map(c=>`<button type="button" class="opt-btn" data-val="${c.id}">${c.type} – ${formatDate(c.date)}</button>`).join('');$('exp-class').value='';};
   openModal('modal-new-expense');
 });
 $('exp-save-btn').addEventListener('click',async()=>{
@@ -1723,7 +1820,7 @@ window.openMaterialDetail=function(matId){
 $('matd-edit-btn').addEventListener('click',()=>{
   const m=allMaterials.find(x=>x.id===currentMatId);if(!m)return;
   $('matd-e-name').value=m.name||'';
-  $('matd-e-cat').value=m.category||'ACLS';
+  syncOptGroup('matd-e-cat', m.category||'ACLS');
   $('matd-e-desc').value=m.description||'';
   $('matd-e-key').checked=!!m.isAnswerKey;
   $('matd-e-url').value=m.driveUrl||m.downloadURL||'';
@@ -1751,6 +1848,38 @@ $('matd-delete-btn').addEventListener('click',async()=>{
   if(!confirm('Delete this material?'))return;
   await col('materials').doc(currentMatId).delete();
   closeModal('modal-material-detail');
+});
+
+// ============================================================
+// OPT-GROUP INIT
+// ============================================================
+document.querySelectorAll('.opt-group').forEach(function(grp) {
+  var hiddenId = grp.previousElementSibling && grp.previousElementSibling.type === 'hidden' ? grp.previousElementSibling.id : null;
+  if (!hiddenId) return;
+  var hidden = document.getElementById(hiddenId);
+  grp.querySelectorAll('.opt-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      grp.querySelectorAll('.opt-btn').forEach(function(b) { b.classList.remove('sel'); });
+      btn.classList.add('sel');
+      hidden.value = btn.dataset.val;
+      hidden.dispatchEvent(new Event('change'));
+      hidden.dispatchEvent(new Event('input'));
+    });
+  });
+});
+
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('.opt-btn');
+  if (!btn) return;
+  var grp = btn.closest('.opt-group');
+  if (!grp) return;
+  var prev = grp.previousElementSibling;
+  if (!prev || prev.type !== 'hidden') return;
+  grp.querySelectorAll('.opt-btn').forEach(function(b) { b.classList.remove('sel'); });
+  btn.classList.add('sel');
+  prev.value = btn.dataset.val;
+  prev.dispatchEvent(new Event('change'));
+  prev.dispatchEvent(new Event('input'));
 });
 
 // ============================================================
