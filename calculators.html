@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Calculators – EMS Reference</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="star-of-life.svg" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Calculators" />
+  <meta name="theme-color" content="#0b0d10" />
+  <style>
+    :root { --bg:#0b0d10; --card:#141820; --muted:#a7b0be; --text:#e6eef8; --accent:#5eead4; --accent2:#93c5fd; --border:rgba(255,255,255,.1); --input-bg:#0f131a; }
+    :root.light { --bg:#f1f5f9; --card:#ffffff; --muted:#64748b; --text:#0f172a; --accent:#0d9488; --accent2:#2563eb; --border:rgba(0,0,0,.1); --input-bg:#f8fafc; }
+    *{box-sizing:border-box;transition:background-color .18s,border-color .18s,color .18s}
+    html,body{height:100%;margin:0}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:var(--bg);color:var(--text);font-size:16px}
+    header{position:sticky;top:0;background:linear-gradient(180deg,rgba(20,24,32,.98),rgba(20,24,32,.9));backdrop-filter:saturate(120%) blur(6px);z-index:20;border-bottom:1px solid rgba(255,255,255,.06)}
+    :root.light header{background:linear-gradient(180deg,rgba(241,245,249,.98),rgba(241,245,249,.92));border-bottom-color:rgba(0,0,0,.08)}
+    .wrap{max-width:720px;margin:0 auto;padding:16px}
+    .page-title{font-weight:700;font-size:18px;letter-spacing:.2px}
+    .page-subtitle{font-size:13px;color:var(--muted);margin-top:2px}
+    .header-row{display:flex;align-items:center;gap:12px}
+    .back-btn{background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px 6px;line-height:1;flex:none;-webkit-tap-highlight-color:transparent}
+    .back-btn:hover{color:var(--text)}
+    .hidden{display:none}
+    /* search */
+    .tab-filter{padding:8px 0 14px}
+    .meds-search-wrap{position:relative}
+    .meds-search-bar{display:flex;align-items:center;gap:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:14px;padding:10px 14px;transition:border-color .15s}
+    .meds-search-bar:focus-within{border-color:var(--accent)}
+    .meds-search-icon{font-size:16px;flex:none;color:var(--muted)}
+    .meds-search-bar input{background:none;border:none;color:var(--text);font-size:15px;flex:1;outline:none;font-family:inherit;min-width:0}
+    .meds-search-bar input::placeholder{color:var(--muted)}
+    .meds-filter-clear{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:0 2px;line-height:1;flex:none}
+    .meds-sugg-list{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:12px;z-index:50;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+    .meds-sugg-item{padding:11px 16px;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
+    .meds-sugg-item:last-child{border-bottom:none}
+    .meds-sugg-item:active,.meds-sugg-item:hover{background:rgba(255,255,255,.06)}
+    :root.light .meds-sugg-item:hover{background:rgba(0,0,0,.04)}
+    /* resources panel styles */
+    .res-section{margin-bottom:22px}
+    .res-section-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:10px}
+    .res-section-title{font-weight:700;font-size:16px}
+    .res-attribution{font-size:11px;color:var(--muted);font-style:italic}
+    /* peds */
+    .peds-search-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:14px}
+    .peds-input-grp{display:flex;flex-direction:column;gap:4px}
+    .peds-input-grp label{font-size:12px;color:var(--muted)}
+    .peds-input-grp input,.peds-input-grp select{padding:8px 10px;border-radius:10px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:14px;width:100%;outline:none;font-family:inherit}
+    .brose-strip{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+    .brose-swatch{border:2px solid;border-radius:8px;padding:6px 8px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;line-height:1.2;text-align:center;min-width:52px;transition:transform .12s}
+    .brose-swatch:hover,.brose-swatch.active{transform:scale(1.08)}
+    .brose-empty{font-size:13px;color:var(--muted);padding:12px}
+    /* calc styles */
+    .calc-toggle{cursor:pointer;user-select:none;-webkit-user-select:none}
+    .calc-chev{font-size:13px;color:var(--muted);transition:transform .2s;flex:none}
+    .calc-collapsed .calc-chev{transform:rotate(-90deg)}
+    .calc-section-hd{display:flex;align-items:center;gap:8px;padding:18px 0 10px;border-bottom:2px solid var(--border);margin-bottom:12px}
+    .calc-section-dot{width:8px;height:8px;border-radius:50%;flex:none}
+    .calc-section-title{font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase}
+    .calc-card{background:var(--card);border:1px solid var(--border);border-radius:16px;margin-bottom:10px;overflow:hidden}
+    .calc-card-hd{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid transparent;transition:border-color .15s}
+    .calc-card-hd:hover{border-bottom-color:var(--border)}
+    .calc-card-title{display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px}
+    .calc-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex:none}
+    .calc-card-body{padding:14px 16px 16px}
+    .calc-grid{display:grid;gap:10px;margin-bottom:12px}
+    .calc-grid.g2{grid-template-columns:1fr 1fr}
+    .calc-grid.g3{grid-template-columns:1fr 1fr 1fr}
+    @media(max-width:500px){.calc-grid.g3{grid-template-columns:1fr 1fr}}
+    .calc-field{display:flex;flex-direction:column;gap:4px}
+    .calc-field label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
+    .calc-field input,.calc-field select{padding:9px 11px;border-radius:10px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:14px;width:100%;font-family:inherit;outline:none}
+    .calc-field input:focus,.calc-field select:focus{border-color:var(--accent)}
+    .wt-row{display:flex;gap:6px}
+    .wt-row input{flex:1;min-width:0}
+    .wt-row select{width:64px;flex:none}
+    .calc-actions{display:flex;gap:8px}
+    .calc-btn{padding:10px 14px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;border:1px solid;transition:opacity .15s}
+    .calc-btn.primary{flex:1;background:rgba(94,234,212,.1);color:var(--accent);border-color:rgba(94,234,212,.3)}
+    .calc-btn.secondary{background:var(--input-bg);color:var(--muted);border-color:var(--border)}
+    .calc-btn:hover{opacity:.8}
+    .calc-result{margin-top:12px;border-radius:11px;padding:12px 14px;background:rgba(94,234,212,.05);border:1px solid rgba(94,234,212,.15);font-size:14px;line-height:1.7}
+    .calc-result:empty{display:none}
+    .calc-result b{color:var(--accent);font-size:16px}
+    .stemi-lead-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:4px}
+    @media(max-width:400px){.stemi-lead-grid{grid-template-columns:repeat(4,1fr)}}
+    .stemi-lead-btn{display:flex;flex-direction:column;align-items:center;cursor:pointer;user-select:none}
+    .stemi-lead-btn input{display:none}
+    .stemi-lead-btn span{display:block;width:100%;text-align:center;padding:6px 2px;border-radius:7px;font-size:12px;font-weight:700;border:1px solid rgba(248,113,113,.3);background:rgba(248,113,113,.06);color:rgba(248,113,113,.7);transition:all .15s}
+    .stemi-lead-btn.dep span{border-color:rgba(96,165,250,.3);background:rgba(96,165,250,.06);color:rgba(96,165,250,.7)}
+    .stemi-lead-btn input:checked + span{background:rgba(248,113,113,.22);border-color:rgba(248,113,113,.7);color:#fca5a5}
+    .stemi-lead-btn.dep input:checked + span{background:rgba(96,165,250,.22);border-color:rgba(96,165,250,.7);color:#93c5fd}
+    .calc-hint{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:10px}
+    input[type="number"],input[type="text"],input[type="search"],select,textarea{padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);outline:none;font-family:inherit;font-size:14px}
+    input[type="number"]:focus,input[type="text"]:focus,select:focus{border-color:var(--accent)}
+    input::placeholder{color:var(--muted)}
+    /* auth loading */
+    #auth-loading{display:flex;align-items:center;justify-content:center;min-height:100vh;font-size:15px;color:var(--muted)}
+    #app{display:none;flex-direction:column;min-height:100vh}
+  </style>
+</head>
+<body>
+  <div id="auth-loading">Loading…</div>
+
+  <div id="app">
+    <header>
+      <div class="wrap">
+        <div class="header-row">
+          <button class="back-btn" id="btn-back" title="Back to Home">‹</button>
+          <div>
+            <div class="page-title">🧮 Calculators</div>
+            <div class="page-subtitle">EMS Reference Calculators &amp; Peds Quick Reference</div>
+          </div>
+        </div>
+        <!-- Jump-to search bar -->
+        <div class="tab-filter" style="padding-bottom:6px">
+          <div class="meds-search-wrap">
+            <div class="meds-search-bar">
+              <span class="meds-search-icon">🔍</span>
+              <input type="search" id="res-filter-input" placeholder="Jump to section (e.g. Peds, APGAR)…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button id="res-filter-clear" class="meds-filter-clear" style="display:none">✕</button>
+            </div>
+            <div id="res-suggestions" class="meds-sugg-list" style="display:none"></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="wrap">
+
+      <!-- Pediatric Quick Reference (moved from Contacts) -->
+      <div id="peds-ref-section" class="card" style="margin-bottom:14px">
+        <div class="res-section-head" style="margin-bottom:10px">
+          <span class="res-section-title">🧒 Pediatric Quick Reference</span>
+          <span class="res-attribution">Based on the Pediatric Quick Reference Chart · Arkansas Department of Health (Broselow-Luten system)</span>
+        </div>
+        <div class="peds-search-row">
+          <div class="peds-input-grp">
+            <label for="peds-kg">Weight (kg)</label>
+            <input type="number" id="peds-kg" placeholder="e.g. 14" min="3" max="36" step="0.5"
+              style="width:110px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:15px" />
+          </div>
+          <div class="peds-or">— or —</div>
+          <div class="peds-input-grp">
+            <label>Age</label>
+            <div style="display:flex;gap:6px">
+              <input type="number" id="peds-age-num" placeholder="e.g. 2" min="0" max="9"
+                style="width:72px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:15px" />
+              <select id="peds-age-unit"
+                style="padding:10px 10px;border-radius:12px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:15px">
+                <option value="months">months</option>
+                <option value="years">years</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div id="peds-strip" class="brose-strip"></div>
+        <div id="peds-result" class="brose-empty" style="display:none"></div>
+
+        <!-- Apgar embedded in PQR -->
+        <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" id="pqr-apgar-toggle">
+            <span style="font-size:12px;font-weight:700;color:#c084fc;text-transform:uppercase;letter-spacing:.7px">👶 APGAR Score</span>
+            <span id="pqr-apgar-chev" style="font-size:11px;color:var(--muted)">▾</span>
+          </div>
+          <div id="pqr-apgar-body" style="display:none;margin-top:10px">
+            <div class="calc-grid g2">
+              <div class="calc-field">
+                <label>Appearance</label>
+                <select id="pqr-apgar-a"><option value="0">0 — Blue/Pale all over</option><option value="1">1 — Body pink, limbs blue</option><option value="2">2 — Completely pink</option></select>
+              </div>
+              <div class="calc-field">
+                <label>Pulse</label>
+                <select id="pqr-apgar-p"><option value="0">0 — Absent</option><option value="1">1 — &lt;100 bpm</option><option value="2">2 — ≥100 bpm</option></select>
+              </div>
+              <div class="calc-field">
+                <label>Grimace / Reflex</label>
+                <select id="pqr-apgar-g"><option value="0">0 — No response</option><option value="1">1 — Grimace</option><option value="2">2 — Cough / Sneeze / Cry</option></select>
+              </div>
+              <div class="calc-field">
+                <label>Activity / Tone</label>
+                <select id="pqr-apgar-ac"><option value="0">0 — Limp</option><option value="1">1 — Some flexion</option><option value="2">2 — Active motion</option></select>
+              </div>
+              <div class="calc-field">
+                <label>Respiration</label>
+                <select id="pqr-apgar-r"><option value="0">0 — Absent</option><option value="1">1 — Slow / Irregular</option><option value="2">2 — Good cry</option></select>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <button id="pqr-apgar-calc" class="calc-btn primary">Score</button>
+              <button id="pqr-apgar-reset" class="calc-btn secondary">Reset</button>
+            </div>
+            <div id="pqr-apgar-result" class="calc-result"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── DOSE CALCULATORS ── -->
+      <div class="calc-section-hd">
+        <span class="calc-section-dot" style="background:#5eead4"></span>
+        <span class="calc-section-title" style="color:#5eead4">Dose Calculators</span>
+      </div>
+
+      <div class="calc-card">
+        <div class="calc-card-hd calc-toggle" data-target="calc-body-weight">
+          <div class="calc-card-title">
+            <div class="calc-icon" style="background:rgba(94,234,212,.12)">⚖️</div>
+            Weight-Based Dose
+          </div>
+          <span class="calc-chev">▾</span>
+        </div>
+        <div class="calc-card-body" id="calc-body-weight">
+          <div class="calc-grid g2">
+            <div class="calc-field">
+              <label>Medication</label>
+              <select id="calc-med"></select>
+            </div>
+            <div class="calc-field">
+              <label>Weight</label>
+              <div class="wt-row">
+                <input id="wt" type="number" inputmode="decimal" placeholder="e.g. 70" />
+                <select id="unit"><option value="kg">kg</option><option value="lb">lb</option></select>
+              </div>
+            </div>
+            <div class="calc-field">
+              <label>mg/kg (override)</label>
+              <input id="mgkg" type="number" inputmode="decimal" placeholder="auto from med" />
+            </div>
+            <div class="calc-field">
+              <label>Max dose (mg)</label>
+              <input id="maxmg" type="number" inputmode="decimal" placeholder="auto from med" />
+            </div>
+            <div class="calc-field">
+              <label>Concentration (mg/mL)</label>
+              <input id="conc" type="number" inputmode="decimal" placeholder="e.g. 10" />
+            </div>
+            <div class="calc-field">
+              <label>Route</label>
+              <input id="route" type="text" placeholder="auto from med" />
+            </div>
+          </div>
+          <div class="calc-actions">
+            <button id="calc" class="calc-btn primary">Calculate</button>
+            <button id="reset" class="calc-btn secondary">Reset</button>
+          </div>
+          <div id="result" class="calc-result"></div>
+        </div>
+      </div>
+
+      <div class="calc-card">
+        <div class="calc-card-hd calc-toggle" data-target="calc-body-std">
+          <div class="calc-card-title">
+            <div class="calc-icon" style="background:rgba(125,211,252,.12)">💊</div>
+            Draw-Up Calc
+          </div>
+          <span class="calc-chev">▾</span>
+        </div>
+        <div class="calc-card-body" id="calc-body-std">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+            <p class="calc-hint" style="margin:0;flex:1">(Dose ordered ÷ Dose on hand) × Volume on hand = mL to draw</p>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--muted);white-space:nowrap;user-select:none">
+              <span>⚖️ Weight-Based</span>
+              <div id="std-wt-toggle" role="switch" aria-checked="false" style="width:36px;height:20px;border-radius:10px;background:rgba(255,255,255,.12);border:1px solid var(--border);position:relative;cursor:pointer;transition:background .15s;flex-shrink:0">
+                <div id="std-wt-knob" style="width:14px;height:14px;border-radius:50%;background:var(--muted);position:absolute;top:2px;left:2px;transition:left .15s,background .15s"></div>
+              </div>
+            </label>
+          </div>
+          <!-- Weight row (hidden unless toggle is on) -->
+          <div id="std-wt-row" style="display:none;margin-bottom:10px">
+            <div class="calc-field">
+              <label>Patient Weight</label>
+              <div class="wt-row">
+                <input id="std-wt" type="number" inputmode="decimal" placeholder="e.g. 70" />
+                <select id="std-wt-unit"><option value="kg">kg</option><option value="lb">lb</option></select>
+              </div>
+            </div>
+          </div>
+          <div class="calc-grid g3">
+            <div class="calc-field">
+              <label id="std-ordered-label">Dose ordered</label>
+              <input id="std-dose-ordered" type="number" inputmode="decimal" placeholder="e.g. 5" />
+              <div id="std-prefill-note" style="font-size:11px;color:var(--accent);margin-top:3px;min-height:14px"></div>
+            </div>
+            <div class="calc-field">
+              <label>Dose on hand</label>
+              <input id="std-dose-onhand" type="number" inputmode="decimal" placeholder="e.g. 10" />
+            </div>
+            <div class="calc-field">
+              <label>Volume on hand (mL)</label>
+              <input id="std-vol-onhand" type="number" inputmode="decimal" placeholder="e.g. 1" />
+            </div>
+          </div>
+          <div class="calc-field" style="margin-bottom:12px">
+            <label>OR: Concentration (mg/mL)</label>
+            <input id="std-conc" type="number" inputmode="decimal" placeholder="e.g. 10" />
+          </div>
+          <div class="calc-actions">
+            <button id="std-calc" class="calc-btn primary">Calculate</button>
+            <button id="std-reset" class="calc-btn secondary">Reset</button>
+          </div>
+          <div id="std-result" class="calc-result"></div>
+        </div>
+      </div>
+
+      <!-- ── IV INFUSION & DRIP ── -->
+      <div class="calc-section-hd">
+        <span class="calc-section-dot" style="background:#7dd3fc"></span>
+        <span class="calc-section-title" style="color:#7dd3fc">Rx Infusion &amp; Drip</span>
+      </div>
+
+      <div class="calc-card">
+        <div class="calc-card-hd calc-toggle" data-target="calc-body-iv">
+          <div class="calc-card-title">
+            <div class="calc-icon" style="background:rgba(125,211,252,.12)">💉</div>
+            Rx Infusion (mcg/kg/min)
+          </div>
+          <span class="calc-chev">▾</span>
+        </div>
+        <div class="calc-card-body" id="calc-body-iv">
+          <p class="calc-hint">Computes mL/hr and gtts/min from ordered dose, weight, drug amount, and bag volume.</p>
+          <div class="calc-grid g2">
+            <div class="calc-field">
+              <label>Ordered (mcg/kg/min)</label>
+              <input id="iv-ordered" type="number" inputmode="decimal" placeholder="e.g. 5" />
+              <div id="iv-prefill-note" style="font-size:11px;color:var(--accent);margin-top:3px;min-height:14px"></div>
+            </div>
+            <div class="calc-field">
+              <label>Weight</label>
+              <div class="wt-row">
+                <input id="iv-wt" type="number" inputmode="decimal" placeholder="e.g. 70" />
+                <select id="iv-unit"><option value="kg">kg</option><option value="lb">lb</option></select>
+              </div>
+            </div>
+            <div class="calc-field">
+              <label>Drug in bag (mg)</label>
+              <input id="iv-bagmg" type="number" inputmode="decimal" placeholder="e.g. 400" />
+            </div>
+            <div class="calc-field">
+              <label>Bag volume (mL)</label>
+              <input id="iv-bagvol" type="number" inputmode="decimal" placeholder="e.g. 250" />
+            </div>
+            <div class="calc-field">
+              <label>Drip set (gtt/mL)</label>
+              <input id="iv-dripset" type="number" inputmode="decimal" placeholder="10 / 15 / 20 / 60" />
+            </div>
+          </div>
+          <div class="calc-actions">
+            <button id="iv-calc" class="calc-btn primary">Calculate</button>
+            <button id="iv-reset" class="calc-btn secondary">Reset</button>
+          </div>
+          <div id="iv-result" class="calc-result"></div>
+        </div>
+      </div>
+
+      <div class="calc-card">
+        <div class="calc-card-hd calc-toggle" data-target="calc-body-md">
+          <div class="calc-card-title">
+            <div class="calc-icon" style="background:rgba(125,211,252,.12)">⏱</div>
+            Manual Drip Timing
+          </div>
+          <span class="calc-chev">▾</span>
+        </div>
+        <div class="calc-card-body" id="calc-body-md">
+          <p class="calc-hint">Target drops/min ÷ 6 = drops every 10 seconds.</p>
+          <div class="calc-grid g2">
+            <div class="calc-field">
+              <label>Target (gtts/min)</label>
+              <input id="md-target" type="number" inputmode="decimal" placeholder="e.g. 30" />
+            </div>
+          </div>
+          <div class="calc-actions">
+            <button id="md-calc" class="calc-btn primary">Calculate</button>
+            <button id="md-reset" class="calc-btn secondary">Reset</button>
+          </div>
+          <div id="md-result" class="calc-result"></div>
+        </div>
+      </div>
+
+      <div class="calc-card">
+        <div class="calc-card-hd calc-toggle" data-target="calc-body-fo">
+          <div class="calc-card-title">
+            <div class="calc-icon" style="background:rgba(125,211,252,.12)">💧</div>
+            Fluid Over Time
+          </div>
+          <span class="calc-chev">▾</span>
+        </div>
+        <div class="calc-card-body" id="calc-body-fo">
+          <p class="calc-hint">Given volume, drip set, and time — computes gtts/min and mL/hr.</p>
+          <div class="calc-grid g3">
+            <div class="calc-field">
+              <label>Volume (mL)</label>
+              <input id="fo-volume" type="number" inputmode="decimal" placeholder="e.g. 1000" />
+            </div>
+            <div class="calc-field">
+              <label>Drip set (gtt/mL)</label>
+              <input id="fo-dripset" type="number" inputmode="decimal" placeholder="10 / 15 / 20 / 60" />
+            </div>
+            <div class="calc-field">
+              <label>Time (min)</label>
+              <input id="fo-time" type="number" inputmode="decimal" placeholder="e.g. 60" />
+            </div>
+          </div>
+          <div class="calc-actions">
+            <button id="fo-calc" class="calc-btn primary">Calculate</button>
+            <button id="fo-reset" class="calc-btn secondary">Reset</button>
+          </div>
+          <div id="fo-result" class="calc-result"></div>
+        </div>
+      </div>
+
+      <div class="calc-card">
+        <div class="calc-card-hd calc-toggle" data-target="calc-body-pump">
+          <div class="calc-card-title">
+            <div class="calc-icon" style="background:rgba(125,211,252,.12)">🔄</div>
+            Pump Rate → Manual Drip Rate
+          </div>
+          <span class="calc-chev">▾</span>
+        </div>
+        <div class="calc-card-body" id="calc-body-pump">
+          <p class="calc-hint">Converts pump rate (mL/hr) to manual drip rate (gtt/min). Formula: mL/hr × drip set ÷ 60.</p>
+          <div class="calc-grid g2">
+            <div class="calc-field">
+              <label>Pump rate (mL/hr)</label>
+              <input id="pump-rate" type="number" inputmode="decimal" placeholder="e.g. 120" />
+            </div>
+            <div class="calc-field">
+              <label>Drip set (gtt/mL)</label>
+              <input id="pump-dripset" type="number" inputmode="decimal" placeholder="10 / 15 / 20 / 60" />
+            </div>
+          </div>
+          <div class="calc-actions">
+            <button id="pump-calc" class="calc-btn primary">Calculate</button>
+            <button id="pump-reset" class="calc-btn secondary">Reset</button>
+          </div>
+          <div id="pump-result" class="calc-result"></div>
+        </div>
+      </div>
+
+      <!-- ── RHYTHM RECOGNITION ── -->
+      <div class="calc-section-hd">
+        <span class="calc-section-dot" style="background:#f97316"></span>
+        <span class="calc-section-title" style="color:#f97316">Rhythm Recognition</span>
+      </div>
+
+      <div class="calc-card">
+        <div class="calc-card-hd calc-toggle" data-target="calc-body-rhythm">
+          <div class="calc-card-title">
+            <div class="calc-icon" style="background:rgba(249,115,22,.12)">〜</div>
+            Rhythm Recognition
+          </div>
+          <span class="calc-chev">▾</span>
+        </div>
+        <div class="calc-card-body" id="calc-body-rhythm">
+          <p class="calc-hint">Select a rhythm to see key criteria, clinical significance, and EMS action steps.</p>
+          <div id="rhythm-picker" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px"></div>
+          <div id="rhythm-result"></div>
+        </div>
+      </div>
+
+      <!-- ── ASSESSMENT ── -->
+      <div class="calc-section-hd">
+        <span class="calc-section-dot" style="background:#c084fc"></span>
+        <span class="calc-section-title" style="color:#c084fc">Assessment</span>
+      </div>
+
+      <div class="calc-card">
+        <div class="calc-card-hd calc-toggle" data-target="calc-body-apgar">
+          <div class="calc-card-title">
+            <div class="calc-icon" style="background:rgba(192,132,252,.12)">👶</div>
+            APGAR Score
+          </div>
+          <span class="calc-chev">▾</span>
+        </div>
+        <div class="calc-card-body" id="calc-body-apgar">
+          <div class="calc-grid g2">
+            <div class="calc-field">
+              <label>Appearance</label>
+              <select id="apgar-a"><option value="0">0 — Blue/Pale all over</option><option value="1">1 — Body pink, limbs blue</option><option value="2">2 — Completely pink</option></select>
+            </div>
+            <div class="calc-field">
+              <label>Pulse</label>
+              <select id="apgar-p"><option value="0">0 — Absent</option><option value="1">1 — &lt;100 bpm</option><option value="2">2 — ≥100 bpm</option></select>
+            </div>
+            <div class="calc-field">
+              <label>Grimace / Reflex</label>
+              <select id="apgar-g"><option value="0">0 — No response</option><option value="1">1 — Grimace</option><option value="2">2 — Cough / Sneeze / Cry</option></select>
+            </div>
+            <div class="calc-field">
+              <label>Activity / Tone</label>
+              <select id="apgar-ac"><option value="0">0 — Limp</option><option value="1">1 — Some flexion</option><option value="2">2 — Active motion</option></select>
+            </div>
+            <div class="calc-field">
+              <label>Respiration</label>
+              <select id="apgar-r"><option value="0">0 — Absent</option><option value="1">1 — Slow / Irregular</option><option value="2">2 — Good cry</option></select>
+            </div>
+          </div>
+          <div class="calc-actions">
+            <button id="apgar-calc" class="calc-btn primary">Calculate</button>
+            <button id="apgar-reset" class="calc-btn secondary">Reset</button>
+          </div>
+          <div id="apgar-result" class="calc-result"></div>
+        </div>
+      </div>
+
+      <div class="calc-card">
+        <div class="calc-card-hd calc-toggle" data-target="calc-body-gcs">
+          <div class="calc-card-title">
+            <div class="calc-icon" style="background:rgba(192,132,252,.12)">🧠</div>
+            Glasgow Coma Scale
+          </div>
+          <span class="calc-chev">▾</span>
+        </div>
+        <div class="calc-card-body" id="calc-body-gcs">
+          <div class="calc-grid g3">
+            <div class="calc-field">
+              <label>Eye Opening (E)</label>
+              <select id="gcs-e"><option value="1">1 — None</option><option value="2">2 — To pain</option><option value="3">3 — To voice</option><option value="4" selected>4 — Spontaneous</option></select>
+            </div>
+            <div class="calc-field">
+              <label>Verbal (V)</label>
+              <select id="gcs-v"><option value="1">1 — None</option><option value="2">2 — Incomprehensible</option><option value="3">3 — Inappropriate</option><option value="4">4 — Confused</option><option value="5" selected>5 — Oriented</option></select>
+            </div>
+            <div class="calc-field">
+              <label>Motor (M)</label>
+              <select id="gcs-m"><option value="1">1 — None</option><option value="2">2 — Extensor</option><option value="3">3 — Flexor</option><option value="4">4 — Withdraws</option><option value="5">5 — Localizes</option><option value="6" selected>6 — Obeys</option></select>
+            </div>
+          </div>
+          <div class="calc-actions">
+            <button id="gcs-calc" class="calc-btn primary">Calculate</button>
+            <button id="gcs-reset" class="calc-btn secondary">Reset</button>
+          </div>
+          <div id="gcs-result" class="calc-result"></div>
+        </div>
+      </div>
+
+      <div class="calc-card">
+        <div class="calc-card-hd calc-toggle" data-target="calc-body-stemi">
+          <div class="calc-card-title">
+            <div class="calc-icon" style="background:rgba(248,113,113,.12)">❤️</div>
+            STEMI Localization
+          </div>
+          <span class="calc-chev">▾</span>
+        </div>
+        <div class="calc-card-body" id="calc-body-stemi">
+          <p class="calc-hint">Mark ST elevation and depression on the standard leads. Use extended leads for posterior/RV assessment. Results include territory, culprit artery, reciprocal changes, and clinical alerts.</p>
+
+          <!-- Standard 12 leads - elevation -->
+          <div style="margin-bottom:12px">
+            <div style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:rgba(248,113,113,.9);margin-bottom:8px">ST Elevation</div>
+            <div class="stemi-lead-grid" id="stemi-elev-leads">
+              <label class="stemi-lead-btn"><input type="checkbox" value="I" /><span>I</span></label>
+              <label class="stemi-lead-btn"><input type="checkbox" value="II" /><span>II</span></label>
+              <label class="stemi-lead-btn"><input type="checkbox" value="III" /><span>III</span></label>
+              <label class="stemi-lead-btn"><input type="checkbox" value="aVR" /><span>aVR</span></label>
+              <label class="stemi-lead-btn"><input type="checkbox" value="aVL" /><span>aVL</span></label>
+              <label class="stemi-lead-btn"><input type="checkbox" value="aVF" /><span>aVF</span></label>
+              <label class="stemi-lead-btn"><input type="checkbox" value="V1" /><span>V1</span></label>
+              <label class="stemi-lead-btn"><input type="checkbox" value="V2" /><span>V2</span></label>
+              <label class="stemi-lead-btn"><input type="checkbox" value="V3" /><span>V3</span></label>
+              <label class="stemi-lead-btn"><input type="checkbox" value="V4" /><span>V4</span></label>
+              <label class="stemi-lead-btn"><input type="checkbox" value="V5" /><span>V5</span></label>
+              <label class="stemi-lead-btn"><input type="checkbox" value="V6" /><span>V6</span></label>
+            </div>
+          </div>
+
+          <!-- Standard 12 leads - depression -->
+          <div style="margin-bottom:12px">
+            <div style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:rgba(96,165,250,.9);margin-bottom:8px">ST Depression / Reciprocal</div>
+            <div class="stemi-lead-grid" id="stemi-dep-leads">
+              <label class="stemi-lead-btn dep"><input type="checkbox" value="I" /><span>I</span></label>
+              <label class="stemi-lead-btn dep"><input type="checkbox" value="II" /><span>II</span></label>
+              <label class="stemi-lead-btn dep"><input type="checkbox" value="III" /><span>III</span></label>
+              <label class="stemi-lead-btn dep"><input type="checkbox" value="aVR" /><span>aVR</span></label>
+              <label class="stemi-lead-btn dep"><input type="checkbox" value="aVL" /><span>aVL</span></label>
+              <label class="stemi-lead-btn dep"><input type="checkbox" value="aVF" /><span>aVF</span></label>
+              <label class="stemi-lead-btn dep"><input type="checkbox" value="V1" /><span>V1</span></label>
+              <label class="stemi-lead-btn dep"><input type="checkbox" value="V2" /><span>V2</span></label>
+              <label class="stemi-lead-btn dep"><input type="checkbox" value="V3" /><span>V3</span></label>
+              <label class="stemi-lead-btn dep"><input type="checkbox" value="V4" /><span>V4</span></label>
+              <label class="stemi-lead-btn dep"><input type="checkbox" value="V5" /><span>V5</span></label>
+              <label class="stemi-lead-btn dep"><input type="checkbox" value="V6" /><span>V6</span></label>
+            </div>
+          </div>
+
+          <!-- Extended leads toggle -->
+          <div style="margin-bottom:12px">
+            <div style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none" id="stemi-ext-toggle">
+              <span style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Extended Leads (Posterior / Right-Sided)</span>
+              <span id="stemi-ext-chev" style="font-size:10px;color:var(--muted)">▾</span>
+            </div>
+            <div id="stemi-ext-body" style="display:none;margin-top:8px">
+              <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Posterior leads (elevation = posterior STEMI) · Right-sided leads (elevation = RV STEMI)</div>
+              <div style="font-size:10px;font-weight:700;color:rgba(248,113,113,.7);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px">Elevation in Extended Leads</div>
+              <div class="stemi-lead-grid" id="stemi-ext-leads">
+                <label class="stemi-lead-btn"><input type="checkbox" value="V7" /><span>V7</span></label>
+                <label class="stemi-lead-btn"><input type="checkbox" value="V8" /><span>V8</span></label>
+                <label class="stemi-lead-btn"><input type="checkbox" value="V9" /><span>V9</span></label>
+                <label class="stemi-lead-btn"><input type="checkbox" value="V3R" /><span>V3R</span></label>
+                <label class="stemi-lead-btn"><input type="checkbox" value="V4R" /><span>V4R</span></label>
+              </div>
+            </div>
+          </div>
+
+          <!-- LBBB indicator -->
+          <div style="margin-bottom:14px;display:flex;align-items:center;gap:8px">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--muted);user-select:none">
+              <input type="checkbox" id="stemi-lbbb" style="accent-color:var(--accent)" />
+              <span>Known or suspected LBBB present (apply Sgarbossa criteria)</span>
+            </label>
+          </div>
+
+          <div class="calc-actions">
+            <button id="stemi-calc" class="calc-btn primary">Analyze 12-Lead</button>
+            <button id="stemi-reset" class="calc-btn secondary">Reset</button>
+          </div>
+          <div id="stemi-result" class="calc-result"></div>
+        </div>
+      </div>
+
+      <!-- ── OXYGEN & VENTILATOR ── -->
+      <div class="calc-section-hd">
+        <span class="calc-section-dot" style="background:#6ee7b7"></span>
+        <span class="calc-section-title" style="color:#6ee7b7">Oxygen &amp; Ventilator</span>
+      </div>
+
+      <div class="calc-card">
+        <div class="calc-card-hd calc-toggle" data-target="calc-body-o2">
+          <div class="calc-card-title">
+            <div class="calc-icon" style="background:rgba(110,231,183,.1)">🫁</div>
+            Oxygen Duration
+          </div>
+          <span class="calc-chev">▾</span>
+        </div>
+        <div class="calc-card-body" id="calc-body-o2">
+          <div class="calc-grid g2">
+            <div class="calc-field">
+              <label>Cylinder</label>
+              <select id="o2-cylinder">
+                <option value="0.16">D cylinder (0.16)</option>
+                <option value="0.28" selected>E cylinder (0.28)</option>
+                <option value="1.56">M cylinder (1.56)</option>
+                <option value="2.41">G cylinder (2.41)</option>
+                <option value="3.14">H cylinder (3.14)</option>
+              </select>
+            </div>
+            <div class="calc-field">
+              <label>Current pressure (psi)</label>
+              <input id="o2-psi" type="number" inputmode="decimal" placeholder="e.g. 2000" />
+            </div>
+            <div class="calc-field">
+              <label>Safe residual (psi)</label>
+              <input id="o2-res" type="number" inputmode="decimal" value="200" />
+            </div>
+            <div class="calc-field">
+              <label>Flow rate (L/min)</label>
+              <input id="o2-flow" type="number" inputmode="decimal" placeholder="e.g. 15" />
+            </div>
+          </div>
+          <div class="calc-actions">
+            <button id="o2-calc" class="calc-btn primary">Calculate</button>
+            <button id="o2-reset" class="calc-btn secondary">Reset</button>
+          </div>
+          <div id="o2-result" class="calc-result"></div>
+        </div>
+      </div>
+
+      <div class="calc-card" id="vent-section">
+        <div class="calc-card-hd calc-toggle" data-target="calc-body-vent">
+          <div class="calc-card-title">
+            <div class="calc-icon" style="background:rgba(110,231,183,.1)">📏</div>
+            Vent Settings (IBW &amp; TV)
+          </div>
+          <span class="calc-chev">▾</span>
+        </div>
+        <div class="calc-card-body" id="calc-body-vent">
+          <p class="calc-hint">Tidal volume planner using IBW (Devine formula). Always follow clinical judgment and protocols.</p>
+          <div class="calc-grid g2">
+            <div class="calc-field">
+              <label>Sex</label>
+              <select id="vent-sex"><option value="male">Male</option><option value="female">Female</option></select>
+            </div>
+            <div class="calc-field">
+              <label>Height</label>
+              <div class="wt-row">
+                <input id="vent-height" type="number" inputmode="decimal" placeholder="e.g. 70" />
+                <select id="vent-hunit"><option value="in">in</option><option value="cm">cm</option></select>
+              </div>
+            </div>
+          </div>
+          <div class="calc-actions">
+            <button id="vent-calc" class="calc-btn primary">Calculate</button>
+            <button id="vent-reset" class="calc-btn secondary">Reset</button>
+          </div>
+          <div id="vent-result" class="calc-result"></div>
+        </div>
+      </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey: "AIzaSyAcnp4uXeOgzuzIHpO5UL6Eq9fvhVHFs7Y",
+      authDomain: "emsprotocolapp.firebaseapp.com",
+      projectId: "emsprotocolapp",
+      storageBucket: "emsprotocolapp.firebasestorage.app",
+      messagingSenderId: "498482397906",
+      appId: "1:498482397906:web:5517abc5d83cf6cf15e30b"
+    });
+
+    const fbAuth = firebase.auth();
+
+    function $(sel){ return document.querySelector(sel); }
+    function $$(sel){ return document.querySelectorAll(sel); }
+
+  const _RES_SECTIONS = [
+    {label:'🧒 Pediatric Quick Reference', id:'peds-ref-section'},
+    {label:'⚖️ Weight-Based Dose Calc',    id:'calc-body-weight'},
+    {label:'💊 Draw-Up Calc',                id:'calc-body-std'},
+    {label:'💉 IV Infusion Calc',           id:'calc-body-iv'},
+    {label:'⏱ Drip Timing Calc',           id:'calc-body-md'},
+    {label:'💧 Fluid Over Time Calc',       id:'calc-body-fo'},
+    {label:'🔄 Pump Rate Calc',             id:'calc-body-pump'},
+    {label:'👶 Apgar Score',                id:'calc-body-apgar'},
+    {label:'🧠 GCS Calculator',             id:'calc-body-gcs'},
+    {label:'🫁 O₂ Duration Calc',           id:'calc-body-o2'},
+    {label:'📏 Vent Settings',              id:'vent-section'},
+  ];
+
+  window.jumpToSection = function(targetId){
+    if(targetId === 'peds-ref-section'){
+      const el = document.getElementById('peds-ref-section');
+      if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+      return;
+    }
+    const toggle = document.querySelector('[data-target="'+targetId+'"]');
+    if(toggle){
+      toggle.classList.remove('calc-collapsed');
+      const body = document.getElementById(targetId);
+      if(body) body.style.display = '';
+      const card = toggle.closest('.calc-card') || toggle.closest('.card') || toggle;
+      // Wait two frames so layout updates after body is shown before scrolling
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        card.scrollIntoView({behavior:'smooth', block:'start'});
+      }));
+      return;
+    }
+    const el = document.getElementById(targetId);
+    if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  const BROSELOW = [
+    {
+      color:'Grey', hex:'#9ca3af', textHex:'#e2e8f0',
+      bg:'rgba(156,163,175,.1)', border:'rgba(156,163,175,.4)',
+      kgMin:3, kgMax:5.9, repKg:4,
+      ageLabel:'Newborn – 3 months',
+      vitals:{ hr:'100–160', rr:'30–60', sbp:'60–90' },
+      airway:{ tube:'3.0 uncuffed', depth:'9 cm', blade:'0–1 straight' },
+      defib:'6–10 J', cardio:'3–5 J', bolus:'80 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.04 mg', r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.1 mg',  r:'IV/IO',    note:'min 0.1 mg' },
+        { n:'Adenosine',                d:'0.4 mg',  r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'0.4 mg',  r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.04 mg', r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'20 mL',   r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'80 mL',   r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+    {
+      color:'Pink', hex:'#f9a8d4', textHex:'#fce7f3',
+      bg:'rgba(249,168,212,.1)', border:'rgba(249,168,212,.4)',
+      kgMin:6, kgMax:7.9, repKg:6,
+      ageLabel:'3 – 6 months',
+      vitals:{ hr:'90–160', rr:'24–40', sbp:'70–100' },
+      airway:{ tube:'3.5 uncuffed', depth:'10 cm', blade:'1 straight' },
+      defib:'12–16 J', cardio:'6–8 J', bolus:'120 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.06 mg', r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.12 mg', r:'IV/IO',    note:'0.02 mg/kg' },
+        { n:'Adenosine',                d:'0.6 mg',  r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'0.6 mg',  r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.06 mg', r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'30 mL',   r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'120 mL',  r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+    {
+      color:'Red', hex:'#f87171', textHex:'#fee2e2',
+      bg:'rgba(248,113,113,.1)', border:'rgba(248,113,113,.4)',
+      kgMin:8, kgMax:9.9, repKg:8,
+      ageLabel:'6 – 9 months',
+      vitals:{ hr:'80–160', rr:'22–35', sbp:'75–105' },
+      airway:{ tube:'3.5 uncuffed', depth:'11 cm', blade:'1 straight' },
+      defib:'16–18 J', cardio:'8–9 J', bolus:'160 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.08 mg', r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.16 mg', r:'IV/IO',    note:'0.02 mg/kg' },
+        { n:'Adenosine',                d:'0.8 mg',  r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'0.8 mg',  r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.08 mg', r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'40 mL',   r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'160 mL',  r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+    {
+      color:'Purple', hex:'#c084fc', textHex:'#ede9fe',
+      bg:'rgba(192,132,252,.1)', border:'rgba(192,132,252,.4)',
+      kgMin:10, kgMax:11.9, repKg:10,
+      ageLabel:'9 – 14 months',
+      vitals:{ hr:'80–150', rr:'22–30', sbp:'80–105' },
+      airway:{ tube:'4.0 uncuffed', depth:'12 cm', blade:'1 straight' },
+      defib:'20 J', cardio:'10 J', bolus:'200 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.1 mg',  r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.2 mg',  r:'IV/IO',    note:'0.02 mg/kg' },
+        { n:'Adenosine',                d:'1 mg',    r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'1 mg',    r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.1 mg',  r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'50 mL',   r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'200 mL',  r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+    {
+      color:'Yellow', hex:'#fbbf24', textHex:'#fef9c3',
+      bg:'rgba(251,191,36,.1)', border:'rgba(251,191,36,.4)',
+      kgMin:12, kgMax:14.9, repKg:12,
+      ageLabel:'14 – 18 months',
+      vitals:{ hr:'75–145', rr:'20–28', sbp:'82–108' },
+      airway:{ tube:'4.0 uncuffed', depth:'13 cm', blade:'2 straight/curved' },
+      defib:'24–28 J', cardio:'12 J', bolus:'240 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.12 mg', r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.24 mg', r:'IV/IO',    note:'0.02 mg/kg' },
+        { n:'Adenosine',                d:'1.2 mg',  r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'1.2 mg',  r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.12 mg', r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'60 mL',   r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'240 mL',  r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+    {
+      color:'White', hex:'#e2e8f0', textHex:'#f8fafc',
+      bg:'rgba(226,232,240,.07)', border:'rgba(226,232,240,.3)',
+      kgMin:15, kgMax:18.9, repKg:16,
+      ageLabel:'2 – 3 years',
+      vitals:{ hr:'70–130', rr:'18–26', sbp:'85–108' },
+      airway:{ tube:'4.5 uncuffed', depth:'14 cm', blade:'2 straight/curved' },
+      defib:'30–36 J', cardio:'16 J', bolus:'320 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.16 mg', r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.32 mg', r:'IV/IO',    note:'0.02 mg/kg' },
+        { n:'Adenosine',                d:'1.6 mg',  r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'1.6 mg',  r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.16 mg', r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'80 mL',   r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'320 mL',  r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+    {
+      color:'Blue', hex:'#60a5fa', textHex:'#dbeafe',
+      bg:'rgba(96,165,250,.1)', border:'rgba(96,165,250,.4)',
+      kgMin:19, kgMax:23.9, repKg:20,
+      ageLabel:'4 – 5 years',
+      vitals:{ hr:'65–120', rr:'16–24', sbp:'88–110' },
+      airway:{ tube:'5.0 uncuffed / 4.5 cuffed', depth:'15 cm', blade:'2 straight/curved' },
+      defib:'40 J', cardio:'20 J', bolus:'400 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.2 mg',  r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.4 mg',  r:'IV/IO',    note:'0.02 mg/kg' },
+        { n:'Adenosine',                d:'2 mg',    r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'2 mg',    r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.2 mg',  r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'100 mL',  r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'400 mL',  r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+    {
+      color:'Orange', hex:'#fb923c', textHex:'#ffedd5',
+      bg:'rgba(251,146,60,.1)', border:'rgba(251,146,60,.4)',
+      kgMin:24, kgMax:29.9, repKg:25,
+      ageLabel:'5 – 7 years',
+      vitals:{ hr:'60–115', rr:'16–22', sbp:'90–112' },
+      airway:{ tube:'5.5 uncuffed / 5.0 cuffed', depth:'16 cm', blade:'2–3 straight/curved' },
+      defib:'50 J', cardio:'25 J', bolus:'500 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.25 mg', r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.5 mg',  r:'IV/IO',    note:'max 0.5 mg' },
+        { n:'Adenosine',                d:'2.5 mg',  r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'2.5 mg',  r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.25 mg', r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'125 mL',  r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'500 mL',  r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+    {
+      color:'Green', hex:'#4ade80', textHex:'#dcfce7',
+      bg:'rgba(74,222,128,.1)', border:'rgba(74,222,128,.4)',
+      kgMin:30, kgMax:36, repKg:32,
+      ageLabel:'7 – 9 years',
+      vitals:{ hr:'55–105', rr:'14–20', sbp:'95–115' },
+      airway:{ tube:'6.0 uncuffed / 5.5 cuffed', depth:'17 cm', blade:'2–3 straight/curved' },
+      defib:'60–64 J', cardio:'32 J', bolus:'640 mL NS',
+      meds:[
+        { n:'Epinephrine (arrest)',     d:'0.32 mg', r:'IV/IO',    note:'0.01 mg/kg' },
+        { n:'Atropine',                 d:'0.5 mg',  r:'IV/IO',    note:'max 0.5 mg' },
+        { n:'Adenosine',                d:'3.2 mg',  r:'rapid IV', note:'0.1 mg/kg' },
+        { n:'Midazolam',                d:'3.2 mg',  r:'IV/IM',    note:'0.1 mg/kg' },
+        { n:'Naloxone',                 d:'0.32 mg', r:'IV/IO/IN', note:'0.01 mg/kg' },
+        { n:'Dextrose 10%',             d:'160 mL',  r:'IV/IO',    note:'5 mL/kg' },
+        { n:'Normal Saline (seizure)',  d:'640 mL',  r:'IV/IO',    note:'20 mL/kg bolus' },
+      ]
+    },
+  ];
+
+  // Rough weight (kg) from age in months for Broselow zone lookup
+  function ageMonthsToKg(months){
+    if(months <= 1)  return 3.5;
+    if(months <= 3)  return 5;
+    if(months <= 6)  return 7;
+    if(months <= 9)  return 8.5;
+    if(months <= 12) return 10;
+    if(months <= 18) return 11;
+    if(months <= 24) return 13;
+    if(months <= 36) return 15;
+    if(months <= 48) return 17;
+    if(months <= 60) return 19;
+    if(months <= 72) return 22;
+    if(months <= 84) return 25;
+    if(months <= 96) return 28;
+    return 32;
+  }
+
+  function broselowZone(kg){
+    return BROSELOW.find(z => kg >= z.kgMin && kg <= z.kgMax) || null;
+  }
+
+  function renderBroselowCard(zone, inputKg){
+    const repKg = inputKg != null && inputKg >= zone.kgMin && inputKg <= zone.kgMax ? inputKg : zone.repKg;
+    return `
+    <div class="brose-card" style="background:${zone.bg};border-color:${zone.border}">
+      <div class="brose-card-head">
+        <span class="brose-color-dot" style="background:${zone.hex}"></span>
+        <span class="brose-color-label" style="color:${zone.hex}">${zone.color} Zone</span>
+        <span class="brose-meta">${zone.kgMin}–${zone.kgMax} kg &nbsp;·&nbsp; ${zone.ageLabel}</span>
+      </div>
+
+      <div class="brose-grid">
+        <div class="brose-box">
+          <div class="brose-box-title">Vital Signs</div>
+          <div class="brose-box-val">
+            <span class="lbl">HR </span>${zone.vitals.hr} bpm<br>
+            <span class="lbl">RR </span>${zone.vitals.rr} /min<br>
+            <span class="lbl">SBP </span>${zone.vitals.sbp} mmHg
+          </div>
+        </div>
+        <div class="brose-box">
+          <div class="brose-box-title">Airway</div>
+          <div class="brose-box-val">
+            <span class="lbl">ETT </span>${zone.airway.tube}<br>
+            <span class="lbl">Depth </span>${zone.airway.depth}<br>
+            <span class="lbl">Blade </span>${zone.airway.blade}
+          </div>
+        </div>
+        <div class="brose-box">
+          <div class="brose-box-title">Defibrillation</div>
+          <div class="brose-box-val">
+            <span class="lbl">Defib </span>${zone.defib}<br>
+            <span class="lbl">Sync </span>${zone.cardio}<br>
+            <span class="lbl">Bolus </span>${zone.bolus}
+          </div>
+        </div>
+      </div>
+
+      <div class="brose-meds">
+        <div class="brose-meds-title">Key Medications (based on ${repKg} kg)</div>
+        ${zone.meds.map(m=>`
+        <div class="brose-med-row">
+          <span class="brose-med-name">${m.n}</span>
+          <span class="brose-med-dose">${m.d}</span>
+          <span class="brose-med-route">${m.r}</span>
+          <span class="brose-med-note">(${m.note})</span>
+        </div>`).join('')}
+      </div>
+
+      <div style="margin-top:12px;font-size:11px;color:var(--muted);line-height:1.5">
+        ⚠ Doses are based on Broselow-Luten reference weights. Always verify against your service's approved pediatric protocols and medical direction.
+      </div>
+    </div>`;
+  }
+
+  function initPedsRef(){
+    const strip = document.getElementById('peds-strip');
+    if(!strip) return;
+    strip.innerHTML = BROSELOW.map(z=>
+      `<button class="brose-swatch" data-color="${z.color}"
+        style="background:${z.bg};border-color:${z.border};color:${z.hex}"
+        onclick="pedsSelectZone('${z.color}')">${z.color}<br><span style="font-weight:400;font-size:10px">${z.kgMin}–${z.kgMax} kg</span></button>`
+    ).join('');
+
+    const kgIn = document.getElementById('peds-kg');
+    const ageNum = document.getElementById('peds-age-num');
+    const ageUnit = document.getElementById('peds-age-unit');
+
+    function trySearch(){
+      const kgVal = parseFloat(kgIn.value);
+      const ageVal = parseFloat(ageNum.value);
+      if(!isNaN(kgVal) && kgVal > 0){
+        showPedsZone(broselowZone(kgVal), kgVal);
+      } else if(!isNaN(ageVal) && ageVal >= 0){
+        const months = ageUnit.value === 'years' ? ageVal * 12 : ageVal;
+        const estKg = ageMonthsToKg(months);
+        showPedsZone(broselowZone(estKg), null, estKg);
+      }
+    }
+
+    kgIn.addEventListener('input', ()=>{ ageNum.value=''; trySearch(); });
+    ageNum.addEventListener('input', ()=>{ kgIn.value=''; trySearch(); });
+    ageUnit.addEventListener('change', trySearch);
+  }
+
+  function showPedsZone(zone, inputKg, estKg){
+    const res = document.getElementById('peds-result');
+    const strip = document.getElementById('peds-strip');
+    if(!res) return;
+    document.querySelectorAll('.brose-swatch').forEach(s=>s.classList.remove('active'));
+    if(!zone){
+      res.style.display='block';
+      res.innerHTML = `<div class="brose-empty">Weight out of Broselow range (3–36 kg). For patients over 36 kg, use adult protocols.</div>`;
+      return;
+    }
+    const sw = strip ? strip.querySelector(`[data-color="${zone.color}"]`) : null;
+    if(sw) sw.classList.add('active');
+    res.style.display = 'block';
+    const estNote = estKg ? `<div style="font-size:12px;color:var(--muted);margin-bottom:8px">Estimated weight: ~${estKg} kg based on age input</div>` : '';
+    res.innerHTML = estNote + renderBroselowCard(zone, inputKg);
+  }
+
+  window.pedsSelectZone = function(color){
+    const zone = BROSELOW.find(z=>z.color===color);
+    if(!zone) return;
+    document.getElementById('peds-kg').value = '';
+    document.getElementById('peds-age-num').value = '';
+    showPedsZone(zone, null);
+  };
+
+
+  // --- Calculators ---
+  function kg(val, unit){ return unit==='lb' ? (val/2.20462) : val }
+  function toKg(val, unit){ return kg(val, unit) }
+  function fmt(n, d=1){ if(!isFinite(n)) return '—'; return Number(n).toFixed(d) }
+  function hhmm(min){ if(!isFinite(min)) return '—'; const h=Math.floor(min/60), m=Math.round(min%60); return `${h}h ${m}m` }
+
+
+  $('#calc').addEventListener('click', ()=>{
+    const medName = $('#calc-med').value;
+    const m = null;
+    const wt = parseFloat($('#wt').value||'0');
+    const unit = $('#unit').value;
+    const mgkg = parseFloat($('#mgkg').value||0);
+    const maxmg = parseFloat($('#maxmg').value||Infinity);
+    const conc = parseFloat($('#conc').value||'0');
+    if(!wt || !mgkg){ $('#result').innerHTML = 'Enter weight and mg/kg.'; return }
+    const weightKg = kg(wt, unit);
+    let dose = weightKg * mgkg; // mg
+    if(isFinite(maxmg)) dose = Math.min(dose, maxmg);
+    const mL = conc ? (dose/conc) : null;
+    $('#result').innerHTML = `
+      <div>Medication: <b>${medName}</b> (${$('#route').value||''})</div>
+      <div>Weight used: <b>${weightKg.toFixed(1)} kg</b> ${unit==='lb'?`(${wt} lb)`:''}</div>
+      <div>Total dose: <b>${dose.toFixed(1)} mg</b>${isFinite(maxmg)?` (max ${maxmg} mg)`:''}</div>
+      ${mL!==null?`<div>Volume to draw: <b>${mL.toFixed(2)} mL</b> @ ${conc} mg/mL</div>`:''}
+    `;
+  });
+
+  $('#reset').addEventListener('click', ()=>{
+    ['wt','mgkg','maxmg','conc','route'].forEach(id=> $('#'+id).value='');
+    $('#calc-med').value='';
+    $('#result').innerHTML='';
+  });
+
+
+// Pump mL/hr → Manual gtts/min
+document.querySelector('#pump-calc').addEventListener('click', ()=>{
+  const rate = parseFloat(document.querySelector('#pump-rate').value || '0');      // mL/hr
+  const drip = parseFloat(document.querySelector('#pump-dripset').value || '0');   // gtt/mL
+  if(!(rate && drip)){
+    document.querySelector('#pump-result').innerHTML = 'Enter pump rate and drip set.';
+    return;
+  }
+  // gtts/min = (mL/hr × gtt/mL) ÷ 60
+  const gttsMin = (rate * drip) / 60;
+  const per10 = gttsMin / 6;
+  const microNote = (Math.abs(drip - 60) < 1e-6) ? ' <span style="color:var(--muted);font-size:12px">(60 gtt/mL set — gtts/min = mL/hr)</span>' : '';
+  document.querySelector('#pump-result').innerHTML =
+    `<div style="margin-bottom:6px">Manual drip rate: <b>${Math.round(gttsMin)}</b> gtts/min${microNote}</div>`+
+    `<div style="color:var(--accent);font-weight:600">Count <b>${Math.round(per10)}</b> drops every 10 seconds to confirm your rate.</div>`;
+});
+
+document.querySelector('#pump-reset').addEventListener('click', ()=>{
+  document.querySelector('#pump-rate').value = '';
+  document.querySelector('#pump-dripset').value = '';
+  document.querySelector('#pump-result').innerHTML = '';
+});
+
+  // Draw-Up Calc — weight-based toggle
+  let _stdWtOn = false;
+  const _stdToggle = document.getElementById('std-wt-toggle');
+  const _stdKnob   = document.getElementById('std-wt-knob');
+  const _stdWtRow  = document.getElementById('std-wt-row');
+  const _stdLabel  = document.getElementById('std-ordered-label');
+  _stdToggle.addEventListener('click', ()=>{
+    _stdWtOn = !_stdWtOn;
+    _stdToggle.style.background = _stdWtOn ? 'rgba(94,234,212,.35)' : 'rgba(255,255,255,.12)';
+    _stdKnob.style.left  = _stdWtOn ? '18px' : '2px';
+    _stdKnob.style.background = _stdWtOn ? 'var(--accent)' : 'var(--muted)';
+    _stdToggle.setAttribute('aria-checked', _stdWtOn);
+    _stdWtRow.style.display = _stdWtOn ? '' : 'none';
+    _stdLabel.textContent = _stdWtOn ? 'Dose (per kg)' : 'Dose ordered';
+    $('#std-result').innerHTML = '';
+  });
+
+  // Standard Dose → Volume
+  $('#std-calc').addEventListener('click', ()=>{
+    let ordered = parseFloat($('#std-dose-ordered').value||'0');
+    const onhand = parseFloat($('#std-dose-onhand').value||'0');
+    const vol = parseFloat($('#std-vol-onhand').value||'0');
+    const conc = parseFloat($('#std-conc').value||'0');
+    if(_stdWtOn){
+      let wt = parseFloat(document.getElementById('std-wt').value||'0');
+      wt = toKg(wt, document.getElementById('std-wt-unit').value);
+      if(!wt){ $('#std-result').innerHTML='Enter patient weight.'; return; }
+      ordered = ordered * wt;
+    }
+    let mL = NaN;
+    if(ordered && onhand && vol){ mL = (ordered/onhand)*vol; }
+    else if(ordered && conc){ mL = ordered/conc; }
+    const wtNote = _stdWtOn ? ` (${fmt(ordered,2)} mg total dose)` : '';
+    const txt = isFinite(mL) ? `Draw: <b>${fmt(mL,2)} mL</b>${wtNote}` : 'Enter ordered + on‑hand + volume, or ordered + concentration.';
+    $('#std-result').innerHTML = txt;
+  });
+  $('#std-reset').addEventListener('click', ()=>{
+    ['std-dose-ordered','std-dose-onhand','std-vol-onhand','std-conc','std-wt'].forEach(id=>{ const el=$('#'+id); if(el) el.value=''; });
+    $('#std-result').innerHTML='';
+    const n=document.getElementById('std-prefill-note'); if(n) n.textContent='';
+    if(_stdWtOn){
+      _stdWtOn=false; _stdToggle.style.background='rgba(255,255,255,.12)'; _stdKnob.style.left='2px';
+      _stdKnob.style.background='var(--muted)'; _stdToggle.setAttribute('aria-checked',false);
+      _stdWtRow.style.display='none'; _stdLabel.textContent='Dose ordered';
+    }
+  });
+
+  // PQR embedded Apgar
+  document.getElementById('pqr-apgar-toggle').addEventListener('click', ()=>{
+    const body = document.getElementById('pqr-apgar-body');
+    const chev = document.getElementById('pqr-apgar-chev');
+    const open = body.style.display !== 'none';
+    body.style.display = open ? 'none' : '';
+    chev.textContent = open ? '▾' : '▴';
+  });
+  document.getElementById('pqr-apgar-calc').addEventListener('click', ()=>{
+    const vals = ['pqr-apgar-a','pqr-apgar-p','pqr-apgar-g','pqr-apgar-ac','pqr-apgar-r']
+      .map(id => parseInt(document.getElementById(id).value||'0'));
+    const score = vals.reduce((a,b)=>a+b, 0);
+    let interp, color;
+    if(score >= 7)      { interp='Normal — reassess at 5 min';       color='#4ade80'; }
+    else if(score >= 4) { interp='Moderate concern — stimulate, O₂';  color='#fbbf24'; }
+    else                { interp='Severe — immediate resuscitation';   color='#f87171'; }
+    document.getElementById('pqr-apgar-result').innerHTML =
+      `Score: <b style="font-size:22px;color:${color}">${score}/10</b> — <span style="color:${color}">${interp}</span>`;
+  });
+  document.getElementById('pqr-apgar-reset').addEventListener('click', ()=>{
+    ['pqr-apgar-a','pqr-apgar-p','pqr-apgar-g','pqr-apgar-ac','pqr-apgar-r']
+      .forEach(id=>{ document.getElementById(id).selectedIndex=0; });
+    document.getElementById('pqr-apgar-result').innerHTML='';
+  });
+
+  // IV Infusion gtts/min
+  $('#iv-calc').addEventListener('click', ()=>{
+    const ordered = parseFloat($('#iv-ordered').value||'0'); // mcg/kg/min
+    let wt = parseFloat($('#iv-wt').value||'0');
+    wt = toKg(wt, $('#iv-unit').value);
+    const bagmg = parseFloat($('#iv-bagmg').value||'0'); // mg in bag
+    const bagvol = parseFloat($('#iv-bagvol').value||'0'); // mL
+    const drip = parseFloat($('#iv-dripset').value||'0'); // gtt/mL
+    if(!(ordered&&wt&&bagmg&&bagvol&&drip)){ $('#iv-result').innerHTML='Enter all fields.'; return }
+    const mgPerMl = bagmg / bagvol; // mg/mL
+    const mgPerHr = (ordered * wt * 60) / 1000; // mcg→mg
+    const mLhr = mgPerHr / mgPerMl;
+    const gttsMin = (mLhr * drip) / 60;
+    const ivPer10 = gttsMin / 6;
+    $('#iv-result').innerHTML =
+      `<div style="margin-bottom:6px">mL/hr: <b>${fmt(mLhr,1)}</b> &nbsp;•&nbsp; gtts/min: <b>${Math.round(gttsMin)}</b></div>`+
+      `<div style="color:var(--accent);font-weight:600">Count <b>${Math.round(ivPer10)}</b> drops every 10 seconds to confirm your rate.</div>`;
+  });
+  $('#iv-reset').addEventListener('click', ()=>{ ['iv-ordered','iv-wt','iv-bagmg','iv-bagvol','iv-dripset'].forEach(id=> $('#'+id).value=''); $('#iv-result').innerHTML=''; const n=document.getElementById('iv-prefill-note'); if(n) n.textContent=''; });
+
+  // Manual Drip Timing
+  $('#md-calc').addEventListener('click', ()=>{
+    const target = parseFloat($('#md-target').value||'0');
+    if(!target){ $('#md-result').innerHTML='Enter a target gtts/min.'; return }
+    const per10 = target/6;
+    $('#md-result').innerHTML = `<div style="color:var(--accent);font-weight:600">Count <b>${Math.round(per10)}</b> drops every 10 seconds to confirm your rate.</div><div style="color:var(--muted);font-size:12px;margin-top:4px">Exact: ${fmt(per10,1)} drops/10 sec</div>`;
+  });
+  $('#md-reset').addEventListener('click', ()=>{ $('#md-target').value=''; $('#md-result').innerHTML=''; });
+
+  // Fluid Over Time
+  $('#fo-calc').addEventListener('click', ()=>{
+    const vol = parseFloat($('#fo-volume').value||'0');
+    const drip = parseFloat($('#fo-dripset').value||'0');
+    const time = parseFloat($('#fo-time').value||'0');
+    if(!(vol&&drip&&time)){ $('#fo-result').innerHTML='Enter volume, drip set, and time.'; return }
+    const gttsMin = (vol * drip) / time;
+    const mLhr = (vol / time) * 60;
+    const foPer10 = gttsMin / 6;
+    $('#fo-result').innerHTML =
+      `<div style="margin-bottom:6px">gtts/min: <b>${Math.round(gttsMin)}</b> &nbsp;•&nbsp; mL/hr: <b>${fmt(mLhr,0)}</b></div>`+
+      `<div style="color:var(--accent);font-weight:600">Count <b>${Math.round(foPer10)}</b> drops every 10 seconds to confirm your rate.</div>`;
+  });
+  $('#fo-reset').addEventListener('click', ()=>{ ['fo-volume','fo-dripset','fo-time'].forEach(id=> $('#'+id).value=''); $('#fo-result').innerHTML=''; });
+
+  // APGAR
+  $('#apgar-calc').addEventListener('click', ()=>{
+    const a = parseInt($('#apgar-a').value); const p = parseInt($('#apgar-p').value); const g = parseInt($('#apgar-g').value); const ac = parseInt($('#apgar-ac').value); const r = parseInt($('#apgar-r').value);
+    const total = a+p+g+ac+r;
+    const cat = total>=7? 'Normal (7–10)' : total>=4? 'Moderate (4–6)' : 'Low (0–3)';
+    $('#apgar-result').innerHTML = `Score: <b>${total}</b> • ${cat}`;
+  });
+  $('#apgar-reset').addEventListener('click', ()=>{ ['apgar-a','apgar-p','apgar-g','apgar-ac','apgar-r'].forEach(id=> $('#'+id).selectedIndex=0); $('#apgar-result').innerHTML=''; });
+
+  // GCS
+  $('#gcs-calc').addEventListener('click', ()=>{
+    const e = parseInt($('#gcs-e').value); const v = parseInt($('#gcs-v').value); const m = parseInt($('#gcs-m').value);
+    const total = e+v+m;
+    $('#gcs-result').innerHTML = `E${e} V${v} M${m} • Total: <b>${total}</b>`;
+  });
+  $('#gcs-reset').addEventListener('click', ()=>{ $('#gcs-e').selectedIndex=3; $('#gcs-v').selectedIndex=4; $('#gcs-m').selectedIndex=5; $('#gcs-result').innerHTML=''; });
+
+  // Oxygen Duration
+  $('#o2-calc').addEventListener('click', ()=>{
+    const k = parseFloat($('#o2-cylinder').value||'0');
+    const psi = parseFloat($('#o2-psi').value||'0');
+    const res = parseFloat($('#o2-res').value||'0');
+    const flow = parseFloat($('#o2-flow').value||'0');
+    if(!(k&&psi&&flow)){ $('#o2-result').innerHTML='Enter cylinder, pressure, and flow.'; return }
+    const min = ((psi - res) * k) / flow;
+    $('#o2-result').innerHTML = `Duration: <b>${fmt(min,0)} min</b> (~${hhmm(min)})`;
+  });
+  $('#o2-reset').addEventListener('click', ()=>{ ['o2-psi','o2-flow'].forEach(id=> $('#'+id).value=''); $('#o2-res').value='200'; $('#o2-result').innerHTML=''; });
+
+  // Vent Settings (IBW & TV)
+  function inchesFrom(val, unit){ return unit==='cm' ? (val/2.54) : val }
+  function ibwKg(sex, inches){ const over5ft = Math.max(0, inches - 60); return (sex==='male' ? 50 : 45.5) + 2.3*over5ft }
+  $('#vent-calc').addEventListener('click', ()=>{
+    const sex = $('#vent-sex').value;
+    const h = parseFloat($('#vent-height').value||'0');
+    const unit = $('#vent-hunit').value;
+    if(!(sex&&h)){ $('#vent-result').innerHTML='Enter sex and height.'; return }
+    const inches = inchesFrom(h, unit);
+    const ibw = ibwKg(sex, inches);
+    const tv6 = ibw*6, tv7 = ibw*7, tv8 = ibw*8; // mL
+    $('#vent-result').innerHTML = `IBW: <b>${fmt(ibw,1)} kg</b> • TV @6: <b>${fmt(tv6,0)} mL</b> • @7: <b>${fmt(tv7,0)} mL</b> • @8: <b>${fmt(tv8,0)} mL</b>`;
+  });
+  $('#vent-reset').addEventListener('click', ()=>{ $('#vent-height').value=''; $('#vent-sex').selectedIndex=0; $('#vent-hunit').selectedIndex=0; $('#vent-result').innerHTML=''; });
+
+  // --- Rhythm Recognition ---
+  const RHYTHMS = [
+    // ── NORMAL ──
+    { id:'nsr', name:'Normal Sinus Rhythm', group:'Normal', color:'#4ade80',
+      rate:'60–100 bpm', p:'Present, upright in II, inverted in aVR', pr:'0.12–0.20 s', qrs:'≤0.12 s (narrow)', reg:'Regular',
+      criteria:['Rate 60–100 bpm','P wave precedes every QRS','Consistent PR interval (0.12–0.20 s)','QRS narrow (≤0.12 s)','Normal P axis (upright II, inverted aVR)'],
+      warning:null,
+      action:['No treatment needed for the rhythm itself','Investigate underlying cause if patient symptomatic'] },
+
+    // ── BRADYCARDIAS ──
+    { id:'sbrad', name:'Sinus Bradycardia', group:'Brady',color:'#fbbf24',
+      rate:'< 60 bpm', p:'Present, upright in II', pr:'Normal 0.12–0.20 s', qrs:'Narrow ≤0.12 s', reg:'Regular',
+      criteria:['Rate < 60 bpm','Normal P wave before every QRS','Normal PR and QRS'],
+      warning:'Symptomatic (hypotension, AMS, chest pain, syncope) → treat immediately.',
+      action:['Assess symptoms and hemodynamic stability','Atropine 0.5 mg IV; repeat q3–5 min (max 3 mg)','If unresponsive to atropine → TCP (transcutaneous pacing)','Consider reversible causes: hypoxia, hypothermia, β-blocker/CCB OD, ↑ICP, inferior STEMI'] },
+
+    { id:'jxn', name:'Junctional Rhythm', group:'Brady', color:'#fbbf24',
+      rate:'40–60 bpm', p:'Absent, retrograde (inverted in II/III/aVF), or buried in QRS', pr:'Short (<0.12 s) or unmeasurable', qrs:'Narrow ≤0.12 s (usually)', reg:'Regular',
+      criteria:['Rate 40–60 bpm','No visible P wave OR retrograde P (inverted in II, III, aVF)','Narrow QRS (unless aberrancy)'],
+      warning:'AV node is pacing — SA node has failed. Can deteriorate.',
+      action:['Treat same as symptomatic bradycardia','Atropine 0.5 mg IV (may have limited effect)','TCP if hemodynamically unstable','Identify cause: inferior MI, digoxin toxicity, sick sinus syndrome'] },
+
+    { id:'idio', name:'Idioventricular Rhythm', group:'Brady', color:'#f87171',
+      rate:'20–40 bpm (ventricular escape)', p:'Absent or dissociated', pr:'None', qrs:'Wide ≥0.12 s, bizarre morphology', reg:'Regular to slightly irregular',
+      criteria:['Rate 20–40 bpm','Wide, bizarre QRS','No associated P waves (or AV dissociation)'],
+      warning:'Extremely low output — near-arrest rhythm. Do NOT suppress with lidocaine (it IS the escape rhythm).',
+      action:['Do NOT give lidocaine — may eliminate the only remaining rhythm','Assess pulse — if pulseless → PEA protocol','If pulse present: TCP, atropine (usually ineffective at this rate)','Prepare for cardiac arrest'] },
+
+    // ── AV BLOCKS ──
+    { id:'avb1', name:'1st Degree AV Block', group:'AV Block', color:'#86efac',
+      rate:'Usually normal (60–100)', p:'Present, before every QRS', pr:'> 0.20 s (prolonged)', qrs:'Narrow', reg:'Regular',
+      criteria:['PR interval > 0.20 s (one large box)','Every P conducts to QRS','Not a true "block" — just delayed conduction'],
+      warning:'Usually benign; can progress in setting of inferior MI or drug toxicity.',
+      action:['No treatment required for the block itself','Monitor; document baseline PR interval','Consider cause: increased vagal tone, digoxin, β-blockers, inferior MI'] },
+
+    { id:'avb2m1', name:'2nd Degree AV Block — Mobitz I (Wenckebach)', group:'AV Block', color:'#fbbf24',
+      rate:'Atrial rate normal; ventricular rate slightly slower', p:'Present, more P waves than QRS complexes', pr:'Progressively lengthens until a QRS is dropped', qrs:'Narrow (usually)', reg:'Regularly irregular (grouped beating)',
+      criteria:['PR interval lengthens with each beat','Eventually a QRS is dropped','Pattern repeats in cycles','"Footprints in the sand" — grouped beating'],
+      warning:'Usually benign when narrow QRS; can indicate inferior MI.',
+      action:['Usually no treatment if asymptomatic','If symptomatic: Atropine 0.5 mg IV','Monitor closely if in context of acute inferior MI','Rarely progresses to complete block (narrow QRS Wenckebach)'] },
+
+    { id:'avb2m2', name:'2nd Degree AV Block — Mobitz II', group:'AV Block', color:'#f87171',
+      rate:'Atrial rate normal; ventricular rate slower', p:'More P waves than QRS; ratio fixed (2:1, 3:1)', pr:'Constant (does not lengthen) until QRS drops', qrs:'Usually wide ≥0.12 s (infranodal block)', reg:'Regularly irregular',
+      criteria:['Fixed PR interval in conducted beats','Sudden dropped QRS without PR lengthening','Often wide QRS (His-bundle or bundle branch level)','Fixed conduction ratio (2:1, 3:1, etc.)'],
+      warning:'HIGH RISK — can suddenly deteriorate to complete heart block. Atropine often ineffective.',
+      action:['TCP (transcutaneous pacing) — prepare immediately','Atropine may be tried but often fails (infranodal block)','IV access × 2; cardiac monitor; 12-lead','Expedite transport; early notification of receiving hospital'] },
+
+    { id:'avb3', name:'3rd Degree AV Block (Complete Heart Block)', group:'AV Block', color:'#f87171',
+      rate:'Atrial 60–100; ventricular escape 20–60 (wide) or 40–60 (junctional)', p:'Present, regular — but NO relationship to QRS', pr:'Completely variable — AV dissociation', qrs:'Wide (ventricular escape) or narrow (junctional escape)', reg:'Both P and QRS regular — but independently',
+      criteria:['P waves and QRS complexes march out independently','No PR relationship — complete AV dissociation','Slow ventricular escape rate','P waves "hidden" in QRS/T waves'],
+      warning:'Complete AV dissociation — no effective conduction. Can be rapidly fatal.',
+      action:['TCP immediately if hemodynamically unstable','Prepare for possible cardiac arrest','Atropine 0.5 mg IV (may be ineffective with wide QRS escape)','Dopamine 2–20 mcg/kg/min if TCP unavailable','Consider cause: inferior/anterior MI, digoxin toxicity, Lyme disease'] },
+
+    // ── SUPRAVENTRICULAR ──
+    { id:'svt', name:'SVT / PSVT', group:'Tachy', color:'#fb923c',
+      rate:'150–250 bpm', p:'Often hidden in preceding T wave; may be retrograde', pr:'Unmeasurable (P buried)', qrs:'Narrow (usually ≤0.12 s)', reg:'Regular — sudden onset/offset',
+      criteria:['Rapid narrow-complex tachycardia','Abrupt onset and termination','Regular rhythm','P waves buried in T wave or immediately after QRS'],
+      warning:'If wide QRS: must distinguish from VT — treat as VT until proven otherwise.',
+      action:['Stable + narrow QRS: Vagal maneuvers (Valsalva, carotid massage)','Stable + refractory: Adenosine 6 mg rapid IVP + 20 mL NS flush; may repeat 12 mg × 2','Unstable (hypotension, AMS): Synchronized cardioversion 50–100 J','O₂, IV access, 12-lead, monitor'] },
+
+    { id:'afib', name:'Atrial Fibrillation', group:'Tachy', color:'#fb923c',
+      rate:'Atrial 350–600 (unmeasurable); ventricular variable 60–170', p:'No distinct P waves — chaotic baseline (fibrillatory waves)', pr:'Not measurable', qrs:'Narrow (usually), irregular intervals', reg:'IRREGULARLY IRREGULAR — hallmark finding',
+      criteria:['Irregularly irregular rhythm (no two RR intervals the same)','No discernible P waves — chaotic baseline','Ventricular rate variable','Narrow QRS (unless aberrancy or pre-excitation)'],
+      warning:'New-onset A-fib with RVR and hypotension → instability. Chronic A-fib + rapid rate can cause cardiomyopathy.',
+      action:['Stable: rate control per protocol (usually no field cardioversion)','Unstable (hypotension, severe AMS, chest pain): synchronized cardioversion 120–200 J biphasic','Monitor for signs of stroke (new neuro deficits)','Note onset time if known — cardioversion risk increases after 48 hrs'] },
+
+    { id:'aflutter', name:'Atrial Flutter', group:'Tachy', color:'#fb923c',
+      rate:'Atrial 250–350 (often ~300); ventricular 75–150 (2:1 or 4:1 block)', p:'Sawtooth flutter waves — best seen in II, III, aVF, V1', pr:'Not a true PR — flutter wave to QRS variable', qrs:'Narrow, regular', reg:'Regular (or regularly irregular with variable block)',
+      criteria:['Sawtooth baseline — flutter waves 250–350/min','Regular ventricular rate (classic 2:1 = 150 bpm)','Flutter waves most visible in inferior leads and V1','QRS narrow'],
+      warning:'"150 bpm rule" — regular narrow tachycardia at exactly 150 bpm → strongly suspect flutter.',
+      action:['Stable: rate control','Unstable: synchronized cardioversion 50–100 J (lower energy needed than A-fib)','12-lead to confirm — flutter waves best in inferior leads','Do NOT use adenosine to treat (may briefly unmask flutter waves but won\'t convert)'] },
+
+    { id:'wpw', name:'WPW / Pre-Excitation', group:'Tachy', color:'#e879f9',
+      rate:'Variable; tachycardia often 200–300 if accessory pathway conducts antegrade', p:'May see delta waves on baseline 12-lead', pr:'Short PR < 0.12 s (pre-excitation)', qrs:'Wide with slurred upstroke (delta wave)', reg:'Regular or irregular depending on rhythm',
+      criteria:['Short PR interval < 0.12 s','Delta wave (slurred initial QRS upstroke)','Wide QRS','In A-fib: wide, irregular, very rapid (can exceed 300 bpm) — DANGER'],
+      warning:'A-fib + WPW with antegrade conduction can cause ventricular fibrillation. AV nodal blockers (adenosine, diltiazem, digoxin) are CONTRAINDICATED.',
+      action:['Unstable: unsynchronized cardioversion (if polymorphic rapid rate) or synchronized','Stable A-fib + WPW: procainamide or amiodarone (NOT adenosine, NOT nodal blockers)','12-lead critical — identify delta waves','Early hospital notification — may need ablation'] },
+
+    // ── VENTRICULAR ──
+    { id:'pvcs', name:'PVCs (Premature Ventricular Contractions)', group:'Ventricular', color:'#a78bfa',
+      rate:'Underlying rate variable; PVCs are early beats', p:'No P wave associated with the PVC', pr:'None (for PVC)', qrs:'Wide ≥0.12 s, bizarre morphology, usually followed by compensatory pause', reg:'Irregular (due to PVC)',
+      criteria:['Wide, bizarre QRS appearing early (premature)','No associated P wave','Followed by compensatory pause (usually)','T wave opposite direction of QRS (discordant)'],
+      warning:'Frequent PVCs (>6/min), multifocal, R-on-T, couplets, or runs ("3 PVCs = VT") in setting of MI → significant risk.',
+      action:['Isolated PVCs in asymptomatic patient: monitor only','R-on-T phenomenon, multifocal, or post-MI: 12-lead, notify medical control','Treat underlying cause: hypoxia, hypokalemia, acidosis, ischemia','Lidocaine no longer routine for PVCs (CAST trial)'] },
+
+    { id:'vt', name:'Ventricular Tachycardia (Monomorphic)', group:'Ventricular', color:'#f87171',
+      rate:'100–250 bpm (usually 140–200)', p:'May be present (AV dissociation) but not conducting', pr:'AV dissociation — P waves march independently', qrs:'Wide ≥0.12 s, uniform, bizarre morphology', reg:'Regular',
+      criteria:['Wide-complex tachycardia (QRS ≥0.12 s)','Regular rhythm','Uniform QRS morphology','AV dissociation (P waves unrelated to QRS — if visible)','Fusion beats or capture beats (pathognomonic if present)'],
+      warning:'Assume VT if wide-complex tachycardia until proven otherwise. SVT with aberrancy can mimic VT. Treat as VT.',
+      action:['Pulseless: CPR + defibrillation 200 J → ACLS arrest protocol','Pulse + unstable (hypotension, AMS, chest pain): synchronized cardioversion 100 J','Pulse + stable: Amiodarone 150 mg IV over 10 min; Lidocaine 1–1.5 mg/kg IVP','Never use verapamil or diltiazem — could cause decompensation'] },
+
+    { id:'tdp', name:'Torsades de Pointes', group:'Ventricular', color:'#f87171',
+      rate:'150–300 bpm', p:'Not visible during episode', pr:'None during episode; prolonged QTc on baseline 12-lead', qrs:'Wide, polymorphic — QRS axis twists around baseline ("twisting of the points")', reg:'Irregular',
+      criteria:['Polymorphic VT with characteristic twisting of QRS axis','Associated with prolonged QT interval on baseline 12-lead','Triggered by pause-then-PVC pattern (short-long-short)'],
+      warning:'Associated with drugs that prolong QT (antiarrhythmics, antibiotics, antipsychotics), hypomagnesemia, hypokalemia. Standard VT treatment may be harmful.',
+      action:['Pulseless: defibrillation (unsynchronized) + ACLS','Pulse present: Magnesium sulfate 1–2 g IV over 1–2 min (drug of choice)','Correct underlying electrolyte abnormalities','Discontinue QT-prolonging drugs','TCP or isoproterenol to increase rate and shorten QT if refractory'] },
+
+    { id:'vfib', name:'Ventricular Fibrillation', group:'Arrest', color:'#f87171',
+      rate:'No organized rate — chaotic', p:'None', pr:'None', qrs:'None — chaotic waveform only', reg:'Chaotic, irregular',
+      criteria:['No discernible P waves or QRS complexes','Chaotic, irregular baseline','Coarse (high amplitude) vs. fine (low amplitude) — fine V-fib harder to shock','No organized electrical activity'],
+      warning:'IMMEDIATELY FATAL without defibrillation. Fine V-fib may be mistaken for asystole — check in multiple leads.',
+      action:['Immediate CPR','Defibrillation 200 J biphasic ASAP (shock first if witnessed)','Epinephrine 1 mg IV/IO every 3–5 min','Amiodarone 300 mg IVP after 3rd shock; may repeat 150 mg','Identify and treat reversible causes (H\'s & T\'s)'] },
+
+    { id:'asystole', name:'Asystole', group:'Arrest', color:'#94a3b8',
+      rate:'0', p:'None (or occasional P wave only — P-wave asystole)', pr:'None', qrs:'None', reg:'None',
+      criteria:['Flat line in multiple leads','Confirm in at least 2 leads (artifact can mimic)','May see occasional P waves (P-wave asystole)'],
+      warning:'Verify in 2+ leads before treating as asystole. Lead disconnect/artifact can appear as flatline.',
+      action:['CPR immediately','Epinephrine 1 mg IV/IO every 3–5 min','Do NOT defibrillate (no shockable rhythm)','Search for and treat reversible causes: Hypovolemia, Hypoxia, Hydrogen ion (acidosis), Hypo/Hyperkalemia, Hypothermia, Tension PTX, Tamponade, Toxins, Thrombosis (PE/MI)','Atropine no longer recommended routinely in ACLS 2020'] },
+
+    { id:'pea', name:'PEA (Pulseless Electrical Activity)', group:'Arrest', color:'#94a3b8',
+      rate:'Variable — organized rhythm on monitor', p:'May be present', pr:'Variable', qrs:'Variable (any organized rhythm can be PEA)', reg:'Variable',
+      criteria:['Organized electrical activity on monitor (any rhythm)','NO palpable pulse','Electromechanical dissociation'],
+      warning:'Do NOT be fooled by organized rhythm — always check pulse with any rhythm. PEA is not a specific rhythm — it\'s a clinical state.',
+      action:['CPR immediately','Epinephrine 1 mg IV/IO every 3–5 min','Identify and treat reversible causes (H\'s & T\'s) — this IS the treatment:','• Hypovolemia → fluid bolus','• Hypoxia → optimize airway','• Hydrogen ion (acidosis) → sodium bicarbonate','• Hypo/Hyperkalemia → CaCl, bicarb','• Hypothermia → rewarm','• Tension PTX → needle decompression','• Tamponade → pericardiocentesis (hospital)','• Toxins → antidote/supportive','• Thrombosis (PE) → thrombolytics if confirmed'] },
+
+    // ── BUNDLE BRANCH BLOCKS ──
+    { id:'rbbb', name:'RBBB (Right Bundle Branch Block)', group:'Blocks', color:'#67e8f9',
+      rate:'Depends on underlying rhythm', p:'Normal', pr:'Normal (0.12–0.20 s)', qrs:'Wide ≥0.12 s', reg:'Regular (if underlying sinus)',
+      criteria:['QRS ≥0.12 s','RSR\' pattern in V1–V2 ("rabbit ears")','Wide, slurred S wave in I, aVL, V5–V6','Predominantly positive QRS in V1','T wave inversion V1–V3 (normal secondary change)'],
+      warning:'New RBBB in context of anterior MI or PE is significant. Right heart strain pattern.',
+      action:['RBBB alone does not require treatment','New RBBB + chest pain → suspect anterior MI or massive PE','12-lead and serial monitoring','Consider PE if tachycardia + new RBBB + hypoxia (S1Q3T3 pattern)'] },
+
+    { id:'lbbb', name:'LBBB (Left Bundle Branch Block)', group:'Blocks', color:'#67e8f9',
+      rate:'Depends on underlying rhythm', p:'Normal', pr:'Normal or slightly prolonged', qrs:'Wide ≥0.12 s', reg:'Regular (if underlying sinus)',
+      criteria:['QRS ≥0.12 s','Broad monophasic R wave in I, aVL, V5–V6 (no septal Q waves in I, V5, V6)','QS or rS in V1','Discordant ST changes (ST/T opposite direction of QRS)'],
+      warning:'New LBBB in setting of acute chest pain is a STEMI equivalent until proven otherwise (Sgarbossa criteria apply). Do NOT interpret ST segments normally in LBBB.',
+      action:['New LBBB + chest pain → treat as STEMI equivalent; activate cath lab','Apply Sgarbossa criteria to look for superimposed STEMI (concordant ST elevation ≥1 mm is most specific)','12-lead, IV access, aspirin, nitroglycerin per protocol','Early hospital notification'] },
+  ];
+
+  (function initRhythm(){
+    const picker = document.getElementById('rhythm-picker');
+    const result = document.getElementById('rhythm-result');
+    if(!picker) return;
+
+    // Group order
+    const groupOrder = ['Normal','Brady','AV Block','Tachy','Ventricular','Arrest','Blocks'];
+    const grouped = {};
+    RHYTHMS.forEach(r => { if(!grouped[r.group]) grouped[r.group]=[]; grouped[r.group].push(r); });
+
+    groupOrder.forEach(g => {
+      if(!grouped[g]) return;
+      const grpLabel = document.createElement('div');
+      grpLabel.style.cssText = 'width:100%;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);padding:4px 0 2px';
+      grpLabel.textContent = g;
+      picker.appendChild(grpLabel);
+      grouped[g].forEach(r => {
+        const btn = document.createElement('button');
+        btn.className = 'rhythm-pill';
+        btn.textContent = r.name;
+        btn.style.cssText = `color:${r.color};border-color:${r.color}33;background:${r.color}11`;
+        btn.addEventListener('click', () => {
+          picker.querySelectorAll('.rhythm-pill').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          btn.style.background = r.color;
+          showRhythm(r);
+        });
+        picker.appendChild(btn);
+      });
+    });
+
+    function showRhythm(r){
+      const actionHtml = r.action.map(a => {
+        if(a.startsWith('•')) return `<li style="padding-left:10px;list-style:none;color:var(--muted)">${a}</li>`;
+        return `<li>${a}</li>`;
+      }).join('');
+      result.innerHTML = `
+        <div class="rhythm-card">
+          <div class="rhythm-card-name" style="color:${r.color}">${r.name}</div>
+          <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px">${r.group}</div>
+          <div class="rhythm-meta">
+            <span class="rhythm-meta-chip">⏱ ${r.rate}</span>
+            <span class="rhythm-meta-chip">P: ${r.p}</span>
+            <span class="rhythm-meta-chip">PR: ${r.pr}</span>
+            <span class="rhythm-meta-chip">QRS: ${r.qrs}</span>
+            <span class="rhythm-meta-chip">Regularity: ${r.reg}</span>
+          </div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:4px">Key Criteria</div>
+          <ul class="rhythm-criteria">${r.criteria.map(c=>`<li>${c}</li>`).join('')}</ul>
+          ${r.warning ? `<div class="rhythm-warn">⚠ ${r.warning}</div>` : ''}
+          <div class="rhythm-action">
+            <div class="rhythm-action-title">EMS Action</div>
+            <ul>${actionHtml}</ul>
+          </div>
+        </div>`;
+    }
+  })();
+
+  // --- STEMI Localization Calculator ---
+  function _stemiLeads(gridId){
+    return Array.from(document.querySelectorAll(`#${gridId} input:checked`)).map(cb=>cb.value);
+  }
+
+  // Extended leads toggle
+  document.getElementById('stemi-ext-toggle').addEventListener('click', ()=>{
+    const body = document.getElementById('stemi-ext-body');
+    const chev = document.getElementById('stemi-ext-chev');
+    const open = body.style.display !== 'none';
+    body.style.display = open ? 'none' : '';
+    chev.textContent = open ? '▾' : '▴';
+  });
+
+  $('#stemi-calc').addEventListener('click', ()=>{
+    const elev    = new Set(_stemiLeads('stemi-elev-leads'));
+    const dep     = new Set(_stemiLeads('stemi-dep-leads'));
+    const ext     = new Set(_stemiLeads('stemi-ext-leads'));
+    const hasLBBB = document.getElementById('stemi-lbbb').checked;
+    const res     = document.getElementById('stemi-result');
+
+    if(!elev.size && !dep.size && !ext.size){
+      res.innerHTML='<span style="color:var(--muted)">Select at least one lead finding.</span>';
+      return;
+    }
+
+    const any = (set, ...leads) => leads.some(l => set.has(l));
+
+    const findings = [];
+    const alerts   = [];
+    const pearls   = [];
+
+    // ── LBBB + Sgarbossa ──
+    if(hasLBBB){
+      const sgarbossa = [];
+      // Criterion 1: Concordant ST elevation ≥1 mm in any lead (most specific, score 5)
+      if(elev.size) sgarbossa.push({ text:'Concordant ST elevation ≥1 mm present — MOST SPECIFIC for MI in LBBB (Sgarbossa score 5)', color:'#f87171' });
+      // Criterion 2: Concordant ST depression ≥1 mm in V1–V3 (score 3)
+      if(any(dep,'V1','V2','V3')) sgarbossa.push({ text:'Concordant ST depression ≥1 mm in V1–V3 — Sgarbossa criterion (score 3)', color:'#fbbf24' });
+      // Criterion 3: Discordant STE ≥5 mm (Smith-modified: excessively discordant — less specific, noted)
+      pearls.push('In LBBB: discordant ST changes are expected. CONCORDANT ST elevation (same direction as QRS) is the key STEMI indicator.');
+      pearls.push('Use Smith-Modified Sgarbossa (SMSR): any concordant change OR excessively discordant STE ≥25% of preceding S-wave depth.');
+      if(sgarbossa.length){
+        findings.push({
+          territory: 'Suspected STEMI in LBBB',
+          artery: 'Indeterminate — requires angiography',
+          reciprocal: [],
+          note: sgarbossa.map(s=>s.text).join(' | '),
+          alertColor: '#f87171'
+        });
+        alerts.push('⚡ LBBB + Sgarbossa positive — treat as STEMI equivalent. Activate cath lab.');
+      } else {
+        res.innerHTML = `<div style="color:var(--muted);font-size:13px">LBBB present. No definitive Sgarbossa criteria met with selections made. Correlate clinically — if chest pain present, treat as STEMI equivalent.</div>
+          <div style="margin-top:8px;font-size:12px;color:#fbbf24;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);border-radius:8px;padding:8px 12px">⚠ Smith-Modified Sgarbossa: Even without concordant changes, clinical + troponin + history determine STEMI equivalent call.</div>`;
+        return;
+      }
+    }
+
+    // ── aVR Elevation (LMCA / Proximal LAD) ──
+    if(elev.has('aVR') && !hasLBBB){
+      const diffuseDep = ['I','II','V4','V5','V6'].filter(l => dep.has(l));
+      if(diffuseDep.length >= 3 || (dep.size >= 6)){
+        findings.push({
+          territory: 'Left Main (LMCA) or Proximal LAD Occlusion',
+          artery: 'LMCA or proximal LAD',
+          reciprocal: [],
+          note: 'aVR elevation + diffuse ST depression is the classic LMCA/proximal LAD pattern. EXTREMELY high-risk — often presents with cardiogenic shock.',
+          alertColor: '#f87171'
+        });
+        alerts.push('⚡ aVR elevation + diffuse depression = LMCA/proximal LAD pattern. Highest-risk STEMI. Early cath lab activation critical.');
+      } else {
+        pearls.push('aVR elevation present. If accompanied by diffuse ST depression in ≥6 leads, suspect LMCA or proximal LAD occlusion.');
+      }
+    }
+
+    // ── Inferior STEMI ──
+    const inferior = elev.has('aVF') && (elev.has('II') || elev.has('III'));
+    if(inferior){
+      const rvInvolve = elev.has('V1') || ext.has('V3R') || ext.has('V4R');
+      const posteriorAlso = any(dep,'V1','V2','V3') || ext.has('V7') || ext.has('V8') || ext.has('V9');
+      let territory = 'Inferior';
+      if(rvInvolve) territory = 'Inferoposterior + Right Ventricular (RV)';
+      else if(posteriorAlso) territory = 'Inferoposterior';
+      const reciprocal = [];
+      if(dep.has('I') || dep.has('aVL')) reciprocal.push('I, aVL (High Lateral)');
+      const notes = [];
+      if(rvInvolve) notes.push('RV involvement confirmed or suspected — avoid NTG and diuretics; RV preload-dependent. Fluid challenge if hypotensive.');
+      if(posteriorAlso) notes.push('Posterior extension likely — consider V7–V9 if not already placed.');
+      findings.push({ territory, artery:'RCA (Right Coronary Artery)', reciprocal, note:notes.join(' '), alertColor:'#fca5a5' });
+      if(rvInvolve) alerts.push('⚠ RV STEMI: Nitroglycerin CONTRAINDICATED. Give IV fluid bolus for hypotension.');
+    }
+
+    // ── Anterior / LAD ──
+    const antLeads = ['V1','V2','V3','V4','V5','V6'];
+    const elevAnterior = antLeads.filter(l => elev.has(l));
+    if(elevAnterior.length && !hasLBBB){
+      let territory, note='';
+      const hasLateral = any(elev,'I','aVL','V5','V6');
+      if(any(elev,'V1','V2') && !any(elev,'V3','V4','V5','V6')){
+        territory = 'Anteroseptal (V1–V2)'; note='Proximal LAD territory — risk of LBBB, complete heart block.';
+      } else if(any(elev,'V1','V2','V3') && !any(elev,'V4','V5','V6')){
+        territory = 'Anteroseptal (V1–V3)'; note='Proximal LAD occlusion.';
+      } else if(any(elev,'V3','V4') && !any(elev,'V1','V2','V5','V6')){
+        territory = 'Anterior (V3–V4)'; note='Mid-LAD territory.';
+      } else if(any(elev,'V1','V2','V3','V4','V5','V6')){
+        territory = 'Extensive Anterior (V1–V6)'; note='Proximal LAD occlusion — HIGH RISK. Large territory. Watch for hemodynamic compromise.';
+        alerts.push('⚡ Extensive Anterior STEMI — large territory, proximal LAD. High risk of cardiogenic shock and arrhythmia.');
+      } else {
+        territory = 'Anterior';
+      }
+      if(hasLateral && !territory.includes('Lateral')) territory += ' + Lateral';
+      const reciprocal=[];
+      if(dep.has('II')||dep.has('III')||dep.has('aVF')) reciprocal.push('II, III, aVF (Inferior)');
+      findings.push({ territory, artery:'LAD (Left Anterior Descending)', reciprocal, note, alertColor:'#fca5a5' });
+    }
+
+    // ── Lateral (isolated, without anterior) ──
+    const lateralElev = any(elev,'I','aVL','V5','V6');
+    if(lateralElev && !elevAnterior.length && !hasLBBB){
+      let territory;
+      if((elev.has('I')||elev.has('aVL')) && !elev.has('V5') && !elev.has('V6')){
+        territory='High Lateral (I, aVL)';
+      } else {
+        territory = (elev.has('I')||elev.has('aVL')) ? 'Lateral (I, aVL, V5–V6)' : 'Lateral (V5–V6)';
+      }
+      const reciprocal=[];
+      if(any(dep,'V1','V2','V3')) reciprocal.push('V1–V3');
+      findings.push({ territory, artery:'LCx (Left Circumflex) or Diagonal Branch', reciprocal, note:'', alertColor:'#fca5a5' });
+    }
+
+    // ── Posterior STEMI ──
+    const posteriorDep = ['V1','V2','V3','V4'].filter(l => dep.has(l));
+    const posteriorExt = ['V7','V8','V9'].filter(l => ext.has(l));
+    if((posteriorDep.length >= 2 && !elevAnterior.length) || posteriorExt.length){
+      const conf = posteriorExt.length ? `Confirmed by elevation in ${posteriorExt.join(', ')}` : `Suspected from depression in ${posteriorDep.join(', ')}`;
+      findings.push({
+        territory:'Posterior',
+        artery:'RCA or LCx (posterior descending/posterolateral)',
+        reciprocal:[],
+        note:`${conf}. Posterior STEMI often missed on standard 12-lead — tall R waves in V1–V2 + horizontal ST depression + upright T waves are the clues. ${posteriorExt.length ? '' : 'Place posterior leads (V7–V9) to confirm.'}`,
+        alertColor:'#fbbf24'
+      });
+    }
+
+    // ── RV STEMI (right-sided leads only) ──
+    const rvElev = ['V3R','V4R'].filter(l => ext.has(l));
+    if(rvElev.length && !inferior){
+      findings.push({
+        territory:'Right Ventricular (RV)',
+        artery:'Proximal RCA (right coronary artery)',
+        reciprocal:[],
+        note:'RV elevation without inferior elevation is uncommon — verify lead placement. If confirmed, RV is preload-dependent.',
+        alertColor:'#fbbf24'
+      });
+      alerts.push('⚠ RV STEMI: Nitroglycerin CONTRAINDICATED. Fluid challenge for hypotension.');
+    }
+
+    // No findings
+    if(!findings.length){
+      res.innerHTML = '<span style="color:var(--muted)">Pattern does not clearly localize to a standard STEMI territory. Verify lead placement, consider posterior (V7–V9) or right-sided (V3R–V4R) leads, and correlate with clinical presentation.</span>';
+      return;
+    }
+
+    // Render
+    const alertsHtml = alerts.map(a => `<div style="background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600;color:#fca5a5;margin-bottom:8px">${a}</div>`).join('');
+    const pearlsHtml = pearls.length ? `<div style="margin-top:10px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:10px 12px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:6px">Clinical Pearls</div>${pearls.map(p=>`<div style="font-size:12px;color:var(--muted);margin-bottom:4px">• ${p}</div>`).join('')}</div>` : '';
+    const findingsHtml = findings.map(f => {
+      const recp = f.reciprocal.length ? `<div style="margin-top:5px;font-size:12px;color:rgba(96,165,250,.9)">🔄 Reciprocal: ${f.reciprocal.join(' · ')}</div>` : '';
+      const noteHtml = f.note ? `<div style="margin-top:5px;font-size:12px;color:rgba(251,191,36,.85)">⚠ ${f.note}</div>` : '';
+      return `<div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.07)">
+        <div><b style="color:${f.alertColor||'#fca5a5'}">${f.territory} STEMI</b></div>
+        <div style="font-size:13px;color:var(--muted);margin-top:2px">Likely culprit: <span style="color:var(--text)">${f.artery}</span></div>
+        ${recp}${noteHtml}
+      </div>`;
+    }).join('');
+
+    res.innerHTML = alertsHtml + findingsHtml + pearlsHtml;
+  });
+
+  $('#stemi-reset').addEventListener('click', ()=>{
+    document.querySelectorAll('#stemi-elev-leads input, #stemi-dep-leads input, #stemi-ext-leads input').forEach(cb => cb.checked = false);
+    document.getElementById('stemi-lbbb').checked = false;
+    document.getElementById('stemi-result').innerHTML = '';
+    const extBody = document.getElementById('stemi-ext-body');
+    if(extBody) extBody.style.display = 'none';
+    const chev = document.getElementById('stemi-ext-chev');
+    if(chev) chev.textContent = '▾';
+  });
+
+
+
+    // Calc card collapse toggles
+    document.querySelectorAll('.calc-toggle').forEach(h3 => {
+      h3.addEventListener('click', ()=>{
+        h3.classList.toggle('calc-collapsed');
+        const body = document.getElementById(h3.dataset.target);
+        if(body) body.style.display = body.style.display === 'none' ? '' : 'none';
+      });
+    });
+
+  function initResSearch(){
+    const inp = document.getElementById('res-filter-input');
+    const clr = document.getElementById('res-filter-clear');
+    const sug = document.getElementById('res-suggestions');
+    if(!inp) return;
+    function showSuggestions(val){
+      const q = val.toLowerCase().trim();
+      if(!q){ sug.style.display='none'; return; }
+      const matches = _RES_SECTIONS.filter(s=>s.label.toLowerCase().includes(q));
+      if(!matches.length){ sug.style.display='none'; return; }
+      sug.innerHTML = matches.map(s=>`<div class="meds-sugg-item" data-id="${s.id}">${s.label}</div>`).join('');
+      sug.style.display='';
+      sug.querySelectorAll('.meds-sugg-item').forEach(el=>{
+        el.addEventListener('mousedown', e=>{ e.preventDefault(); jumpToSection(el.dataset.id); inp.value=''; clr.style.display='none'; sug.style.display='none'; });
+        el.addEventListener('touchend', e=>{ e.preventDefault(); jumpToSection(el.dataset.id); inp.value=''; clr.style.display='none'; sug.style.display='none'; });
+      });
+    }
+    inp.addEventListener('input', ()=>{ clr.style.display=inp.value?'':'none'; showSuggestions(inp.value); });
+    inp.addEventListener('keydown', e=>{
+      if(e.key==='Enter'){
+        const q=inp.value.toLowerCase().trim();
+        const m=_RES_SECTIONS.find(s=>s.label.toLowerCase().includes(q));
+        if(m){ jumpToSection(m.id); inp.value=''; clr.style.display='none'; sug.style.display='none'; }
+      }
+      if(e.key==='Escape') sug.style.display='none';
+    });
+    inp.addEventListener('focus', ()=>{ if(inp.value) showSuggestions(inp.value); else {
+      // show all sections on focus when empty
+      sug.innerHTML = _RES_SECTIONS.map(s=>`<div class="meds-sugg-item" data-id="${s.id}">${s.label}</div>`).join('');
+      sug.style.display='';
+      sug.querySelectorAll('.meds-sugg-item').forEach(el=>{
+        el.addEventListener('mousedown', e=>{ e.preventDefault(); jumpToSection(el.dataset.id); inp.value=''; clr.style.display='none'; sug.style.display='none'; });
+        el.addEventListener('touchend', e=>{ e.preventDefault(); jumpToSection(el.dataset.id); inp.value=''; clr.style.display='none'; sug.style.display='none'; });
+      });
+    }});
+    inp.addEventListener('blur', ()=>{ setTimeout(()=>{ sug.style.display='none'; },150); });
+    clr.addEventListener('click', ()=>{ inp.value=''; clr.style.display='none'; sug.style.display='none'; inp.focus(); });
+  }
+
+
+    // Auth guard + init
+    fbAuth.onAuthStateChanged(user => {
+      if (!user) {
+        window.location.replace('index.html?returnTo=calculators.html');
+        return;
+      }
+      document.getElementById('auth-loading').style.display = 'none';
+      document.getElementById('app').style.display = 'flex';
+      initResSearch();
+      initPedsRef();
+    });
+
+    document.getElementById('btn-back').addEventListener('click', () => {
+      window.location.href = 'dashboard.html';
+    });
+  </script>
+  <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(function(){});</script>
+</body>
+</html>
