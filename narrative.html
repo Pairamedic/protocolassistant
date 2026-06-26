@@ -1571,6 +1571,8 @@ function narrClear(){
   ['nf-competency','nf-return-precautions','nf-refusal-signed'].forEach(id=>{ const e=document.getElementById(id); if(e) e.checked=true; });
   document.querySelectorAll('.page-content .narr-na-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.page-content .narr-mon-chip').forEach(c=>c.classList.remove('active'));
+  document.querySelectorAll('.page-content .opt-btn').forEach(b=>b.classList.remove('sel'));
+  document.querySelectorAll('.page-content input[type=hidden]').forEach(el=>{ el.value=''; });
   document.querySelectorAll('.page-content .narr-trauma-reg-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('nf-12lead-detail').style.display='none';
   document.getElementById('nf-ett-detail').style.display='none';
@@ -1770,8 +1772,9 @@ function initNarrative(){
         if(txMedDoseInp) txMedDoseInp.value = parsed.amount;
         const routeSel = document.getElementById('nf-txmed-route');
         if(routeSel && parsed.route){
-          const opt = [...routeSel.options].find(o => o.value === parsed.route);
-          if(opt) routeSel.value = parsed.route;
+          routeSel.value = parsed.route;
+          const rGrp = document.getElementById('nf-txmed-route-grp');
+          if(rGrp){ rGrp.querySelectorAll('.opt-btn').forEach(function(b){b.classList.remove('sel');}); var rb=rGrp.querySelector('[data-val="'+parsed.route+'"]'); if(rb) rb.classList.add('sel'); }
         }
         const indicInp = document.getElementById('nf-txmed-indication');
         if(indicInp) indicInp.value = med?.i || '';
@@ -1800,7 +1803,7 @@ function initNarrative(){
   document.getElementById('btn-cancel-txmed')?.addEventListener('click',()=>{
     pendingMedName=''; pendingMedDose='';
     if(txMedDoseInp) txMedDoseInp.value='';
-    const routeSel=document.getElementById('nf-txmed-route'); if(routeSel) routeSel.value='IV';
+    const routeSel=document.getElementById('nf-txmed-route'); if(routeSel){ routeSel.value='IV'; var rGrp=document.getElementById('nf-txmed-route-grp'); if(rGrp){ rGrp.querySelectorAll('.opt-btn').forEach(function(b){b.classList.remove('sel');}); var rb=rGrp.querySelector('[data-val="IV"]'); if(rb) rb.classList.add('sel'); } }
     const indicInp2=document.getElementById('nf-txmed-indication'); if(indicInp2) indicInp2.value='';
     if(txMedDoseRow) txMedDoseRow.style.display='none';
     document.getElementById('narr-o2-confirm-row').style.display='none';
@@ -1988,6 +1991,40 @@ function initNarrative(){
       if(content) content.insertBefore(banner, content.firstChild);
     }
   }catch(e){}
+
+  // ── Opt-group button selectors init ──
+  (function initOptGroups(){
+    var pairs = [
+      ['nf-resp-delay-reason-grp','nf-resp-delay-reason'],
+      ['nf-airway-grp','nf-airway'],
+      ['nf-lungs-grp','nf-lungs'],
+      ['nf-mental-grp','nf-mental'],
+      ['nf-skin-grp','nf-skin'],
+      ['nf-position-grp','nf-position'],
+      ['nf-iv-type-grp','nf-iv-type'],
+      ['nf-iv-fluid-grp','nf-iv-fluid'],
+      ['nf-txmed-route-grp','nf-txmed-route'],
+      ['nf-o2-confirm-device-grp','nf-o2-confirm-device'],
+      ['nf-arrival-method-grp','nf-arrival-method'],
+      ['nf-dest-area-grp','nf-dest-area'],
+      ['nf-care-of-cred-grp','nf-care-of-cred'],
+      ['nf-tx-delay-reason-grp','nf-tx-delay-reason'],
+    ];
+    pairs.forEach(function(pair){
+      var grp = document.getElementById(pair[0]);
+      var hidden = document.getElementById(pair[1]);
+      if(!grp || !hidden) return;
+      grp.querySelectorAll('.opt-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          grp.querySelectorAll('.opt-btn').forEach(function(b){ b.classList.remove('sel'); });
+          btn.classList.add('sel');
+          hidden.value = btn.dataset.val;
+          hidden.dispatchEvent(new Event('change'));
+          hidden.dispatchEvent(new Event('input'));
+        });
+      });
+    });
+  })();
 }
 </script>
 <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});</script>

@@ -6675,6 +6675,35 @@ function showAppUpdateBanner(reg) {
     }
   });
 }
+
+document.querySelectorAll('.opt-group').forEach(function(grp) {
+  var hiddenId = grp.previousElementSibling && grp.previousElementSibling.type === 'hidden' ? grp.previousElementSibling.id : null;
+  if (!hiddenId) return;
+  var hidden = document.getElementById(hiddenId);
+  grp.querySelectorAll('.opt-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      grp.querySelectorAll('.opt-btn').forEach(function(b) { b.classList.remove('sel'); });
+      btn.classList.add('sel');
+      hidden.value = btn.dataset.val;
+      hidden.dispatchEvent(new Event('change'));
+      hidden.dispatchEvent(new Event('input'));
+    });
+  });
+});
+
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('.opt-btn');
+  if (!btn) return;
+  var grp = btn.closest('.opt-group');
+  if (!grp) return;
+  var prev = grp.previousElementSibling;
+  if (!prev || prev.type !== 'hidden') return;
+  grp.querySelectorAll('.opt-btn').forEach(function(b) { b.classList.remove('sel'); });
+  btn.classList.add('sel');
+  prev.value = btn.dataset.val;
+  prev.dispatchEvent(new Event('change'));
+  prev.dispatchEvent(new Event('input'));
+});
 </script>
 </body>
 </html>
