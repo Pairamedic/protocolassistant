@@ -381,6 +381,9 @@
     .rhythm-action-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--accent);margin-bottom:6px}
     .rhythm-action ul{margin:0;padding-left:16px;display:flex;flex-direction:column;gap:3px}
     .rhythm-action ul li{font-size:12px;color:var(--text)}
+    .opt-group { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 6px; }
+    .opt-btn { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 500; padding: 7px 12px; line-height: 1.3; transition: background .15s, border-color .15s, color .15s; -webkit-tap-highlight-color: transparent; }
+    .opt-btn.sel { background: rgba(94,234,212,.15); border-color: rgba(94,234,212,.4); color: var(--accent); }
   </style>
 </head>
 <body>
@@ -515,11 +518,11 @@
             <div style="display:flex;gap:6px">
               <input type="number" id="peds-age-num" placeholder="e.g. 2" min="0" max="9"
                 style="width:72px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:15px" />
-              <select id="peds-age-unit"
-                style="padding:10px 10px;border-radius:12px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:15px">
-                <option value="months">months</option>
-                <option value="years">years</option>
-              </select>
+              <input type="hidden" id="peds-age-unit" value="months">
+              <div class="opt-group">
+                <button type="button" class="opt-btn sel" data-val="months">months</button>
+                <button type="button" class="opt-btn" data-val="years">years</button>
+              </div>
             </div>
           </div>
         </div>
@@ -536,23 +539,48 @@
             <div class="calc-grid g2">
               <div class="calc-field">
                 <label>Appearance</label>
-                <select id="pqr-apgar-a"><option value="0">0 — Blue/Pale all over</option><option value="1">1 — Body pink, limbs blue</option><option value="2">2 — Completely pink</option></select>
+                <input type="hidden" id="pqr-apgar-a" value="0">
+                <div class="opt-group">
+                  <button type="button" class="opt-btn sel" data-val="0">0 — Blue/Pale all over</button>
+                  <button type="button" class="opt-btn" data-val="1">1 — Body pink, limbs blue</button>
+                  <button type="button" class="opt-btn" data-val="2">2 — Completely pink</button>
+                </div>
               </div>
               <div class="calc-field">
                 <label>Pulse</label>
-                <select id="pqr-apgar-p"><option value="0">0 — Absent</option><option value="1">1 — &lt;100 bpm</option><option value="2">2 — ≥100 bpm</option></select>
+                <input type="hidden" id="pqr-apgar-p" value="0">
+                <div class="opt-group">
+                  <button type="button" class="opt-btn sel" data-val="0">0 — Absent</button>
+                  <button type="button" class="opt-btn" data-val="1">1 — &lt;100 bpm</button>
+                  <button type="button" class="opt-btn" data-val="2">2 — ≥100 bpm</button>
+                </div>
               </div>
               <div class="calc-field">
                 <label>Grimace / Reflex</label>
-                <select id="pqr-apgar-g"><option value="0">0 — No response</option><option value="1">1 — Grimace</option><option value="2">2 — Cough / Sneeze / Cry</option></select>
+                <input type="hidden" id="pqr-apgar-g" value="0">
+                <div class="opt-group">
+                  <button type="button" class="opt-btn sel" data-val="0">0 — No response</button>
+                  <button type="button" class="opt-btn" data-val="1">1 — Grimace</button>
+                  <button type="button" class="opt-btn" data-val="2">2 — Cough / Sneeze / Cry</button>
+                </div>
               </div>
               <div class="calc-field">
                 <label>Activity / Tone</label>
-                <select id="pqr-apgar-ac"><option value="0">0 — Limp</option><option value="1">1 — Some flexion</option><option value="2">2 — Active motion</option></select>
+                <input type="hidden" id="pqr-apgar-ac" value="0">
+                <div class="opt-group">
+                  <button type="button" class="opt-btn sel" data-val="0">0 — Limp</button>
+                  <button type="button" class="opt-btn" data-val="1">1 — Some flexion</button>
+                  <button type="button" class="opt-btn" data-val="2">2 — Active motion</button>
+                </div>
               </div>
               <div class="calc-field">
                 <label>Respiration</label>
-                <select id="pqr-apgar-r"><option value="0">0 — Absent</option><option value="1">1 — Slow / Irregular</option><option value="2">2 — Good cry</option></select>
+                <input type="hidden" id="pqr-apgar-r" value="0">
+                <div class="opt-group">
+                  <button type="button" class="opt-btn sel" data-val="0">0 — Absent</button>
+                  <button type="button" class="opt-btn" data-val="1">1 — Slow / Irregular</button>
+                  <button type="button" class="opt-btn" data-val="2">2 — Good cry</button>
+                </div>
               </div>
             </div>
             <div style="display:flex;gap:8px;margin-top:10px">
@@ -582,13 +610,18 @@
           <div class="calc-grid g2">
             <div class="calc-field">
               <label>Medication</label>
-              <select id="calc-med"></select>
+              <input type="hidden" id="calc-med" value="">
+              <div id="calc-med-group" class="opt-group"></div>
             </div>
             <div class="calc-field">
               <label>Weight</label>
               <div class="wt-row">
                 <input id="wt" type="number" inputmode="decimal" placeholder="e.g. 70" />
-                <select id="unit"><option value="kg">kg</option><option value="lb">lb</option></select>
+                <input type="hidden" id="unit" value="kg">
+                <div class="opt-group">
+                  <button type="button" class="opt-btn sel" data-val="kg">kg</button>
+                  <button type="button" class="opt-btn" data-val="lb">lb</button>
+                </div>
               </div>
             </div>
             <div class="calc-field">
@@ -640,7 +673,11 @@
               <label>Patient Weight</label>
               <div class="wt-row">
                 <input id="std-wt" type="number" inputmode="decimal" placeholder="e.g. 70" />
-                <select id="std-wt-unit"><option value="kg">kg</option><option value="lb">lb</option></select>
+                <input type="hidden" id="std-wt-unit" value="kg">
+                <div class="opt-group">
+                  <button type="button" class="opt-btn sel" data-val="kg">kg</button>
+                  <button type="button" class="opt-btn" data-val="lb">lb</button>
+                </div>
               </div>
             </div>
           </div>
@@ -697,7 +734,11 @@
               <label>Weight</label>
               <div class="wt-row">
                 <input id="iv-wt" type="number" inputmode="decimal" placeholder="e.g. 70" />
-                <select id="iv-unit"><option value="kg">kg</option><option value="lb">lb</option></select>
+                <input type="hidden" id="iv-unit" value="kg">
+                <div class="opt-group">
+                  <button type="button" class="opt-btn sel" data-val="kg">kg</button>
+                  <button type="button" class="opt-btn" data-val="lb">lb</button>
+                </div>
               </div>
             </div>
             <div class="calc-field">
@@ -844,23 +885,48 @@
           <div class="calc-grid g2">
             <div class="calc-field">
               <label>Appearance</label>
-              <select id="apgar-a"><option value="0">0 — Blue/Pale all over</option><option value="1">1 — Body pink, limbs blue</option><option value="2">2 — Completely pink</option></select>
+              <input type="hidden" id="apgar-a" value="0">
+              <div class="opt-group">
+                <button type="button" class="opt-btn sel" data-val="0">0 — Blue/Pale all over</button>
+                <button type="button" class="opt-btn" data-val="1">1 — Body pink, limbs blue</button>
+                <button type="button" class="opt-btn" data-val="2">2 — Completely pink</button>
+              </div>
             </div>
             <div class="calc-field">
               <label>Pulse</label>
-              <select id="apgar-p"><option value="0">0 — Absent</option><option value="1">1 — &lt;100 bpm</option><option value="2">2 — ≥100 bpm</option></select>
+              <input type="hidden" id="apgar-p" value="0">
+              <div class="opt-group">
+                <button type="button" class="opt-btn sel" data-val="0">0 — Absent</button>
+                <button type="button" class="opt-btn" data-val="1">1 — &lt;100 bpm</button>
+                <button type="button" class="opt-btn" data-val="2">2 — ≥100 bpm</button>
+              </div>
             </div>
             <div class="calc-field">
               <label>Grimace / Reflex</label>
-              <select id="apgar-g"><option value="0">0 — No response</option><option value="1">1 — Grimace</option><option value="2">2 — Cough / Sneeze / Cry</option></select>
+              <input type="hidden" id="apgar-g" value="0">
+              <div class="opt-group">
+                <button type="button" class="opt-btn sel" data-val="0">0 — No response</button>
+                <button type="button" class="opt-btn" data-val="1">1 — Grimace</button>
+                <button type="button" class="opt-btn" data-val="2">2 — Cough / Sneeze / Cry</button>
+              </div>
             </div>
             <div class="calc-field">
               <label>Activity / Tone</label>
-              <select id="apgar-ac"><option value="0">0 — Limp</option><option value="1">1 — Some flexion</option><option value="2">2 — Active motion</option></select>
+              <input type="hidden" id="apgar-ac" value="0">
+              <div class="opt-group">
+                <button type="button" class="opt-btn sel" data-val="0">0 — Limp</button>
+                <button type="button" class="opt-btn" data-val="1">1 — Some flexion</button>
+                <button type="button" class="opt-btn" data-val="2">2 — Active motion</button>
+              </div>
             </div>
             <div class="calc-field">
               <label>Respiration</label>
-              <select id="apgar-r"><option value="0">0 — Absent</option><option value="1">1 — Slow / Irregular</option><option value="2">2 — Good cry</option></select>
+              <input type="hidden" id="apgar-r" value="0">
+              <div class="opt-group">
+                <button type="button" class="opt-btn sel" data-val="0">0 — Absent</button>
+                <button type="button" class="opt-btn" data-val="1">1 — Slow / Irregular</button>
+                <button type="button" class="opt-btn" data-val="2">2 — Good cry</button>
+              </div>
             </div>
           </div>
           <div class="calc-actions">
@@ -883,15 +949,36 @@
           <div class="calc-grid g3">
             <div class="calc-field">
               <label>Eye Opening (E)</label>
-              <select id="gcs-e"><option value="1">1 — None</option><option value="2">2 — To pain</option><option value="3">3 — To voice</option><option value="4" selected>4 — Spontaneous</option></select>
+              <input type="hidden" id="gcs-e" value="4">
+              <div class="opt-group">
+                <button type="button" class="opt-btn" data-val="1">1 — None</button>
+                <button type="button" class="opt-btn" data-val="2">2 — To pain</button>
+                <button type="button" class="opt-btn" data-val="3">3 — To voice</button>
+                <button type="button" class="opt-btn sel" data-val="4">4 — Spontaneous</button>
+              </div>
             </div>
             <div class="calc-field">
               <label>Verbal (V)</label>
-              <select id="gcs-v"><option value="1">1 — None</option><option value="2">2 — Incomprehensible</option><option value="3">3 — Inappropriate</option><option value="4">4 — Confused</option><option value="5" selected>5 — Oriented</option></select>
+              <input type="hidden" id="gcs-v" value="5">
+              <div class="opt-group">
+                <button type="button" class="opt-btn" data-val="1">1 — None</button>
+                <button type="button" class="opt-btn" data-val="2">2 — Incomprehensible</button>
+                <button type="button" class="opt-btn" data-val="3">3 — Inappropriate</button>
+                <button type="button" class="opt-btn" data-val="4">4 — Confused</button>
+                <button type="button" class="opt-btn sel" data-val="5">5 — Oriented</button>
+              </div>
             </div>
             <div class="calc-field">
               <label>Motor (M)</label>
-              <select id="gcs-m"><option value="1">1 — None</option><option value="2">2 — Extensor</option><option value="3">3 — Flexor</option><option value="4">4 — Withdraws</option><option value="5">5 — Localizes</option><option value="6" selected>6 — Obeys</option></select>
+              <input type="hidden" id="gcs-m" value="6">
+              <div class="opt-group">
+                <button type="button" class="opt-btn" data-val="1">1 — None</button>
+                <button type="button" class="opt-btn" data-val="2">2 — Extensor</button>
+                <button type="button" class="opt-btn" data-val="3">3 — Flexor</button>
+                <button type="button" class="opt-btn" data-val="4">4 — Withdraws</button>
+                <button type="button" class="opt-btn" data-val="5">5 — Localizes</button>
+                <button type="button" class="opt-btn sel" data-val="6">6 — Obeys</button>
+              </div>
             </div>
           </div>
           <div class="calc-actions">
@@ -1004,13 +1091,14 @@
           <div class="calc-grid g2">
             <div class="calc-field">
               <label>Cylinder</label>
-              <select id="o2-cylinder">
-                <option value="0.16">D cylinder (0.16)</option>
-                <option value="0.28" selected>E cylinder (0.28)</option>
-                <option value="1.56">M cylinder (1.56)</option>
-                <option value="2.41">G cylinder (2.41)</option>
-                <option value="3.14">H cylinder (3.14)</option>
-              </select>
+              <input type="hidden" id="o2-cylinder" value="0.28">
+              <div class="opt-group">
+                <button type="button" class="opt-btn" data-val="0.16">D cylinder (0.16)</button>
+                <button type="button" class="opt-btn sel" data-val="0.28">E cylinder (0.28)</button>
+                <button type="button" class="opt-btn" data-val="1.56">M cylinder (1.56)</button>
+                <button type="button" class="opt-btn" data-val="2.41">G cylinder (2.41)</button>
+                <button type="button" class="opt-btn" data-val="3.14">H cylinder (3.14)</button>
+              </div>
             </div>
             <div class="calc-field">
               <label>Current pressure (psi)</label>
@@ -1046,7 +1134,11 @@
           <div class="calc-grid g2">
             <div class="calc-field">
               <label>Sex</label>
-              <select id="vent-sex"><option value="male">Male</option><option value="female">Female</option></select>
+              <input type="hidden" id="vent-sex" value="male">
+              <div class="opt-group">
+                <button type="button" class="opt-btn sel" data-val="male">Male</button>
+                <button type="button" class="opt-btn" data-val="female">Female</button>
+              </div>
             </div>
             <div class="calc-field">
               <label>Height</label>
