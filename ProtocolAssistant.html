@@ -5979,6 +5979,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
 
   // --- Admin Panel ---
   const ADMIN_EMAILS = new Set(['eliasacaldwellnrp@gmail.com']);
+  const SUPERVISOR_EMAILS = new Set(['smcdonel@easimedics.com']);
   let _adminMode = false;
 
   async function cloudSaveServiceData(){
@@ -6140,6 +6141,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       $('#btn-settings').style.display = 'block';
       _adminMode = ADMIN_EMAILS.has(user.email);
       if(_adminMode){ $('#btn-admin').classList.remove('hidden'); $('#btn-supervisor').classList.remove('hidden'); $('#btn-narrative').classList.remove('hidden'); }
+      else if(SUPERVISOR_EMAILS.has(user.email)){ $('#btn-supervisor').classList.remove('hidden'); }
       // Internal contacts tab only visible to admin
       const _internalPill = document.querySelector('.contact-nav-btn[data-section="contacts-internal"]');
       if(_internalPill){ if(!_adminMode) _internalPill.style.display='none'; }

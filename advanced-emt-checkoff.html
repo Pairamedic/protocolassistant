@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Advanced EMT Equipment Check-Off</title>
+  <style>
+    /* ── Screen defaults ── */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 11pt;
+      color: #111;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    .page {
+      background: #fff;
+      max-width: 8.5in;
+      margin: 0 auto;
+      padding: 0.45in 0.5in 0.5in;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 8px rgba(0,0,0,.15);
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border-bottom: 3px solid #1a2e6e;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+    }
+    .header img {
+      height: 70px;
+      width: auto;
+      flex-shrink: 0;
+    }
+    .header-text { flex: 1; }
+    .header-text h1 {
+      font-size: 17pt;
+      font-weight: 900;
+      color: #1a2e6e;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      line-height: 1.15;
+    }
+    .header-text p {
+      font-size: 9pt;
+      color: #444;
+      margin-top: 3px;
+      letter-spacing: .3px;
+    }
+    .header-right {
+      text-align: right;
+      font-size: 8.5pt;
+      color: #555;
+      line-height: 1.6;
+      flex-shrink: 0;
+    }
+
+    /* ── Info fields row ── */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px 14px;
+      margin-bottom: 12px;
+      margin-top: 8px;
+    }
+    .info-grid .field-wide {
+      grid-column: span 2;
+    }
+    .field label {
+      display: block;
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: #555;
+      margin-bottom: 2px;
+    }
+    .field .line {
+      border-bottom: 1.5px solid #333;
+      min-height: 18px;
+    }
+
+    /* ── Section header ── */
+    .section-header {
+      background: #1a2e6e;
+      color: #fff;
+      font-size: 10pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      padding: 5px 10px;
+      margin-bottom: 0;
+    }
+
+    /* ── Equipment table ── */
+    .equip-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 10px;
+      border: 1.5px solid #1a2e6e;
+    }
+    .equip-table td {
+      vertical-align: top;
+      padding: 0;
+      width: 50%;
+      border-right: 1px solid #b0b8cc;
+    }
+    .equip-table td:last-child {
+      border-right: none;
+    }
+    .item-list {
+      list-style: none;
+      padding: 4px 8px;
+    }
+    .item-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      padding: 2.5px 0;
+      font-size: 9.5pt;
+      line-height: 1.3;
+      border-bottom: 1px dotted #dde;
+    }
+    .item-list li:last-child {
+      border-bottom: none;
+    }
+    .item-list li.sub {
+      padding-left: 18px;
+      font-size: 9pt;
+      color: #222;
+    }
+    .item-list li .cb {
+      display: inline-block;
+      width: 13px;
+      height: 13px;
+      border: 1.5px solid #333;
+      border-radius: 2px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .item-list li .label-text {
+      flex: 1;
+    }
+
+    /* ── Signature section ── */
+    .sig-section {
+      margin-top: 12px;
+      border: 1.5px solid #1a2e6e;
+      padding: 10px 12px 8px;
+    }
+    .sig-section h3 {
+      font-size: 9.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      color: #1a2e6e;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #b0b8cc;
+      padding-bottom: 4px;
+    }
+    .sig-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 20px;
+    }
+    .sig-field label {
+      display: block;
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: #555;
+      margin-bottom: 2px;
+    }
+    .sig-field .sig-line {
+      border-bottom: 1.5px solid #333;
+      min-height: 26px;
+    }
+
+    /* ── Pass / Fail row ── */
+    .result-row {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid #ccc;
+    }
+    .result-row span {
+      font-size: 9pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: #333;
+    }
+    .result-row .choice {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 9.5pt;
+      font-weight: 700;
+    }
+    .result-row .choice .cb {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 1.5px solid #333;
+      border-radius: 2px;
+    }
+    .result-row .choice.pass .cb { border-color: #1a6e2e; }
+    .result-row .choice.fail .cb { border-color: #8b0000; }
+    .result-row .choice.pass { color: #1a6e2e; }
+    .result-row .choice.fail { color: #8b0000; }
+
+    /* ── Notes ── */
+    .notes-area {
+      margin-top: 10px;
+    }
+    .notes-area label {
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: #555;
+      display: block;
+      margin-bottom: 3px;
+    }
+    .notes-lines { margin-top: 2px; }
+    .notes-lines .line {
+      border-bottom: 1px solid #aaa;
+      height: 20px;
+      margin-bottom: 4px;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 12px;
+      font-size: 7.5pt;
+      color: #888;
+      text-align: center;
+      border-top: 1px solid #ddd;
+      padding-top: 6px;
+    }
+
+    /* ── Print media ── */
+    @media print {
+      body { background: #fff; padding: 0; }
+      .page {
+        max-width: 100%;
+        border: none;
+        box-shadow: none;
+        padding: 0.35in 0.4in 0.4in;
+      }
+      .no-print { display: none !important; }
+      @page { margin: 0.35in; size: letter portrait; }
+    }
+
+    /* ── Print button (screen only) ── */
+    .print-bar {
+      max-width: 8.5in;
+      margin: 0 auto 12px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+    .print-bar button {
+      background: #1a2e6e;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 9px 22px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: .3px;
+    }
+    .print-bar button:hover { background: #25409e; }
+  </style>
+</head>
+<body>
+
+  <div class="print-bar no-print">
+    <button onclick="window.print()">Print / Save as PDF</button>
+  </div>
+
+  <div class="page">
+
+    <!-- ── Header ── -->
+    <div class="header">
+      <img src="easi-logo.jpg" alt="EASI Logo" />
+      <div class="header-text">
+        <h1>Advanced EMT<br>Equipment Check-Off</h1>
+        <p>Rules for Emergency Medical Services &mdash; Minimum Equipment Inspection</p>
+      </div>
+      <div class="header-right">
+        Form Rev. 2025<br>
+        AEMT Equipment<br>
+        Inspection Record
+      </div>
+    </div>
+
+    <!-- ── Info Fields ── -->
+    <div class="info-grid">
+      <div class="field">
+        <label>Unit #</label>
+        <div class="line"></div>
+      </div>
+      <div class="field">
+        <label>Date</label>
+        <div class="line"></div>
+      </div>
+      <div class="field">
+        <label>Shift</label>
+        <div class="line"></div>
+      </div>
+      <div class="field">
+        <label>Station</label>
+        <div class="line"></div>
+      </div>
+      <div class="field field-wide">
+        <label>Crew Member 1 (Print Name)</label>
+        <div class="line"></div>
+      </div>
+      <div class="field field-wide">
+        <label>Crew Member 2 (Print Name)</label>
+        <div class="line"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 1 — SOFT SUPPLIES AND OTHER EQUIPMENT
+    ═══════════════════════════════════════════════════════ -->
+    <div class="section-header">Soft Supplies and Other Equipment</div>
+    <table class="equip-table">
+      <tr>
+        <td>
+          <ul class="item-list">
+            <li><span class="cb"></span><span class="label-text">4X4 Pads</span></li>
+            <li><span class="cb"></span><span class="label-text">ABD Pads</span></li>
+            <li><span class="cb"></span><span class="label-text">Trauma Dressing</span></li>
+            <li><span class="cb"></span><span class="label-text">Isolation Kits</span></li>
+            <li><span class="cb"></span><span class="label-text">Roller Gauze</span></li>
+            <li><span class="cb"></span><span class="label-text">Triangular Bandages</span></li>
+            <li><span class="cb"></span><span class="label-text">OB Kit w/Bulb Syringe</span></li>
+            <li><span class="cb"></span><span class="label-text">Sterile Saline</span></li>
+            <li><span class="cb"></span><span class="label-text">Betadine</span></li>
+            <li><span class="cb"></span><span class="label-text">Shears</span></li>
+            <li><span class="cb"></span><span class="label-text">Stethoscope</span></li>
+            <li><span class="cb"></span><span class="label-text">Hemostat</span></li>
+            <li><span class="cb"></span><span class="label-text">Scalpel</span></li>
+            <li><span class="cb"></span><span class="label-text">Blood Pressure Cuffs</span></li>
+            <li class="sub"><span class="cb"></span><span class="label-text">Large Adult</span></li>
+            <li class="sub"><span class="cb"></span><span class="label-text">Adult</span></li>
+            <li class="sub"><span class="cb"></span><span class="label-text">Child</span></li>
+            <li class="sub"><span class="cb"></span><span class="label-text">Infant</span></li>
+            <li><span class="cb"></span><span class="label-text">Alcohol Prep Pads</span></li>
+          </ul>
+        </td>
+        <td>
+          <ul class="item-list">
+            <li><span class="cb"></span><span class="label-text">Band Aids</span></li>
+            <li><span class="cb"></span><span class="label-text">Antiseptic Hand Cleaner</span></li>
+            <li><span class="cb"></span><span class="label-text">Exam Gloves (various sizes)</span></li>
+            <li><span class="cb"></span><span class="label-text">Emesis Basin/Bag</span></li>
+            <li><span class="cb"></span><span class="label-text">Commercial Tourniquet</span></li>
+            <li><span class="cb"></span><span class="label-text">Linens</span></li>
+            <li><span class="cb"></span><span class="label-text">Tape</span></li>
+            <li><span class="cb"></span><span class="label-text">Occlusive Dressing</span></li>
+            <li><span class="cb"></span><span class="label-text">Thermometer</span></li>
+            <li><span class="cb"></span><span class="label-text">Sharps Container</span></li>
+            <li><span class="cb"></span><span class="label-text">Glucometer w/strips</span></li>
+            <li><span class="cb"></span><span class="label-text">Time Critical Bands (Trauma/Stroke)</span></li>
+            <li><span class="cb"></span><span class="label-text">Triage Tag/Tape</span></li>
+            <li><span class="cb"></span><span class="label-text">Protocols</span></li>
+            <li><span class="cb"></span><span class="label-text">Biohazard Bags</span></li>
+            <li><span class="cb"></span><span class="label-text">N95 Respirator</span></li>
+            <li><span class="cb"></span><span class="label-text">Pediatric Dosage Guide (Pedi-Wheel, Tape)</span></li>
+            <li><span class="cb"></span><span class="label-text">Disinfectant Solution</span></li>
+          </ul>
+        </td>
+      </tr>
+    </table>
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 2 — AIRWAY, OXYGEN, AND SUCTION
+    ═══════════════════════════════════════════════════════ -->
+    <div class="section-header">Airway, Oxygen, and Suction</div>
+    <table class="equip-table">
+      <tr>
+        <td>
+          <ul class="item-list">
+            <li><span class="cb"></span><span class="label-text">Main O2</span></li>
+            <li><span class="cb"></span><span class="label-text">Portable O2</span></li>
+            <li><span class="cb"></span><span class="label-text">OPA Set</span></li>
+            <li><span class="cb"></span><span class="label-text">NPA Set</span></li>
+            <li><span class="cb"></span><span class="label-text">Lubricating Jelly</span></li>
+            <li><span class="cb"></span><span class="label-text">Nasal Cannula &ndash; Adult</span></li>
+            <li><span class="cb"></span><span class="label-text">Nasal Cannula &ndash; Pediatric</span></li>
+            <li><span class="cb"></span><span class="label-text">Suction &ndash; On-Board</span></li>
+            <li><span class="cb"></span><span class="label-text">Suction &ndash; Portable</span></li>
+            <li><span class="cb"></span><span class="label-text">Suction Tubing</span></li>
+            <li><span class="cb"></span><span class="label-text">Rigid Suction Tip</span></li>
+            <li><span class="cb"></span><span class="label-text">Suction Catheters</span></li>
+            <li class="sub"><span class="cb"></span><span class="label-text">8fr. or 10fr.</span></li>
+            <li class="sub"><span class="cb"></span><span class="label-text">12fr.</span></li>
+            <li class="sub"><span class="cb"></span><span class="label-text">14fr. or 18fr.</span></li>
+          </ul>
+        </td>
+        <td>
+          <ul class="item-list">
+            <li><span class="cb"></span><span class="label-text">NRB &ndash; Adult</span></li>
+            <li><span class="cb"></span><span class="label-text">NRB &ndash; Pediatric</span></li>
+            <li><span class="cb"></span><span class="label-text">NRB &ndash; Infant</span></li>
+            <li><span class="cb"></span><span class="label-text">BVM &ndash; Adult</span></li>
+            <li><span class="cb"></span><span class="label-text">BVM &ndash; Pediatric</span></li>
+            <li><span class="cb"></span><span class="label-text">BVM &ndash; Infant</span></li>
+            <li><span class="cb"></span><span class="label-text">Nebulizer Kit</span></li>
+            <li><span class="cb"></span><span class="label-text">Magill Forceps &ndash; Adult</span></li>
+            <li><span class="cb"></span><span class="label-text">Magill Forceps &ndash; Pediatric</span></li>
+            <li><span class="cb"></span><span class="label-text">Secondary Advanced Airway &ndash; Adult</span></li>
+            <li><span class="cb"></span><span class="label-text">Secondary Advanced Airway &ndash; Pediatric</span></li>
+          </ul>
+        </td>
+      </tr>
+    </table>
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 3 — MONITOR
+    ═══════════════════════════════════════════════════════ -->
+    <div class="section-header">Monitor</div>
+    <table class="equip-table">
+      <tr>
+        <td>
+          <ul class="item-list">
+            <li><span class="cb"></span><span class="label-text">Cardiac Monitor</span></li>
+            <li><span class="cb"></span><span class="label-text">Cardiac Monitor Cables</span></li>
+            <li><span class="cb"></span><span class="label-text">4 Lead</span></li>
+            <li><span class="cb"></span><span class="label-text">Defibrillator Pads/Paddles &ndash; Adult</span></li>
+            <li><span class="cb"></span><span class="label-text">Defibrillator Pads/Paddles &ndash; Pediatric</span></li>
+          </ul>
+        </td>
+        <td>
+          <ul class="item-list">
+            <li><span class="cb"></span><span class="label-text">Electrodes &ndash; Adult</span></li>
+            <li><span class="cb"></span><span class="label-text">Electrodes &ndash; Pediatric</span></li>
+            <li><span class="cb"></span><span class="label-text">Pulse Oximetry &ndash; Adult</span></li>
+            <li><span class="cb"></span><span class="label-text">Pulse Oximetry &ndash; Pediatric</span></li>
+          </ul>
+        </td>
+      </tr>
+    </table>
+
+    <!-- ── Notes ── -->
+    <div class="notes-area">
+      <label>Deficiencies / Notes</label>
+      <div class="notes-lines">
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="line"></div>
+      </div>
+    </div>
+
+    <!-- ── Result + Signatures ── -->
+    <div class="sig-section">
+      <h3>Inspection Result &amp; Signatures</h3>
+
+      <div class="result-row">
+        <span>Overall Result:</span>
+        <div class="choice pass"><span class="cb"></span> Pass</div>
+        <div class="choice fail"><span class="cb"></span> Fail / Deficiency Found</div>
+      </div>
+
+      <div class="sig-grid" style="margin-top:12px">
+        <div class="sig-field">
+          <label>Crew Member 1 Signature</label>
+          <div class="sig-line"></div>
+        </div>
+        <div class="sig-field">
+          <label>Date / Time</label>
+          <div class="sig-line"></div>
+        </div>
+        <div class="sig-field">
+          <label>Crew Member 2 Signature</label>
+          <div class="sig-line"></div>
+        </div>
+        <div class="sig-field">
+          <label>Date / Time</label>
+          <div class="sig-line"></div>
+        </div>
+        <div class="sig-field">
+          <label>Supervisor / Officer Signature</label>
+          <div class="sig-line"></div>
+        </div>
+        <div class="sig-field">
+          <label>Date / Time</label>
+          <div class="sig-line"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Footer ── -->
+    <div class="footer">
+      EASI &mdash; Advanced EMT Equipment Check-Off &bull; Rules for Emergency Medical Services &bull; Minimum Equipment Requirements
+    </div>
+
+  </div><!-- /.page -->
+
+</body>
+</html>

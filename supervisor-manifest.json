@@ -1,0 +1,15 @@
+{
+  "name": "PAT — Supervisor Tools",
+  "short_name": "Supervisor",
+  "description": "EASI Ambulance Service — Supervisor Tools",
+  "start_url": "supervisor.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b0d10",
+  "theme_color": "#0b0d10",
+  "icons": [
+    { "src": "supervisor-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "supervisor-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "supervisor-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
