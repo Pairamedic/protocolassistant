@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>EASI INC — Home</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="star-of-life.svg" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="EASI INC" />
+  <meta name="theme-color" content="#0b0d10" />
+  <style>
+    :root {
+      --bg: #0b0d10;
+      --card: #141820;
+      --border: rgba(255,255,255,.08);
+      --accent: #5eead4;
+      --muted: #8a94a7;
+      --text: #e6eef8;
+      --input-bg: #0f131a;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ── Auth Loading Spinner ── */
+    #auth-loading {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg); z-index: 999;
+      flex-direction: column; gap: 14px;
+    }
+    .spin {
+      display: inline-block; width: 32px; height: 32px;
+      border: 3px solid rgba(255,255,255,.12);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin-label { font-size: 14px; color: var(--muted); }
+
+    /* ── App Shell ── */
+    #app { display: none; flex-direction: column; min-height: 100vh; }
+
+    /* ── Header ── */
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .header-inner {
+      max-width: 860px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .header-brand {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .header-brand img {
+      width: 28px; height: 28px; flex-shrink: 0;
+    }
+    .header-brand-text {
+      font-size: 16px; font-weight: 700; color: var(--text); letter-spacing: .3px;
+    }
+    .header-right {
+      display: flex; align-items: center; gap: 10px;
+    }
+    #user-email-display {
+      font-size: 12px; color: var(--muted); max-width: 180px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .signout-btn {
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      padding: 7px 13px;
+      transition: background .15s, color .15s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .signout-btn:hover, .signout-btn:active {
+      background: rgba(255,255,255,.11); color: var(--text);
+    }
+
+    /* ── Main Content ── */
+    .content {
+      flex: 1;
+      padding: 20px 16px 32px;
+      max-width: 860px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* ── Date line ── */
+    .date-line {
+      font-size: 13px; color: var(--muted);
+      margin-bottom: 22px;
+      letter-spacing: .2px;
+    }
+
+    /* ── App Grid ── */
+    .app-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    /* ── App Card ── */
+    .app-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      text-decoration: none;
+      color: var(--text);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 16px 22px;
+      gap: 10px;
+      transition: background .15s, border-color .15s, transform .1s;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .app-card:hover {
+      background: rgba(20,24,32,.9);
+      border-color: rgba(255,255,255,.15);
+    }
+    .app-card:active {
+      transform: scale(0.97);
+      background: rgba(94,234,212,.07);
+      border-color: rgba(94,234,212,.25);
+    }
+
+    .card-icon {
+      font-size: 40px;
+      line-height: 1;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0;
+      line-height: 1.2;
+    }
+    .card-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    /* ── Role-hidden cards ── */
+    .role-hidden { display: none !important; }
+
+    /* ── Responsive: single column on very narrow screens ── */
+    @media (max-width: 320px) {
+      .app-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Auth loading spinner -->
+  <div id="auth-loading">
+    <div class="spin"></div>
+    <span class="spin-label">Loading…</span>
+  </div>
+
+  <!-- Dashboard (hidden until auth resolves) -->
+  <div id="app">
+    <header>
+      <div class="header-inner">
+        <div class="header-brand">
+          <img src="star-of-life.svg" alt="" />
+          <span class="header-brand-text">EASI INC</span>
+        </div>
+        <div class="header-right">
+          <span id="user-email-display"></span>
+          <button id="btn-signout" class="signout-btn">Sign Out</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+      <div id="date-line" class="date-line"></div>
+
+      <div class="app-grid">
+
+        <!-- PAT -->
+        <a href="ProtocolAssistant.html" class="app-card">
+          <div class="card-icon">📋</div>
+          <div class="card-title">PAT</div>
+          <div class="card-subtitle">Protocol Accessibility Tool</div>
+        </a>
+
+        <!-- RELAY -->
+        <a href="relay.html" class="app-card">
+          <div class="card-icon">🚑</div>
+          <div class="card-title">RELAY</div>
+          <div class="card-subtitle">Transfer Tracker</div>
+        </a>
+
+        <!-- Pearls -->
+        <a href="ProtocolAssistant.html?jump=pearls" class="app-card">
+          <div class="card-icon">💡</div>
+          <div class="card-title">Pearls</div>
+          <div class="card-subtitle">Clinical Reference</div>
+        </a>
+
+        <!-- Narrative -->
+        <a href="narrative.html" class="app-card">
+          <div class="card-icon">📝</div>
+          <div class="card-title">Narrative</div>
+          <div class="card-subtitle">PCR Narrative</div>
+        </a>
+
+        <!-- Supervisor Tools — role-restricted -->
+        <a id="card-supervisor" href="supervisor.html" class="app-card role-hidden">
+          <div class="card-icon">🗂</div>
+          <div class="card-title">Supervisor Tools</div>
+          <div class="card-subtitle">Shift Management</div>
+        </a>
+
+        <!-- Unit Check-Off -->
+        <a href="advanced-emt-checkoff.html" class="app-card">
+          <div class="card-icon">✅</div>
+          <div class="card-title">Unit Check-Off</div>
+          <div class="card-subtitle">Equipment Checklist</div>
+        </a>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey: "AIzaSyAcnp4uXeOgzuzIHpO5UL6Eq9fvhVHFs7Y",
+      authDomain: "emsprotocolapp.firebaseapp.com",
+      projectId: "emsprotocolapp",
+      storageBucket: "emsprotocolapp.firebasestorage.app",
+      messagingSenderId: "498482397906",
+      appId: "1:498482397906:web:5517abc5d83cf6cf15e30b"
+    });
+
+    const fbAuth = firebase.auth();
+
+    const ADMIN_EMAILS = new Set(['eliasacaldwellnrp@gmail.com']);
+    const SUPERVISOR_EMAILS = new Set(['smcdonel@easimedics.com']);
+
+    // Render today's date
+    (function renderDate() {
+      const el = document.getElementById('date-line');
+      const d = new Date();
+      el.textContent = d.toLocaleDateString('en-US', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      });
+    })();
+
+    fbAuth.onAuthStateChanged(function(user) {
+      if (!user) {
+        // Not signed in — redirect to login with returnTo
+        window.location.replace('index.html?returnTo=dashboard.html');
+        return;
+      }
+
+      // Show dashboard
+      document.getElementById('auth-loading').style.display = 'none';
+      const app = document.getElementById('app');
+      app.style.display = 'flex';
+
+      // Set user email safely (textContent only)
+      const emailEl = document.getElementById('user-email-display');
+      emailEl.textContent = user.email || '';
+
+      // Role-based card visibility
+      const isSupervisor = SUPERVISOR_EMAILS.has(user.email) || ADMIN_EMAILS.has(user.email);
+      if (isSupervisor) {
+        document.getElementById('card-supervisor').classList.remove('role-hidden');
+      }
+    });
+
+    document.getElementById('btn-signout').addEventListener('click', function() {
+      fbAuth.signOut();
+    });
+  </script>
+  <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(function(){});</script>
+</body>
+</html>
