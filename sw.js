@@ -1,4 +1,4 @@
-const CACHE = 'pat-v5';
+const CACHE = 'pat-v10';
 
 // Local app files — always pre-cached
 const LOCAL = [
@@ -6,6 +6,11 @@ const LOCAL = [
   './ProtocolAssistant.html',
   './supervisor.html',
   './narrative.html',
+  './dashboard.html',
+  './chart.html',
+  './resources.html',
+  './pearls.html',
+  './admin.html',
   './manifest.json',
   './star-of-life.svg',
   './icon-180.png',

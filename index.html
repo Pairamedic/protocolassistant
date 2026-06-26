@@ -119,6 +119,8 @@
     const fbDb  = firebase.firestore();
     const $ = id => document.getElementById(id);
 
+    const ADMIN_EMAILS = new Set(['eliasacaldwellnrp@gmail.com']);
+
     let _pendingTos = null;
     let _tosAccepted = !!localStorage.getItem('pat_tos_v1');
 
@@ -128,10 +130,11 @@
       });
     }
 
-    function destAfterLogin(){
+    function destAfterLogin(email){
       const p = new URLSearchParams(window.location.search).get('returnTo');
-      const allowed = ['supervisor.html','ProtocolAssistant.html','ClassManager.html'];
-      return (p && allowed.includes(p)) ? p : 'ProtocolAssistant.html';
+      const allowed = ['supervisor.html','ProtocolAssistant.html','ClassManager.html','dashboard.html','relay.html','chart.html','narrative.html','resources.html','pearls.html','admin.html'];
+      if(p && allowed.includes(p)) return p;
+      return ADMIN_EMAILS.has(email) ? 'dashboard.html' : 'ProtocolAssistant.html';
     }
 
     fbAuth.onAuthStateChanged(async user => {
@@ -144,7 +147,12 @@
           }catch(_){}
           _pendingTos = null;
         }
-        window.location.replace(destAfterLogin());
+        // merge user profile so admin can look up by email
+        fbDb.collection('users').doc(user.uid).set(
+          { email: (user.email || '').toLowerCase(), uid: user.uid, lastSeen: Date.now() },
+          { merge: true }
+        ).catch(() => {});
+        window.location.replace(destAfterLogin(user.email || ''));
       } else {
         $('loading').style.display = 'none';
         $('form-card').style.display = '';

@@ -425,7 +425,6 @@
           <div id="header-toolbar" class="toolbar">
             <button id="report-issue" class="btn" style="color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08);font-size:13px;padding:8px 12px">🚩 Report Issue</button>
             <a id="btn-pdf" href="#" class="btn hidden" style="color:#34d399;border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.08);font-size:13px;padding:8px 12px;text-decoration:none;display:inline-flex;align-items:center;gap:5px">📄 Protocols PDF</a>
-            <button id="btn-forms" class="btn" style="color:#c4b5fd;border-color:rgba(196,181,253,.35);background:rgba(196,181,253,.08);font-size:13px;padding:8px 12px">📋 Forms</button>
           </div>
           <div id="role-row" style="display:flex;gap:6px;align-items:center;margin-top:6px">
             <span style="font-size:11px;color:var(--muted);flex:none">Provider level:</span>
@@ -439,7 +438,6 @@
         <div class="tabs">
           <button class="tab active" data-tab="protocols">Protocols <span class="tab-cnt" id="tc-p"></span></button>
           <button class="tab" data-tab="meds">Meds <span class="tab-cnt" id="tc-m"></span></button>
-          <button class="tab" data-tab="resources">Resources</button>
           <button class="tab" data-tab="contacts">Contacts</button>
         </div>
         <div class="hint">Select an Ambulance Service. Data is saved automatically.</div>
@@ -483,8 +481,8 @@
       <div id="meds" class="grid"></div>
     </section>
 
-    <!-- Resources (Calculators + Peds Ref) -->
-    <section id="panel-resources" class="panel hidden">
+    <!-- Resources moved to resources.html -->
+    <section id="panel-resources" class="panel hidden" style="display:none!important">
 
       <!-- Quick-jump nav -->
       <div class="tab-filter">
@@ -5046,8 +5044,7 @@
   };
 
   // --- Tabs (with memory) ---
-  const TABS_ORDER = ['protocols','meds','resources','contacts'];
-  let _pedsRefInited = false;
+  const TABS_ORDER = ['protocols','meds','contacts'];
 
   function activateTab(tabName){
     const btn = document.querySelector(`[data-tab="${tabName}"]`);
@@ -5060,7 +5057,6 @@
     const tab = btn.dataset.tab;
     $$('.panel').forEach(p=> p.classList.add('hidden'));
     $('#panel-'+tab).classList.remove('hidden');
-    if(tab === 'resources' && !_pedsRefInited){ initPedsRef(); _pedsRefInited=true; }
     localStorage.setItem('pref_tab', tab);
   }));
 
@@ -5176,34 +5172,22 @@
   }
   function loadIntoCalc(name){
     const m = (svc().meds||[]).find(x=>x.name===name);
-    if(!m) return;
+    if(!m){ window.location.href = 'resources.html'; return; }
     const notes = m.notes || '';
     const isWeightBased = !!(m.default_mgkg != null || /\bmg\/kg\b|\bmcg\/kg\b|\bml\/kg\b/i.test(notes));
     const isInfusion = !isWeightBased && /\bmcg\/kg\/min\b|\binfusion\b/i.test(notes);
-    document.querySelector('[data-tab="resources"]').click();
-    setTimeout(()=>{
-      if(isWeightBased){
-        $('#calc-med').value = m.name;
-        $('#mgkg').value = m.default_mgkg ?? '';
-        $('#maxmg').value = m.max_mg ?? '';
-        $('#route').value = m.route || '';
-        jumpToSection('calc-body-weight');
-      } else if(isInfusion){
-        const dm = notes.match(/(\d+(?:\.\d+)?)\s*mcg\/kg\/min/i);
-        if(dm) $('#iv-ordered').value = dm[1];
-        const note = document.getElementById('iv-prefill-note');
-        if(note) note.textContent = dm ? `${m.name} — ${dm[1]} mcg/kg/min` : m.name;
-        jumpToSection('calc-body-iv');
-      } else {
-        const dm = notes.match(/(\d+(?:\.\d+)?)\s*(mg|mcg|g|mEq|units?)\b/i);
-        if(dm){
-          $('#std-dose-ordered').value = dm[1];
-          const note = document.getElementById('std-prefill-note');
-          if(note) note.textContent = `${m.name} — ${dm[1]} ${dm[2]}`;
-        }
-        jumpToSection('calc-body-std');
-      }
-    }, 50);
+    const params = new URLSearchParams({ med: name });
+    if(isWeightBased){
+      if(m.default_mgkg != null) params.set('mgkg', m.default_mgkg);
+      if(m.max_mg != null) params.set('maxmg', m.max_mg);
+      if(m.route) params.set('route', m.route);
+      params.set('section', 'calc-body-weight');
+    } else if(isInfusion){
+      params.set('section', 'calc-body-iv');
+    } else {
+      params.set('section', 'calc-body-std');
+    }
+    window.location.href = 'resources.html?' + params.toString();
   }
   window.loadIntoCalc = loadIntoCalc;
 
@@ -6243,9 +6227,8 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     window.location.reload(true);
   });
 
-  // --- Meds & Resources search bar init ---
+  // --- Meds & search bar init ---
   initMedsSearch();
-  initResSearch();
   initProtoSearch();
   initContactSearch();
 
@@ -7100,18 +7083,16 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     $$('.tab').forEach(b=>b.classList.remove('active'));
     $$('.panel').forEach(p=>p.classList.add('hidden'));
     $('#panel-shift').classList.remove('hidden');
-    _btnForms.style.background = 'rgba(196,181,253,.22)';
-    _btnForms.style.borderColor = 'rgba(196,181,253,.6)';
+    if(_btnForms){ _btnForms.style.background = 'rgba(196,181,253,.22)'; _btnForms.style.borderColor = 'rgba(196,181,253,.6)'; }
     localStorage.setItem('pref_tab','shift');
   }
 
   function closeForms(){
-    _btnForms.style.background = '';
-    _btnForms.style.borderColor = '';
+    if(_btnForms){ _btnForms.style.background = ''; _btnForms.style.borderColor = ''; }
     activateTab(_lastMainTab);
   }
 
-  _btnForms.addEventListener('click', ()=>{
+  if(_btnForms) _btnForms.addEventListener('click', ()=>{
     if(!$('#panel-shift').classList.contains('hidden')){ closeForms(); }
     else { openForms(); }
   });
@@ -7119,27 +7100,23 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   // Track last main tab so Forms "back" returns to it
   $$('.tab').forEach(btn=> btn.addEventListener('click', ()=>{
     _lastMainTab = btn.dataset.tab;
-    _btnForms.style.background = '';
-    _btnForms.style.borderColor = '';
+    if(_btnForms){ _btnForms.style.background = ''; _btnForms.style.borderColor = ''; }
   }));
 
   // --- Home Screen shortcut deep links (?jump=X) ---
   (function(){
     const jump = new URLSearchParams(location.search).get('jump');
     if (!jump) return;
-    const map = {
-      'drawup':     ['resources', 'calc-body-std'],
-      'rxinfusion': ['resources', 'calc-body-iv'],
-      'pqr':        ['resources', 'peds-ref-section'],
-      'gcs':        ['resources', 'calc-body-gcs'],
-      'stemi':      ['resources', 'calc-body-stemi'],
+    const resMap = {
+      'drawup': 'calc-body-std',
+      'rxinfusion': 'calc-body-iv',
+      'pqr': 'peds-ref-section',
+      'gcs': 'calc-body-gcs',
+      'stemi': 'calc-body-stemi',
     };
-    const target = map[jump];
-    if (!target) return;
-    setTimeout(() => {
-      activateTab(target[0]);
-      setTimeout(() => jumpToSection(target[1]), 250);
-    }, 400);
+    if (resMap[jump]) {
+      window.location.replace('resources.html?section=' + resMap[jump]);
+    }
   })();
 
   // --- Source protection (deterrents) ---
