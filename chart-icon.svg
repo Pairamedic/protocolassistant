@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.6" y2="1">
+      <stop offset="0%" stop-color="#111827"/>
+      <stop offset="100%" stop-color="#0b0d10"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+
+  <!-- Clipboard body -->
+  <rect x="124" y="96" width="264" height="320" rx="18" fill="#1e2535" stroke="rgba(255,255,255,.12)" stroke-width="3"/>
+
+  <!-- Clipboard clip at top -->
+  <rect x="208" y="82" width="96" height="34" rx="10" fill="#141820" stroke="rgba(255,255,255,.15)" stroke-width="2.5"/>
+  <rect x="228" y="90" width="56" height="18" rx="6" fill="#0b0d10"/>
+
+  <!-- Ruled lines (muted) -->
+  <line x1="160" y1="192" x2="352" y2="192" stroke="rgba(255,255,255,.07)" stroke-width="2"/>
+  <line x1="160" y1="228" x2="352" y2="228" stroke="rgba(255,255,255,.07)" stroke-width="2"/>
+  <line x1="160" y1="264" x2="352" y2="264" stroke="rgba(255,255,255,.07)" stroke-width="2"/>
+  <line x1="160" y1="300" x2="352" y2="300" stroke="rgba(255,255,255,.07)" stroke-width="2"/>
+  <line x1="160" y1="336" x2="280" y2="336" stroke="rgba(255,255,255,.07)" stroke-width="2"/>
+
+  <!-- EKG line glow layer -->
+  <polyline
+    points="148,264 194,264 210,246 226,264 236,276 250,188 264,282 278,264 300,232 330,264 364,264"
+    fill="none" stroke="#5eead4" stroke-width="14"
+    stroke-linecap="round" stroke-linejoin="round"
+    opacity="0.3" filter="url(#glow)"/>
+
+  <!-- EKG line main -->
+  <polyline
+    points="148,264 194,264 210,246 226,264 236,276 250,188 264,282 278,264 300,232 330,264 364,264"
+    fill="none" stroke="#5eead4" stroke-width="11"
+    stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
