@@ -264,12 +264,12 @@
           </a>
         </div>
 
-        <!-- RELAY -->
-        <div id="card-relay" class="card-wrap">
-          <a href="relay.html" class="app-card">
-            <div class="card-icon">🚑</div>
-            <div class="card-title">RELAY</div>
-            <div class="card-subtitle">Transfer Tracker</div>
+        <!-- CHART -->
+        <div id="card-chart" class="card-wrap">
+          <a href="chart.html" class="app-card">
+            <div class="card-icon">📋</div>
+            <div class="card-title">CHART</div>
+            <div class="card-subtitle">Intervention Logger</div>
           </a>
         </div>
 
@@ -367,7 +367,7 @@
       // apps = array of app IDs the user can access, or null = all (admin)
       const APP_CARDS = {
         pat:        document.getElementById('card-pat'),
-        relay:      document.getElementById('card-relay'),
+        chart:      document.getElementById('card-chart'),
         pearls:     document.getElementById('card-pearls'),
         narrative:  document.getElementById('card-narrative'),
         checkoff:   document.getElementById('card-checkoff'),
@@ -432,7 +432,7 @@
     // ── Admin Panel Logic ──
 
     const APP_LIST = [
-      { id: 'relay',      label: 'RELAY — Transfer Tracker' },
+      { id: 'chart',      label: 'CHART — Intervention Logger' },
       { id: 'pearls',     label: 'Pearls — Clinical Reference' },
       { id: 'narrative',  label: 'Narrative — PCR Builder' },
       { id: 'checkoff',   label: 'Unit Check-Off' },
