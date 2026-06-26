@@ -1193,25 +1193,6 @@
   </div><!-- /app-shell -->
 
   <!-- Report Issue Modal -->
-  <!-- TOS / Disclaimer Modal (shown once per session after login) -->
-  <div id="tos-overlay" class="modal-overlay hidden">
-    <div class="modal-box" style="max-width:480px;text-align:center">
-      <div style="font-size:36px;margin-bottom:12px">⚠️</div>
-      <h3 style="margin:0 0 12px;font-size:17px">Reference Guide Only</h3>
-      <p style="color:var(--muted);font-size:14px;line-height:1.6;text-align:left;margin:0 0 12px">
-        This app is a <strong style="color:var(--text)">clinical reference tool only.</strong>
-        Nothing displayed here authorizes, replaces, or overrides your agency's
-        medical director–approved protocols or your state's defined scope of practice.
-        All providers must verify medications, doses, and procedures against their
-        service's official protocols before administration.
-      </p>
-      <p style="color:var(--muted);font-size:14px;line-height:1.6;text-align:left;margin:0 0 20px">
-        <strong style="color:var(--text)">Calculators</strong> use standard EMS formulas
-        and must be independently verified for accuracy before use in patient care.
-      </p>
-      <button id="tos-accept" class="btn primary" style="width:100%;font-size:15px;padding:14px">I Understand — Continue</button>
-    </div>
-  </div>
 
   <div id="report-overlay" class="modal-overlay hidden">
     <div class="modal-box" style="max-width:480px">
@@ -6168,22 +6149,12 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       syncFormsService();
       loadFormsFromFirebase();
       acquireWakeLock();
-      if(!sessionStorage.getItem('tos_ok')) showTOS();
     } else {
       window.location.replace('index.html');
     }
   });
 
   $('#auth-logout').addEventListener('click', () => { $('#settings-menu').classList.add('hidden'); fbAuth.signOut(); });
-
-  // --- TOS / Disclaimer (once per session) ---
-  function showTOS(){
-    $('#tos-overlay').classList.remove('hidden');
-  }
-  $('#tos-accept').addEventListener('click', ()=>{
-    sessionStorage.setItem('tos_ok','1');
-    $('#tos-overlay').classList.add('hidden');
-  });
 
   // --- Calc card collapse toggles ---
   document.querySelectorAll('.calc-toggle').forEach(h3 => {

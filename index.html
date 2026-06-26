@@ -61,12 +61,6 @@
       <p style="font-size:11px;letter-spacing:.6px;text-transform:uppercase;font-weight:600;color:var(--muted);margin:2px 0 0">Protocol Accessibility Tool</p>
     </div>
 
-    <!-- Name fields — first-timers only -->
-    <div id="tos-names" class="name-row">
-      <div class="fg"><label>First Name</label><input id="tos-first" type="text" autocomplete="given-name" placeholder="First" /></div>
-      <div class="fg"><label>Last Name</label><input id="tos-last" type="text" autocomplete="family-name" placeholder="Last" /></div>
-    </div>
-
     <div class="fg">
       <label>Email</label>
       <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" />
@@ -129,7 +123,7 @@
     let _tosAccepted = !!localStorage.getItem('pat_tos_v1');
 
     function hideTosElements(){
-      ['tos-names','tos-agree-row','tos-disclaimer'].forEach(id => {
+      ['tos-agree-row','tos-disclaimer'].forEach(id => {
         const el = $(id); if(el) el.style.display = 'none';
       });
     }
@@ -155,7 +149,7 @@
         $('loading').style.display = 'none';
         $('form-card').style.display = '';
         if(_tosAccepted) hideTosElements();
-        setTimeout(() => $(_tosAccepted ? 'email' : 'tos-first').focus(), 50);
+        setTimeout(() => $('email').focus(), 50);
       }
     });
 
@@ -180,13 +174,12 @@
 
     function tosValid(){
       if(_tosAccepted) return true;
-      return $('tos-agree').checked && $('tos-first').value.trim() && $('tos-last').value.trim();
+      return $('tos-agree').checked;
     }
 
     function captureTos(){
       if(_tosAccepted) return;
-      const first = $('tos-first').value.trim(), last = $('tos-last').value.trim();
-      const tosRecord = {first, last, ts: Date.now()};
+      const tosRecord = {ts: Date.now()};
       localStorage.setItem('pat_tos_v1', JSON.stringify(tosRecord));
       _pendingTos = tosRecord;
       _tosAccepted = true;
@@ -195,7 +188,7 @@
     $('btn-login').addEventListener('click', async () => {
       const email = $('email').value.trim(), pass = $('pass').value;
       setMsg('');
-      if(!tosValid()){ setMsg('Enter your name and agree to the terms below.'); return; }
+      if(!tosValid()){ setMsg('Please agree to the terms below.'); return; }
       if(!email || !pass){ setMsg('Enter email and password.'); return; }
       captureTos();
       const persistence = $('remember-me').checked
@@ -210,7 +203,7 @@
     $('btn-register').addEventListener('click', async () => {
       const email = $('email').value.trim(), pass = $('pass').value;
       setMsg('');
-      if(!tosValid()){ setMsg('Enter your name and agree to the terms below.'); return; }
+      if(!tosValid()){ setMsg('Please agree to the terms below.'); return; }
       if(!email || !pass){ setMsg('Enter email and password.'); return; }
       captureTos();
       try{ await fbAuth.createUserWithEmailAndPassword(email, pass); }
