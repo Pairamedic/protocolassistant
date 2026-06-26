@@ -128,10 +128,13 @@
       });
     }
 
-    function destAfterLogin(){
+    const ADMIN_EMAILS = new Set(['eliasacaldwellnrp@gmail.com']);
+
+    function destAfterLogin(email){
       const p = new URLSearchParams(window.location.search).get('returnTo');
       const allowed = ['supervisor.html','ProtocolAssistant.html','ClassManager.html','dashboard.html','relay.html','narrative.html'];
-      return (p && allowed.includes(p)) ? p : 'dashboard.html';
+      if(p && allowed.includes(p)) return p;
+      return ADMIN_EMAILS.has(email) ? 'dashboard.html' : 'ProtocolAssistant.html';
     }
 
     fbAuth.onAuthStateChanged(async user => {
@@ -144,7 +147,7 @@
           }catch(_){}
           _pendingTos = null;
         }
-        window.location.replace(destAfterLogin());
+        window.location.replace(destAfterLogin(user.email || ''));
       } else {
         $('loading').style.display = 'none';
         $('form-card').style.display = '';
