@@ -710,6 +710,7 @@
         display: flex;
         position: fixed;
         bottom: 0; left: 0; right: 0;
+        transition: transform .25s ease;
         background: rgba(13, 17, 24, .97);
         border-top: 1px solid var(--border);
         z-index: 200;
@@ -6662,6 +6663,29 @@ function showAppUpdateBanner(reg) {
     }
   });
 }
+
+// Auto-hide bottom nav on scroll down, reveal on scroll up
+(function(){
+  const nav = document.querySelector('.mobile-nav');
+  if(!nav) return;
+  let lastY = window.scrollY, ticking = false;
+  window.addEventListener('scroll', () => {
+    if(ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const y = window.scrollY;
+      if(y < 60) {
+        nav.style.transform = '';
+      } else if(y > lastY + 6) {
+        nav.style.transform = 'translateY(calc(100% + env(safe-area-inset-bottom, 0px)))';
+      } else if(y < lastY - 6) {
+        nav.style.transform = '';
+      }
+      lastY = y;
+      ticking = false;
+    });
+  }, { passive: true });
+})();
 </script>
 </body>
 </html>
