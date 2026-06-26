@@ -367,6 +367,20 @@
     :root.light .contact-btn-mail{background:rgba(37,99,235,.08);color:#2563eb;border-color:rgba(37,99,235,.25)}
     .contact-hours{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.35);letter-spacing:.3px;text-transform:uppercase;align-self:flex-start}
     /* resources quick-nav bar */
+    .rhythm-pill{padding:5px 12px;border-radius:14px;font-size:12px;font-weight:700;border:1.5px solid;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+    .rhythm-pill.active{color:#0b0d10 !important}
+    .rhythm-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+    .rhythm-card-name{font-size:16px;font-weight:800;margin-bottom:4px}
+    .rhythm-meta{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+    .rhythm-meta-chip{font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;background:rgba(255,255,255,.07);color:var(--muted)}
+    .rhythm-criteria{list-style:none;padding:0;margin:8px 0;display:flex;flex-direction:column;gap:4px}
+    .rhythm-criteria li{font-size:13px;padding-left:16px;position:relative;color:var(--text)}
+    .rhythm-criteria li::before{content:"•";position:absolute;left:2px;color:var(--accent)}
+    .rhythm-warn{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);border-radius:8px;padding:8px 12px;font-size:12px;color:#fbbf24;margin-top:8px}
+    .rhythm-action{background:rgba(94,234,212,.06);border:1px solid rgba(94,234,212,.2);border-radius:8px;padding:8px 12px;margin-top:8px}
+    .rhythm-action-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--accent);margin-bottom:6px}
+    .rhythm-action ul{margin:0;padding-left:16px;display:flex;flex-direction:column;gap:3px}
+    .rhythm-action ul li{font-size:12px;color:var(--text)}
   </style>
 </head>
 <body>
@@ -512,6 +526,43 @@
         </div>
         <div id="peds-strip" class="brose-strip"></div>
         <div id="peds-result" class="brose-empty" style="display:none"></div>
+
+        <!-- Apgar embedded in PQR -->
+        <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" id="pqr-apgar-toggle">
+            <span style="font-size:12px;font-weight:700;color:#c084fc;text-transform:uppercase;letter-spacing:.7px">👶 APGAR Score</span>
+            <span id="pqr-apgar-chev" style="font-size:11px;color:var(--muted)">▾</span>
+          </div>
+          <div id="pqr-apgar-body" style="display:none;margin-top:10px">
+            <div class="calc-grid g2">
+              <div class="calc-field">
+                <label>Appearance</label>
+                <select id="pqr-apgar-a"><option value="0">0 — Blue/Pale all over</option><option value="1">1 — Body pink, limbs blue</option><option value="2">2 — Completely pink</option></select>
+              </div>
+              <div class="calc-field">
+                <label>Pulse</label>
+                <select id="pqr-apgar-p"><option value="0">0 — Absent</option><option value="1">1 — &lt;100 bpm</option><option value="2">2 — ≥100 bpm</option></select>
+              </div>
+              <div class="calc-field">
+                <label>Grimace / Reflex</label>
+                <select id="pqr-apgar-g"><option value="0">0 — No response</option><option value="1">1 — Grimace</option><option value="2">2 — Cough / Sneeze / Cry</option></select>
+              </div>
+              <div class="calc-field">
+                <label>Activity / Tone</label>
+                <select id="pqr-apgar-ac"><option value="0">0 — Limp</option><option value="1">1 — Some flexion</option><option value="2">2 — Active motion</option></select>
+              </div>
+              <div class="calc-field">
+                <label>Respiration</label>
+                <select id="pqr-apgar-r"><option value="0">0 — Absent</option><option value="1">1 — Slow / Irregular</option><option value="2">2 — Good cry</option></select>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <button id="pqr-apgar-calc" class="calc-btn primary">Score</button>
+              <button id="pqr-apgar-reset" class="calc-btn secondary">Reset</button>
+            </div>
+            <div id="pqr-apgar-result" class="calc-result"></div>
+          </div>
+        </div>
       </div>
 
       <!-- ── DOSE CALCULATORS ── -->
@@ -575,10 +626,28 @@
           <span class="calc-chev">▾</span>
         </div>
         <div class="calc-card-body" id="calc-body-std">
-          <p class="calc-hint">(Dose ordered ÷ Dose on hand) × Volume on hand = mL to draw</p>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+            <p class="calc-hint" style="margin:0;flex:1">(Dose ordered ÷ Dose on hand) × Volume on hand = mL to draw</p>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--muted);white-space:nowrap;user-select:none">
+              <span>⚖️ Weight-Based</span>
+              <div id="std-wt-toggle" role="switch" aria-checked="false" style="width:36px;height:20px;border-radius:10px;background:rgba(255,255,255,.12);border:1px solid var(--border);position:relative;cursor:pointer;transition:background .15s;flex-shrink:0">
+                <div id="std-wt-knob" style="width:14px;height:14px;border-radius:50%;background:var(--muted);position:absolute;top:2px;left:2px;transition:left .15s,background .15s"></div>
+              </div>
+            </label>
+          </div>
+          <!-- Weight row (hidden unless toggle is on) -->
+          <div id="std-wt-row" style="display:none;margin-bottom:10px">
+            <div class="calc-field">
+              <label>Patient Weight</label>
+              <div class="wt-row">
+                <input id="std-wt" type="number" inputmode="decimal" placeholder="e.g. 70" />
+                <select id="std-wt-unit"><option value="kg">kg</option><option value="lb">lb</option></select>
+              </div>
+            </div>
+          </div>
           <div class="calc-grid g3">
             <div class="calc-field">
-              <label>Dose ordered</label>
+              <label id="std-ordered-label">Dose ordered</label>
               <input id="std-dose-ordered" type="number" inputmode="decimal" placeholder="e.g. 5" />
               <div id="std-prefill-note" style="font-size:11px;color:var(--accent);margin-top:3px;min-height:14px"></div>
             </div>
@@ -606,14 +675,14 @@
       <!-- ── IV INFUSION & DRIP ── -->
       <div class="calc-section-hd">
         <span class="calc-section-dot" style="background:#7dd3fc"></span>
-        <span class="calc-section-title" style="color:#7dd3fc">IV Infusion &amp; Drip</span>
+        <span class="calc-section-title" style="color:#7dd3fc">Rx Infusion &amp; Drip</span>
       </div>
 
       <div class="calc-card">
         <div class="calc-card-hd calc-toggle" data-target="calc-body-iv">
           <div class="calc-card-title">
             <div class="calc-icon" style="background:rgba(125,211,252,.12)">💉</div>
-            IV Infusion (mcg/kg/min)
+            Rx Infusion (mcg/kg/min)
           </div>
           <span class="calc-chev">▾</span>
         </div>
@@ -737,6 +806,27 @@
         </div>
       </div>
 
+      <!-- ── RHYTHM RECOGNITION ── -->
+      <div class="calc-section-hd">
+        <span class="calc-section-dot" style="background:#f97316"></span>
+        <span class="calc-section-title" style="color:#f97316">Rhythm Recognition</span>
+      </div>
+
+      <div class="calc-card">
+        <div class="calc-card-hd calc-toggle" data-target="calc-body-rhythm">
+          <div class="calc-card-title">
+            <div class="calc-icon" style="background:rgba(249,115,22,.12)">〜</div>
+            Rhythm Recognition
+          </div>
+          <span class="calc-chev">▾</span>
+        </div>
+        <div class="calc-card-body" id="calc-body-rhythm">
+          <p class="calc-hint">Select a rhythm to see key criteria, clinical significance, and EMS action steps.</p>
+          <div id="rhythm-picker" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px"></div>
+          <div id="rhythm-result"></div>
+        </div>
+      </div>
+
       <!-- ── ASSESSMENT ── -->
       <div class="calc-section-hd">
         <span class="calc-section-dot" style="background:#c084fc"></span>
@@ -822,9 +912,11 @@
           <span class="calc-chev">▾</span>
         </div>
         <div class="calc-card-body" id="calc-body-stemi">
-          <p class="calc-hint">Select leads with ST elevation and ST depression to identify the probable STEMI territory, culprit artery, and reciprocal changes. Based on standard 12-lead localization principles.</p>
-          <div style="margin-bottom:14px">
-            <div style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:rgba(248,113,113,.9);margin-bottom:8px">ST Elevation (select all that apply)</div>
+          <p class="calc-hint">Mark ST elevation and depression on the standard leads. Use extended leads for posterior/RV assessment. Results include territory, culprit artery, reciprocal changes, and clinical alerts.</p>
+
+          <!-- Standard 12 leads - elevation -->
+          <div style="margin-bottom:12px">
+            <div style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:rgba(248,113,113,.9);margin-bottom:8px">ST Elevation</div>
             <div class="stemi-lead-grid" id="stemi-elev-leads">
               <label class="stemi-lead-btn"><input type="checkbox" value="I" /><span>I</span></label>
               <label class="stemi-lead-btn"><input type="checkbox" value="II" /><span>II</span></label>
@@ -840,8 +932,10 @@
               <label class="stemi-lead-btn"><input type="checkbox" value="V6" /><span>V6</span></label>
             </div>
           </div>
-          <div style="margin-bottom:14px">
-            <div style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:rgba(96,165,250,.9);margin-bottom:8px">ST Depression (select all that apply)</div>
+
+          <!-- Standard 12 leads - depression -->
+          <div style="margin-bottom:12px">
+            <div style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:rgba(96,165,250,.9);margin-bottom:8px">ST Depression / Reciprocal</div>
             <div class="stemi-lead-grid" id="stemi-dep-leads">
               <label class="stemi-lead-btn dep"><input type="checkbox" value="I" /><span>I</span></label>
               <label class="stemi-lead-btn dep"><input type="checkbox" value="II" /><span>II</span></label>
@@ -857,8 +951,36 @@
               <label class="stemi-lead-btn dep"><input type="checkbox" value="V6" /><span>V6</span></label>
             </div>
           </div>
+
+          <!-- Extended leads toggle -->
+          <div style="margin-bottom:12px">
+            <div style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none" id="stemi-ext-toggle">
+              <span style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Extended Leads (Posterior / Right-Sided)</span>
+              <span id="stemi-ext-chev" style="font-size:10px;color:var(--muted)">▾</span>
+            </div>
+            <div id="stemi-ext-body" style="display:none;margin-top:8px">
+              <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Posterior leads (elevation = posterior STEMI) · Right-sided leads (elevation = RV STEMI)</div>
+              <div style="font-size:10px;font-weight:700;color:rgba(248,113,113,.7);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px">Elevation in Extended Leads</div>
+              <div class="stemi-lead-grid" id="stemi-ext-leads">
+                <label class="stemi-lead-btn"><input type="checkbox" value="V7" /><span>V7</span></label>
+                <label class="stemi-lead-btn"><input type="checkbox" value="V8" /><span>V8</span></label>
+                <label class="stemi-lead-btn"><input type="checkbox" value="V9" /><span>V9</span></label>
+                <label class="stemi-lead-btn"><input type="checkbox" value="V3R" /><span>V3R</span></label>
+                <label class="stemi-lead-btn"><input type="checkbox" value="V4R" /><span>V4R</span></label>
+              </div>
+            </div>
+          </div>
+
+          <!-- LBBB indicator -->
+          <div style="margin-bottom:14px;display:flex;align-items:center;gap:8px">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--muted);user-select:none">
+              <input type="checkbox" id="stemi-lbbb" style="accent-color:var(--accent)" />
+              <span>Known or suspected LBBB present (apply Sgarbossa criteria)</span>
+            </label>
+          </div>
+
           <div class="calc-actions">
-            <button id="stemi-calc" class="calc-btn primary">Localize STEMI</button>
+            <button id="stemi-calc" class="calc-btn primary">Analyze 12-Lead</button>
             <button id="stemi-reset" class="calc-btn secondary">Reset</button>
           </div>
           <div id="stemi-result" class="calc-result"></div>
@@ -5156,19 +5278,77 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   document.querySelector('#pump-result').innerHTML = '';
 });
 
+  // Draw-Up Calc — weight-based toggle
+  let _stdWtOn = false;
+  const _stdToggle = document.getElementById('std-wt-toggle');
+  const _stdKnob   = document.getElementById('std-wt-knob');
+  const _stdWtRow  = document.getElementById('std-wt-row');
+  const _stdLabel  = document.getElementById('std-ordered-label');
+  _stdToggle.addEventListener('click', ()=>{
+    _stdWtOn = !_stdWtOn;
+    _stdToggle.style.background = _stdWtOn ? 'rgba(94,234,212,.35)' : 'rgba(255,255,255,.12)';
+    _stdKnob.style.left  = _stdWtOn ? '18px' : '2px';
+    _stdKnob.style.background = _stdWtOn ? 'var(--accent)' : 'var(--muted)';
+    _stdToggle.setAttribute('aria-checked', _stdWtOn);
+    _stdWtRow.style.display = _stdWtOn ? '' : 'none';
+    _stdLabel.textContent = _stdWtOn ? 'Dose (per kg)' : 'Dose ordered';
+    $('#std-result').innerHTML = '';
+  });
+
   // Standard Dose → Volume
   $('#std-calc').addEventListener('click', ()=>{
-    const ordered = parseFloat($('#std-dose-ordered').value||'0');
+    let ordered = parseFloat($('#std-dose-ordered').value||'0');
     const onhand = parseFloat($('#std-dose-onhand').value||'0');
     const vol = parseFloat($('#std-vol-onhand').value||'0');
     const conc = parseFloat($('#std-conc').value||'0');
+    if(_stdWtOn){
+      let wt = parseFloat(document.getElementById('std-wt').value||'0');
+      wt = toKg(wt, document.getElementById('std-wt-unit').value);
+      if(!wt){ $('#std-result').innerHTML='Enter patient weight.'; return; }
+      ordered = ordered * wt;
+    }
     let mL = NaN;
-    if(ordered && onhand && vol){ mL = (ordered/onhand)*vol }
-    else if(ordered && conc){ mL = ordered/conc }
-    const txt = isFinite(mL) ? `Draw: <b>${fmt(mL,2)} mL</b>` : 'Enter ordered + on‑hand + volume, or ordered + concentration.';
+    if(ordered && onhand && vol){ mL = (ordered/onhand)*vol; }
+    else if(ordered && conc){ mL = ordered/conc; }
+    const wtNote = _stdWtOn ? ` (${fmt(ordered,2)} mg total dose)` : '';
+    const txt = isFinite(mL) ? `Draw: <b>${fmt(mL,2)} mL</b>${wtNote}` : 'Enter ordered + on‑hand + volume, or ordered + concentration.';
     $('#std-result').innerHTML = txt;
   });
-  $('#std-reset').addEventListener('click', ()=>{ ['std-dose-ordered','std-dose-onhand','std-vol-onhand','std-conc'].forEach(id=> $('#'+id).value=''); $('#std-result').innerHTML=''; const n=document.getElementById('std-prefill-note'); if(n) n.textContent=''; });
+  $('#std-reset').addEventListener('click', ()=>{
+    ['std-dose-ordered','std-dose-onhand','std-vol-onhand','std-conc','std-wt'].forEach(id=>{ const el=$('#'+id); if(el) el.value=''; });
+    $('#std-result').innerHTML='';
+    const n=document.getElementById('std-prefill-note'); if(n) n.textContent='';
+    if(_stdWtOn){
+      _stdWtOn=false; _stdToggle.style.background='rgba(255,255,255,.12)'; _stdKnob.style.left='2px';
+      _stdKnob.style.background='var(--muted)'; _stdToggle.setAttribute('aria-checked',false);
+      _stdWtRow.style.display='none'; _stdLabel.textContent='Dose ordered';
+    }
+  });
+
+  // PQR embedded Apgar
+  document.getElementById('pqr-apgar-toggle').addEventListener('click', ()=>{
+    const body = document.getElementById('pqr-apgar-body');
+    const chev = document.getElementById('pqr-apgar-chev');
+    const open = body.style.display !== 'none';
+    body.style.display = open ? 'none' : '';
+    chev.textContent = open ? '▾' : '▴';
+  });
+  document.getElementById('pqr-apgar-calc').addEventListener('click', ()=>{
+    const vals = ['pqr-apgar-a','pqr-apgar-p','pqr-apgar-g','pqr-apgar-ac','pqr-apgar-r']
+      .map(id => parseInt(document.getElementById(id).value||'0'));
+    const score = vals.reduce((a,b)=>a+b, 0);
+    let interp, color;
+    if(score >= 7)      { interp='Normal — reassess at 5 min';       color='#4ade80'; }
+    else if(score >= 4) { interp='Moderate concern — stimulate, O₂';  color='#fbbf24'; }
+    else                { interp='Severe — immediate resuscitation';   color='#f87171'; }
+    document.getElementById('pqr-apgar-result').innerHTML =
+      `Score: <b style="font-size:22px;color:${color}">${score}/10</b> — <span style="color:${color}">${interp}</span>`;
+  });
+  document.getElementById('pqr-apgar-reset').addEventListener('click', ()=>{
+    ['pqr-apgar-a','pqr-apgar-p','pqr-apgar-g','pqr-apgar-ac','pqr-apgar-r']
+      .forEach(id=>{ document.getElementById(id).selectedIndex=0; });
+    document.getElementById('pqr-apgar-result').innerHTML='';
+  });
 
   // IV Infusion gtts/min
   $('#iv-calc').addEventListener('click', ()=>{
@@ -5258,109 +5438,380 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   });
   $('#vent-reset').addEventListener('click', ()=>{ $('#vent-height').value=''; $('#vent-sex').selectedIndex=0; $('#vent-hunit').selectedIndex=0; $('#vent-result').innerHTML=''; });
 
+  // --- Rhythm Recognition ---
+  const RHYTHMS = [
+    // ── NORMAL ──
+    { id:'nsr', name:'Normal Sinus Rhythm', group:'Normal', color:'#4ade80',
+      rate:'60–100 bpm', p:'Present, upright in II, inverted in aVR', pr:'0.12–0.20 s', qrs:'≤0.12 s (narrow)', reg:'Regular',
+      criteria:['Rate 60–100 bpm','P wave precedes every QRS','Consistent PR interval (0.12–0.20 s)','QRS narrow (≤0.12 s)','Normal P axis (upright II, inverted aVR)'],
+      warning:null,
+      action:['No treatment needed for the rhythm itself','Investigate underlying cause if patient symptomatic'] },
+
+    // ── BRADYCARDIAS ──
+    { id:'sbrad', name:'Sinus Bradycardia', group:'Brady',color:'#fbbf24',
+      rate:'< 60 bpm', p:'Present, upright in II', pr:'Normal 0.12–0.20 s', qrs:'Narrow ≤0.12 s', reg:'Regular',
+      criteria:['Rate < 60 bpm','Normal P wave before every QRS','Normal PR and QRS'],
+      warning:'Symptomatic (hypotension, AMS, chest pain, syncope) → treat immediately.',
+      action:['Assess symptoms and hemodynamic stability','Atropine 0.5 mg IV; repeat q3–5 min (max 3 mg)','If unresponsive to atropine → TCP (transcutaneous pacing)','Consider reversible causes: hypoxia, hypothermia, β-blocker/CCB OD, ↑ICP, inferior STEMI'] },
+
+    { id:'jxn', name:'Junctional Rhythm', group:'Brady', color:'#fbbf24',
+      rate:'40–60 bpm', p:'Absent, retrograde (inverted in II/III/aVF), or buried in QRS', pr:'Short (<0.12 s) or unmeasurable', qrs:'Narrow ≤0.12 s (usually)', reg:'Regular',
+      criteria:['Rate 40–60 bpm','No visible P wave OR retrograde P (inverted in II, III, aVF)','Narrow QRS (unless aberrancy)'],
+      warning:'AV node is pacing — SA node has failed. Can deteriorate.',
+      action:['Treat same as symptomatic bradycardia','Atropine 0.5 mg IV (may have limited effect)','TCP if hemodynamically unstable','Identify cause: inferior MI, digoxin toxicity, sick sinus syndrome'] },
+
+    { id:'idio', name:'Idioventricular Rhythm', group:'Brady', color:'#f87171',
+      rate:'20–40 bpm (ventricular escape)', p:'Absent or dissociated', pr:'None', qrs:'Wide ≥0.12 s, bizarre morphology', reg:'Regular to slightly irregular',
+      criteria:['Rate 20–40 bpm','Wide, bizarre QRS','No associated P waves (or AV dissociation)'],
+      warning:'Extremely low output — near-arrest rhythm. Do NOT suppress with lidocaine (it IS the escape rhythm).',
+      action:['Do NOT give lidocaine — may eliminate the only remaining rhythm','Assess pulse — if pulseless → PEA protocol','If pulse present: TCP, atropine (usually ineffective at this rate)','Prepare for cardiac arrest'] },
+
+    // ── AV BLOCKS ──
+    { id:'avb1', name:'1st Degree AV Block', group:'AV Block', color:'#86efac',
+      rate:'Usually normal (60–100)', p:'Present, before every QRS', pr:'> 0.20 s (prolonged)', qrs:'Narrow', reg:'Regular',
+      criteria:['PR interval > 0.20 s (one large box)','Every P conducts to QRS','Not a true "block" — just delayed conduction'],
+      warning:'Usually benign; can progress in setting of inferior MI or drug toxicity.',
+      action:['No treatment required for the block itself','Monitor; document baseline PR interval','Consider cause: increased vagal tone, digoxin, β-blockers, inferior MI'] },
+
+    { id:'avb2m1', name:'2nd Degree AV Block — Mobitz I (Wenckebach)', group:'AV Block', color:'#fbbf24',
+      rate:'Atrial rate normal; ventricular rate slightly slower', p:'Present, more P waves than QRS complexes', pr:'Progressively lengthens until a QRS is dropped', qrs:'Narrow (usually)', reg:'Regularly irregular (grouped beating)',
+      criteria:['PR interval lengthens with each beat','Eventually a QRS is dropped','Pattern repeats in cycles','"Footprints in the sand" — grouped beating'],
+      warning:'Usually benign when narrow QRS; can indicate inferior MI.',
+      action:['Usually no treatment if asymptomatic','If symptomatic: Atropine 0.5 mg IV','Monitor closely if in context of acute inferior MI','Rarely progresses to complete block (narrow QRS Wenckebach)'] },
+
+    { id:'avb2m2', name:'2nd Degree AV Block — Mobitz II', group:'AV Block', color:'#f87171',
+      rate:'Atrial rate normal; ventricular rate slower', p:'More P waves than QRS; ratio fixed (2:1, 3:1)', pr:'Constant (does not lengthen) until QRS drops', qrs:'Usually wide ≥0.12 s (infranodal block)', reg:'Regularly irregular',
+      criteria:['Fixed PR interval in conducted beats','Sudden dropped QRS without PR lengthening','Often wide QRS (His-bundle or bundle branch level)','Fixed conduction ratio (2:1, 3:1, etc.)'],
+      warning:'HIGH RISK — can suddenly deteriorate to complete heart block. Atropine often ineffective.',
+      action:['TCP (transcutaneous pacing) — prepare immediately','Atropine may be tried but often fails (infranodal block)','IV access × 2; cardiac monitor; 12-lead','Expedite transport; early notification of receiving hospital'] },
+
+    { id:'avb3', name:'3rd Degree AV Block (Complete Heart Block)', group:'AV Block', color:'#f87171',
+      rate:'Atrial 60–100; ventricular escape 20–60 (wide) or 40–60 (junctional)', p:'Present, regular — but NO relationship to QRS', pr:'Completely variable — AV dissociation', qrs:'Wide (ventricular escape) or narrow (junctional escape)', reg:'Both P and QRS regular — but independently',
+      criteria:['P waves and QRS complexes march out independently','No PR relationship — complete AV dissociation','Slow ventricular escape rate','P waves "hidden" in QRS/T waves'],
+      warning:'Complete AV dissociation — no effective conduction. Can be rapidly fatal.',
+      action:['TCP immediately if hemodynamically unstable','Prepare for possible cardiac arrest','Atropine 0.5 mg IV (may be ineffective with wide QRS escape)','Dopamine 2–20 mcg/kg/min if TCP unavailable','Consider cause: inferior/anterior MI, digoxin toxicity, Lyme disease'] },
+
+    // ── SUPRAVENTRICULAR ──
+    { id:'svt', name:'SVT / PSVT', group:'Tachy', color:'#fb923c',
+      rate:'150–250 bpm', p:'Often hidden in preceding T wave; may be retrograde', pr:'Unmeasurable (P buried)', qrs:'Narrow (usually ≤0.12 s)', reg:'Regular — sudden onset/offset',
+      criteria:['Rapid narrow-complex tachycardia','Abrupt onset and termination','Regular rhythm','P waves buried in T wave or immediately after QRS'],
+      warning:'If wide QRS: must distinguish from VT — treat as VT until proven otherwise.',
+      action:['Stable + narrow QRS: Vagal maneuvers (Valsalva, carotid massage)','Stable + refractory: Adenosine 6 mg rapid IVP + 20 mL NS flush; may repeat 12 mg × 2','Unstable (hypotension, AMS): Synchronized cardioversion 50–100 J','O₂, IV access, 12-lead, monitor'] },
+
+    { id:'afib', name:'Atrial Fibrillation', group:'Tachy', color:'#fb923c',
+      rate:'Atrial 350–600 (unmeasurable); ventricular variable 60–170', p:'No distinct P waves — chaotic baseline (fibrillatory waves)', pr:'Not measurable', qrs:'Narrow (usually), irregular intervals', reg:'IRREGULARLY IRREGULAR — hallmark finding',
+      criteria:['Irregularly irregular rhythm (no two RR intervals the same)','No discernible P waves — chaotic baseline','Ventricular rate variable','Narrow QRS (unless aberrancy or pre-excitation)'],
+      warning:'New-onset A-fib with RVR and hypotension → instability. Chronic A-fib + rapid rate can cause cardiomyopathy.',
+      action:['Stable: rate control per protocol (usually no field cardioversion)','Unstable (hypotension, severe AMS, chest pain): synchronized cardioversion 120–200 J biphasic','Monitor for signs of stroke (new neuro deficits)','Note onset time if known — cardioversion risk increases after 48 hrs'] },
+
+    { id:'aflutter', name:'Atrial Flutter', group:'Tachy', color:'#fb923c',
+      rate:'Atrial 250–350 (often ~300); ventricular 75–150 (2:1 or 4:1 block)', p:'Sawtooth flutter waves — best seen in II, III, aVF, V1', pr:'Not a true PR — flutter wave to QRS variable', qrs:'Narrow, regular', reg:'Regular (or regularly irregular with variable block)',
+      criteria:['Sawtooth baseline — flutter waves 250–350/min','Regular ventricular rate (classic 2:1 = 150 bpm)','Flutter waves most visible in inferior leads and V1','QRS narrow'],
+      warning:'"150 bpm rule" — regular narrow tachycardia at exactly 150 bpm → strongly suspect flutter.',
+      action:['Stable: rate control','Unstable: synchronized cardioversion 50–100 J (lower energy needed than A-fib)','12-lead to confirm — flutter waves best in inferior leads','Do NOT use adenosine to treat (may briefly unmask flutter waves but won\'t convert)'] },
+
+    { id:'wpw', name:'WPW / Pre-Excitation', group:'Tachy', color:'#e879f9',
+      rate:'Variable; tachycardia often 200–300 if accessory pathway conducts antegrade', p:'May see delta waves on baseline 12-lead', pr:'Short PR < 0.12 s (pre-excitation)', qrs:'Wide with slurred upstroke (delta wave)', reg:'Regular or irregular depending on rhythm',
+      criteria:['Short PR interval < 0.12 s','Delta wave (slurred initial QRS upstroke)','Wide QRS','In A-fib: wide, irregular, very rapid (can exceed 300 bpm) — DANGER'],
+      warning:'A-fib + WPW with antegrade conduction can cause ventricular fibrillation. AV nodal blockers (adenosine, diltiazem, digoxin) are CONTRAINDICATED.',
+      action:['Unstable: unsynchronized cardioversion (if polymorphic rapid rate) or synchronized','Stable A-fib + WPW: procainamide or amiodarone (NOT adenosine, NOT nodal blockers)','12-lead critical — identify delta waves','Early hospital notification — may need ablation'] },
+
+    // ── VENTRICULAR ──
+    { id:'pvcs', name:'PVCs (Premature Ventricular Contractions)', group:'Ventricular', color:'#a78bfa',
+      rate:'Underlying rate variable; PVCs are early beats', p:'No P wave associated with the PVC', pr:'None (for PVC)', qrs:'Wide ≥0.12 s, bizarre morphology, usually followed by compensatory pause', reg:'Irregular (due to PVC)',
+      criteria:['Wide, bizarre QRS appearing early (premature)','No associated P wave','Followed by compensatory pause (usually)','T wave opposite direction of QRS (discordant)'],
+      warning:'Frequent PVCs (>6/min), multifocal, R-on-T, couplets, or runs ("3 PVCs = VT") in setting of MI → significant risk.',
+      action:['Isolated PVCs in asymptomatic patient: monitor only','R-on-T phenomenon, multifocal, or post-MI: 12-lead, notify medical control','Treat underlying cause: hypoxia, hypokalemia, acidosis, ischemia','Lidocaine no longer routine for PVCs (CAST trial)'] },
+
+    { id:'vt', name:'Ventricular Tachycardia (Monomorphic)', group:'Ventricular', color:'#f87171',
+      rate:'100–250 bpm (usually 140–200)', p:'May be present (AV dissociation) but not conducting', pr:'AV dissociation — P waves march independently', qrs:'Wide ≥0.12 s, uniform, bizarre morphology', reg:'Regular',
+      criteria:['Wide-complex tachycardia (QRS ≥0.12 s)','Regular rhythm','Uniform QRS morphology','AV dissociation (P waves unrelated to QRS — if visible)','Fusion beats or capture beats (pathognomonic if present)'],
+      warning:'Assume VT if wide-complex tachycardia until proven otherwise. SVT with aberrancy can mimic VT. Treat as VT.',
+      action:['Pulseless: CPR + defibrillation 200 J → ACLS arrest protocol','Pulse + unstable (hypotension, AMS, chest pain): synchronized cardioversion 100 J','Pulse + stable: Amiodarone 150 mg IV over 10 min; Lidocaine 1–1.5 mg/kg IVP','Never use verapamil or diltiazem — could cause decompensation'] },
+
+    { id:'tdp', name:'Torsades de Pointes', group:'Ventricular', color:'#f87171',
+      rate:'150–300 bpm', p:'Not visible during episode', pr:'None during episode; prolonged QTc on baseline 12-lead', qrs:'Wide, polymorphic — QRS axis twists around baseline ("twisting of the points")', reg:'Irregular',
+      criteria:['Polymorphic VT with characteristic twisting of QRS axis','Associated with prolonged QT interval on baseline 12-lead','Triggered by pause-then-PVC pattern (short-long-short)'],
+      warning:'Associated with drugs that prolong QT (antiarrhythmics, antibiotics, antipsychotics), hypomagnesemia, hypokalemia. Standard VT treatment may be harmful.',
+      action:['Pulseless: defibrillation (unsynchronized) + ACLS','Pulse present: Magnesium sulfate 1–2 g IV over 1–2 min (drug of choice)','Correct underlying electrolyte abnormalities','Discontinue QT-prolonging drugs','TCP or isoproterenol to increase rate and shorten QT if refractory'] },
+
+    { id:'vfib', name:'Ventricular Fibrillation', group:'Arrest', color:'#f87171',
+      rate:'No organized rate — chaotic', p:'None', pr:'None', qrs:'None — chaotic waveform only', reg:'Chaotic, irregular',
+      criteria:['No discernible P waves or QRS complexes','Chaotic, irregular baseline','Coarse (high amplitude) vs. fine (low amplitude) — fine V-fib harder to shock','No organized electrical activity'],
+      warning:'IMMEDIATELY FATAL without defibrillation. Fine V-fib may be mistaken for asystole — check in multiple leads.',
+      action:['Immediate CPR','Defibrillation 200 J biphasic ASAP (shock first if witnessed)','Epinephrine 1 mg IV/IO every 3–5 min','Amiodarone 300 mg IVP after 3rd shock; may repeat 150 mg','Identify and treat reversible causes (H\'s & T\'s)'] },
+
+    { id:'asystole', name:'Asystole', group:'Arrest', color:'#94a3b8',
+      rate:'0', p:'None (or occasional P wave only — P-wave asystole)', pr:'None', qrs:'None', reg:'None',
+      criteria:['Flat line in multiple leads','Confirm in at least 2 leads (artifact can mimic)','May see occasional P waves (P-wave asystole)'],
+      warning:'Verify in 2+ leads before treating as asystole. Lead disconnect/artifact can appear as flatline.',
+      action:['CPR immediately','Epinephrine 1 mg IV/IO every 3–5 min','Do NOT defibrillate (no shockable rhythm)','Search for and treat reversible causes: Hypovolemia, Hypoxia, Hydrogen ion (acidosis), Hypo/Hyperkalemia, Hypothermia, Tension PTX, Tamponade, Toxins, Thrombosis (PE/MI)','Atropine no longer recommended routinely in ACLS 2020'] },
+
+    { id:'pea', name:'PEA (Pulseless Electrical Activity)', group:'Arrest', color:'#94a3b8',
+      rate:'Variable — organized rhythm on monitor', p:'May be present', pr:'Variable', qrs:'Variable (any organized rhythm can be PEA)', reg:'Variable',
+      criteria:['Organized electrical activity on monitor (any rhythm)','NO palpable pulse','Electromechanical dissociation'],
+      warning:'Do NOT be fooled by organized rhythm — always check pulse with any rhythm. PEA is not a specific rhythm — it\'s a clinical state.',
+      action:['CPR immediately','Epinephrine 1 mg IV/IO every 3–5 min','Identify and treat reversible causes (H\'s & T\'s) — this IS the treatment:','• Hypovolemia → fluid bolus','• Hypoxia → optimize airway','• Hydrogen ion (acidosis) → sodium bicarbonate','• Hypo/Hyperkalemia → CaCl, bicarb','• Hypothermia → rewarm','• Tension PTX → needle decompression','• Tamponade → pericardiocentesis (hospital)','• Toxins → antidote/supportive','• Thrombosis (PE) → thrombolytics if confirmed'] },
+
+    // ── BUNDLE BRANCH BLOCKS ──
+    { id:'rbbb', name:'RBBB (Right Bundle Branch Block)', group:'Blocks', color:'#67e8f9',
+      rate:'Depends on underlying rhythm', p:'Normal', pr:'Normal (0.12–0.20 s)', qrs:'Wide ≥0.12 s', reg:'Regular (if underlying sinus)',
+      criteria:['QRS ≥0.12 s','RSR\' pattern in V1–V2 ("rabbit ears")','Wide, slurred S wave in I, aVL, V5–V6','Predominantly positive QRS in V1','T wave inversion V1–V3 (normal secondary change)'],
+      warning:'New RBBB in context of anterior MI or PE is significant. Right heart strain pattern.',
+      action:['RBBB alone does not require treatment','New RBBB + chest pain → suspect anterior MI or massive PE','12-lead and serial monitoring','Consider PE if tachycardia + new RBBB + hypoxia (S1Q3T3 pattern)'] },
+
+    { id:'lbbb', name:'LBBB (Left Bundle Branch Block)', group:'Blocks', color:'#67e8f9',
+      rate:'Depends on underlying rhythm', p:'Normal', pr:'Normal or slightly prolonged', qrs:'Wide ≥0.12 s', reg:'Regular (if underlying sinus)',
+      criteria:['QRS ≥0.12 s','Broad monophasic R wave in I, aVL, V5–V6 (no septal Q waves in I, V5, V6)','QS or rS in V1','Discordant ST changes (ST/T opposite direction of QRS)'],
+      warning:'New LBBB in setting of acute chest pain is a STEMI equivalent until proven otherwise (Sgarbossa criteria apply). Do NOT interpret ST segments normally in LBBB.',
+      action:['New LBBB + chest pain → treat as STEMI equivalent; activate cath lab','Apply Sgarbossa criteria to look for superimposed STEMI (concordant ST elevation ≥1 mm is most specific)','12-lead, IV access, aspirin, nitroglycerin per protocol','Early hospital notification'] },
+  ];
+
+  (function initRhythm(){
+    const picker = document.getElementById('rhythm-picker');
+    const result = document.getElementById('rhythm-result');
+    if(!picker) return;
+
+    // Group order
+    const groupOrder = ['Normal','Brady','AV Block','Tachy','Ventricular','Arrest','Blocks'];
+    const grouped = {};
+    RHYTHMS.forEach(r => { if(!grouped[r.group]) grouped[r.group]=[]; grouped[r.group].push(r); });
+
+    groupOrder.forEach(g => {
+      if(!grouped[g]) return;
+      const grpLabel = document.createElement('div');
+      grpLabel.style.cssText = 'width:100%;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);padding:4px 0 2px';
+      grpLabel.textContent = g;
+      picker.appendChild(grpLabel);
+      grouped[g].forEach(r => {
+        const btn = document.createElement('button');
+        btn.className = 'rhythm-pill';
+        btn.textContent = r.name;
+        btn.style.cssText = `color:${r.color};border-color:${r.color}33;background:${r.color}11`;
+        btn.addEventListener('click', () => {
+          picker.querySelectorAll('.rhythm-pill').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          btn.style.background = r.color;
+          showRhythm(r);
+        });
+        picker.appendChild(btn);
+      });
+    });
+
+    function showRhythm(r){
+      const actionHtml = r.action.map(a => {
+        if(a.startsWith('•')) return `<li style="padding-left:10px;list-style:none;color:var(--muted)">${a}</li>`;
+        return `<li>${a}</li>`;
+      }).join('');
+      result.innerHTML = `
+        <div class="rhythm-card">
+          <div class="rhythm-card-name" style="color:${r.color}">${r.name}</div>
+          <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px">${r.group}</div>
+          <div class="rhythm-meta">
+            <span class="rhythm-meta-chip">⏱ ${r.rate}</span>
+            <span class="rhythm-meta-chip">P: ${r.p}</span>
+            <span class="rhythm-meta-chip">PR: ${r.pr}</span>
+            <span class="rhythm-meta-chip">QRS: ${r.qrs}</span>
+            <span class="rhythm-meta-chip">Regularity: ${r.reg}</span>
+          </div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:4px">Key Criteria</div>
+          <ul class="rhythm-criteria">${r.criteria.map(c=>`<li>${c}</li>`).join('')}</ul>
+          ${r.warning ? `<div class="rhythm-warn">⚠ ${r.warning}</div>` : ''}
+          <div class="rhythm-action">
+            <div class="rhythm-action-title">EMS Action</div>
+            <ul>${actionHtml}</ul>
+          </div>
+        </div>`;
+    }
+  })();
+
   // --- STEMI Localization Calculator ---
   function _stemiLeads(gridId){
     return Array.from(document.querySelectorAll(`#${gridId} input:checked`)).map(cb=>cb.value);
   }
+
+  // Extended leads toggle
+  document.getElementById('stemi-ext-toggle').addEventListener('click', ()=>{
+    const body = document.getElementById('stemi-ext-body');
+    const chev = document.getElementById('stemi-ext-chev');
+    const open = body.style.display !== 'none';
+    body.style.display = open ? 'none' : '';
+    chev.textContent = open ? '▾' : '▴';
+  });
+
   $('#stemi-calc').addEventListener('click', ()=>{
-    const elev = new Set(_stemiLeads('stemi-elev-leads'));
-    const dep  = new Set(_stemiLeads('stemi-dep-leads'));
-    const res  = document.getElementById('stemi-result');
-    if(!elev.size && !dep.size){ res.innerHTML='Select at least one lead.'; return; }
+    const elev    = new Set(_stemiLeads('stemi-elev-leads'));
+    const dep     = new Set(_stemiLeads('stemi-dep-leads'));
+    const ext     = new Set(_stemiLeads('stemi-ext-leads'));
+    const hasLBBB = document.getElementById('stemi-lbbb').checked;
+    const res     = document.getElementById('stemi-result');
 
-    const has = (set, ...leads) => leads.every(l => set.has(l));
-    const any = (set, ...leads) => leads.some(l => set.has(l));
-
-    const findings = [];
-
-    // Inferior STEMI: elevation II, III, aVF
-    const inferior = any(elev,'II','III','aVF') && (elev.has('II')||elev.has('III')) && elev.has('aVF');
-    if(inferior){
-      const rvInvolve = elev.has('V1') || elev.has('V4R');
-      const territory = rvInvolve ? 'Inferior + RV (Right Ventricular)' : 'Inferior';
-      const artery = 'RCA (Right Coronary Artery)';
-      const reciprocal = [];
-      if(dep.has('I') || dep.has('aVL')) reciprocal.push('I, aVL (High Lateral)');
-      findings.push({ territory, artery, reciprocal, note: rvInvolve ? 'RV involvement suspected — avoid NTG, use cautious fluid resuscitation.' : '' });
-    }
-
-    // Anterior / Anteroseptal / Extensive Anterior
-    const antLeads = ['V1','V2','V3','V4','V5','V6'];
-    const elevAnterior = antLeads.filter(l => elev.has(l));
-    if(elevAnterior.length){
-      let territory, note='';
-      if(any(elev,'V1','V2') && !any(elev,'V3','V4','V5','V6')){
-        territory = 'Anteroseptal';
-        note = 'Proximal LAD territory.';
-      } else if(any(elev,'V1','V2','V3') && !any(elev,'V4','V5','V6')){
-        territory = 'Anteroseptal (V1–V3)';
-        note = 'Proximal LAD.';
-      } else if(any(elev,'V3','V4') && !any(elev,'V1','V2','V5','V6') && !inferior){
-        territory = 'Anterior (V3–V4)';
-      } else if(any(elev,'V1','V2','V3','V4') && !any(elev,'V5','V6')){
-        territory = 'Anterior (V1–V4)';
-        note = 'Mid-to-proximal LAD.';
-      } else if(any(elev,'V1','V2','V3','V4','V5','V6')){
-        territory = 'Extensive Anterior (V1–V6)';
-        note = 'Proximal LAD occlusion. High-risk.';
-      } else {
-        territory = 'Anterior';
-      }
-      const lateralAlso = any(elev,'I','aVL','V5','V6');
-      if(lateralAlso) territory = 'Anterolateral';
-      const artery = 'LAD (Left Anterior Descending)';
-      const reciprocal = [];
-      if(dep.has('II')||dep.has('III')||dep.has('aVF')) reciprocal.push('II, III, aVF (Inferior)');
-      findings.push({ territory, artery, reciprocal, note });
-    }
-
-    // Lateral STEMI (without anterior involvement)
-    const lateralElev = (elev.has('I')||elev.has('aVL')||elev.has('V5')||elev.has('V6'));
-    if(lateralElev && !elevAnterior.length){
-      let territory;
-      if((elev.has('I')||elev.has('aVL')) && !elev.has('V5') && !elev.has('V6')){
-        territory = 'High Lateral (I, aVL)';
-      } else if(elev.has('V5')||elev.has('V6')){
-        territory = (elev.has('I')||elev.has('aVL')) ? 'Lateral (I, aVL, V5–V6)' : 'Lateral (V5–V6)';
-      } else {
-        territory = 'Lateral';
-      }
-      const artery = 'LCx (Left Circumflex) or Diagonal Branch';
-      const reciprocal = [];
-      if(dep.has('V1')||dep.has('V2')||dep.has('V3')) reciprocal.push('V1–V3');
-      findings.push({ territory, artery, reciprocal, note: '' });
-    }
-
-    // Posterior STEMI: ST depression V1–V4 without anterior elevation (posterior depression = reciprocal)
-    const posteriorDep = ['V1','V2','V3','V4'].filter(l => dep.has(l));
-    if(posteriorDep.length >= 2 && !elevAnterior.length){
-      findings.push({
-        territory: 'Posterior',
-        artery: 'RCA or LCx',
-        reciprocal: [],
-        note: `ST depression in ${posteriorDep.join(', ')} with tall R waves suggests posterior STEMI. Consider right-sided and posterior leads (V7–V9).`
-      });
-    }
-
-    if(!findings.length){
-      // Check for reciprocal-only patterns or no clear territory
-      res.innerHTML = '<span style="color:var(--muted)">Pattern does not clearly localize to a standard STEMI territory. Verify lead placement, consider posterior leads (V7–V9) or right-sided leads (V3R–V4R), and correlate with clinical presentation.</span>';
+    if(!elev.size && !dep.size && !ext.size){
+      res.innerHTML='<span style="color:var(--muted)">Select at least one lead finding.</span>';
       return;
     }
 
-    res.innerHTML = findings.map(f => {
-      const recp = f.reciprocal.length ? `<div style="margin-top:5px;font-size:12px;color:rgba(96,165,250,.9)">🔄 Reciprocal changes: ${f.reciprocal.join(' · ')}</div>` : '';
+    const any = (set, ...leads) => leads.some(l => set.has(l));
+
+    const findings = [];
+    const alerts   = [];
+    const pearls   = [];
+
+    // ── LBBB + Sgarbossa ──
+    if(hasLBBB){
+      const sgarbossa = [];
+      // Criterion 1: Concordant ST elevation ≥1 mm in any lead (most specific, score 5)
+      if(elev.size) sgarbossa.push({ text:'Concordant ST elevation ≥1 mm present — MOST SPECIFIC for MI in LBBB (Sgarbossa score 5)', color:'#f87171' });
+      // Criterion 2: Concordant ST depression ≥1 mm in V1–V3 (score 3)
+      if(any(dep,'V1','V2','V3')) sgarbossa.push({ text:'Concordant ST depression ≥1 mm in V1–V3 — Sgarbossa criterion (score 3)', color:'#fbbf24' });
+      // Criterion 3: Discordant STE ≥5 mm (Smith-modified: excessively discordant — less specific, noted)
+      pearls.push('In LBBB: discordant ST changes are expected. CONCORDANT ST elevation (same direction as QRS) is the key STEMI indicator.');
+      pearls.push('Use Smith-Modified Sgarbossa (SMSR): any concordant change OR excessively discordant STE ≥25% of preceding S-wave depth.');
+      if(sgarbossa.length){
+        findings.push({
+          territory: 'Suspected STEMI in LBBB',
+          artery: 'Indeterminate — requires angiography',
+          reciprocal: [],
+          note: sgarbossa.map(s=>s.text).join(' | '),
+          alertColor: '#f87171'
+        });
+        alerts.push('⚡ LBBB + Sgarbossa positive — treat as STEMI equivalent. Activate cath lab.');
+      } else {
+        res.innerHTML = `<div style="color:var(--muted);font-size:13px">LBBB present. No definitive Sgarbossa criteria met with selections made. Correlate clinically — if chest pain present, treat as STEMI equivalent.</div>
+          <div style="margin-top:8px;font-size:12px;color:#fbbf24;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);border-radius:8px;padding:8px 12px">⚠ Smith-Modified Sgarbossa: Even without concordant changes, clinical + troponin + history determine STEMI equivalent call.</div>`;
+        return;
+      }
+    }
+
+    // ── aVR Elevation (LMCA / Proximal LAD) ──
+    if(elev.has('aVR') && !hasLBBB){
+      const diffuseDep = ['I','II','V4','V5','V6'].filter(l => dep.has(l));
+      if(diffuseDep.length >= 3 || (dep.size >= 6)){
+        findings.push({
+          territory: 'Left Main (LMCA) or Proximal LAD Occlusion',
+          artery: 'LMCA or proximal LAD',
+          reciprocal: [],
+          note: 'aVR elevation + diffuse ST depression is the classic LMCA/proximal LAD pattern. EXTREMELY high-risk — often presents with cardiogenic shock.',
+          alertColor: '#f87171'
+        });
+        alerts.push('⚡ aVR elevation + diffuse depression = LMCA/proximal LAD pattern. Highest-risk STEMI. Early cath lab activation critical.');
+      } else {
+        pearls.push('aVR elevation present. If accompanied by diffuse ST depression in ≥6 leads, suspect LMCA or proximal LAD occlusion.');
+      }
+    }
+
+    // ── Inferior STEMI ──
+    const inferior = elev.has('aVF') && (elev.has('II') || elev.has('III'));
+    if(inferior){
+      const rvInvolve = elev.has('V1') || ext.has('V3R') || ext.has('V4R');
+      const posteriorAlso = any(dep,'V1','V2','V3') || ext.has('V7') || ext.has('V8') || ext.has('V9');
+      let territory = 'Inferior';
+      if(rvInvolve) territory = 'Inferoposterior + Right Ventricular (RV)';
+      else if(posteriorAlso) territory = 'Inferoposterior';
+      const reciprocal = [];
+      if(dep.has('I') || dep.has('aVL')) reciprocal.push('I, aVL (High Lateral)');
+      const notes = [];
+      if(rvInvolve) notes.push('RV involvement confirmed or suspected — avoid NTG and diuretics; RV preload-dependent. Fluid challenge if hypotensive.');
+      if(posteriorAlso) notes.push('Posterior extension likely — consider V7–V9 if not already placed.');
+      findings.push({ territory, artery:'RCA (Right Coronary Artery)', reciprocal, note:notes.join(' '), alertColor:'#fca5a5' });
+      if(rvInvolve) alerts.push('⚠ RV STEMI: Nitroglycerin CONTRAINDICATED. Give IV fluid bolus for hypotension.');
+    }
+
+    // ── Anterior / LAD ──
+    const antLeads = ['V1','V2','V3','V4','V5','V6'];
+    const elevAnterior = antLeads.filter(l => elev.has(l));
+    if(elevAnterior.length && !hasLBBB){
+      let territory, note='';
+      const hasLateral = any(elev,'I','aVL','V5','V6');
+      if(any(elev,'V1','V2') && !any(elev,'V3','V4','V5','V6')){
+        territory = 'Anteroseptal (V1–V2)'; note='Proximal LAD territory — risk of LBBB, complete heart block.';
+      } else if(any(elev,'V1','V2','V3') && !any(elev,'V4','V5','V6')){
+        territory = 'Anteroseptal (V1–V3)'; note='Proximal LAD occlusion.';
+      } else if(any(elev,'V3','V4') && !any(elev,'V1','V2','V5','V6')){
+        territory = 'Anterior (V3–V4)'; note='Mid-LAD territory.';
+      } else if(any(elev,'V1','V2','V3','V4','V5','V6')){
+        territory = 'Extensive Anterior (V1–V6)'; note='Proximal LAD occlusion — HIGH RISK. Large territory. Watch for hemodynamic compromise.';
+        alerts.push('⚡ Extensive Anterior STEMI — large territory, proximal LAD. High risk of cardiogenic shock and arrhythmia.');
+      } else {
+        territory = 'Anterior';
+      }
+      if(hasLateral && !territory.includes('Lateral')) territory += ' + Lateral';
+      const reciprocal=[];
+      if(dep.has('II')||dep.has('III')||dep.has('aVF')) reciprocal.push('II, III, aVF (Inferior)');
+      findings.push({ territory, artery:'LAD (Left Anterior Descending)', reciprocal, note, alertColor:'#fca5a5' });
+    }
+
+    // ── Lateral (isolated, without anterior) ──
+    const lateralElev = any(elev,'I','aVL','V5','V6');
+    if(lateralElev && !elevAnterior.length && !hasLBBB){
+      let territory;
+      if((elev.has('I')||elev.has('aVL')) && !elev.has('V5') && !elev.has('V6')){
+        territory='High Lateral (I, aVL)';
+      } else {
+        territory = (elev.has('I')||elev.has('aVL')) ? 'Lateral (I, aVL, V5–V6)' : 'Lateral (V5–V6)';
+      }
+      const reciprocal=[];
+      if(any(dep,'V1','V2','V3')) reciprocal.push('V1–V3');
+      findings.push({ territory, artery:'LCx (Left Circumflex) or Diagonal Branch', reciprocal, note:'', alertColor:'#fca5a5' });
+    }
+
+    // ── Posterior STEMI ──
+    const posteriorDep = ['V1','V2','V3','V4'].filter(l => dep.has(l));
+    const posteriorExt = ['V7','V8','V9'].filter(l => ext.has(l));
+    if((posteriorDep.length >= 2 && !elevAnterior.length) || posteriorExt.length){
+      const conf = posteriorExt.length ? `Confirmed by elevation in ${posteriorExt.join(', ')}` : `Suspected from depression in ${posteriorDep.join(', ')}`;
+      findings.push({
+        territory:'Posterior',
+        artery:'RCA or LCx (posterior descending/posterolateral)',
+        reciprocal:[],
+        note:`${conf}. Posterior STEMI often missed on standard 12-lead — tall R waves in V1–V2 + horizontal ST depression + upright T waves are the clues. ${posteriorExt.length ? '' : 'Place posterior leads (V7–V9) to confirm.'}`,
+        alertColor:'#fbbf24'
+      });
+    }
+
+    // ── RV STEMI (right-sided leads only) ──
+    const rvElev = ['V3R','V4R'].filter(l => ext.has(l));
+    if(rvElev.length && !inferior){
+      findings.push({
+        territory:'Right Ventricular (RV)',
+        artery:'Proximal RCA (right coronary artery)',
+        reciprocal:[],
+        note:'RV elevation without inferior elevation is uncommon — verify lead placement. If confirmed, RV is preload-dependent.',
+        alertColor:'#fbbf24'
+      });
+      alerts.push('⚠ RV STEMI: Nitroglycerin CONTRAINDICATED. Fluid challenge for hypotension.');
+    }
+
+    // No findings
+    if(!findings.length){
+      res.innerHTML = '<span style="color:var(--muted)">Pattern does not clearly localize to a standard STEMI territory. Verify lead placement, consider posterior (V7–V9) or right-sided (V3R–V4R) leads, and correlate with clinical presentation.</span>';
+      return;
+    }
+
+    // Render
+    const alertsHtml = alerts.map(a => `<div style="background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600;color:#fca5a5;margin-bottom:8px">${a}</div>`).join('');
+    const pearlsHtml = pearls.length ? `<div style="margin-top:10px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:10px 12px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:6px">Clinical Pearls</div>${pearls.map(p=>`<div style="font-size:12px;color:var(--muted);margin-bottom:4px">• ${p}</div>`).join('')}</div>` : '';
+    const findingsHtml = findings.map(f => {
+      const recp = f.reciprocal.length ? `<div style="margin-top:5px;font-size:12px;color:rgba(96,165,250,.9)">🔄 Reciprocal: ${f.reciprocal.join(' · ')}</div>` : '';
       const noteHtml = f.note ? `<div style="margin-top:5px;font-size:12px;color:rgba(251,191,36,.85)">⚠ ${f.note}</div>` : '';
       return `<div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.07)">
-        <div><b style="color:#fca5a5">${f.territory} STEMI</b></div>
+        <div><b style="color:${f.alertColor||'#fca5a5'}">${f.territory} STEMI</b></div>
         <div style="font-size:13px;color:var(--muted);margin-top:2px">Likely culprit: <span style="color:var(--text)">${f.artery}</span></div>
         ${recp}${noteHtml}
       </div>`;
-    }).join('').replace(/<\/div>\s*$/, '</div>').replace(/style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid rgba\(255,255,255,\.07\)">\s*(<div><b)/, 'style="margin-bottom:10px">$1');
+    }).join('');
+
+    res.innerHTML = alertsHtml + findingsHtml + pearlsHtml;
   });
+
   $('#stemi-reset').addEventListener('click', ()=>{
-    document.querySelectorAll('#stemi-elev-leads input, #stemi-dep-leads input').forEach(cb => cb.checked = false);
+    document.querySelectorAll('#stemi-elev-leads input, #stemi-dep-leads input, #stemi-ext-leads input').forEach(cb => cb.checked = false);
+    document.getElementById('stemi-lbbb').checked = false;
     document.getElementById('stemi-result').innerHTML = '';
+    const extBody = document.getElementById('stemi-ext-body');
+    if(extBody) extBody.style.display = 'none';
+    const chev = document.getElementById('stemi-ext-chev');
+    if(chev) chev.textContent = '▾';
   });
 
   // --- Edit / Add Modal ---
@@ -6700,6 +7151,25 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     _btnForms.style.background = '';
     _btnForms.style.borderColor = '';
   }));
+
+  // --- Home Screen shortcut deep links (?jump=X) ---
+  (function(){
+    const jump = new URLSearchParams(location.search).get('jump');
+    if (!jump) return;
+    const map = {
+      'drawup':     ['resources', 'calc-body-std'],
+      'rxinfusion': ['resources', 'calc-body-iv'],
+      'pqr':        ['resources', 'peds-ref-section'],
+      'gcs':        ['resources', 'calc-body-gcs'],
+      'stemi':      ['resources', 'calc-body-stemi'],
+    };
+    const target = map[jump];
+    if (!target) return;
+    setTimeout(() => {
+      activateTab(target[0]);
+      setTimeout(() => jumpToSection(target[1]), 250);
+    }, 400);
+  })();
 
   // --- Source protection (deterrents) ---
   document.addEventListener('contextmenu', e => e.preventDefault());
