@@ -4432,7 +4432,6 @@
 
   // --- Tabs (with memory) ---
   const TABS_ORDER = ['protocols','meds'];
-  let _pedsRefInited = false;
 
   function activateTab(tabName){
     const btn = document.querySelector(`[data-tab="${tabName}"]`);
@@ -4445,7 +4444,6 @@
     const tab = btn.dataset.tab;
     $$('.panel').forEach(p=> p.classList.add('hidden'));
     $('#panel-'+tab).classList.remove('hidden');
-    if(tab === 'resources' && !_pedsRefInited){ _pedsRefInited=true; }
     localStorage.setItem('pref_tab', tab);
   }));
 

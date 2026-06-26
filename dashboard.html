@@ -343,7 +343,7 @@
       };
       Object.entries(APP_CARDS).forEach(([id, wrap]) => {
         if (!wrap) return;
-        const hasAccess = apps === null || id === 'pat' || id === 'calculators' || apps.includes(id);
+        const hasAccess = apps === null || id === 'pat' || apps.includes(id);
         wrap.classList.toggle('locked', !hasAccess);
       });
     }
