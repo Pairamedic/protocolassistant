@@ -132,7 +132,7 @@
 
     function destAfterLogin(email){
       const p = new URLSearchParams(window.location.search).get('returnTo');
-      const allowed = ['supervisor.html','ProtocolAssistant.html','ClassManager.html','dashboard.html','relay.html','narrative.html'];
+      const allowed = ['supervisor.html','ProtocolAssistant.html','ClassManager.html','dashboard.html','relay.html','chart.html','narrative.html'];
       if(p && allowed.includes(p)) return p;
       return ADMIN_EMAILS.has(email) ? 'dashboard.html' : 'ProtocolAssistant.html';
     }
