@@ -191,40 +191,6 @@
     @media (max-width: 320px) {
       .app-grid { grid-template-columns: 1fr; }
     }
-
-    /* ── Admin Panel ── */
-    #admin-panel input[type="email"] {
-      background: var(--input-bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      color: var(--text);
-      font-size: 14px;
-      padding: 10px 13px;
-      flex: 1;
-      outline: none;
-      font-family: inherit;
-      transition: border-color .15s;
-      min-width: 0;
-    }
-    #admin-panel input[type="email"]:focus {
-      border-color: var(--accent);
-    }
-    #admin-search-btn {
-      background: var(--accent);
-      color: #0b0d10;
-      border: none;
-      border-radius: 10px;
-      padding: 10px 18px;
-      font-size: 14px;
-      font-weight: 700;
-      font-family: inherit;
-      cursor: pointer;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    #admin-search-btn:hover {
-      background: #4dd4c0;
-    }
   </style>
 </head>
 <body>
@@ -267,7 +233,7 @@
         <!-- CHART -->
         <div id="card-chart" class="card-wrap">
           <a href="chart.html" class="app-card">
-            <div class="card-icon">📋</div>
+            <div class="card-icon">✏️</div>
             <div class="card-title">CHART</div>
             <div class="card-subtitle">Intervention Logger</div>
           </a>
@@ -275,10 +241,28 @@
 
         <!-- Pearls -->
         <div id="card-pearls" class="card-wrap">
-          <a href="ProtocolAssistant.html?jump=pearls" class="app-card">
+          <a href="pearls.html" class="app-card">
             <div class="card-icon">💡</div>
             <div class="card-title">Pearls</div>
             <div class="card-subtitle">Clinical Reference</div>
+          </a>
+        </div>
+
+        <!-- Calculators -->
+        <div id="card-calculators" class="card-wrap">
+          <a href="calculators.html" class="app-card">
+            <div class="card-icon">🧮</div>
+            <div class="card-title">Calculators</div>
+            <div class="card-subtitle">Clinical Calculators</div>
+          </a>
+        </div>
+
+        <!-- User Access Management -->
+        <div id="card-user-access" class="card-wrap">
+          <a href="user-access.html" class="app-card">
+            <div class="card-icon">👤</div>
+            <div class="card-title">My Account</div>
+            <div class="card-subtitle">Profile &amp; Access</div>
           </a>
         </div>
 
@@ -317,23 +301,6 @@
         </a>
 
       </div>
-
-      <!-- Admin Access Management Panel (visible to admin only) -->
-      <section id="admin-panel" style="display:none; margin-top:32px; padding:0 0 40px">
-        <h2 style="font-size:15px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:14px">User Access Management</h2>
-
-        <!-- Search bar -->
-        <div style="display:flex; gap:8px; margin-bottom:16px">
-          <input id="admin-email-input" type="email" placeholder="Search user by email…" />
-          <button id="admin-search-btn">Look Up</button>
-        </div>
-
-        <!-- Result area -->
-        <div id="admin-user-result" style="display:none">
-          <!-- populated by JS -->
-        </div>
-      </section>
-    </div>
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -366,16 +333,17 @@
     function applyAccess(apps) {
       // apps = array of app IDs the user can access, or null = all (admin)
       const APP_CARDS = {
-        pat:        document.getElementById('card-pat'),
-        chart:      document.getElementById('card-chart'),
-        pearls:     document.getElementById('card-pearls'),
-        narrative:  document.getElementById('card-narrative'),
-        checkoff:   document.getElementById('card-checkoff'),
-        supervisor: document.getElementById('card-supervisor'),
+        pat:         document.getElementById('card-pat'),
+        chart:       document.getElementById('card-chart'),
+        pearls:      document.getElementById('card-pearls'),
+        calculators: document.getElementById('card-calculators'),
+        narrative:   document.getElementById('card-narrative'),
+        checkoff:    document.getElementById('card-checkoff'),
+        supervisor:  document.getElementById('card-supervisor'),
       };
       Object.entries(APP_CARDS).forEach(([id, wrap]) => {
         if (!wrap) return;
-        const hasAccess = apps === null || id === 'pat' || apps.includes(id);
+        const hasAccess = apps === null || id === 'pat' || id === 'calculators' || apps.includes(id);
         wrap.classList.toggle('locked', !hasAccess);
       });
     }
@@ -418,9 +386,8 @@
       // Apply locked/unlocked state to cards based on user's granted apps
       applyAccess(apps);
 
-      // Admin-only: show access management panel + Class Manager card
+      // Admin-only: show Class Manager card
       if (isAdmin) {
-        document.getElementById('admin-panel').style.display = '';
         document.getElementById('card-classmanager').style.display = '';
       }
     });
@@ -429,135 +396,6 @@
       fbAuth.signOut();
     });
 
-    // ── Admin Panel Logic ──
-
-    const APP_LIST = [
-      { id: 'chart',      label: 'CHART — Intervention Logger' },
-      { id: 'pearls',     label: 'Pearls — Clinical Reference' },
-      { id: 'narrative',  label: 'Narrative — PCR Builder' },
-      { id: 'checkoff',   label: 'Unit Check-Off' },
-      { id: 'supervisor', label: 'Supervisor Tools' },
-    ];
-
-    function renderUserAccessCard(container, uid, email, currentApps) {
-      // card div
-      const card = document.createElement('div');
-      card.style.cssText = 'background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;';
-
-      // email header
-      const header = document.createElement('div');
-      header.style.cssText = 'font-size:14px;font-weight:600;color:var(--text);margin-bottom:12px;';
-      header.textContent = email;
-      card.appendChild(header);
-
-      // note: PAT always granted
-      const note = document.createElement('div');
-      note.style.cssText = 'font-size:12px;color:var(--muted);margin-bottom:12px;';
-      note.textContent = 'PAT access is always granted. Toggle additional apps:';
-      card.appendChild(note);
-
-      // track local state
-      const selected = new Set(currentApps);
-      selected.add('pat');
-
-      // checkboxes for each app
-      APP_LIST.forEach(function(appItem) {
-        const row = document.createElement('label');
-        row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;';
-
-        const cb = document.createElement('input');
-        cb.type = 'checkbox';
-        cb.checked = selected.has(appItem.id);
-        cb.style.cssText = 'width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex:none;';
-        cb.addEventListener('change', function() {
-          if (cb.checked) selected.add(appItem.id);
-          else selected.delete(appItem.id);
-        });
-
-        const lbl = document.createElement('span');
-        lbl.style.cssText = 'font-size:14px;color:var(--text);';
-        lbl.textContent = appItem.label;
-
-        row.appendChild(cb);
-        row.appendChild(lbl);
-        card.appendChild(row);
-      });
-
-      // Save button
-      const saveBtn = document.createElement('button');
-      saveBtn.textContent = 'Save Access';
-      saveBtn.style.cssText = 'margin-top:14px;width:100%;background:var(--accent);color:#0b0d10;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;';
-      saveBtn.addEventListener('click', async function() {
-        saveBtn.disabled = true;
-        saveBtn.textContent = 'Saving…';
-        try {
-          await fbDb.collection('users').doc(uid).set(
-            { apps: Array.from(selected) },
-            { merge: true }
-          );
-          saveBtn.textContent = 'Saved ✓';
-          setTimeout(function() {
-            saveBtn.disabled = false;
-            saveBtn.textContent = 'Save Access';
-          }, 2000);
-        } catch (e) {
-          saveBtn.textContent = 'Error — try again';
-          saveBtn.disabled = false;
-        }
-      });
-      card.appendChild(saveBtn);
-      container.appendChild(card);
-    }
-
-    async function adminLookup(email) {
-      const result = document.getElementById('admin-user-result');
-      result.style.display = '';
-      // clear previous
-      while (result.firstChild) result.removeChild(result.firstChild);
-
-      const loading = document.createElement('div');
-      loading.textContent = 'Searching…';
-      loading.style.color = 'var(--muted)';
-      result.appendChild(loading);
-
-      try {
-        const snap = await fbDb.collection('users').where('email', '==', email.trim().toLowerCase()).limit(1).get();
-        result.removeChild(loading);
-
-        if (snap.empty) {
-          const msg = document.createElement('div');
-          msg.textContent = 'No user found with that email. They must sign in at least once first.';
-          msg.style.color = 'var(--muted)';
-          msg.style.fontSize = '13px';
-          result.appendChild(msg);
-          return;
-        }
-
-        const doc = snap.docs[0];
-        const data = doc.data();
-        const uid = doc.id;
-        const currentApps = data.apps || ['pat'];
-
-        // Render user card with app toggles
-        renderUserAccessCard(result, uid, data.email, currentApps);
-      } catch (e) {
-        result.removeChild(loading);
-        const msg = document.createElement('div');
-        msg.textContent = 'Error: ' + e.message;
-        msg.style.color = 'var(--danger)';
-        result.appendChild(msg);
-      }
-    }
-
-    document.getElementById('admin-search-btn').addEventListener('click', function() {
-      const email = document.getElementById('admin-email-input').value.trim();
-      if (!email) return;
-      adminLookup(email);
-    });
-
-    document.getElementById('admin-email-input').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') document.getElementById('admin-search-btn').click();
-    });
   </script>
   <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(function(){});</script>
 </body>
