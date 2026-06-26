@@ -671,6 +671,93 @@
     }
     .inline-row { display: flex; gap: 8px; }
     .inline-row .field { flex: 1; }
+
+    /* ── Floating MARK button ── */
+    #mark-btn {
+      position: fixed;
+      bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+      right: 16px;
+      z-index: 500;
+      background: var(--accent);
+      color: #0b0d10;
+      border: none;
+      border-radius: 24px;
+      padding: 10px 18px;
+      font-weight: 700;
+      font-size: 15px;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(94,234,212,.35), 0 2px 6px rgba(0,0,0,.4);
+      transition: transform .15s, opacity .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #mark-btn:active { opacity: .85; }
+    #mark-btn.flash {
+      animation: markFlash .35s cubic-bezier(.36,.07,.19,.97);
+    }
+    @keyframes markFlash {
+      0%   { transform: scale(1); }
+      30%  { transform: scale(1.18); }
+      60%  { transform: scale(.94); }
+      100% { transform: scale(1); }
+    }
+
+    /* ── Mark timeline entry ── */
+    .tl-type.mark { color: var(--accent); }
+    .tl-annotate-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      font-family: inherit;
+      padding: 3px 8px;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: border-color .15s, color .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tl-annotate-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .tl-edit-ts-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 14px;
+      cursor: pointer;
+      padding: 2px 4px;
+      line-height: 1;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+      opacity: .65;
+      transition: opacity .15s;
+    }
+    .tl-edit-ts-btn:hover { opacity: 1; }
+    .tl-time-wrap { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+
+    /* ── Time nudge buttons in sheet ── */
+    .nudge-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .nudge-btn {
+      flex: 1;
+      min-width: 64px;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      padding: 10px 6px;
+      cursor: pointer;
+      text-align: center;
+      transition: background .12s, border-color .12s;
+    }
+    .nudge-btn:active { background: rgba(94,234,212,.1); border-color: var(--accent); }
   </style>
 </head>
 <body>
@@ -934,6 +1021,9 @@
       <span>Timers</span>
     </button>
   </nav>
+
+  <!-- ── Floating MARK button ── -->
+  <button id="mark-btn" title="Mark time now">&#x23F1; MARK</button>
 
 </div><!-- /app -->
 
@@ -2011,7 +2101,8 @@ function addTimelineEntry(type, label, details) {
 var TL_ICONS = {
   vitals: '🩺', medgiven: '💊', medcontrol: '📡',
   transport: '🚑', ptchange: '⚠️', note: '✏️',
-  callstart: '🟢', callend: '🔴', med: '💊', med_dc: '🚫'
+  callstart: '🟢', callend: '🔴', med: '💊', med_dc: '🚫',
+  mark: '⏱'
 };
 
 function formatTLDetails(entry) {
@@ -2045,6 +2136,7 @@ function formatTLDetails(entry) {
   if (entry.type === 'med_dc') return (d.name || '') + ' discontinued';
   if (entry.type === 'callstart') return 'Call initiated';
   if (entry.type === 'callend') return 'Call completed';
+  if (entry.type === 'mark') return d.note || '';
   return '';
 }
 
@@ -2075,15 +2167,32 @@ function renderTimeline() {
     icon.className = 'tl-icon';
     icon.textContent = TL_ICONS[entry.type] || '📌';
 
+    // Time column with edit-timestamp button
+    var timeWrap = document.createElement('div');
+    timeWrap.className = 'tl-time-wrap';
+
     var time = document.createElement('div');
     time.className = 'tl-time';
-    time.textContent = fmtTime(entry.ts);
+    // Mark entries show HH:MM:SS; others show HH:MM:SS (full time already)
+    time.textContent = entry.type === 'mark' ? fmtTime(entry.ts) : fmtTimeShort(entry.ts);
+
+    var editTsBtn = document.createElement('button');
+    editTsBtn.className = 'tl-edit-ts-btn';
+    editTsBtn.title = 'Edit timestamp';
+    editTsBtn.textContent = '🕐';
+    editTsBtn.setAttribute('type', 'button');
+    (function(e) {
+      editTsBtn.addEventListener('click', function() { openEditTimestamp(e); });
+    })(entry);
+
+    timeWrap.appendChild(time);
+    timeWrap.appendChild(editTsBtn);
 
     var body = document.createElement('div');
     body.className = 'tl-body';
 
     var typeEl = document.createElement('div');
-    typeEl.className = 'tl-type';
+    typeEl.className = entry.type === 'mark' ? 'tl-type mark' : 'tl-type';
     typeEl.textContent = entry.label;
 
     var detailEl = document.createElement('div');
@@ -2092,11 +2201,193 @@ function renderTimeline() {
 
     body.appendChild(typeEl);
     body.appendChild(detailEl);
+
+    // Mark entries get an Annotate button
+    if (entry.type === 'mark') {
+      var annotateBtn = document.createElement('button');
+      annotateBtn.className = 'tl-annotate-btn';
+      annotateBtn.textContent = 'Annotate';
+      annotateBtn.setAttribute('type', 'button');
+      (function(e) {
+        annotateBtn.addEventListener('click', function() { openAnnotateMark(e); });
+      })(entry);
+      body.appendChild(annotateBtn);
+    }
+
     row.appendChild(icon);
-    row.appendChild(time);
+    row.appendChild(timeWrap);
     row.appendChild(body);
     list.appendChild(row);
   });
+}
+
+/* ── Open Annotate sheet for a mark entry ── */
+function openAnnotateMark(entry) {
+  var frag = document.createDocumentFragment();
+
+  var markedAtLbl = document.createElement('div');
+  markedAtLbl.style.cssText = 'font-size:13px;color:var(--muted);margin-bottom:16px';
+  markedAtLbl.textContent = 'Marked at: ' + fmtTime(entry.ts);
+  frag.appendChild(markedAtLbl);
+
+  // Time nudge buttons
+  var nudgeLabel = document.createElement('div');
+  nudgeLabel.style.cssText = 'font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;font-weight:700';
+  nudgeLabel.textContent = 'Adjust time';
+  frag.appendChild(nudgeLabel);
+
+  var nudgeRow = document.createElement('div');
+  nudgeRow.className = 'nudge-row';
+  [[-1, '−1 min'], [+1, '+1 min']].forEach(function(pair) {
+    var btn = document.createElement('button');
+    btn.className = 'nudge-btn';
+    btn.textContent = pair[1];
+    btn.setAttribute('type', 'button');
+    (function(delta) {
+      btn.addEventListener('click', function() {
+        entry.ts += delta * 60000;
+        var idx = STATE.timeline.findIndex(function(x) { return x.id === entry.id; });
+        if (idx >= 0) STATE.timeline[idx].ts = entry.ts;
+        saveState();
+        markedAtLbl.textContent = 'Marked at: ' + fmtTime(entry.ts);
+        renderTimeline();
+      });
+    })(pair[0]);
+    nudgeRow.appendChild(btn);
+  });
+  frag.appendChild(nudgeRow);
+
+  // Label field
+  var labelFld = document.createElement('div');
+  labelFld.style.cssText = 'margin-bottom:14px';
+  var labelLbl = document.createElement('label');
+  labelLbl.style.cssText = 'display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px;letter-spacing:.3px';
+  labelLbl.textContent = 'Label (what happened at this time)';
+  var labelInput = document.createElement('input');
+  labelInput.type = 'text';
+  labelInput.placeholder = 'e.g. Morphine 4mg IVP given';
+  labelInput.style.cssText = 'width:100%;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:15px;font-family:inherit;padding:11px 13px;outline:none;transition:border-color .15s';
+  labelInput.value = entry.details && entry.details.note ? entry.details.note : '';
+  labelFld.appendChild(labelLbl);
+  labelFld.appendChild(labelInput);
+  frag.appendChild(labelFld);
+
+  var actions = document.createElement('div');
+  actions.className = 'sheet-actions';
+  var saveBtn = document.createElement('button');
+  saveBtn.className = 'btn accent';
+  saveBtn.textContent = 'Save';
+  saveBtn.setAttribute('type', 'button');
+  saveBtn.addEventListener('click', function() {
+    var note = labelInput.value.trim();
+    var idx = STATE.timeline.findIndex(function(x) { return x.id === entry.id; });
+    if (idx >= 0) {
+      STATE.timeline[idx].details = STATE.timeline[idx].details || {};
+      STATE.timeline[idx].details.note = note;
+      if (note) STATE.timeline[idx].label = note;
+    }
+    saveState();
+    renderTimeline();
+    closeSheet();
+    toast('Mark annotated');
+  });
+  var cancelBtn = document.createElement('button');
+  cancelBtn.className = 'btn';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.setAttribute('type', 'button');
+  cancelBtn.addEventListener('click', closeSheet);
+  actions.appendChild(saveBtn);
+  actions.appendChild(cancelBtn);
+  frag.appendChild(actions);
+
+  openSheet('⏱ Annotate Mark', frag);
+}
+
+/* ── Open Edit Timestamp sheet for any entry ── */
+function openEditTimestamp(entry) {
+  var frag = document.createDocumentFragment();
+
+  // Current time display
+  var currentLbl = document.createElement('div');
+  currentLbl.style.cssText = 'font-size:13px;color:var(--muted);margin-bottom:16px';
+  currentLbl.textContent = 'Current time: ' + fmtTime(entry.ts);
+  frag.appendChild(currentLbl);
+
+  // Nudge buttons
+  var nudgeLabel = document.createElement('div');
+  nudgeLabel.style.cssText = 'font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;font-weight:700';
+  nudgeLabel.textContent = 'Adjust time';
+  frag.appendChild(nudgeLabel);
+
+  var nudgeRow = document.createElement('div');
+  nudgeRow.className = 'nudge-row';
+  [[-5, '−5 min'], [-1, '−1 min'], [+1, '+1 min'], [+5, '+5 min']].forEach(function(pair) {
+    var btn = document.createElement('button');
+    btn.className = 'nudge-btn';
+    btn.textContent = pair[1];
+    btn.setAttribute('type', 'button');
+    (function(delta) {
+      btn.addEventListener('click', function() {
+        var idx = STATE.timeline.findIndex(function(x) { return x.id === entry.id; });
+        if (idx >= 0) {
+          STATE.timeline[idx].ts += delta * 60000;
+          entry.ts = STATE.timeline[idx].ts;
+        }
+        saveState();
+        currentLbl.textContent = 'Current time: ' + fmtTime(entry.ts);
+        timeInput.value = new Date(entry.ts).toTimeString().slice(0, 5);
+        renderTimeline();
+      });
+    })(pair[0]);
+    nudgeRow.appendChild(btn);
+  });
+  frag.appendChild(nudgeRow);
+
+  // Direct time input
+  var timeFld = document.createElement('div');
+  timeFld.style.cssText = 'margin-bottom:14px';
+  var timeLbl = document.createElement('label');
+  timeLbl.style.cssText = 'display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px;letter-spacing:.3px';
+  timeLbl.textContent = 'Set exact time';
+  var timeInput = document.createElement('input');
+  timeInput.type = 'time';
+  timeInput.style.cssText = 'width:100%;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:15px;font-family:inherit;padding:11px 13px;outline:none;transition:border-color .15s';
+  timeInput.value = new Date(entry.ts).toTimeString().slice(0, 5);
+  timeFld.appendChild(timeLbl);
+  timeFld.appendChild(timeInput);
+  frag.appendChild(timeFld);
+
+  var actions = document.createElement('div');
+  actions.className = 'sheet-actions';
+  var saveBtn = document.createElement('button');
+  saveBtn.className = 'btn accent';
+  saveBtn.textContent = 'Save';
+  saveBtn.setAttribute('type', 'button');
+  saveBtn.addEventListener('click', function() {
+    var val = timeInput.value;
+    if (val) {
+      var parts = val.split(':');
+      var d = new Date(entry.ts);
+      d.setHours(parseInt(parts[0], 10), parseInt(parts[1], 10), 0, 0);
+      var newTs = d.getTime();
+      var idx = STATE.timeline.findIndex(function(x) { return x.id === entry.id; });
+      if (idx >= 0) STATE.timeline[idx].ts = newTs;
+      saveState();
+      renderTimeline();
+    }
+    closeSheet();
+    toast('Time updated');
+  });
+  var cancelBtn = document.createElement('button');
+  cancelBtn.className = 'btn';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.setAttribute('type', 'button');
+  cancelBtn.addEventListener('click', closeSheet);
+  actions.appendChild(saveBtn);
+  actions.appendChild(cancelBtn);
+  frag.appendChild(actions);
+
+  openSheet('🕐 Edit Timestamp', frag);
 }
 
 /* ══════════════════════════════════════
@@ -2570,6 +2861,45 @@ function renderAll() {
 function reArmStoredTimers() {
   STATE.timers.filter(function(t) { return t.active; }).forEach(function(t) { armTimer(t); });
 }
+
+/* ══════════════════════════════════════
+   FLOATING MARK BUTTON
+══════════════════════════════════════ */
+
+(function() {
+  var markBtn = $('mark-btn');
+  if (!markBtn) return;
+
+  markBtn.addEventListener('click', function() {
+    // Capture timestamp
+    var now = Date.now();
+
+    // Push mark entry to timeline
+    STATE.timeline.push({
+      id: uid(),
+      type: 'mark',
+      ts: now,
+      label: 'Time Marked',
+      details: { note: '' }
+    });
+    saveState();
+    renderTimeline();
+
+    // Switch to Timeline tab so user sees entry
+    switchTab('timeline');
+
+    // Flash animation for haptic-feel feedback
+    markBtn.classList.remove('flash');
+    void markBtn.offsetWidth; // reflow to restart animation
+    markBtn.classList.add('flash');
+    setTimeout(function() { markBtn.classList.remove('flash'); }, 400);
+
+    // Vibrate if available
+    if (navigator.vibrate) navigator.vibrate(50);
+
+    toast('Time marked');
+  });
+})();
 
 /* ══════════════════════════════════════
    INIT

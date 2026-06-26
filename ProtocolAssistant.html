@@ -443,6 +443,7 @@
           <button class="tab" data-tab="meds">Meds <span class="tab-cnt" id="tc-m"></span></button>
           <button class="tab" data-tab="resources">Resources</button>
           <button class="tab" data-tab="contacts">Contacts</button>
+          <button class="tab" data-tab="pearls">Pearls</button>
         </div>
         <div class="hint">Select an Ambulance Service. Data is saved automatically.</div>
       </div>
@@ -1085,6 +1086,39 @@
         </div>
       </div>
       <div id="contacts-render"></div>
+    </section>
+
+    <!-- Pearls -->
+    <section id="panel-pearls" class="panel hidden">
+      <!-- Search bar -->
+      <div class="tab-filter">
+        <div class="meds-search-wrap">
+          <div class="meds-search-bar">
+            <span class="meds-search-icon">🔍</span>
+            <input type="search" id="pearls-filter-input" placeholder="Search clinical pearls…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+            <button id="pearls-filter-clear" class="meds-filter-clear" style="display:none">✕</button>
+          </div>
+        </div>
+      </div>
+      <!-- Category pills -->
+      <div class="tab-filter" style="padding-top:0;padding-bottom:4px">
+        <div class="filter-pills" id="pearls-cat-pills">
+          <button class="pill-btn active" data-pcat="All">All</button>
+          <button class="pill-btn" data-pcat="Airway">Airway</button>
+          <button class="pill-btn" data-pcat="Cardiac">Cardiac</button>
+          <button class="pill-btn" data-pcat="Trauma">Trauma</button>
+          <button class="pill-btn" data-pcat="Neuro">Neuro</button>
+          <button class="pill-btn" data-pcat="OB / Peds">OB / Peds</button>
+          <button class="pill-btn" data-pcat="Tox">Tox</button>
+          <button class="pill-btn" data-pcat="My Notes">My Notes</button>
+        </div>
+      </div>
+      <!-- Pearl cards container -->
+      <div id="pearls-list"></div>
+      <!-- Add Note button (shown when My Notes active) -->
+      <div id="pearls-add-note-row" style="display:none;padding:12px 0 20px">
+        <button class="btn primary" id="btn-add-pearl-note" style="width:100%">+ Add Note</button>
+      </div>
     </section>
 
     <!-- Shift Check-Off / EASI Forms -->
@@ -5048,8 +5082,9 @@
   };
 
   // --- Tabs (with memory) ---
-  const TABS_ORDER = ['protocols','meds','resources','contacts'];
+  const TABS_ORDER = ['protocols','meds','resources','contacts','pearls'];
   let _pedsRefInited = false;
+  let _pearlsInited = false;
 
   function activateTab(tabName){
     const btn = document.querySelector(`[data-tab="${tabName}"]`);
@@ -5063,6 +5098,7 @@
     $$('.panel').forEach(p=> p.classList.add('hidden'));
     $('#panel-'+tab).classList.remove('hidden');
     if(tab === 'resources' && !_pedsRefInited){ initPedsRef(); _pedsRefInited=true; }
+    if(tab === 'pearls' && !_pearlsInited){ initPearls(); _pearlsInited=true; }
     localStorage.setItem('pref_tab', tab);
   }));
 
@@ -7144,6 +7180,384 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       setTimeout(() => jumpToSection(target[1]), 250);
     }, 400);
   })();
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // PEARLS TAB
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const PEARLS = [
+    // AIRWAY
+    { id:'p-rsi-7p', cat:'Airway', title:'RSI — The 7 Ps', summary:'Preparation → Post-intubation management',
+      body:'1. Preparation — equipment, suction, backup airway, RSI drugs drawn\n2. Pre-oxygenation — NRB or BVM × 3–5 min, ETCO₂ attached\n3. Pre-treatment — consider lidocaine (ICP), atropine (peds bradycardia)\n4. Paralytic + Induction — Succinylcholine 1.5 mg/kg IV or Rocuronium 1.2 mg/kg IV; Ketamine 1–2 mg/kg IV (induction)\n5. Position — sniffing position, ear-to-sternal-notch alignment\n6. Placement — laryngoscopy, tube, confirm ETCO₂ waveform + bilateral breath sounds\n7. Post-intubation — secure tube, sedation/analgesia, ventilator settings, SpO₂ ≥94%' },
+
+    { id:'p-dope', cat:'Airway', title:'DOPE — Intubated Patient Deterioration', summary:'Dislodgement · Obstruction · Pneumothorax · Equipment',
+      body:'For any intubated patient who suddenly deteriorates:\n\nD — Dislodgement: confirm tube position, listen bilateral\nO — Obstruction: suction the tube, check for mucus plug or kinking\nP — Pneumothorax: listen, percuss, needle if tension suspected\nE — Equipment failure: check ventilator circuit, O₂ supply, BVM as backup\n\nAlways BVM the patient first if unsure — removes ventilator from the equation.' },
+
+    { id:'p-lemon', cat:'Airway', title:'LEMON — Difficult Airway Prediction', summary:'Look · Evaluate 3-3-2 · Mallampati · Obstruction · Neck',
+      body:'L — Look: small mouth, large tongue, short neck, facial trauma, beard/obesity\nE — Evaluate 3-3-2 rule:\n   • 3 fingers between incisors (mouth opening)\n   • 3 fingers from chin to hyoid (mandibular space)\n   • 2 fingers from hyoid to thyroid notch (laryngeal height)\nM — Mallampati: Class III–IV = difficult view\nO — Obstruction: foreign body, epiglottitis, abscess, trauma\nN — Neck mobility: C-collar, ankylosing spondylitis, obesity\n\nAny positive predictor = plan your backup airway BEFORE first attempt.' },
+
+    { id:'p-bvm', cat:'Airway', title:'BVM Best Practice', summary:'2-person preferred · E-C clamp · 1 breath / 6 sec',
+      body:'• 2-person technique preferred: one holds mask seal, one squeezes bag\n• E-C clamp: 3 fingers under mandible (E), thumb + index form C over mask\n• Rate: 1 breath every 6 sec (10/min) in arrest — avoid hyperventilation\n• Tidal volume: 500–600 mL (chest rise only, not a full squeeze)\n• PEEP valve improves oxygenation if available\n• If BVM resistance → suction, reposition, consider OPA/NPA\n• OPA sizing: corner of mouth to earlobe' },
+
+    // CARDIAC
+    { id:'p-stemi-equiv', cat:'Cardiac', title:'STEMI Equivalents', summary:"Wellens' · De Winter · LBBB — all = cath lab activation",
+      body:"Wellens' Syndrome (proximal LAD occlusion — pain-FREE period):\n  Type A: Biphasic T waves V2–V3\n  Type B: Deep symmetric T-wave inversions V2–V3\n  → Do NOT stress test. Cath lab activation.\n\nDe Winter T-waves (acute LAD occlusion):\n  • Upsloping ST depression ≥1mm at J-point in V1–V6\n  • Tall, prominent, symmetric T waves\n  • No ST elevation\n  → Treat as STEMI.\n\nLBBB (new or presumed new):\n  Sgarbossa criteria (≥3 points = STEMI):\n  • Concordant ST elevation ≥1mm (+5 pts)\n  • Concordant ST depression ≥1mm in V1–V3 (+3 pts)\n  • Discordant ST elevation ≥5mm (+2 pts)" },
+
+    { id:'p-hs-ts', cat:'Cardiac', title:"H's and T's — Reversible Arrest Causes", summary:'Hypovolemia · Hypoxia · Acidosis · K+ · Hypothermia | Tension · Tamponade · Toxins · Thrombosis',
+      body:"H's:\n  Hypovolemia — fluids, hemorrhage control\n  Hypoxia — airway, ventilation, oxygenation\n  Hydrogen ion (acidosis) — bicarb, hyperventilate\n  Hypo/Hyperkalemia — bicarb, calcium chloride\n  Hypothermia — active rewarming, continue CPR\n\nT's:\n  Tension pneumothorax — needle decompression\n  Tamponade (cardiac) — pericardiocentesis\n  Toxins — antidotes per agent\n  Thrombosis (PE) — consider lytics in refractory arrest\n  Thrombosis (MI) — cath lab if ROSC" },
+
+    { id:'p-shock-class', cat:'Cardiac', title:'Hemorrhagic Shock Classification', summary:'Class I–IV by blood loss % and clinical signs',
+      body:'Class I (<15% / <750 mL):\n  HR <100, BP normal, RR normal, alert. Minimal intervention.\n\nClass II (15–30% / 750–1500 mL):\n  HR 100–120, BP maintained, RR 20–30, anxious.\n  → 2 large-bore IVs, fluid resuscitation\n\nClass III (30–40% / 1500–2000 mL):\n  HR >120, BP DROPS, RR 30–40, confused.\n  → Aggressive resuscitation, blood products if available\n\nClass IV (>40% / >2000 mL):\n  HR >140, BP very low, RR >35, lethargic/unconscious.\n  → Immediate hemorrhage control, permissive hypotension (SBP 80–90), rapid transport\n\nShock Index (HR ÷ SBP): >1.0 = significant, >1.4 = severe' },
+
+    { id:'p-acls-vf', cat:'Cardiac', title:'ACLS — Shockable Rhythms (VF/pVT)', summary:'Shock → CPR 2 min → Epi → Shock → Amio/Lido',
+      body:'VF / Pulseless VT:\n1. Defibrillate immediately (200J biphasic)\n2. CPR × 2 min — minimize interruptions (<10 sec)\n3. Epinephrine 1mg IV/IO q3–5min\n4. Defibrillate q2min (shock → immediately resume CPR)\n5. After 3rd shock: Amiodarone 300mg IV/IO (2nd dose 150mg) OR Lidocaine 1–1.5 mg/kg\n6. Treat reversible causes (H\'s & T\'s)\n\nHigh-quality CPR: rate 100–120/min, depth 2–2.4 in, full recoil, minimize pauses' },
+
+    // TRAUMA
+    { id:'p-march', cat:'Trauma', title:'MARCH — Tactical/Trauma Priorities', summary:'Massive hemorrhage · Airway · Respiration · Circulation · Hypothermia',
+      body:'M — Massive Hemorrhage: tourniquet or wound packing + pressure FIRST\nA — Airway: chin-lift/jaw-thrust, NPA, surgical airway if needed\nR — Respiration: needle decompress tension PTX, seal open chest wounds (3-sided)\nC — Circulation: IV/IO access, permissive hypotension (SBP 80–90 in penetrating), TXA\nH — Hypothermia prevention: blankets, warm fluids, minimize exposure\n\nTXA criteria: significant hemorrhage + within 3 hours of injury\nDose: 1g IV over 10 min (2nd dose 1g over 8 hrs at hospital)' },
+
+    { id:'p-tbi', cat:'Trauma', title:'TBI Management Pearls', summary:'Oxygenation · BP · Herniation signs · Hyperventilation only if herniating',
+      body:'Goals:\n  SpO₂ ≥94% (hypoxia doubles mortality)\n  SBP ≥90 mmHg (hypotension doubles mortality)\n  Avoid hyperthermia\n  HOB 30° if possible\n\nHerniation signs (Cushing\'s Triad):\n  Hypertension (wide pulse pressure) + Bradycardia + Irregular respirations\n  → Indicates imminent uncal herniation\n\nHyperventilation: ONLY for herniation (not routine)\n  Target ETCO₂ 35 mmHg (normal) → 30–35 mmHg (herniation)\n  Rate 20/min adult, 25/min child\n\nDo NOT hyperventilate routinely — causes cerebral vasoconstriction + worsens outcome' },
+
+    // NEURO
+    { id:'p-befast', cat:'Neuro', title:'BE-FAST Stroke Recognition', summary:'Balance · Eyes · Face · Arm · Speech · Time',
+      body:'B — Balance: sudden loss of balance or coordination\nE — Eyes: sudden vision changes, double vision, loss of vision\nF — Face: facial droop (ask to smile — asymmetric?)\nA — Arm: arm weakness/drift (hold both arms out 10 sec)\nS — Speech: slurred, wrong words, unable to speak\nT — Time: note last known well time — this is the lytics clock\n\nCincinnati Stroke Scale:\nAny ONE of Face/Arm/Speech positive = 72% stroke probability\n\nLVO Indicators (large vessel occlusion — thrombectomy candidate):\n  NIHSS ≥6, gaze deviation, dense MCA sign on CT, RACE scale ≥5' },
+
+    { id:'p-seizure', cat:'Neuro', title:'Seizure Management', summary:'Protect · Time it · Benzos · Airway post-ictal',
+      body:'Active Seizure:\n1. Protect from injury, do not restrain, do not put anything in mouth\n2. Time the seizure from first movement\n3. Establish IV/IO if prolonged (>2–3 min)\n4. Benzodiazepine:\n   • Midazolam 10mg IM (preferred in field — no IV needed)\n   • Lorazepam 2–4mg IV\n   • Diazepam 5–10mg IV or 0.5 mg/kg PR\n5. Repeat benzo once if seizure continues at 5 min\n6. Status epilepticus (>5 min or 2 seizures without recovery) → aggressive treatment, rapid transport\n\nPost-ictal: maintain airway (recovery position), suction, O₂, monitor\nCheck glucose — hypoglycemia is a common reversible cause' },
+
+    // OB/PEDS
+    { id:'p-peds-vitals', cat:'OB / Peds', title:'Pediatric Vital Sign Normals', summary:'HR · RR · BP by age — memorize the ranges',
+      body:'Age         HR (bpm)    RR (/min)   SBP (mmHg)\nNewborn     120–160     40–60       60–90\n1–12 mo     100–160     30–60       70–100\n1–3 yr      90–150      24–40       80–110\n3–5 yr      80–140      22–34       80–110\n6–12 yr     70–120      18–30       90–120\n>12 yr      60–100      12–20       100–130\n\nHypotension by age:\n  <1 yr: SBP <60\n  1–10 yr: SBP <70 + (2 × age in years)\n  >10 yr: SBP <90\n\nPediatric ETT size (uncuffed): (Age ÷ 4) + 4\nPediatric ETT depth (cm at lip): (Age ÷ 2) + 12' },
+
+    { id:'p-eclampsia', cat:'OB / Peds', title:'Eclampsia / Severe Pre-eclampsia', summary:'MgSO₄ for seizure · Labetalol/Hydralazine for HTN · Left lateral',
+      body:'Eclampsia = seizure in pregnancy/postpartum with no other cause\n\nMagnesium Sulfate:\n  Loading: 4–6g IV over 15–20 min\n  Maintenance: 1–2 g/hr (at hospital)\n  Toxicity signs: loss of DTRs, respiratory depression, cardiac arrest\n  Antidote: Calcium gluconate 1g IV\n\nHTN Management (SBP ≥160 or DBP ≥110):\n  Labetalol 20mg IV (can repeat 40mg, 80mg q10min)\n  Hydralazine 5–10mg IV q20min\n  Goal SBP 140–155 (avoid aggressive reduction)\n\nPositioning: left lateral decubitus (relieves aortocaval compression)\nOxygen: NRB 10–15 LPM\nPriority: rapid transport — definitive Rx is delivery' },
+
+    // TOX
+    { id:'p-toxidromes', cat:'Tox', title:'Toxidrome Recognition', summary:'Opioid · Sympathomimetic · Cholinergic · Anticholinergic',
+      body:'Opioid:\n  Miosis (pinpoint pupils), CNS depression, respiratory depression\n  → Naloxone 0.4–2mg IV/IM/IN, titrate to respirations\n\nSympathomimetic (cocaine, meth, MDMA):\n  Mydriasis, tachycardia, hypertension, hyperthermia, agitation, diaphoresis\n  → Benzos for agitation, cooling\n\nCholinergic — SLUDGE/DUMBELS (organophosphates, nerve agents):\n  Salivation, Lacrimation, Urination, Defecation, GI distress, Emesis\n  → Atropine 2–4mg IV q5min until secretions dry + 2-PAM 1–2g IV\n\nAnticholinergic ("hot as a hare, dry as a bone, blind as a bat, mad as a hatter, red as a beet"):\n  Mydriasis, dry skin/mouth, urinary retention, tachycardia, delirium, flushing\n  → Physostigmine (in-hospital); supportive care, cooling, benzos' },
+
+    { id:'p-antidotes', cat:'Tox', title:'Antidote Quick Reference', summary:'Naloxone · Atropine · Bicarb · Glucagon · Calcium · Flumazenil',
+      body:'Opioids → Naloxone (Narcan) 0.4–2mg IV/IM/IN\nOrganophosphates/Nerve agents → Atropine 2–4mg IV + Pralidoxime (2-PAM) 1–2g IV\nTricyclic antidepressants (TCA) → Sodium Bicarbonate 1–2 mEq/kg IV (for wide QRS/hypotension)\nBeta-blockers → Glucagon 3–10mg IV; High-dose insulin in refractory cases\nCalcium channel blockers → Calcium chloride 1g IV + Glucagon; High-dose insulin\nBenzodiazepines → Flumazenil 0.2mg IV (caution: lowers seizure threshold, avoid in polypharmacy/chronic benzo use)\nAcetaminophen → N-acetylcysteine (NAC) — at hospital; transport all suspected OD >7.5g\nCyanide → Hydroxocobalamin (Cyanokit) 5g IV; amyl nitrite if Cyanokit unavailable\nMethemoglobinemia → Methylene blue 1–2 mg/kg IV\nHeparin overdose → Protamine sulfate (at hospital)' },
+  ];
+
+  // User notes loaded from Firestore (My Notes category)
+  let _userNotes = [];
+  let _pearlsFilterText = '';
+  let _pearlsActiveCat = 'All';
+
+  function initPearls() {
+    // Search bar
+    const filterInput = $('#pearls-filter-input');
+    const filterClear = $('#pearls-filter-clear');
+    filterInput.addEventListener('input', () => {
+      _pearlsFilterText = filterInput.value;
+      filterClear.style.display = _pearlsFilterText ? '' : 'none';
+      renderPearls(_pearlsFilterText, _pearlsActiveCat);
+    });
+    filterClear.addEventListener('click', () => {
+      filterInput.value = '';
+      _pearlsFilterText = '';
+      filterClear.style.display = 'none';
+      filterInput.focus();
+      renderPearls('', _pearlsActiveCat);
+    });
+
+    // Category pills
+    const pills = $$('[data-pcat]');
+    pills.forEach(btn => {
+      btn.addEventListener('click', () => {
+        pills.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        _pearlsActiveCat = btn.dataset.pcat;
+        const addRow = $('#pearls-add-note-row');
+        if (addRow) addRow.style.display = _pearlsActiveCat === 'My Notes' ? '' : 'none';
+        renderPearls(_pearlsFilterText, _pearlsActiveCat);
+      });
+    });
+
+    // Add Note button
+    const addBtn = $('#btn-add-pearl-note');
+    if (addBtn) addBtn.addEventListener('click', openAddNoteSheet);
+
+    // Load user notes from Firestore if logged in
+    loadUserNotes();
+
+    // Render initial state
+    renderPearls('', 'All');
+  }
+
+  function loadUserNotes() {
+    if (!fbAuth || !fbAuth.currentUser) return;
+    const uid = fbAuth.currentUser.uid;
+    fbDb.collection('users').doc(uid).collection('pearls')
+      .orderBy('createdAt', 'desc')
+      .get()
+      .then(snap => {
+        _userNotes = [];
+        snap.forEach(doc => {
+          const d = doc.data();
+          _userNotes.push({ id: doc.id, cat: 'My Notes', title: d.title || 'Untitled', summary: d.summary || '', body: d.body || '' });
+        });
+        if (_pearlsActiveCat === 'My Notes' || _pearlsActiveCat === 'All') {
+          renderPearls(_pearlsFilterText, _pearlsActiveCat);
+        }
+      })
+      .catch(() => {});
+  }
+
+  function renderPearls(filter, category) {
+    const container = $('#pearls-list');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const q = (filter || '').toLowerCase().trim();
+    // Combine static pearls + user notes
+    const all = PEARLS.concat(_userNotes);
+
+    const items = all.filter(p => {
+      const catMatch = category === 'All' || p.cat === category;
+      if (!catMatch) return false;
+      if (!q) return true;
+      return p.title.toLowerCase().includes(q) || p.body.toLowerCase().includes(q) || p.summary.toLowerCase().includes(q);
+    });
+
+    if (!items.length) {
+      const empty = document.createElement('div');
+      empty.style.cssText = 'text-align:center;padding:40px 20px;color:var(--muted);font-size:14px';
+      const icon = document.createElement('div');
+      icon.style.cssText = 'font-size:32px;margin-bottom:10px';
+      icon.textContent = '🔍';
+      const msg = document.createElement('div');
+      msg.textContent = q ? 'No pearls match your search.' : 'No pearls in this category.';
+      empty.appendChild(icon);
+      empty.appendChild(msg);
+      container.appendChild(empty);
+      return;
+    }
+
+    items.forEach(pearl => {
+      const card = buildPearlCard(pearl);
+      container.appendChild(card);
+    });
+  }
+
+  function buildPearlCard(pearl) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.marginBottom = '10px';
+    card.dataset.pearlId = pearl.id;
+
+    const header = document.createElement('div');
+    header.className = 'card-header';
+    header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;cursor:pointer;user-select:none;-webkit-user-select:none';
+
+    const headerLeft = document.createElement('div');
+    headerLeft.style.cssText = 'flex:1;min-width:0;margin-right:10px';
+
+    const titleEl = document.createElement('div');
+    titleEl.style.cssText = 'font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px';
+    titleEl.textContent = pearl.title;
+
+    const summaryEl = document.createElement('div');
+    summaryEl.style.cssText = 'font-size:13px;color:var(--muted);line-height:1.4';
+    summaryEl.textContent = pearl.summary;
+
+    headerLeft.appendChild(titleEl);
+    headerLeft.appendChild(summaryEl);
+
+    const chevWrap = document.createElement('div');
+    chevWrap.style.cssText = 'display:flex;align-items:center;gap:6px;flex-shrink:0';
+
+    // Edit/Delete button for My Notes
+    if (pearl.cat === 'My Notes') {
+      const moreBtn = document.createElement('button');
+      moreBtn.textContent = '···';
+      moreBtn.style.cssText = 'background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:13px;padding:3px 8px;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent';
+      moreBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        openNoteOptionsSheet(pearl);
+      });
+      chevWrap.appendChild(moreBtn);
+    }
+
+    const chev = document.createElement('span');
+    chev.className = 'card-chev';
+    chev.textContent = '▾';
+    chev.style.cssText = 'font-size:14px;color:var(--muted);transition:transform .2s;display:inline-block';
+    chevWrap.appendChild(chev);
+
+    header.appendChild(headerLeft);
+    header.appendChild(chevWrap);
+
+    const body = document.createElement('div');
+    body.className = 'card-body';
+    body.style.cssText = 'display:none;padding:0 16px 16px;border-top:1px solid var(--border)';
+
+    const bodyText = document.createElement('div');
+    bodyText.style.cssText = 'font-size:14px;line-height:1.65;color:var(--text);white-space:pre-line;margin-top:12px';
+    bodyText.textContent = pearl.body;
+
+    body.appendChild(bodyText);
+
+    // Toggle expand/collapse
+    header.addEventListener('click', () => {
+      const expanded = body.style.display !== 'none';
+      body.style.display = expanded ? 'none' : 'block';
+      chev.style.transform = expanded ? '' : 'rotate(180deg)';
+    });
+
+    card.appendChild(header);
+    card.appendChild(body);
+    return card;
+  }
+
+  function openAddNoteSheet(existingNote) {
+    const isEdit = existingNote && existingNote.id;
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.style.zIndex = '200';
+
+    const box = document.createElement('div');
+    box.className = 'modal-box';
+
+    const head = document.createElement('div');
+    head.className = 'modal-head';
+    const headTitle = document.createElement('div');
+    headTitle.style.cssText = 'font-size:17px;font-weight:700';
+    headTitle.textContent = isEdit ? 'Edit Note' : 'New Note';
+    const closeBtn = document.createElement('button');
+    closeBtn.style.cssText = 'background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0 4px;line-height:1';
+    closeBtn.textContent = '✕';
+    closeBtn.addEventListener('click', () => overlay.remove());
+    head.appendChild(headTitle);
+    head.appendChild(closeBtn);
+    box.appendChild(head);
+
+    function mkField(label, type, placeholder, value) {
+      const fg = document.createElement('div');
+      fg.className = 'fg';
+      const lbl = document.createElement('label');
+      lbl.textContent = label;
+      let inp;
+      if (type === 'textarea') {
+        inp = document.createElement('textarea');
+        inp.rows = 6;
+        inp.style.cssText = 'resize:vertical;font-family:inherit;font-size:14px;white-space:pre-wrap';
+      } else {
+        inp = document.createElement('input');
+        inp.type = type;
+      }
+      inp.placeholder = placeholder;
+      inp.value = value || '';
+      fg.appendChild(lbl);
+      fg.appendChild(inp);
+      return { el: fg, inp };
+    }
+
+    const { el: titleFg, inp: titleInp } = mkField('Title', 'text', 'e.g. RSI Checklist', isEdit ? existingNote.title : '');
+    const { el: summaryFg, inp: summaryInp } = mkField('Summary (one-liner)', 'text', 'Brief description', isEdit ? existingNote.summary : '');
+    const { el: bodyFg, inp: bodyInp } = mkField('Body', 'textarea', 'Full note content…', isEdit ? existingNote.body : '');
+    box.appendChild(titleFg);
+    box.appendChild(summaryFg);
+    box.appendChild(bodyFg);
+
+    const rowDiv = document.createElement('div');
+    rowDiv.className = 'row';
+
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'btn primary';
+    saveBtn.style.cssText = 'flex:1;margin-top:6px';
+    saveBtn.textContent = isEdit ? 'Save Changes' : 'Add Note';
+    saveBtn.addEventListener('click', () => {
+      const title = titleInp.value.trim();
+      const summary = summaryInp.value.trim();
+      const body = bodyInp.value.trim();
+      if (!title) { titleInp.focus(); return; }
+      if (!fbAuth || !fbAuth.currentUser) {
+        alert('You must be signed in to save notes.');
+        return;
+      }
+      const uid = fbAuth.currentUser.uid;
+      const col = fbDb.collection('users').doc(uid).collection('pearls');
+      const data = { title, summary, body, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+      const op = isEdit
+        ? col.doc(existingNote.id).update(data)
+        : col.add({ ...data, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      op.then(() => {
+        overlay.remove();
+        loadUserNotes();
+      }).catch(err => { console.error(err); });
+    });
+
+    rowDiv.appendChild(saveBtn);
+    box.appendChild(rowDiv);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+    setTimeout(() => titleInp.focus(), 80);
+  }
+
+  function openNoteOptionsSheet(pearl) {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.style.zIndex = '200';
+
+    const box = document.createElement('div');
+    box.className = 'modal-box';
+    box.style.maxHeight = '300px';
+
+    const head = document.createElement('div');
+    head.className = 'modal-head';
+    const headTitle = document.createElement('div');
+    headTitle.style.cssText = 'font-size:17px;font-weight:700';
+    headTitle.textContent = pearl.title;
+    const closeBtn = document.createElement('button');
+    closeBtn.style.cssText = 'background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0 4px;line-height:1';
+    closeBtn.textContent = '✕';
+    closeBtn.addEventListener('click', () => overlay.remove());
+    head.appendChild(headTitle);
+    head.appendChild(closeBtn);
+    box.appendChild(head);
+
+    const editBtn = document.createElement('button');
+    editBtn.className = 'btn';
+    editBtn.style.cssText = 'width:100%;margin-bottom:8px;text-align:left';
+    editBtn.textContent = '✏️ Edit Note';
+    editBtn.addEventListener('click', () => {
+      overlay.remove();
+      openAddNoteSheet(pearl);
+    });
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'btn danger';
+    deleteBtn.style.cssText = 'width:100%;text-align:left';
+    deleteBtn.textContent = '🗑 Delete Note';
+    deleteBtn.addEventListener('click', () => {
+      if (!fbAuth || !fbAuth.currentUser) return;
+      const uid = fbAuth.currentUser.uid;
+      fbDb.collection('users').doc(uid).collection('pearls').doc(pearl.id).delete()
+        .then(() => {
+          overlay.remove();
+          loadUserNotes();
+        }).catch(() => {});
+    });
+
+    box.appendChild(editBtn);
+    box.appendChild(deleteBtn);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  }
+
+  // Re-load user notes when auth state changes
+  fbAuth.onAuthStateChanged(user => {
+    if (user && _pearlsInited) loadUserNotes();
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // END PEARLS TAB
+  // ─────────────────────────────────────────────────────────────────────────
 
   // --- Source protection (deterrents) ---
   document.addEventListener('contextmenu', e => e.preventDefault());
