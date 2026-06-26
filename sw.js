@@ -1,4 +1,4 @@
-const CACHE = 'pat-v5';
+const CACHE = 'pat-v6';
 
 // Local app files — always pre-cached
 const LOCAL = [
