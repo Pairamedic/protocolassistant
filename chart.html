@@ -793,12 +793,114 @@
   <!-- ── Tab Content ── -->
   <div class="tab-content" id="main-scroll">
 
-    <!-- TAB: Rx -->
-    <div class="tab-panel active" id="tab-meds">
+    <!-- TAB: Patient -->
+    <div class="tab-panel active" id="tab-patient">
+      <div class="tab-inner">
+
+        <!-- Patient Info -->
+        <div class="card">
+          <div class="card-hdr"><span class="card-title">Patient Info</span></div>
+          <div class="card-body">
+            <div class="field">
+              <label for="rpt-cc">Chief Complaint</label>
+              <input type="text" id="rpt-cc" placeholder="e.g. Chest pain, difficulty breathing..." autocomplete="off" />
+            </div>
+            <div class="field">
+              <label>Patient Weight</label>
+              <div class="weight-row">
+                <input type="number" id="rpt-weight" placeholder="0" min="0" step="0.1" />
+                <div class="unit-toggle">
+                  <button class="unit-btn active" data-unit="kg">kg</button>
+                  <button class="unit-btn" data-unit="lb">lb</button>
+                </div>
+              </div>
+            </div>
+            <div class="field">
+              <label for="rpt-allergies">Allergies</label>
+              <input type="text" id="rpt-allergies" placeholder="NKDA or list allergies" autocomplete="off" />
+            </div>
+            <div class="field">
+              <label for="rpt-hx">Pertinent Hx</label>
+              <textarea id="rpt-hx" rows="3" placeholder="Brief past medical / surgical history, current medications, relevant history..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Current Status -->
+        <div class="card">
+          <div class="card-hdr"><span class="card-title">Current Status</span></div>
+          <div class="card-body">
+            <div class="status-grid">
+              <div class="field">
+                <label for="st-hr">HR (bpm)</label>
+                <input type="number" id="st-hr" placeholder="72" />
+              </div>
+              <div class="field">
+                <label for="st-spo2">SpO&#8322; (%)</label>
+                <input type="number" id="st-spo2" min="0" max="100" placeholder="98" />
+              </div>
+              <div class="field">
+                <label for="st-bps">BP Systolic</label>
+                <input type="number" id="st-bps" placeholder="120" />
+              </div>
+              <div class="field">
+                <label for="st-bpd">BP Diastolic</label>
+                <input type="number" id="st-bpd" placeholder="80" />
+              </div>
+              <div class="field">
+                <label for="st-etco2">EtCO&#8322; (mmHg)</label>
+                <input type="number" id="st-etco2" placeholder="38" />
+              </div>
+              <div class="field">
+                <label for="st-rr">RR (/min)</label>
+                <input type="number" id="st-rr" placeholder="16" />
+              </div>
+              <div class="field">
+                <label for="st-temp">Temp (°F)</label>
+                <input type="number" id="st-temp" step="0.1" placeholder="98.6" />
+              </div>
+              <div class="field">
+                <label for="st-bgl">BGL (mg/dL)</label>
+                <input type="number" id="st-bgl" placeholder="100" />
+              </div>
+              <div class="field">
+                <label for="st-gcs">GCS</label>
+                <input type="number" id="st-gcs" min="3" max="15" placeholder="15" />
+              </div>
+            </div>
+            <div class="field" style="margin-top:8px">
+              <label for="st-airway">Airway</label>
+              <select id="st-airway">
+                <option value="">Select airway</option>
+                <option value="Patent — room air">Patent — room air</option>
+                <option value="NPA">NPA</option>
+                <option value="OPA">OPA</option>
+                <option value="BVM">BVM</option>
+                <option value="King LT">King LT</option>
+                <option value="i-gel">i-gel</option>
+                <option value="Intubated-OTI">Intubated — OTI</option>
+                <option value="Surgical cric">Surgical cric</option>
+                <option value="CPAP">CPAP</option>
+                <option value="High-flow NC">High-flow NC</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="field hidden" id="vent-mode-field">
+              <label for="st-vent">Vent Mode / Settings</label>
+              <input type="text" id="st-vent" placeholder="AC/VC: TV 450, RR 14, PEEP 5, FiO2 40%" autocomplete="off" />
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB: Meds -->
+    <div class="tab-panel" id="tab-meds">
       <div class="tab-inner">
 
         <div class="btn-row">
-          <button class="btn accent" id="btn-add-med">+ Add Rx</button>
+          <button class="btn accent" id="btn-add-med">+ Add Med</button>
           <button class="btn" id="btn-add-site">+ IV Site</button>
         </div>
 
@@ -812,18 +914,18 @@
           </div>
         </div>
 
-        <!-- Active Rx -->
-        <div class="section-title">Active Rx</div>
+        <!-- Active Meds -->
+        <div class="section-title">Active Medications</div>
         <div id="active-meds-list">
           <div class="empty-state">
             <div class="empty-icon">💊</div>
-            <div>No active Rx</div>
+            <div>No active medications</div>
           </div>
         </div>
 
-        <!-- Discontinued Rx -->
+        <!-- Discontinued Meds -->
         <div class="collapsible-hdr" id="dc-meds-toggle">
-          <span class="section-title" style="margin:0">Discontinued Rx</span>
+          <span class="section-title" style="margin:0">Discontinued</span>
           <span class="caret">▼</span>
         </div>
         <div class="collapsible-body" id="dc-meds-list">
@@ -886,9 +988,13 @@
 
   <!-- ── Bottom Nav ── -->
   <nav class="bottom-nav">
-    <button class="nav-btn active" data-tab="meds">
+    <button class="nav-btn active" data-tab="patient">
+      <span class="nav-pill"><span class="nav-icon">🧑</span></span>
+      <span>Patient</span>
+    </button>
+    <button class="nav-btn" data-tab="meds">
       <span class="nav-pill"><span class="nav-icon">💊</span></span>
-      <span>Rx</span>
+      <span>Meds</span>
     </button>
     <button class="nav-btn" data-tab="timeline">
       <span class="nav-pill"><span class="nav-icon">🕐</span></span>
@@ -1159,7 +1265,7 @@ $('btn-new-run').addEventListener('click', function() {
     saveState();
     addTimelineEntry('runstart', 'Run Started', {});
     renderAll();
-    switchTab('meds');
+    switchTab('patient');
     setTimeout(function() {
       var el = $('rpt-cc');
       if (el) el.focus();
@@ -1501,7 +1607,7 @@ function renderMeds() {
     ei.className = 'empty-icon';
     ei.textContent = '💊';
     var em = document.createElement('div');
-    em.textContent = 'No active Rx';
+    em.textContent = 'No active medications';
     empty.appendChild(ei);
     empty.appendChild(em);
     activeList.appendChild(empty);
@@ -2234,7 +2340,7 @@ function buildExportText() {
 
   var activeMeds = STATE.meds.filter(function(m) { return m.active; });
   if (activeMeds.length) {
-    lines.push('=== ACTIVE RX ===');
+    lines.push('=== ACTIVE MEDICATIONS ===');
     activeMeds.forEach(function(m) {
       var s = '• ' + m.name;
       if (m.dose) s += ' ' + m.dose;
@@ -2250,7 +2356,7 @@ function buildExportText() {
 
   var dcMeds = STATE.meds.filter(function(m) { return !m.active; });
   if (dcMeds.length) {
-    lines.push('=== DISCONTINUED RX ===');
+    lines.push('=== DISCONTINUED MEDICATIONS ===');
     dcMeds.forEach(function(m) {
       var s = '• ' + m.name;
       if (m.dose) s += ' ' + m.dose;
