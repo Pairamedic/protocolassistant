@@ -3,10 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>RELAY — Transfer Tracker</title>
+  <title>CHART</title>
+  <link rel="manifest" href="chart-manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="chart-icon.svg" />
+  <link rel="apple-touch-icon" sizes="180x180" href="chart-icon-180.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="RELAY" />
+  <meta name="apple-mobile-web-app-title" content="CHART" />
   <meta name="theme-color" content="#0b0d10" />
   <style>
     /* ── CSS Variables ── */
@@ -769,13 +772,13 @@
       <div style="display:flex;align-items:center;gap:10px">
         <a href="dashboard.html" style="font-size:18px;text-decoration:none;opacity:.75;line-height:1" title="PULSE Home">⌂</a>
         <div>
-          <div class="app-title">RELAY</div>
-          <div class="app-subtitle" id="call-status">No active call</div>
+          <div class="app-title">CHART</div>
+          <div class="app-subtitle" id="run-status">No active run</div>
         </div>
       </div>
       <div class="hdr-btns">
-        <button id="btn-new-call" class="hdr-btn accent">+ New Call</button>
-        <button id="btn-end-call" class="hdr-btn danger hidden">End Call</button>
+        <button id="btn-new-run" class="hdr-btn accent">+ New Run</button>
+        <button id="btn-end-run" class="hdr-btn danger hidden">End Run</button>
       </div>
     </div>
   </header>
@@ -790,25 +793,17 @@
   <!-- ── Tab Content ── -->
   <div class="tab-content" id="main-scroll">
 
-    <!-- TAB: Report -->
-    <div class="tab-panel active" id="tab-report">
+    <!-- TAB: Patient -->
+    <div class="tab-panel active" id="tab-patient">
       <div class="tab-inner">
 
-        <!-- Transfer Info -->
+        <!-- Patient Info -->
         <div class="card">
-          <div class="card-hdr"><span class="card-title">Transfer Info</span></div>
+          <div class="card-hdr"><span class="card-title">Patient Info</span></div>
           <div class="card-body">
             <div class="field">
-              <label for="rpt-sending">Sending Facility</label>
-              <input type="text" id="rpt-sending" placeholder="Hospital name" autocomplete="off" />
-            </div>
-            <div class="field">
-              <label for="rpt-receiving">Receiving Facility</label>
-              <input type="text" id="rpt-receiving" placeholder="Destination hospital" autocomplete="off" />
-            </div>
-            <div class="field">
-              <label for="rpt-reason">Reason for Transfer</label>
-              <textarea id="rpt-reason" rows="3" placeholder="Primary reason / diagnosis..."></textarea>
+              <label for="rpt-cc">Chief Complaint</label>
+              <input type="text" id="rpt-cc" placeholder="e.g. Chest pain, difficulty breathing..." autocomplete="off" />
             </div>
             <div class="field">
               <label>Patient Weight</label>
@@ -824,33 +819,10 @@
               <label for="rpt-allergies">Allergies</label>
               <input type="text" id="rpt-allergies" placeholder="NKDA or list allergies" autocomplete="off" />
             </div>
-          </div>
-        </div>
-
-        <!-- Hospital Course -->
-        <div class="card">
-          <div class="card-hdr"><span class="card-title">Hospital Course</span></div>
-          <div class="card-body">
             <div class="field">
-              <label for="rpt-course">Pertinent Events During Stay</label>
-              <textarea id="rpt-course" rows="4" placeholder="e.g. Intubated day 2, developed pneumonia, started on pressors 6 hrs ago..."></textarea>
+              <label for="rpt-hx">Pertinent Hx</label>
+              <textarea id="rpt-hx" rows="3" placeholder="Brief past medical / surgical history, current medications, relevant history..."></textarea>
             </div>
-            <div class="field">
-              <label for="rpt-procedures">Procedures Performed</label>
-              <textarea id="rpt-procedures" rows="2" placeholder="Central line, arterial line, bronchoscopy..."></textarea>
-            </div>
-          </div>
-        </div>
-
-        <!-- Critical Labs -->
-        <div class="card">
-          <div class="card-hdr">
-            <span class="card-title">Critical Labs</span>
-            <button class="btn sm" id="btn-add-lab">+ Custom Lab</button>
-          </div>
-          <div class="card-body">
-            <div class="labs-grid" id="labs-grid"></div>
-            <div id="custom-labs-container"></div>
           </div>
         </div>
 
@@ -860,8 +832,8 @@
           <div class="card-body">
             <div class="status-grid">
               <div class="field">
-                <label for="st-gcs">GCS</label>
-                <input type="number" id="st-gcs" min="3" max="15" placeholder="15" />
+                <label for="st-hr">HR (bpm)</label>
+                <input type="number" id="st-hr" placeholder="72" />
               </div>
               <div class="field">
                 <label for="st-spo2">SpO&#8322; (%)</label>
@@ -876,31 +848,40 @@
                 <input type="number" id="st-bpd" placeholder="80" />
               </div>
               <div class="field">
-                <label for="st-hr">HR (bpm)</label>
-                <input type="number" id="st-hr" placeholder="72" />
+                <label for="st-etco2">EtCO&#8322; (mmHg)</label>
+                <input type="number" id="st-etco2" placeholder="38" />
               </div>
               <div class="field">
                 <label for="st-rr">RR (/min)</label>
                 <input type="number" id="st-rr" placeholder="16" />
               </div>
               <div class="field">
-                <label for="st-etco2">EtCO&#8322; (mmHg)</label>
-                <input type="number" id="st-etco2" placeholder="38" />
-              </div>
-              <div class="field">
                 <label for="st-temp">Temp (°F)</label>
                 <input type="number" id="st-temp" step="0.1" placeholder="98.6" />
+              </div>
+              <div class="field">
+                <label for="st-bgl">BGL (mg/dL)</label>
+                <input type="number" id="st-bgl" placeholder="100" />
+              </div>
+              <div class="field">
+                <label for="st-gcs">GCS</label>
+                <input type="number" id="st-gcs" min="3" max="15" placeholder="15" />
               </div>
             </div>
             <div class="field" style="margin-top:8px">
               <label for="st-airway">Airway</label>
               <select id="st-airway">
                 <option value="">Select airway</option>
-                <option value="Oral Airway">Oral Airway</option>
+                <option value="Patent — room air">Patent — room air</option>
                 <option value="NPA">NPA</option>
+                <option value="OPA">OPA</option>
                 <option value="BVM">BVM</option>
+                <option value="King LT">King LT</option>
+                <option value="i-gel">i-gel</option>
                 <option value="Intubated-OTI">Intubated — OTI</option>
-                <option value="Trach">Trach</option>
+                <option value="Surgical cric">Surgical cric</option>
+                <option value="CPAP">CPAP</option>
+                <option value="High-flow NC">High-flow NC</option>
                 <option value="Other">Other</option>
               </select>
             </div>
@@ -1007,9 +988,9 @@
 
   <!-- ── Bottom Nav ── -->
   <nav class="bottom-nav">
-    <button class="nav-btn active" data-tab="report">
-      <span class="nav-pill"><span class="nav-icon">📋</span></span>
-      <span>Report</span>
+    <button class="nav-btn active" data-tab="patient">
+      <span class="nav-pill"><span class="nav-icon">🧑</span></span>
+      <span>Patient</span>
     </button>
     <button class="nav-btn" data-tab="meds">
       <span class="nav-pill"><span class="nav-icon">💊</span></span>
@@ -1067,7 +1048,7 @@
 <div class="sheet-backdrop" id="export-backdrop">
   <div class="sheet" id="export-sheet">
     <div class="sheet-drag"></div>
-    <div class="sheet-title">Export Report</div>
+    <div class="sheet-title">Export Run Report</div>
     <div class="sheet-body">
       <textarea class="export-textarea" id="export-text" readonly></textarea>
       <div class="sheet-actions" style="margin-top:14px">
@@ -1083,18 +1064,16 @@
 'use strict';
 
 /* ══════════════════════════════════════
-   STATE
+   CHART STATE
 ══════════════════════════════════════ */
 
 var DEFAULT_STATE = {
-  callActive: false,
-  callStart: null,
+  runActive: false,
+  runStart: null,
   report: {
-    sendingFacility: '', receivingFacility: '', reason: '',
+    chiefComplaint: '',
     weight: '', weightUnit: 'kg', allergies: '',
-    hospitalCourse: '', procedures: '',
-    labs: {},
-    customLabs: [],
+    pertinentHx: '',
     currentStatus: {}
   },
   ivSites: [],
@@ -1110,7 +1089,7 @@ var _activeTimerHandles = {};
 
 function loadState() {
   try {
-    var s = localStorage.getItem('relay_state');
+    var s = localStorage.getItem('chart_state');
     if (s) return JSON.parse(s);
   } catch(e) {}
   return JSON.parse(JSON.stringify(DEFAULT_STATE));
@@ -1119,7 +1098,7 @@ function loadState() {
 function saveState() {
   clearTimeout(_saveTimer);
   _saveTimer = setTimeout(function() {
-    try { localStorage.setItem('relay_state', JSON.stringify(STATE)); } catch(e) {}
+    try { localStorage.setItem('chart_state', JSON.stringify(STATE)); } catch(e) {}
   }, 300);
 }
 
@@ -1177,7 +1156,7 @@ function toast(msg, duration) {
 ══════════════════════════════════════ */
 
 function showAlert(label) {
-  $('alert-title').textContent = 'RELAY ALERT';
+  $('alert-title').textContent = 'CHART ALERT';
   $('alert-msg').textContent = label;
   $('alert-flash').classList.add('show');
   if (navigator.vibrate) navigator.vibrate([300, 100, 300, 100, 300]);
@@ -1258,45 +1237,44 @@ document.querySelectorAll('.nav-btn').forEach(function(btn) {
 });
 
 /* ══════════════════════════════════════
-   CALL MANAGEMENT
+   RUN MANAGEMENT
 ══════════════════════════════════════ */
 
-function updateCallUI() {
-  var statusEl = $('call-status');
-  var btnEnd = $('btn-end-call');
-  if (STATE.callActive) {
-    var dur = Date.now() - STATE.callStart;
+function updateRunUI() {
+  var statusEl = $('run-status');
+  var btnEnd = $('btn-end-run');
+  if (STATE.runActive) {
+    var dur = Date.now() - STATE.runStart;
     var m = Math.floor(dur / 60000);
     var h = Math.floor(m / 60);
     var label = h > 0 ? (h + 'h ' + (m % 60) + 'm active') : (m + ' min active');
-    var sending = STATE.report.sendingFacility || 'Unknown';
-    var receiving = STATE.report.receivingFacility || 'Unknown';
-    statusEl.textContent = sending + ' → ' + receiving + ' · ' + label;
+    var cc = STATE.report.chiefComplaint || 'Active run';
+    statusEl.textContent = cc + ' · ' + label;
     btnEnd.classList.remove('hidden');
   } else {
-    statusEl.textContent = 'No active call';
+    statusEl.textContent = 'No active run';
     btnEnd.classList.add('hidden');
   }
 }
 
-$('btn-new-call').addEventListener('click', function() {
+$('btn-new-run').addEventListener('click', function() {
   var doStart = function() {
     resetState();
-    STATE.callActive = true;
-    STATE.callStart = Date.now();
+    STATE.runActive = true;
+    STATE.runStart = Date.now();
     saveState();
-    addTimelineEntry('callstart', 'Call Started', {});
+    addTimelineEntry('runstart', 'Run Started', {});
     renderAll();
-    switchTab('report');
+    switchTab('patient');
     setTimeout(function() {
-      var el = $('rpt-sending');
+      var el = $('rpt-cc');
       if (el) el.focus();
     }, 300);
-    toast('New call started');
+    toast('New run started');
   };
 
-  if (STATE.callActive) {
-    showConfirm('Start New Call?', 'This will clear all current call data. This cannot be undone.').then(function(ok) {
+  if (STATE.runActive) {
+    showConfirm('Start New Run?', 'This will clear all current run data. This cannot be undone.').then(function(ok) {
       if (ok) doStart();
     });
   } else {
@@ -1304,146 +1282,28 @@ $('btn-new-call').addEventListener('click', function() {
   }
 });
 
-$('btn-end-call').addEventListener('click', function() {
-  showConfirm('End Call?', 'Mark the call complete. Data stays for export.').then(function(ok) {
+$('btn-end-run').addEventListener('click', function() {
+  showConfirm('End Run?', 'Mark the run complete. Data stays for export.').then(function(ok) {
     if (!ok) return;
-    STATE.callActive = false;
-    addTimelineEntry('callend', 'Call Ended', {});
+    STATE.runActive = false;
+    addTimelineEntry('runend', 'Run Ended', {});
     saveState();
-    updateCallUI();
+    updateRunUI();
     switchTab('timeline');
     openExport();
   });
 });
 
 /* ══════════════════════════════════════
-   REPORT TAB
+   PATIENT TAB
 ══════════════════════════════════════ */
-
-var STANDARD_LABS = [
-  {key:'glucose', label:'Glucose'},
-  {key:'k', label:'K⁺'},
-  {key:'na', label:'Na⁺'},
-  {key:'lactate', label:'Lactate'},
-  {key:'ph', label:'pH'},
-  {key:'po2', label:'pO₂'},
-  {key:'pco2', label:'pCO₂'},
-  {key:'hco3', label:'HCO₃'},
-  {key:'wbc', label:'WBC'},
-  {key:'hgb', label:'Hgb'},
-  {key:'plt', label:'Plt'},
-  {key:'troponin', label:'Troponin'},
-  {key:'bun', label:'BUN'},
-  {key:'creatinine', label:'Creatinine'},
-];
-
-function renderLabsGrid() {
-  var grid = $('labs-grid');
-  grid.innerHTML = '';
-  if (!STATE.report.labs) STATE.report.labs = {};
-  STANDARD_LABS.forEach(function(lab) {
-    var wrap = document.createElement('div');
-    wrap.className = 'lab-field';
-    var lbl = document.createElement('label');
-    lbl.textContent = lab.label;
-    var inp = document.createElement('input');
-    inp.type = 'number';
-    inp.step = 'any';
-    inp.placeholder = '—';
-    inp.dataset.labKey = lab.key;
-    inp.value = STATE.report.labs[lab.key] || '';
-    (function(key, input) {
-      input.addEventListener('input', function() {
-        STATE.report.labs[key] = input.value;
-        saveState();
-      });
-    })(lab.key, inp);
-    wrap.appendChild(lbl);
-    wrap.appendChild(inp);
-    grid.appendChild(wrap);
-  });
-}
-
-function renderCustomLabs() {
-  var container = $('custom-labs-container');
-  container.innerHTML = '';
-  if (!STATE.report.customLabs) STATE.report.customLabs = [];
-  STATE.report.customLabs.forEach(function(lab, idx) {
-    var row = document.createElement('div');
-    row.className = 'inline-row';
-    row.style.marginTop = '10px';
-
-    var lblField = document.createElement('div');
-    lblField.className = 'field';
-    lblField.style.cssText = 'flex:1.2;margin-bottom:0';
-    var lblLabel = document.createElement('label');
-    lblLabel.textContent = 'Lab Name';
-    var lblInp = document.createElement('input');
-    lblInp.type = 'text';
-    lblInp.value = lab.label || '';
-    lblInp.placeholder = 'e.g. INR';
-    (function(i, inp) {
-      inp.addEventListener('input', function() {
-        STATE.report.customLabs[i].label = inp.value;
-        saveState();
-      });
-    })(idx, lblInp);
-    lblField.appendChild(lblLabel);
-    lblField.appendChild(lblInp);
-
-    var valField = document.createElement('div');
-    valField.className = 'field';
-    valField.style.cssText = 'flex:1;margin-bottom:0';
-    var valLabel = document.createElement('label');
-    valLabel.textContent = 'Value';
-    var valInp = document.createElement('input');
-    valInp.type = 'text';
-    valInp.value = lab.value || '';
-    valInp.placeholder = '—';
-    (function(i, inp) {
-      inp.addEventListener('input', function() {
-        STATE.report.customLabs[i].value = inp.value;
-        saveState();
-      });
-    })(idx, valInp);
-    valField.appendChild(valLabel);
-    valField.appendChild(valInp);
-
-    var removeBtn = document.createElement('button');
-    removeBtn.className = 'btn sm danger';
-    removeBtn.textContent = '✕';
-    removeBtn.style.cssText = 'margin-bottom:0;align-self:flex-end';
-    (function(i) {
-      removeBtn.addEventListener('click', function() {
-        STATE.report.customLabs.splice(i, 1);
-        saveState();
-        renderCustomLabs();
-      });
-    })(idx);
-
-    row.appendChild(lblField);
-    row.appendChild(valField);
-    row.appendChild(removeBtn);
-    container.appendChild(row);
-  });
-}
-
-$('btn-add-lab').addEventListener('click', function() {
-  if (!STATE.report.customLabs) STATE.report.customLabs = [];
-  STATE.report.customLabs.push({label:'', value:''});
-  saveState();
-  renderCustomLabs();
-});
 
 function bindReportInputs() {
   var fieldMap = [
-    ['rpt-sending', 'sendingFacility'],
-    ['rpt-receiving', 'receivingFacility'],
-    ['rpt-reason', 'reason'],
+    ['rpt-cc', 'chiefComplaint'],
     ['rpt-weight', 'weight'],
     ['rpt-allergies', 'allergies'],
-    ['rpt-course', 'hospitalCourse'],
-    ['rpt-procedures', 'procedures'],
+    ['rpt-hx', 'pertinentHx'],
   ];
   fieldMap.forEach(function(pair) {
     var el = $(pair[0]);
@@ -1453,7 +1313,7 @@ function bindReportInputs() {
     el.addEventListener('input', function() {
       STATE.report[key] = el.value;
       saveState();
-      updateCallUI();
+      updateRunUI();
     });
   });
 
@@ -1472,10 +1332,11 @@ function bindReportInputs() {
 
   // Current Status
   var statusMap = [
-    ['st-gcs', 'gcs'], ['st-spo2', 'spo2'],
+    ['st-hr', 'hr'], ['st-spo2', 'spo2'],
     ['st-bps', 'bpSys'], ['st-bpd', 'bpDia'],
-    ['st-hr', 'hr'], ['st-rr', 'rr'],
-    ['st-etco2', 'etco2'], ['st-temp', 'temp'],
+    ['st-etco2', 'etco2'], ['st-rr', 'rr'],
+    ['st-temp', 'temp'], ['st-bgl', 'bgl'],
+    ['st-gcs', 'gcs'],
     ['st-airway', 'airway'], ['st-vent', 'vent']
   ];
   if (!STATE.report.currentStatus) STATE.report.currentStatus = {};
@@ -1930,12 +1791,14 @@ function buildMedCard(med) {
 ══════════════════════════════════════ */
 
 var QUICK_LOG_EVENTS = [
-  {key:'vitals',     icon:'🩺', title:'Vitals',         sub:'BP, HR, SpO₂...'},
-  {key:'medcontrol', icon:'📡', title:'Med Control',    sub:'Contact & orders'},
-  {key:'medgiven',   icon:'💊', title:'Med Given',      sub:'Select from active meds'},
-  {key:'transport',  icon:'🚑', title:'Transport Event', sub:'Departed, arrived...'},
-  {key:'ptchange',   icon:'⚠️',  title:'Patient Change', sub:'Describe change'},
-  {key:'note',       icon:'✏️',  title:'Custom Note',    sub:'Free text'},
+  {key:'vitals',    icon:'🩺', title:'Vital Signs',    sub:'HR, BP, SpO₂, GCS...'},
+  {key:'medgiven',  icon:'💊', title:'Med Given',      sub:'Drug, dose, route, site'},
+  {key:'ivaccess',  icon:'🩸', title:'IV / IO Access', sub:'Gauge, site, attempts'},
+  {key:'airway',    icon:'💨', title:'Airway',         sub:'Intervention type'},
+  {key:'ecg12',     icon:'❤️',  title:'12-Lead ECG',   sub:'Interpretation'},
+  {key:'cardiac',   icon:'⚡', title:'Cardiac Event',  sub:'Arrest, ROSC, defib...'},
+  {key:'procedure', icon:'🔧', title:'Procedure',      sub:'Tourniquet, needle-D...'},
+  {key:'note',      icon:'✏️',  title:'Note',           sub:'Free text'},
 ];
 
 function renderQuickLogGrid() {
@@ -2816,16 +2679,16 @@ $('btn-notif-deny').addEventListener('click', function() {
 ══════════════════════════════════════ */
 
 $('btn-add-med').addEventListener('click', function() {
-  if (!STATE.callActive) {
-    toast('Start a call first (+ New Call)');
+  if (!STATE.runActive) {
+    toast('Start a run first (+ New Run)');
     return;
   }
   openAddMedSheet(null);
 });
 
 $('btn-add-site').addEventListener('click', function() {
-  if (!STATE.callActive) {
-    toast('Start a call first (+ New Call)');
+  if (!STATE.runActive) {
+    toast('Start a run first (+ New Run)');
     return;
   }
   openAddSiteSheet();
