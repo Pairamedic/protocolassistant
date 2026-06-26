@@ -6,9 +6,8 @@
     </linearGradient>
 
     <!-- Star arm gradient: bright top, slightly richer bottom -->
-    <linearGradient id="armGrad" x1="0" y1="0" x2="0" y2="1"
-                    gradientUnits="userSpaceOnUse"
-                    x1="256" y1="88" x2="256" y2="424">
+    <linearGradient id="armGrad" x1="256" y1="88" x2="256" y2="424"
+                    gradientUnits="userSpaceOnUse">
       <stop offset="0%"   stop-color="#6ffce8"/>
       <stop offset="100%" stop-color="#38c9b0"/>
     </linearGradient>
