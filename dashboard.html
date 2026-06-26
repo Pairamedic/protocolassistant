@@ -246,6 +246,13 @@
           <div class="card-subtitle">Equipment Checklist</div>
         </a>
 
+        <!-- Class Manager — admin only -->
+        <a id="card-classmanager" href="ClassManager.html" class="app-card role-hidden">
+          <div class="card-icon">🎓</div>
+          <div class="card-title">Class Manager</div>
+          <div class="card-subtitle">Certifications & Classes</div>
+        </a>
+
       </div>
     </div>
   </div>
@@ -293,9 +300,13 @@
       emailEl.textContent = user.email || '';
 
       // Role-based card visibility
-      const isSupervisor = SUPERVISOR_EMAILS.has(user.email) || ADMIN_EMAILS.has(user.email);
+      const isAdmin = ADMIN_EMAILS.has(user.email);
+      const isSupervisor = SUPERVISOR_EMAILS.has(user.email) || isAdmin;
       if (isSupervisor) {
         document.getElementById('card-supervisor').classList.remove('role-hidden');
+      }
+      if (isAdmin) {
+        document.getElementById('card-classmanager').classList.remove('role-hidden');
       }
     });
 
