@@ -1,4 +1,4 @@
-const CACHE = 'pat-v7';
+const CACHE = 'pat-v8';
 
 // Assets that rarely change — pre-cached, served cache-first
 const ASSETS = [
@@ -9,6 +9,10 @@ const ASSETS = [
   './supervisor-icon-180.png',
   './supervisor-icon-192.png',
   './supervisor-icon-512.png',
+  './pulse-icon.svg',
+  './pulse-icon-180.png',
+  './pulse-icon-192.png',
+  './pulse-icon-512.png',
 ];
 
 // Firebase CDN scripts — versioned URLs, safe to cache forever
