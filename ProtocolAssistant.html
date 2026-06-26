@@ -408,6 +408,7 @@
               <button id="btn-update-app" class="sett-item">🔄 Update App</button>
               <div class="sett-divider"></div>
               <a id="btn-supervisor" href="supervisor.html" class="sett-item hidden" style="text-decoration:none;display:block">🗂 Supervisor Tools</a>
+              <a id="btn-checkoff" href="advanced-emt-checkoff.html" class="sett-item hidden" style="text-decoration:none;display:block">🚑 Unit Check-Off</a>
               <a id="btn-narrative" href="narrative.html" class="sett-item hidden" style="text-decoration:none;display:block">📝 PCR Narrative</a>
               <div class="sett-divider"></div>
               <button id="auth-logout" class="sett-item sett-danger">↩ Sign Out</button>
@@ -6121,6 +6122,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       $('#user-email').textContent = user.email;
       $('#btn-settings').style.display = 'block';
       _adminMode = ADMIN_EMAILS.has(user.email);
+      $('#btn-checkoff').classList.remove('hidden');
       if(_adminMode){ $('#btn-admin').classList.remove('hidden'); $('#btn-supervisor').classList.remove('hidden'); $('#btn-narrative').classList.remove('hidden'); }
       else if(SUPERVISOR_EMAILS.has(user.email)){ $('#btn-supervisor').classList.remove('hidden'); }
       // Internal contacts tab only visible to admin
