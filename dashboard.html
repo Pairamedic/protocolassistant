@@ -20,6 +20,7 @@
       --muted: #8a94a7;
       --text: #e6eef8;
       --input-bg: #0f131a;
+      --danger: #f87171;
     }
 
     *, *::before, *::after { box-sizing: border-box; }
@@ -120,6 +121,24 @@
       gap: 14px;
     }
 
+    /* ── Card wrapper for lock overlay ── */
+    .card-wrap {
+      position: relative;
+    }
+    .card-wrap.locked > a {
+      opacity: 0.4;
+      pointer-events: none;
+      filter: grayscale(0.3);
+    }
+    .card-wrap.locked::after {
+      content: '🔒';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 26px;
+      pointer-events: none;
+    }
+
     /* ── App Card ── */
     .app-card {
       display: flex;
@@ -138,6 +157,7 @@
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
+      width: 100%;
     }
     .app-card:hover {
       background: rgba(20,24,32,.9);
@@ -167,12 +187,43 @@
       line-height: 1.4;
     }
 
-    /* ── Role-hidden cards ── */
-    .role-hidden { display: none !important; }
-
     /* ── Responsive: single column on very narrow screens ── */
     @media (max-width: 320px) {
       .app-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Admin Panel ── */
+    #admin-panel input[type="email"] {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 14px;
+      padding: 10px 13px;
+      flex: 1;
+      outline: none;
+      font-family: inherit;
+      transition: border-color .15s;
+      min-width: 0;
+    }
+    #admin-panel input[type="email"]:focus {
+      border-color: var(--accent);
+    }
+    #admin-search-btn {
+      background: var(--accent);
+      color: #0b0d10;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    #admin-search-btn:hover {
+      background: #4dd4c0;
     }
   </style>
 </head>
@@ -204,61 +255,90 @@
 
       <div class="app-grid">
 
-        <!-- PAT -->
-        <a href="ProtocolAssistant.html" class="app-card">
-          <div class="card-icon">📋</div>
-          <div class="card-title">PAT</div>
-          <div class="card-subtitle">Protocol Accessibility Tool</div>
-        </a>
+        <!-- PAT (always unlocked) -->
+        <div id="card-pat" class="card-wrap">
+          <a href="ProtocolAssistant.html" class="app-card">
+            <div class="card-icon">📋</div>
+            <div class="card-title">PAT</div>
+            <div class="card-subtitle">Protocol Accessibility Tool</div>
+          </a>
+        </div>
 
         <!-- RELAY -->
-        <a href="relay.html" class="app-card">
-          <div class="card-icon">🚑</div>
-          <div class="card-title">RELAY</div>
-          <div class="card-subtitle">Transfer Tracker</div>
-        </a>
+        <div id="card-relay" class="card-wrap">
+          <a href="relay.html" class="app-card">
+            <div class="card-icon">🚑</div>
+            <div class="card-title">RELAY</div>
+            <div class="card-subtitle">Transfer Tracker</div>
+          </a>
+        </div>
 
         <!-- Pearls -->
-        <a href="ProtocolAssistant.html?jump=pearls" class="app-card">
-          <div class="card-icon">💡</div>
-          <div class="card-title">Pearls</div>
-          <div class="card-subtitle">Clinical Reference</div>
-        </a>
+        <div id="card-pearls" class="card-wrap">
+          <a href="ProtocolAssistant.html?jump=pearls" class="app-card">
+            <div class="card-icon">💡</div>
+            <div class="card-title">Pearls</div>
+            <div class="card-subtitle">Clinical Reference</div>
+          </a>
+        </div>
 
         <!-- Narrative -->
-        <a href="narrative.html" class="app-card">
-          <div class="card-icon">📝</div>
-          <div class="card-title">Narrative</div>
-          <div class="card-subtitle">PCR Narrative</div>
-        </a>
-
-        <!-- Supervisor Tools — role-restricted -->
-        <a id="card-supervisor" href="supervisor.html" class="app-card role-hidden">
-          <div class="card-icon">🗂</div>
-          <div class="card-title">Supervisor Tools</div>
-          <div class="card-subtitle">Shift Management</div>
-        </a>
+        <div id="card-narrative" class="card-wrap">
+          <a href="narrative.html" class="app-card">
+            <div class="card-icon">📝</div>
+            <div class="card-title">Narrative</div>
+            <div class="card-subtitle">PCR Narrative</div>
+          </a>
+        </div>
 
         <!-- Unit Check-Off -->
-        <a href="advanced-emt-checkoff.html" class="app-card">
-          <div class="card-icon">✅</div>
-          <div class="card-title">Unit Check-Off</div>
-          <div class="card-subtitle">Equipment Checklist</div>
-        </a>
+        <div id="card-checkoff" class="card-wrap">
+          <a href="advanced-emt-checkoff.html" class="app-card">
+            <div class="card-icon">✅</div>
+            <div class="card-title">Unit Check-Off</div>
+            <div class="card-subtitle">Equipment Checklist</div>
+          </a>
+        </div>
+
+        <!-- Supervisor Tools -->
+        <div id="card-supervisor" class="card-wrap">
+          <a href="supervisor.html" class="app-card">
+            <div class="card-icon">🗂</div>
+            <div class="card-title">Supervisor Tools</div>
+            <div class="card-subtitle">Shift Management</div>
+          </a>
+        </div>
 
         <!-- Class Manager — admin only -->
-        <a id="card-classmanager" href="ClassManager.html" class="app-card role-hidden">
+        <a id="card-classmanager" href="ClassManager.html" class="app-card" style="display:none">
           <div class="card-icon">🎓</div>
           <div class="card-title">Class Manager</div>
           <div class="card-subtitle">Certifications & Classes</div>
         </a>
 
       </div>
+
+      <!-- Admin Access Management Panel (visible to admin only) -->
+      <section id="admin-panel" style="display:none; margin-top:32px; padding:0 0 40px">
+        <h2 style="font-size:15px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:14px">User Access Management</h2>
+
+        <!-- Search bar -->
+        <div style="display:flex; gap:8px; margin-bottom:16px">
+          <input id="admin-email-input" type="email" placeholder="Search user by email…" />
+          <button id="admin-search-btn">Look Up</button>
+        </div>
+
+        <!-- Result area -->
+        <div id="admin-user-result" style="display:none">
+          <!-- populated by JS -->
+        </div>
+      </section>
     </div>
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script>
     firebase.initializeApp({
       apiKey: "AIzaSyAcnp4uXeOgzuzIHpO5UL6Eq9fvhVHFs7Y",
@@ -270,9 +350,9 @@
     });
 
     const fbAuth = firebase.auth();
+    const fbDb = firebase.firestore();
 
-    const ADMIN_EMAILS = new Set(['eliasacaldwellnrp@gmail.com']);
-    const SUPERVISOR_EMAILS = new Set(['smcdonel@easimedics.com']);
+    const ADMIN_EMAIL = 'eliasacaldwellnrp@gmail.com';
 
     // Render today's date
     (function renderDate() {
@@ -283,14 +363,50 @@
       });
     })();
 
-    fbAuth.onAuthStateChanged(function(user) {
+    function applyAccess(apps) {
+      // apps = array of app IDs the user can access, or null = all (admin)
+      const APP_CARDS = {
+        pat:        document.getElementById('card-pat'),
+        relay:      document.getElementById('card-relay'),
+        pearls:     document.getElementById('card-pearls'),
+        narrative:  document.getElementById('card-narrative'),
+        checkoff:   document.getElementById('card-checkoff'),
+        supervisor: document.getElementById('card-supervisor'),
+      };
+      Object.entries(APP_CARDS).forEach(([id, wrap]) => {
+        if (!wrap) return;
+        const hasAccess = apps === null || id === 'pat' || apps.includes(id);
+        wrap.classList.toggle('locked', !hasAccess);
+      });
+    }
+
+    fbAuth.onAuthStateChanged(async function(user) {
       if (!user) {
         // Not signed in — redirect to login with returnTo
         window.location.replace('index.html?returnTo=dashboard.html');
         return;
       }
 
-      // Show dashboard
+      const isAdmin = user.email === ADMIN_EMAIL;
+      let apps = null; // null means all access
+
+      if (!isAdmin) {
+        // Read user's granted apps from Firestore
+        try {
+          const doc = await fbDb.collection('users').doc(user.uid).get();
+          if (doc.exists) {
+            const data = doc.data();
+            apps = Array.isArray(data.apps) ? data.apps : ['pat'];
+          } else {
+            apps = ['pat'];
+          }
+        } catch (e) {
+          // On error, default to pat only
+          apps = ['pat'];
+        }
+      }
+
+      // Hide spinner, show dashboard
       document.getElementById('auth-loading').style.display = 'none';
       const app = document.getElementById('app');
       app.style.display = 'flex';
@@ -299,19 +415,148 @@
       const emailEl = document.getElementById('user-email-display');
       emailEl.textContent = user.email || '';
 
-      // Role-based card visibility
-      const isAdmin = ADMIN_EMAILS.has(user.email);
-      const isSupervisor = SUPERVISOR_EMAILS.has(user.email) || isAdmin;
-      if (isSupervisor) {
-        document.getElementById('card-supervisor').classList.remove('role-hidden');
-      }
+      // Apply locked/unlocked state to cards based on user's granted apps
+      applyAccess(apps);
+
+      // Admin-only: show access management panel + Class Manager card
       if (isAdmin) {
-        document.getElementById('card-classmanager').classList.remove('role-hidden');
+        document.getElementById('admin-panel').style.display = '';
+        document.getElementById('card-classmanager').style.display = '';
       }
     });
 
     document.getElementById('btn-signout').addEventListener('click', function() {
       fbAuth.signOut();
+    });
+
+    // ── Admin Panel Logic ──
+
+    const APP_LIST = [
+      { id: 'relay',      label: 'RELAY — Transfer Tracker' },
+      { id: 'pearls',     label: 'Pearls — Clinical Reference' },
+      { id: 'narrative',  label: 'Narrative — PCR Builder' },
+      { id: 'checkoff',   label: 'Unit Check-Off' },
+      { id: 'supervisor', label: 'Supervisor Tools' },
+    ];
+
+    function renderUserAccessCard(container, uid, email, currentApps) {
+      // card div
+      const card = document.createElement('div');
+      card.style.cssText = 'background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;';
+
+      // email header
+      const header = document.createElement('div');
+      header.style.cssText = 'font-size:14px;font-weight:600;color:var(--text);margin-bottom:12px;';
+      header.textContent = email;
+      card.appendChild(header);
+
+      // note: PAT always granted
+      const note = document.createElement('div');
+      note.style.cssText = 'font-size:12px;color:var(--muted);margin-bottom:12px;';
+      note.textContent = 'PAT access is always granted. Toggle additional apps:';
+      card.appendChild(note);
+
+      // track local state
+      const selected = new Set(currentApps);
+      selected.add('pat');
+
+      // checkboxes for each app
+      APP_LIST.forEach(function(appItem) {
+        const row = document.createElement('label');
+        row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;';
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = selected.has(appItem.id);
+        cb.style.cssText = 'width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex:none;';
+        cb.addEventListener('change', function() {
+          if (cb.checked) selected.add(appItem.id);
+          else selected.delete(appItem.id);
+        });
+
+        const lbl = document.createElement('span');
+        lbl.style.cssText = 'font-size:14px;color:var(--text);';
+        lbl.textContent = appItem.label;
+
+        row.appendChild(cb);
+        row.appendChild(lbl);
+        card.appendChild(row);
+      });
+
+      // Save button
+      const saveBtn = document.createElement('button');
+      saveBtn.textContent = 'Save Access';
+      saveBtn.style.cssText = 'margin-top:14px;width:100%;background:var(--accent);color:#0b0d10;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;';
+      saveBtn.addEventListener('click', async function() {
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving…';
+        try {
+          await fbDb.collection('users').doc(uid).set(
+            { apps: Array.from(selected) },
+            { merge: true }
+          );
+          saveBtn.textContent = 'Saved ✓';
+          setTimeout(function() {
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Save Access';
+          }, 2000);
+        } catch (e) {
+          saveBtn.textContent = 'Error — try again';
+          saveBtn.disabled = false;
+        }
+      });
+      card.appendChild(saveBtn);
+      container.appendChild(card);
+    }
+
+    async function adminLookup(email) {
+      const result = document.getElementById('admin-user-result');
+      result.style.display = '';
+      // clear previous
+      while (result.firstChild) result.removeChild(result.firstChild);
+
+      const loading = document.createElement('div');
+      loading.textContent = 'Searching…';
+      loading.style.color = 'var(--muted)';
+      result.appendChild(loading);
+
+      try {
+        const snap = await fbDb.collection('users').where('email', '==', email.trim().toLowerCase()).limit(1).get();
+        result.removeChild(loading);
+
+        if (snap.empty) {
+          const msg = document.createElement('div');
+          msg.textContent = 'No user found with that email. They must sign in at least once first.';
+          msg.style.color = 'var(--muted)';
+          msg.style.fontSize = '13px';
+          result.appendChild(msg);
+          return;
+        }
+
+        const doc = snap.docs[0];
+        const data = doc.data();
+        const uid = doc.id;
+        const currentApps = data.apps || ['pat'];
+
+        // Render user card with app toggles
+        renderUserAccessCard(result, uid, data.email, currentApps);
+      } catch (e) {
+        result.removeChild(loading);
+        const msg = document.createElement('div');
+        msg.textContent = 'Error: ' + e.message;
+        msg.style.color = 'var(--danger)';
+        result.appendChild(msg);
+      }
+    }
+
+    document.getElementById('admin-search-btn').addEventListener('click', function() {
+      const email = document.getElementById('admin-email-input').value.trim();
+      if (!email) return;
+      adminLookup(email);
+    });
+
+    document.getElementById('admin-email-input').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') document.getElementById('admin-search-btn').click();
     });
   </script>
   <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(function(){});</script>
