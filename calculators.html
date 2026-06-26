@@ -1350,7 +1350,14 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     const total = e+v+m;
     $('#gcs-result').innerHTML = `E${e} V${v} M${m} • Total: <b>${total}</b>`;
   });
-  $('#gcs-reset').addEventListener('click', ()=>{ $('#gcs-e').selectedIndex=3; $('#gcs-v').selectedIndex=4; $('#gcs-m').selectedIndex=5; $('#gcs-result').innerHTML=''; });
+  $('#gcs-reset').addEventListener('click', ()=>{
+    [['gcs-e','4'],['gcs-v','5'],['gcs-m','6']].forEach(function(pair){
+      $('#'+pair[0]).value=pair[1];
+      var grp=document.getElementById(pair[0]+'-grp');
+      if(grp){ grp.querySelectorAll('.opt-btn').forEach(function(b){b.classList.remove('sel');}); var btn=grp.querySelector('[data-val="'+pair[1]+'"]'); if(btn) btn.classList.add('sel'); }
+    });
+    $('#gcs-result').innerHTML='';
+  });
 
   // Oxygen Duration
   $('#o2-calc').addEventListener('click', ()=>{
@@ -1377,7 +1384,15 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     const tv6 = ibw*6, tv7 = ibw*7, tv8 = ibw*8; // mL
     $('#vent-result').innerHTML = `IBW: <b>${fmt(ibw,1)} kg</b> • TV @6: <b>${fmt(tv6,0)} mL</b> • @7: <b>${fmt(tv7,0)} mL</b> • @8: <b>${fmt(tv8,0)} mL</b>`;
   });
-  $('#vent-reset').addEventListener('click', ()=>{ $('#vent-height').value=''; $('#vent-sex').selectedIndex=0; $('#vent-hunit').selectedIndex=0; $('#vent-result').innerHTML=''; });
+  $('#vent-reset').addEventListener('click', ()=>{
+    $('#vent-height').value='';
+    [['vent-sex','male'],['vent-hunit','in']].forEach(function(pair){
+      $('#'+pair[0]).value=pair[1];
+      var grp=document.getElementById(pair[0]+'-grp');
+      if(grp){ grp.querySelectorAll('.opt-btn').forEach(function(b){b.classList.remove('sel');}); var btn=grp.querySelector('[data-val="'+pair[1]+'"]'); if(btn) btn.classList.add('sel'); }
+    });
+    $('#vent-result').innerHTML='';
+  });
 
   // --- Rhythm Recognition ---
   const RHYTHMS = [

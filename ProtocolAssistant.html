@@ -419,7 +419,8 @@
       <div class="hdr-collapsible">
         <div class="bar">
           <div style="display:flex;gap:8px;align-items:center">
-            <select id="service-select" title="Ambulance Service" style="flex:1;min-width:0;width:auto"></select>
+            <input type="hidden" id="service-select" value="">
+            <div id="service-select-group" class="opt-group" style="flex:1;min-width:0;width:auto;margin-top:0"></div>
             <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Search protocols, meds, keywords…" style="flex:1;min-width:0;width:auto" />
             <button id="fav-filter" class="btn" title="Show favorites only" style="flex:none;padding:10px 14px;font-size:16px;white-space:nowrap">☆</button>
           </div>
@@ -1144,7 +1145,11 @@
               <label>Height</label>
               <div class="wt-row">
                 <input id="vent-height" type="number" inputmode="decimal" placeholder="e.g. 70" />
-                <select id="vent-hunit"><option value="in">in</option><option value="cm">cm</option></select>
+                <input type="hidden" id="vent-hunit" value="in">
+                <div class="opt-group">
+                  <button type="button" class="opt-btn sel" data-val="in">in</button>
+                  <button type="button" class="opt-btn" data-val="cm">cm</button>
+                </div>
               </div>
             </div>
           </div>
@@ -1326,7 +1331,8 @@
       </div>
       <div class="fg">
         <label>Select a protocol (optional)</label>
-        <select id="report-protocol"></select>
+        <input type="hidden" id="report-protocol" value="">
+        <div id="report-protocol-group" class="opt-group"></div>
       </div>
       <div class="fg" style="margin-top:8px">
         <label>Or describe the protocol / topic</label>
@@ -1417,10 +1423,11 @@
         <div class="fg"><label>Role / Title</label><input id="cf-role" type="text" placeholder="e.g. Operations Supervisor" /></div>
         <div class="fg">
           <label>Group</label>
-          <select id="cf-group" style="width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:15px">
-            <option value="internal">👥 Internal</option>
-            <option value="clinical">🏥 Clinical</option>
-          </select>
+          <input type="hidden" id="cf-group" value="internal">
+          <div class="opt-group">
+            <button type="button" class="opt-btn sel" data-val="internal">👥 Internal</button>
+            <button type="button" class="opt-btn" data-val="clinical">🏥 Clinical</button>
+          </div>
         </div>
         <div class="fg"><label>Description</label><textarea id="cf-desc" rows="2" placeholder="What this person handles"></textarea></div>
         <div class="fg"><label>Phone (10 digits, no dashes)</label><input id="cf-phone" type="tel" placeholder="e.g. 8705551234" /></div>
@@ -1428,11 +1435,12 @@
         <div class="fg"><label>Escalation Badge Text</label><input id="cf-badge" type="text" placeholder="e.g. ① First Contact  (leave blank if none)" /></div>
         <div class="fg">
           <label>Badge Color</label>
-          <select id="cf-badge-color" style="width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:15px">
-            <option value="accent">Teal (default)</option>
-            <option value="danger">Red (last resort)</option>
-            <option value="warning">Yellow</option>
-          </select>
+          <input type="hidden" id="cf-badge-color" value="accent">
+          <div class="opt-group">
+            <button type="button" class="opt-btn sel" data-val="accent">Teal (default)</button>
+            <button type="button" class="opt-btn" data-val="danger">Red (last resort)</button>
+            <button type="button" class="opt-btn" data-val="warning">Yellow</button>
+          </div>
         </div>
         <div class="row" style="gap:20px;margin-bottom:10px;flex-wrap:wrap">
           <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer"><input id="cf-hours" type="checkbox" /> Business Hours Only</label>
@@ -3857,13 +3865,22 @@
 
   function renderServiceSelect(){
     const names = Object.keys(state.services);
-    const noSel = !state.currentService;
-    const placeholder = `<option value="" ${noSel?'selected ':''} disabled>— Select a service —</option>`;
-    serviceSelect.innerHTML = placeholder + names.map(n=>{
-      return `<option ${n===state.currentService?'selected':''} value="${n}">${n}</option>`;
+    const grp = document.getElementById('service-select-group');
+    grp.innerHTML = names.map(n=>{
+      const isSel = n === state.currentService;
+      return `<button type="button" class="opt-btn${isSel?' sel':''}" data-val="${n.replace(/"/g,'&quot;')}">${n}</button>`;
     }).join('');
-    serviceSelect.style.color = noSel ? 'var(--accent)' : '';
-    serviceSelect.style.borderColor = noSel ? 'rgba(94,234,212,.45)' : '';
+    if(!names.length){
+      grp.innerHTML = '<button type="button" class="opt-btn sel" data-val="" style="color:var(--accent);border-color:rgba(94,234,212,.45)">— Select a service —</button>';
+    }
+    grp.querySelectorAll('.opt-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        grp.querySelectorAll('.opt-btn').forEach(function(b){ b.classList.remove('sel'); });
+        btn.classList.add('sel');
+        serviceSelect.value = btn.dataset.val;
+        serviceSelect.dispatchEvent(new Event('change'));
+      });
+    });
   }
 
   // --- Role detection & display helpers ---
@@ -5243,6 +5260,8 @@
     $('#pin-overlay').classList.add('hidden');
     if(revert && _pinPrevService !== null){
       serviceSelect.value = _pinPrevService;
+      const grp = document.getElementById('service-select-group');
+      if(grp){ grp.querySelectorAll('.opt-btn').forEach(function(b){ b.classList.toggle('sel', b.dataset.val === _pinPrevService); }); }
     }
     _pinPendingService = null;
     _pinPrevService = null;
@@ -5296,9 +5315,20 @@
   function hhmm(min){ if(!isFinite(min)) return '—'; const h=Math.floor(min/60), m=Math.round(min%60); return `${h}h ${m}m` }
 
   function renderCalcOptions(){
-    const sel = $('#calc-med');
+    const hidden = $('#calc-med');
+    const grp = document.getElementById('calc-med-group');
     const meds = (svc().meds||[]);
-    sel.innerHTML = '<option value="">— choose —</option>' + meds.map(m=>`<option value="${m.name}">${m.name}</option>`).join('');
+    hidden.value = '';
+    grp.innerHTML = meds.map(m=>`<button type="button" class="opt-btn" data-val="${m.name.replace(/"/g,'&quot;')}">${m.name}</button>`).join('');
+    grp.querySelectorAll('.opt-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        grp.querySelectorAll('.opt-btn').forEach(function(b){ b.classList.remove('sel'); });
+        btn.classList.add('sel');
+        hidden.value = btn.dataset.val;
+        hidden.dispatchEvent(new Event('change'));
+        hidden.dispatchEvent(new Event('input'));
+      });
+    });
   }
   function loadIntoCalc(name){
     const m = (svc().meds||[]).find(x=>x.name===name);
@@ -5310,6 +5340,7 @@
     setTimeout(()=>{
       if(isWeightBased){
         $('#calc-med').value = m.name;
+        const _cmg = document.getElementById('calc-med-group'); if(_cmg){ _cmg.querySelectorAll('.opt-btn').forEach(function(b){ b.classList.toggle('sel', b.dataset.val === m.name); }); }
         $('#mgkg').value = m.default_mgkg ?? '';
         $('#maxmg').value = m.max_mg ?? '';
         $('#route').value = m.route || '';
@@ -5358,6 +5389,7 @@
   $('#reset').addEventListener('click', ()=>{
     ['wt','mgkg','maxmg','conc','route'].forEach(id=> $('#'+id).value='');
     $('#calc-med').value='';
+    const _cmgr = document.getElementById('calc-med-group'); if(_cmgr){ _cmgr.querySelectorAll('.opt-btn').forEach(function(b){ b.classList.remove('sel'); }); }
     $('#result').innerHTML='';
   });
 
@@ -5453,7 +5485,10 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   });
   document.getElementById('pqr-apgar-reset').addEventListener('click', ()=>{
     ['pqr-apgar-a','pqr-apgar-p','pqr-apgar-g','pqr-apgar-ac','pqr-apgar-r']
-      .forEach(id=>{ document.getElementById(id).selectedIndex=0; });
+      .forEach(id=>{
+        const h = document.getElementById(id); if(h) h.value='0';
+        const grp = h && h.nextElementSibling; if(grp && grp.classList.contains('opt-group')){ grp.querySelectorAll('.opt-btn').forEach(function(b){ b.classList.toggle('sel', b.dataset.val==='0'); }); }
+      });
     document.getElementById('pqr-apgar-result').innerHTML='';
   });
 
@@ -5508,7 +5543,13 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     const cat = total>=7? 'Normal (7–10)' : total>=4? 'Moderate (4–6)' : 'Low (0–3)';
     $('#apgar-result').innerHTML = `Score: <b>${total}</b> • ${cat}`;
   });
-  $('#apgar-reset').addEventListener('click', ()=>{ ['apgar-a','apgar-p','apgar-g','apgar-ac','apgar-r'].forEach(id=> $('#'+id).selectedIndex=0); $('#apgar-result').innerHTML=''; });
+  $('#apgar-reset').addEventListener('click', ()=>{
+    ['apgar-a','apgar-p','apgar-g','apgar-ac','apgar-r'].forEach(id=>{
+      const h=$('#'+id); if(h) h.value='0';
+      const grp=h&&h.nextElementSibling; if(grp&&grp.classList.contains('opt-group')){ grp.querySelectorAll('.opt-btn').forEach(function(b){ b.classList.toggle('sel', b.dataset.val==='0'); }); }
+    });
+    $('#apgar-result').innerHTML='';
+  });
 
   // GCS
   $('#gcs-calc').addEventListener('click', ()=>{
@@ -5954,11 +5995,13 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       $('#cf-name').value = c.name||'';
       $('#cf-role').value = c.role||'';
       $('#cf-group').value = c.group||'internal';
+      (function(){ const grp=$('#cf-group').nextElementSibling; if(grp&&grp.classList.contains('opt-group')){ grp.querySelectorAll('.opt-btn').forEach(function(b){ b.classList.toggle('sel', b.dataset.val===$('#cf-group').value); }); } })();
       $('#cf-desc').value = c.desc||'';
       $('#cf-phone').value = c.phone||'';
       $('#cf-email').value = c.email||'';
       $('#cf-badge').value = c.badge||'';
       $('#cf-badge-color').value = c.badge_color||'accent';
+      (function(){ const grp=$('#cf-badge-color').nextElementSibling; if(grp&&grp.classList.contains('opt-group')){ grp.querySelectorAll('.opt-btn').forEach(function(b){ b.classList.toggle('sel', b.dataset.val===$('#cf-badge-color').value); }); } })();
       $('#cf-hours').checked = !!c.hours_restricted;
       $('#cf-exec').checked = !!c.exec;
       $('#cf-wide').checked = !!c.wide;
@@ -6183,10 +6226,18 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   // --- Report Issue Handlers ---
   $('#report-issue').addEventListener('click', ()=>{
     const protos = (state.services[state.currentService]?.protocols || []).map(p => p.title).filter(Boolean);
-    const sel = $('#report-protocol');
-    sel.innerHTML = '<option value="">— Select a specific protocol —</option>' +
-      protos.map(n => `<option value="${n.replace(/"/g,'&quot;')}">${n}</option>`).join('') +
-      '<option value="__other">Other / App Feedback</option>';
+    const hidden = $('#report-protocol');
+    hidden.value = '';
+    const grp = document.getElementById('report-protocol-group');
+    grp.innerHTML = protos.map(n=>`<button type="button" class="opt-btn" data-val="${n.replace(/"/g,'&quot;')}">${n}</button>`).join('') +
+      '<button type="button" class="opt-btn" data-val="__other">Other / App Feedback</button>';
+    grp.querySelectorAll('.opt-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        grp.querySelectorAll('.opt-btn').forEach(function(b){ b.classList.remove('sel'); });
+        btn.classList.add('sel');
+        hidden.value = btn.dataset.val;
+      });
+    });
     $('#report-topic-other').value = '';
     $('#report-desc').value = '';
     $('#report-desc').style.borderColor = '';
@@ -7653,6 +7704,24 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     if((e.ctrlKey||e.metaKey) && !e.shiftKey && k === 'u'){ e.preventDefault(); return; }
     if((e.ctrlKey||e.metaKey) && !e.shiftKey && k === 's'){ e.preventDefault(); return; }
     if((e.ctrlKey||e.metaKey) && e.shiftKey && (k==='i'||k==='j'||k==='c'||k==='k')) e.preventDefault();
+  });
+
+  // Wire up static opt-groups (dynamic ones are wired in their render functions)
+  document.querySelectorAll('.opt-group').forEach(function(grp) {
+    // Skip groups that already have listeners wired by render functions (calc-med, service-select, report-protocol)
+    var skipIds = ['calc-med-group','service-select-group','report-protocol-group'];
+    if(skipIds.indexOf(grp.id) !== -1) return;
+    var hidden = grp.previousElementSibling;
+    if(!hidden || hidden.type !== 'hidden') return;
+    grp.querySelectorAll('.opt-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        grp.querySelectorAll('.opt-btn').forEach(function(b) { b.classList.remove('sel'); });
+        btn.classList.add('sel');
+        hidden.value = btn.dataset.val;
+        hidden.dispatchEvent(new Event('change'));
+        hidden.dispatchEvent(new Event('input'));
+      });
+    });
   });
   </script>
   <script>
