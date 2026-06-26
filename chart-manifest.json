@@ -1,0 +1,13 @@
+{
+  "name": "CHART",
+  "short_name": "CHART",
+  "description": "EMS Intervention Logger — accurate documentation on every run",
+  "start_url": "./chart.html",
+  "display": "standalone",
+  "background_color": "#0b0d10",
+  "theme_color": "#0b0d10",
+  "icons": [
+    { "src": "chart-icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "chart-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

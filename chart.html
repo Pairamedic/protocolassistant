@@ -1850,23 +1850,24 @@ function openQuickLogSheet(key) {
 
   if (key === 'vitals') {
     var pairs = [
+      ['HR (bpm)', 'vit-hr', 'number'],
       ['BP Systolic', 'vit-bps', 'number'],
       ['BP Diastolic', 'vit-bpd', 'number'],
-      ['HR (bpm)', 'vit-hr', 'number'],
       ['SpO₂ (%)', 'vit-spo2', 'number'],
       ['RR (/min)', 'vit-rr', 'number'],
       ['EtCO₂ (mmHg)', 'vit-etco2', 'number'],
+      ['BGL (mg/dL)', 'vit-bgl', 'number'],
       ['GCS', 'vit-gcs', 'number'],
-      ['Temp (°F)', 'vit-temp', 'number'],
     ];
-    var grid = document.createElement('div');
-    grid.className = 'status-grid';
+    var vGrid = document.createElement('div');
+    vGrid.className = 'status-grid';
     pairs.forEach(function(p) {
       var f = mkField(p[0], p[2], p[1], '—', '');
       f.style.marginBottom = '0';
-      grid.appendChild(f);
+      vGrid.appendChild(f);
     });
-    frag.appendChild(grid);
+    frag.appendChild(vGrid);
+    frag.appendChild(mkField('Note (optional)', 'text', 'vit-note', 'e.g. post-medication', ''));
 
     addActions(function() {
       var details = {};
@@ -1874,73 +1875,133 @@ function openQuickLogSheet(key) {
         var v = $(p[1]).value;
         if (v) details[p[0]] = v;
       });
-      if (!Object.keys(details).length) { toast('Enter at least one vital'); return; }
+      var note = $('vit-note').value.trim();
+      if (note) details.note = note;
+      if (Object.keys(details).length <= (note ? 1 : 0)) { toast('Enter at least one vital'); return; }
       addTimelineEntry('vitals', 'Vitals', details);
       closeSheet();
       toast('Vitals logged');
     });
 
   } else if (key === 'medgiven') {
-    var activeMeds = STATE.meds.filter(function(m) { return m.active; });
-    var medOpts = activeMeds.length
-      ? activeMeds.map(function(m) { return {value: m.id, label: m.name + (m.dose ? ' — ' + m.dose : '')}; })
-      : [{value: 'none', label: 'No active meds'}];
-    frag.appendChild(mkSelect('Medication', 'mg-med', medOpts, ''));
-    frag.appendChild(mkField('Dose Given', 'text', 'mg-dose', 'e.g. 1mg IV push', ''));
-    frag.appendChild(mkField('Notes', 'textarea', 'mg-notes', 'Optional notes...', ''));
+    frag.appendChild(mkField('Drug Name', 'text', 'mg-drug', 'e.g. Epinephrine', ''));
+    var doseRow = document.createElement('div');
+    doseRow.className = 'inline-row';
+    var doseF = mkField('Dose', 'number', 'mg-dose', '0', '');
+    doseF.style.marginBottom = '0';
+    var unitF = mkSelect('Unit', 'mg-unit', ['mg','mcg','mEq','g','mL'], 'mg');
+    unitF.style.marginBottom = '0';
+    doseRow.appendChild(doseF);
+    doseRow.appendChild(unitF);
+    frag.appendChild(doseRow);
+    frag.appendChild(mkSelect('Route', 'mg-route', ['IV','IO','IM','IN','SL','PO','PR','INH','ETT'], ''));
+    frag.appendChild(mkField('Site (optional)', 'text', 'mg-site', 'e.g. R deltoid, R AC', ''));
 
     addActions(function() {
-      var medId = $('mg-med').value;
-      var med = STATE.meds.find(function(m) { return m.id === medId; });
+      var drug = $('mg-drug').value.trim();
+      if (!drug) { toast('Enter drug name'); return; }
       var dose = $('mg-dose').value.trim();
-      var notes = $('mg-notes').value.trim();
-      addTimelineEntry('medgiven', 'Med Given', {
-        name: med ? med.name : 'Unknown',
-        dose: dose || (med ? med.dose : ''),
-        notes: notes
-      });
+      var unit = $('mg-unit').value;
+      var route = $('mg-route').value;
+      var site = $('mg-site').value.trim();
+      var label = 'Administered: ' + drug + (dose ? ' ' + dose + unit : '') + (route ? ' ' + route : '') + (site ? ' ' + site : '');
+      addTimelineEntry('medgiven', label, {drug: drug, dose: dose, unit: unit, route: route, site: site});
       closeSheet();
-      toast('Med administration logged');
+      toast('Med logged');
     });
 
-  } else if (key === 'medcontrol') {
-    frag.appendChild(mkField('Contact Name / Unit', 'text', 'mc-contact', 'e.g. Dr. Smith, Base Hospital', ''));
-    frag.appendChild(mkField('Instruction Received', 'textarea', 'mc-instruction', 'Orders or instructions received...', ''));
+  } else if (key === 'ivaccess') {
+    frag.appendChild(mkSelect('Type', 'iv-type', ['IV','IO'], 'IV'));
+    frag.appendChild(mkSelect('Gauge', 'iv-gauge', ['14','16','18','20','22','24'], '18'));
+    frag.appendChild(mkSelect('Site', 'iv-site', ['R AC','L AC','R EJ','L EJ','R hand','L hand','IO — tibia','IO — sternum','Other'], ''));
+    frag.appendChild(mkSelect('Attempts', 'iv-attempts', ['1','2','3','Failed'], '1'));
+    frag.appendChild(mkField('Note (optional)', 'text', 'iv-note', 'e.g. patent, blood return', ''));
 
     addActions(function() {
-      var contact = $('mc-contact').value.trim();
-      var instruction = $('mc-instruction').value.trim();
-      if (!instruction) { toast('Enter instructions received'); return; }
-      addTimelineEntry('medcontrol', 'Med Control', {contact: contact, instruction: instruction});
+      var type = $('iv-type').value;
+      var gauge = $('iv-gauge').value;
+      var site = $('iv-site').value;
+      var attempts = $('iv-attempts').value;
+      var note = $('iv-note').value.trim();
+      if (!site) { toast('Select a site'); return; }
+      var label = 'IV Access: ' + gauge + 'g ' + site + ' × ' + attempts + ' attempt' + (attempts === '1' ? '' : 's') + (note ? ' — ' + note : '');
+      addTimelineEntry('ivaccess', label, {type: type, gauge: gauge, site: site, attempts: attempts, note: note});
       closeSheet();
-      toast('Med control contact logged');
+      toast('IV access logged');
     });
 
-  } else if (key === 'transport') {
-    frag.appendChild(mkSelect('Event', 'tr-event', [
-      'Departed sending facility', 'En route to receiving facility',
-      'Arrived at receiving facility', 'Delay', 'Diversion', 'Other'
+  } else if (key === 'airway') {
+    frag.appendChild(mkSelect('Intervention', 'aw-type', [
+      'BVM','NPA','OPA','King LT','i-gel','Intubation','Surgical cric','CPAP','High-flow NC'
     ], ''));
-    frag.appendChild(mkField('Notes', 'textarea', 'tr-notes', 'Additional details...', ''));
+    frag.appendChild(mkField('Note (optional)', 'textarea', 'aw-note', 'e.g. blade size, tube size, confirmation...', ''));
 
     addActions(function() {
-      var event = $('tr-event').value;
-      var notes = $('tr-notes').value.trim();
-      if (!event) { toast('Select an event'); return; }
-      addTimelineEntry('transport', 'Transport', {event: event, notes: notes});
+      var type = $('aw-type').value;
+      if (!type) { toast('Select an airway intervention'); return; }
+      var note = $('aw-note').value.trim();
+      var label = 'Airway: ' + type + (note ? ' — ' + note : '');
+      addTimelineEntry('airway', label, {type: type, note: note});
       closeSheet();
-      toast('Transport event logged');
+      toast('Airway logged');
     });
 
-  } else if (key === 'ptchange') {
-    frag.appendChild(mkField('Description', 'textarea', 'pt-desc', 'Describe the change in patient condition...', ''));
+  } else if (key === 'ecg12') {
+    frag.appendChild(mkSelect('Interpretation', 'ecg-interp', [
+      'NSR','Sinus tachycardia','Sinus bradycardia','AFib','VT','VF',
+      '1st degree block','2nd degree block','3rd degree block',
+      'STEMI','STEMI equivalent','Other'
+    ], ''));
+    frag.appendChild(mkField('Leads affected (optional)', 'text', 'ecg-leads', 'e.g. inferior, anterolateral', ''));
+    frag.appendChild(mkField('Note (optional)', 'text', 'ecg-note', 'Additional findings...', ''));
 
     addActions(function() {
-      var desc = $('pt-desc').value.trim();
-      if (!desc) { toast('Enter a description'); return; }
-      addTimelineEntry('ptchange', 'Patient Change', {description: desc});
+      var interp = $('ecg-interp').value;
+      if (!interp) { toast('Select an interpretation'); return; }
+      var leads = $('ecg-leads').value.trim();
+      var note = $('ecg-note').value.trim();
+      var label = '12-Lead: ' + interp + (leads ? ' — ' + leads : '') + (note ? ' · ' + note : '');
+      addTimelineEntry('ecg12', label, {interpretation: interp, leads: leads, note: note});
       closeSheet();
-      toast('Patient change logged');
+      toast('12-Lead logged');
+    });
+
+  } else if (key === 'cardiac') {
+    frag.appendChild(mkSelect('Event', 'ca-event', [
+      'VF arrest','PEA arrest','Asystole','ROSC','Defibrillation','Cardioversion','Pacing'
+    ], ''));
+    frag.appendChild(mkField('Joules / Rate (if applicable)', 'text', 'ca-joules', 'e.g. 200J, 80 ppm', ''));
+    frag.appendChild(mkField('Note (optional)', 'text', 'ca-note', '', ''));
+
+    addActions(function() {
+      var event = $('ca-event').value;
+      if (!event) { toast('Select an event type'); return; }
+      var joules = $('ca-joules').value.trim();
+      var note = $('ca-note').value.trim();
+      var label = 'Cardiac: ' + event + (joules ? ' ' + joules : '') + (note ? ' — ' + note : '');
+      addTimelineEntry('cardiac', label, {event: event, joules: joules, note: note});
+      closeSheet();
+      toast('Cardiac event logged');
+    });
+
+  } else if (key === 'procedure') {
+    frag.appendChild(mkSelect('Procedure', 'pr-type', [
+      'Tourniquet','Wound packing','Needle decompression','Chest seal',
+      'Splint','Immobilization','Blood glucose check','12-lead ECG',
+      'External pacing','Cricothyrotomy','Other'
+    ], ''));
+    frag.appendChild(mkField('Site / Detail (optional)', 'text', 'pr-site', 'e.g. L 2nd ICS MCL, R thigh', ''));
+    frag.appendChild(mkField('Note (optional)', 'text', 'pr-note', '', ''));
+
+    addActions(function() {
+      var type = $('pr-type').value;
+      if (!type) { toast('Select a procedure'); return; }
+      var site = $('pr-site').value.trim();
+      var note = $('pr-note').value.trim();
+      var label = 'Procedure: ' + type + (site ? ' — ' + site : '') + (note ? ' · ' + note : '');
+      addTimelineEntry('procedure', label, {type: type, site: site, note: note});
+      closeSheet();
+      toast('Procedure logged');
     });
 
   } else if (key === 'note') {
@@ -1949,7 +2010,7 @@ function openQuickLogSheet(key) {
     addActions(function() {
       var text = $('note-text').value.trim();
       if (!text) { toast('Enter a note'); return; }
-      addTimelineEntry('note', 'Note', {text: text});
+      addTimelineEntry('note', 'Note: ' + text, {text: text});
       closeSheet();
       toast('Note logged');
     });
@@ -1965,9 +2026,10 @@ function addTimelineEntry(type, label, details) {
 }
 
 var TL_ICONS = {
-  vitals: '🩺', medgiven: '💊', medcontrol: '📡',
-  transport: '🚑', ptchange: '⚠️', note: '✏️',
-  callstart: '🟢', callend: '🔴', med: '💊', med_dc: '🚫',
+  vitals: '🩺', medgiven: '💊', ivaccess: '🩸',
+  airway: '💨', ecg12: '❤️', cardiac: '⚡',
+  procedure: '🔧', note: '✏️',
+  runstart: '🟢', runend: '🔴', med: '💊', med_dc: '🚫',
   mark: '⏱'
 };
 
@@ -1976,33 +2038,24 @@ function formatTLDetails(entry) {
   if (entry.type === 'vitals') {
     var parts = [];
     var bpS = d['BP Systolic'], bpD = d['BP Diastolic'];
-    if (bpS && bpD) parts.push('BP ' + bpS + '/' + bpD);
     if (d['HR (bpm)']) parts.push('HR ' + d['HR (bpm)']);
+    if (bpS && bpD) parts.push('BP ' + bpS + '/' + bpD);
     if (d['SpO₂ (%)']) parts.push('SpO₂ ' + d['SpO₂ (%)'] + '%');
     if (d['RR (/min)']) parts.push('RR ' + d['RR (/min)']);
     if (d['EtCO₂ (mmHg)']) parts.push('EtCO₂ ' + d['EtCO₂ (mmHg)']);
+    if (d['BGL (mg/dL)']) parts.push('BGL ' + d['BGL (mg/dL)']);
     if (d['GCS']) parts.push('GCS ' + d['GCS']);
-    if (d['Temp (°F)']) parts.push('Temp ' + d['Temp (°F)'] + '°F');
+    if (d.note) parts.push(d.note);
     return parts.join(' · ');
   }
-  if (entry.type === 'medgiven') {
-    return [d.name, d.dose].filter(Boolean).join(' — ') + (d.notes ? ' · ' + d.notes : '');
-  }
-  if (entry.type === 'medcontrol') {
-    return (d.contact ? d.contact + ': ' : '') + (d.instruction || '');
-  }
-  if (entry.type === 'transport') {
-    return d.event + (d.notes ? ' — ' + d.notes : '');
-  }
-  if (entry.type === 'ptchange') return d.description || '';
-  if (entry.type === 'note') return d.text || '';
   if (entry.type === 'med') {
     return [d.name, d.dose, d.route, (d.site && d.site !== 'N/A') ? d.site : null].filter(Boolean).join(' · ');
   }
   if (entry.type === 'med_dc') return (d.name || '') + ' discontinued';
-  if (entry.type === 'callstart') return 'Call initiated';
-  if (entry.type === 'callend') return 'Call completed';
+  if (entry.type === 'runstart') return 'Run initiated';
+  if (entry.type === 'runend') return 'Run completed';
   if (entry.type === 'mark') return d.note || '';
+  // For new event types, the label IS the formatted detail
   return '';
 }
 
@@ -2263,31 +2316,20 @@ function openEditTimestamp(entry) {
 function buildExportText() {
   var r = STATE.report;
   var lines = [];
-  lines.push('RELAY — Transfer Report Export');
+  lines.push('CHART — EMS Intervention Log');
   lines.push(new Date().toLocaleString('en-US', {dateStyle:'long', timeStyle:'short'}));
-  if (r.sendingFacility || r.receivingFacility) {
-    lines.push((r.sendingFacility || 'Unknown') + ' → ' + (r.receivingFacility || 'Unknown'));
-  }
-  if (r.weight) lines.push('Patient Wt: ' + r.weight + r.weightUnit);
+  if (r.chiefComplaint) lines.push('CC: ' + r.chiefComplaint);
+  if (r.weight) lines.push('Patient Wt: ' + r.weight + ' ' + (r.weightUnit || 'kg'));
   if (r.allergies) lines.push('Allergies: ' + r.allergies);
-  if (r.reason) lines.push('Reason: ' + r.reason);
+  if (r.pertinentHx) lines.push('Pertinent Hx: ' + r.pertinentHx);
   lines.push('');
-
-  if (r.hospitalCourse) {
-    lines.push('=== HOSPITAL COURSE ===');
-    lines.push(r.hospitalCourse);
-    lines.push('');
-  }
-  if (r.procedures) {
-    lines.push('Procedures: ' + r.procedures);
-    lines.push('');
-  }
 
   var cs = r.currentStatus || {};
   var csFields = [
-    ['GCS', cs.gcs], ['SpO₂', cs.spo2 ? cs.spo2 + '%' : null],
+    ['HR', cs.hr], ['SpO₂', cs.spo2 ? cs.spo2 + '%' : null],
     ['BP', (cs.bpSys && cs.bpDia) ? cs.bpSys + '/' + cs.bpDia : null],
-    ['HR', cs.hr], ['RR', cs.rr], ['EtCO₂', cs.etco2], ['Temp', cs.temp],
+    ['EtCO₂', cs.etco2], ['RR', cs.rr], ['Temp', cs.temp],
+    ['BGL', cs.bgl], ['GCS', cs.gcs],
     ['Airway', cs.airway], ['Vent', cs.vent]
   ].filter(function(p) { return p[1]; });
   if (csFields.length) {
@@ -2324,19 +2366,6 @@ function buildExportText() {
     lines.push('');
   }
 
-  var labs = r.labs || {};
-  var labStrs = STANDARD_LABS.filter(function(l) { return labs[l.key]; })
-    .map(function(l) { return l.label + ': ' + labs[l.key]; });
-  if (r.customLabs) {
-    r.customLabs.filter(function(l) { return l.label && l.value; })
-      .forEach(function(l) { labStrs.push(l.label + ': ' + l.value); });
-  }
-  if (labStrs.length) {
-    lines.push('=== CRITICAL LABS ===');
-    lines.push(labStrs.join('  '));
-    lines.push('');
-  }
-
   if (STATE.timeline.length) {
     lines.push('=== TIMELINE ===');
     var sorted = STATE.timeline.slice().sort(function(a, b) { return a.ts - b.ts; });
@@ -2347,7 +2376,7 @@ function buildExportText() {
     lines.push('');
   }
 
-  lines.push('--- Generated by RELAY ---');
+  lines.push('--- Generated by CHART ---');
   return lines.join('\n');
 }
 
@@ -2509,7 +2538,7 @@ function fireTimer(timerId) {
 
   if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
     try {
-      new Notification('RELAY — ' + timer.label, {
+      new Notification('CHART — ' + timer.label, {
         body: timer.recurring ? 'Recurring alert — timer reset' : 'Timer complete',
         icon: './icon-192.png'
       });
@@ -2708,9 +2737,7 @@ $('dc-meds-toggle').addEventListener('click', function() {
 ══════════════════════════════════════ */
 
 function renderAll() {
-  updateCallUI();
-  renderLabsGrid();
-  renderCustomLabs();
+  updateRunUI();
   bindReportInputs();
   renderIVSites();
   renderMeds();
