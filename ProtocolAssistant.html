@@ -401,7 +401,7 @@
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div id="app-title" class="title" style="display:flex;align-items:center;gap:9px"><img src="star-of-life.svg" alt="" style="width:28px;height:28px;flex:none"/> Protocol Accessibility Tool</div>
         <div style="display:flex;align-items:center;gap:6px">
-          <a href="dashboard.html" class="ui-ctrl-btn" style="text-decoration:none;display:inline-block" title="Home">🏠</a>
+          <a href="dashboard.html" style="padding:7px 13px;border-radius:10px;border:1px solid rgba(94,234,212,.35);background:rgba(94,234,212,.08);color:#5eead4;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap">← Home</a>
           <button id="btn-admin" class="ui-ctrl-btn hidden" title="Admin Panel">⚙️</button>
           <div style="position:relative">
             <button id="btn-settings" class="ui-ctrl-btn" title="Settings">···</button>
@@ -4642,7 +4642,7 @@
 
 
 // Pump mL/hr → Manual gtts/min
-document.querySelector('#pump-calc').addEventListener('click', ()=>{
+if(document.querySelector('#pump-calc')) document.querySelector('#pump-calc').addEventListener('click', ()=>{
   const rate = parseFloat(document.querySelector('#pump-rate').value || '0');      // mL/hr
   const drip = parseFloat(document.querySelector('#pump-dripset').value || '0');   // gtt/mL
   if(!(rate && drip)){
@@ -4658,7 +4658,7 @@ document.querySelector('#pump-calc').addEventListener('click', ()=>{
     `<div style="color:var(--accent);font-weight:600">Count <b>${Math.round(per10)}</b> drops every 10 seconds to confirm your rate.</div>`;
 });
 
-document.querySelector('#pump-reset').addEventListener('click', ()=>{
+if(document.querySelector('#pump-reset')) document.querySelector('#pump-reset').addEventListener('click', ()=>{
   document.querySelector('#pump-rate').value = '';
   document.querySelector('#pump-dripset').value = '';
   document.querySelector('#pump-result').innerHTML = '';
@@ -4670,7 +4670,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   const _stdKnob   = document.getElementById('std-wt-knob');
   const _stdWtRow  = document.getElementById('std-wt-row');
   const _stdLabel  = document.getElementById('std-ordered-label');
-  _stdToggle.addEventListener('click', ()=>{
+  if(_stdToggle) _stdToggle.addEventListener('click', ()=>{
     _stdWtOn = !_stdWtOn;
     _stdToggle.style.background = _stdWtOn ? 'rgba(94,234,212,.35)' : 'rgba(255,255,255,.12)';
     _stdKnob.style.left  = _stdWtOn ? '18px' : '2px';
@@ -4680,6 +4680,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     _stdLabel.textContent = _stdWtOn ? 'Dose (per kg)' : 'Dose ordered';
     $('#std-result').innerHTML = '';
   });
+
 
   // Standard Dose → Volume
   $('#std-calc').addEventListener('click', ()=>{
@@ -4712,14 +4713,14 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   });
 
   // PQR embedded Apgar
-  document.getElementById('pqr-apgar-toggle').addEventListener('click', ()=>{
+  if(document.getElementById('pqr-apgar-toggle')) document.getElementById('pqr-apgar-toggle').addEventListener('click', ()=>{
     const body = document.getElementById('pqr-apgar-body');
     const chev = document.getElementById('pqr-apgar-chev');
     const open = body.style.display !== 'none';
     body.style.display = open ? 'none' : '';
     chev.textContent = open ? '▾' : '▴';
   });
-  document.getElementById('pqr-apgar-calc').addEventListener('click', ()=>{
+  if(document.getElementById('pqr-apgar-calc')) document.getElementById('pqr-apgar-calc').addEventListener('click', ()=>{
     const vals = ['pqr-apgar-a','pqr-apgar-p','pqr-apgar-g','pqr-apgar-ac','pqr-apgar-r']
       .map(id => parseInt(document.getElementById(id).value||'0'));
     const score = vals.reduce((a,b)=>a+b, 0);
@@ -4730,7 +4731,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     document.getElementById('pqr-apgar-result').innerHTML =
       `Score: <b style="font-size:22px;color:${color}">${score}/10</b> — <span style="color:${color}">${interp}</span>`;
   });
-  document.getElementById('pqr-apgar-reset').addEventListener('click', ()=>{
+  if(document.getElementById('pqr-apgar-reset')) document.getElementById('pqr-apgar-reset').addEventListener('click', ()=>{
     ['pqr-apgar-a','pqr-apgar-p','pqr-apgar-g','pqr-apgar-ac','pqr-apgar-r']
       .forEach(id=>{
         const h = document.getElementById(id); if(h) h.value='0';
@@ -5040,7 +5041,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
   }
 
   // Extended leads toggle
-  document.getElementById('stemi-ext-toggle').addEventListener('click', ()=>{
+  if(document.getElementById('stemi-ext-toggle')) document.getElementById('stemi-ext-toggle').addEventListener('click', ()=>{
     const body = document.getElementById('stemi-ext-body');
     const chev = document.getElementById('stemi-ext-chev');
     const open = body.style.display !== 'none';
@@ -5048,7 +5049,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     chev.textContent = open ? '▾' : '▴';
   });
 
-  $('#stemi-calc').addEventListener('click', ()=>{
+  if($('#stemi-calc')) $('#stemi-calc').addEventListener('click', ()=>{
     const elev    = new Set(_stemiLeads('stemi-elev-leads'));
     const dep     = new Set(_stemiLeads('stemi-dep-leads'));
     const ext     = new Set(_stemiLeads('stemi-ext-leads'));
@@ -5213,7 +5214,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     res.innerHTML = alertsHtml + findingsHtml + pearlsHtml;
   });
 
-  $('#stemi-reset').addEventListener('click', ()=>{
+  if($('#stemi-reset')) $('#stemi-reset').addEventListener('click', ()=>{
     document.querySelectorAll('#stemi-elev-leads input, #stemi-dep-leads input, #stemi-ext-leads input').forEach(cb => cb.checked = false);
     document.getElementById('stemi-lbbb').checked = false;
     document.getElementById('stemi-result').innerHTML = '';

@@ -160,10 +160,15 @@
           <div class="cat-title">INFUSION &amp; DRIP</div>
           <div class="cat-sub">IV Rates, Drip Timing, Fluid Rate</div>
         </div>
-        <div class="cat-card" data-cat="assessment">
-          <div class="cat-icon">🧠</div>
-          <div class="cat-title">ASSESSMENT</div>
-          <div class="cat-sub">APGAR Score, GCS, Rhythm Recognition</div>
+        <div class="cat-card" data-cat="cardiac">
+          <div class="cat-icon">❤️</div>
+          <div class="cat-title">CARDIAC</div>
+          <div class="cat-sub">STEMI Localization &amp; Rhythm Recognition</div>
+        </div>
+        <div class="cat-card" data-cat="trauma">
+          <div class="cat-icon">🩹</div>
+          <div class="cat-title">TRAUMA</div>
+          <div class="cat-sub">Glasgow Coma Scale (GCS)</div>
         </div>
         <div class="cat-card" data-cat="airway">
           <div class="cat-icon">🫁</div>
@@ -1916,12 +1921,15 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       peds:       { title:'🧒 PEDIATRICS',       sub:'Broselow Quick Reference & APGAR',         sections:['peds-ref-section'] },
       meds:       { title:'💊 MEDICATIONS',      sub:'Weight-Based & Draw-Up Dose Calculators',  sections:['calc-body-weight','calc-body-std'] },
       infusion:   { title:'💉 INFUSION & DRIP',  sub:'IV Rates, Drip Timing & Fluid Rate',       sections:['calc-body-iv','calc-body-md','calc-body-fo','calc-body-pump'] },
-      assessment: { title:'🧠 ASSESSMENT',       sub:'APGAR, GCS & Rhythm Recognition',          sections:['calc-body-apgar','calc-body-gcs','calc-body-rhythm'] },
+      cardiac:    { title:'❤️ CARDIAC',           sub:'STEMI Localization & Rhythm Recognition',  sections:['calc-body-stemi','calc-body-rhythm'] },
+      trauma:     { title:'🩹 TRAUMA',            sub:'Glasgow Coma Scale (GCS)',                  sections:['calc-body-gcs'] },
       airway:     { title:'🫁 AIRWAY & VENT',    sub:'O₂ Duration & Vent Settings (IBW/TV)',     sections:['calc-body-o2','vent-section'] },
     };
 
     // All top-level sections to hide/show
-    const ALL_SECTION_IDS = ['peds-ref-section','calc-body-weight','calc-body-std','calc-body-iv','calc-body-md','calc-body-fo','calc-body-pump','calc-body-apgar','calc-body-gcs','calc-body-rhythm','calc-body-o2','vent-section'];
+    const ALL_SECTION_IDS = ['peds-ref-section','calc-body-weight','calc-body-std','calc-body-iv','calc-body-md','calc-body-fo','calc-body-pump','calc-body-stemi','calc-body-rhythm','calc-body-apgar','calc-body-gcs','calc-body-o2','vent-section'];
+    // Note: calc-body-apgar is kept in ALL_SECTION_IDS so it hides when non-peds categories are shown,
+    // but it is not assigned to any category — it renders only within peds-ref-section.
     // Section headers (calc-section-hd divs) — we'll hide them all and just show relevant content
     const SECTION_GROUPS = {
       dose:       {hd:0, sections:['calc-body-weight','calc-body-std']},
