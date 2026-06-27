@@ -4586,6 +4586,7 @@
   function renderCalcOptions(){
     const hidden = $('#calc-med');
     const grp = document.getElementById('calc-med-group');
+    if(!hidden || !grp) return;
     const meds = (svc().meds||[]);
     hidden.value = '';
     grp.innerHTML = meds.map(m=>`<button type="button" class="opt-btn" data-val="${m.name.replace(/"/g,'&quot;')}">${m.name}</button>`).join('');
@@ -4609,6 +4610,7 @@
   }
   window.loadIntoCalc = loadIntoCalc;
 
+  if (document.getElementById('calc')) {
   $('#calc').addEventListener('click', ()=>{
     const medName = $('#calc-med').value;
     const m = (svc().meds||[]).find(x=>x.name===medName);
@@ -4843,6 +4845,7 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
     });
     $('#vent-result').innerHTML='';
   });
+  } // end if(document.getElementById('calc'))
 
   // --- Rhythm Recognition ---
   const RHYTHMS = [
