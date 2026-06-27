@@ -1,0 +1,47 @@
+{
+  "name": "EMS Check",
+  "short_name": "EMS Check",
+  "description": "Ambulance Check Off Assistant — Emergency Ambulance Service, Inc.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0f1117",
+  "theme_color": "#0f1117",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icon.svg",     "sizes": "any",      "type": "image/svg+xml" }
+  ],
+  "shortcuts": [
+    {
+      "name": "ALS Check Off",
+      "short_name": "ALS",
+      "description": "ALS Paramedic Equipment Check",
+      "url": "./?shortcut=als-para",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "BLS Check Off",
+      "short_name": "BLS",
+      "description": "BLS EMT Equipment Check",
+      "url": "./?shortcut=bls-emt",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "EMT Check Off",
+      "short_name": "AEMT",
+      "description": "ALS AEMT Equipment Check",
+      "url": "./?shortcut=als-aemt",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Unit Check Off",
+      "short_name": "Unit",
+      "description": "Unit Vehicle Inspection Check",
+      "url": "./?shortcut=uco",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}
