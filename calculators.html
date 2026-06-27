@@ -106,6 +106,13 @@
     /* auth loading */
     #auth-loading{display:flex;align-items:center;justify-content:center;min-height:100vh;font-size:15px;color:var(--muted)}
     #app{display:none;flex-direction:column;min-height:100vh}
+    /* category cards */
+    .cat-card{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px 16px 22px;gap:10px;cursor:pointer;transition:background .15s,border-color .15s,transform .1s;-webkit-tap-highlight-color:transparent;user-select:none}
+    .cat-card:hover{background:rgba(20,24,32,.9);border-color:rgba(255,255,255,.15)}
+    .cat-card:active{transform:scale(0.97);background:rgba(94,234,212,.07);border-color:rgba(94,234,212,.25)}
+    .cat-icon{font-size:40px;line-height:1}
+    .cat-title{font-size:16px;font-weight:700;color:var(--text);margin:0;line-height:1.2}
+    .cat-sub{font-size:12px;color:var(--muted);margin:0;line-height:1.4}
   </style>
 </head>
 <body>
@@ -115,18 +122,18 @@
     <header>
       <div class="wrap">
         <div class="header-row">
-          <button class="back-btn" id="btn-back" title="Back to Home">‹</button>
+          <button class="back-btn" id="btn-back" title="Back">‹</button>
           <div>
-            <div class="page-title">🧮 Calculators</div>
-            <div class="page-subtitle">EMS Reference Calculators &amp; Peds Quick Reference</div>
+            <div class="page-title" id="hdr-title">🧮 CALCULATORS</div>
+            <div class="page-subtitle" id="hdr-sub">Select a category</div>
           </div>
         </div>
-        <!-- Jump-to search bar -->
-        <div class="tab-filter" style="padding-bottom:6px">
+        <!-- Jump-to search bar (detail view only) -->
+        <div class="tab-filter" id="search-bar-wrap" style="padding-bottom:6px;display:none">
           <div class="meds-search-wrap">
             <div class="meds-search-bar">
               <span class="meds-search-icon">🔍</span>
-              <input type="search" id="res-filter-input" placeholder="Jump to section (e.g. Peds, APGAR)…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <input type="search" id="res-filter-input" placeholder="Jump to section…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
               <button id="res-filter-clear" class="meds-filter-clear" style="display:none">✕</button>
             </div>
             <div id="res-suggestions" class="meds-sugg-list" style="display:none"></div>
@@ -135,7 +142,38 @@
       </div>
     </header>
 
-    <main>
+    <!-- Category Landing -->
+    <div id="cat-home" style="max-width:720px;margin:0 auto;padding:20px 16px 32px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px" id="cat-grid">
+        <div class="cat-card" data-cat="peds">
+          <div class="cat-icon">🧒</div>
+          <div class="cat-title">PEDIATRICS</div>
+          <div class="cat-sub">Broselow Quick Reference &amp; APGAR</div>
+        </div>
+        <div class="cat-card" data-cat="meds">
+          <div class="cat-icon">💊</div>
+          <div class="cat-title">MEDICATIONS</div>
+          <div class="cat-sub">Weight-Based &amp; Draw-Up Dose</div>
+        </div>
+        <div class="cat-card" data-cat="infusion">
+          <div class="cat-icon">💉</div>
+          <div class="cat-title">INFUSION &amp; DRIP</div>
+          <div class="cat-sub">IV Rates, Drip Timing, Fluid Rate</div>
+        </div>
+        <div class="cat-card" data-cat="assessment">
+          <div class="cat-icon">🧠</div>
+          <div class="cat-title">ASSESSMENT</div>
+          <div class="cat-sub">APGAR Score, GCS, Rhythm Recognition</div>
+        </div>
+        <div class="cat-card" data-cat="airway">
+          <div class="cat-icon">🫁</div>
+          <div class="cat-title">AIRWAY &amp; VENT</div>
+          <div class="cat-sub">O₂ Duration &amp; Vent Settings (IBW/TV)</div>
+        </div>
+      </div>
+    </div>
+
+    <main id="cat-detail" style="display:none">
       <div class="wrap">
 
       <!-- Pediatric Quick Reference (moved from Contacts) -->
@@ -1873,8 +1911,82 @@ document.querySelector('#pump-reset').addEventListener('click', ()=>{
       initPedsRef();
     });
 
+    // ── Category Navigation ──
+    const CAT_META = {
+      peds:       { title:'🧒 PEDIATRICS',       sub:'Broselow Quick Reference & APGAR',         sections:['peds-ref-section'] },
+      meds:       { title:'💊 MEDICATIONS',      sub:'Weight-Based & Draw-Up Dose Calculators',  sections:['calc-body-weight','calc-body-std'] },
+      infusion:   { title:'💉 INFUSION & DRIP',  sub:'IV Rates, Drip Timing & Fluid Rate',       sections:['calc-body-iv','calc-body-md','calc-body-fo','calc-body-pump'] },
+      assessment: { title:'🧠 ASSESSMENT',       sub:'APGAR, GCS & Rhythm Recognition',          sections:['calc-body-apgar','calc-body-gcs','calc-body-rhythm'] },
+      airway:     { title:'🫁 AIRWAY & VENT',    sub:'O₂ Duration & Vent Settings (IBW/TV)',     sections:['calc-body-o2','vent-section'] },
+    };
+
+    // All top-level sections to hide/show
+    const ALL_SECTION_IDS = ['peds-ref-section','calc-body-weight','calc-body-std','calc-body-iv','calc-body-md','calc-body-fo','calc-body-pump','calc-body-apgar','calc-body-gcs','calc-body-rhythm','calc-body-o2','vent-section'];
+    // Section headers (calc-section-hd divs) — we'll hide them all and just show relevant content
+    const SECTION_GROUPS = {
+      dose:       {hd:0, sections:['calc-body-weight','calc-body-std']},
+      infusion:   {hd:1, sections:['calc-body-iv','calc-body-md','calc-body-fo','calc-body-pump']},
+      rhythm:     {hd:2, sections:['calc-body-rhythm']},
+      assessment: {hd:3, sections:['calc-body-apgar','calc-body-gcs']},
+      airway:     {hd:4, sections:['calc-body-o2','vent-section']},
+    };
+
+    let _currentCat = null;
+
+    function showHome() {
+      _currentCat = null;
+      document.getElementById('cat-home').style.display = '';
+      document.getElementById('cat-detail').style.display = 'none';
+      document.getElementById('search-bar-wrap').style.display = 'none';
+      document.getElementById('hdr-title').textContent = '🧮 CALCULATORS';
+      document.getElementById('hdr-sub').textContent = 'Select a category';
+    }
+
+    function showCat(catKey) {
+      const meta = CAT_META[catKey];
+      if (!meta) return;
+      _currentCat = catKey;
+
+      // Update header
+      document.getElementById('hdr-title').textContent = meta.title;
+      document.getElementById('hdr-sub').textContent = meta.sub;
+
+      // Show/hide all top-level section wrappers
+      // First: collect all calc-card elements by their body ID
+      ALL_SECTION_IDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        // For calc-card-body elements, show/hide the parent calc-card
+        const card = el.closest('.calc-card') || el.closest('.card') || el;
+        const show = meta.sections.includes(id);
+        card.style.display = show ? '' : 'none';
+      });
+
+      // Hide all calc-section-hd divs (category headers within detail view)
+      document.querySelectorAll('.calc-section-hd').forEach(hd => hd.style.display = 'none');
+
+      // Show/hide search bar
+      document.getElementById('search-bar-wrap').style.display = '';
+
+      // Show detail, hide home
+      document.getElementById('cat-home').style.display = 'none';
+      document.getElementById('cat-detail').style.display = '';
+
+      // Scroll to top
+      window.scrollTo(0, 0);
+    }
+
+    document.getElementById('cat-grid').addEventListener('click', function(e) {
+      const card = e.target.closest('.cat-card');
+      if (card) showCat(card.dataset.cat);
+    });
+
     document.getElementById('btn-back').addEventListener('click', () => {
-      window.location.href = 'dashboard.html';
+      if (_currentCat) {
+        showHome();
+      } else {
+        window.location.href = 'dashboard.html';
+      }
     });
   </script>
   <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(function(){});</script>
