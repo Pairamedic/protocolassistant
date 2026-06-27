@@ -1,0 +1,3088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>(function(){var t=localStorage.getItem('easi-theme'),s=localStorage.getItem('easi-textsize'),h=document.documentElement;if(t==='light')h.setAttribute('data-theme','light');if(s)h.classList.add(s);})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" id="theme-color-meta" content="#0f1117">
+<title>Unit Check</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<meta name="apple-mobile-web-app-title" content="EMS Check">
+<style>
+  :root {
+    --bg: #0f1117; --card: #1a1d27; --border: rgba(255,255,255,.10);
+    --accent: #3b82f6; --green: #22c55e; --red: #ef4444; --yellow: #eab308;
+    --muted: #6b7280; --text: #f0f2f5; --subtext: #9ca3af;
+    --para-color: #a855f7; --aemt-color: #3b82f6; --emt-color: #22c55e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+
+  .app-header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(15,17,23,.94); backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--border);
+    padding: max(10px, env(safe-area-inset-top)) 16px 0;
+  }
+  .header-top { display: flex; align-items: center; justify-content: space-between; padding-bottom: 10px; }
+  .app-title { font-size: 15px; font-weight: 700; }
+  .app-subtitle { font-size: 10px; color: var(--muted); margin-top: 1px; }
+  .save-status { font-size: 10px; color: var(--muted); }
+  .net-status { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--muted); }
+  .net-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; transition: background .4s; animation: pulse-green 2.5s infinite; }
+  .net-dot.offline { background: var(--red); animation: pulse-red 2s infinite; }
+  @keyframes pulse-green { 0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4);}50%{box-shadow:0 0 0 4px rgba(34,197,94,0);} }
+  @keyframes pulse-red { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.5);}50%{box-shadow:0 0 0 4px rgba(239,68,68,0);} }
+
+  .tab-bar { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+  .tab-bar::-webkit-scrollbar { display: none; }
+  .tab-btn { flex-shrink: 0; padding: 8px 16px; font-size: 13px; font-weight: 500; background: transparent; border: none; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; transition: color .15s, border-color .15s; }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .content { padding: 12px 14px 80px; max-width: 700px; margin: 0 auto; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Unit type selector */
+  .role-bar { display: flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; }
+  .role-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-right: 4px; white-space: nowrap; }
+  .role-seg { display: flex; gap: 4px; flex: 1; }
+  .role-btn { flex: 1; padding: 5px 4px; border-radius: 8px; font-size: 11px; font-weight: 600; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; transition: all .15s; text-align: center; }
+  .role-btn[data-unit="als-para"].active { background: rgba(168,85,247,.15); border-color: var(--para-color); color: var(--para-color); }
+  .role-btn[data-unit="als-aemt"].active { background: rgba(59,130,246,.15); border-color: var(--aemt-color); color: var(--aemt-color); }
+  .role-btn[data-unit="bls-emt"].active { background: rgba(34,197,94,.15); border-color: var(--emt-color); color: var(--emt-color); }
+
+  /* Card */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; }
+  .card-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--muted); margin-bottom: 10px; }
+
+  /* Fields */
+  .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .field { display: flex; flex-direction: column; gap: 3px; }
+  .field label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+  .field input, .field textarea { background: rgba(255,255,255,.05); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; color: var(--text); font-size: 13px; font-family: inherit; width: 100%; outline: none; transition: border-color .15s; }
+  .field input:focus, .field textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,.18); }
+  .field textarea { resize: vertical; min-height: 56px; }
+
+  /* Sections */
+  .section { margin-bottom: 8px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .section-header { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; cursor: pointer; background: rgba(255,255,255,.03); user-select: none; }
+  .section-header:hover { background: rgba(255,255,255,.06); }
+  .section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+  .section-meta { font-size: 11px; color: var(--muted); }
+  .section-arrow { font-size: 11px; color: var(--muted); transition: transform .2s; }
+  .section.open .section-arrow { transform: rotate(180deg); }
+  .section-body { display: none; }
+  .section.open .section-body { display: block; }
+
+  /* Check items — Equipment (qty-based) */
+  .check-item { display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-top: 1px solid rgba(255,255,255,.04); transition: background .1s; }
+  .check-item:hover { background: rgba(255,255,255,.03); }
+  .check-label { font-size: 13px; line-height: 1.35; flex: 1; }
+
+  /* Expected qty badge */
+  .qty-expected { font-size: 10px; color: var(--accent); background: rgba(59,130,246,.12); border-radius: 4px; padding: 2px 5px; flex-shrink: 0; min-width: 28px; text-align: center; font-weight: 600; }
+
+  /* Actual qty input */
+  .qty-input { width: 52px; font-size: 12px; text-align: center; background: rgba(255,255,255,.05); border: 1px solid var(--border); border-radius: 6px; padding: 4px; color: var(--subtext); outline: none; flex-shrink: 0; -moz-appearance: textfield; }
+  .qty-input::-webkit-inner-spin-button, .qty-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .qty-input:focus { border-color: var(--accent); color: var(--text); box-shadow: 0 0 0 3px rgba(59,130,246,.22); width: 62px; }
+
+  /* Active row highlight — shows which item you're entering */
+  .check-item:focus-within { background: rgba(59,130,246,.11) !important; box-shadow: inset 3px 0 0 var(--accent); }
+  .check-item:focus-within .check-label { color: var(--text); font-weight: 700; }
+
+  /* Item states */
+  .check-item.item-ok { background: rgba(34,197,94,.06); }
+  .check-item.item-ok:hover { background: rgba(34,197,94,.10); }
+  .check-item.item-ok .qty-input { border-color: var(--green); color: var(--green); }
+  .check-item.item-ok .qty-expected { color: var(--green); background: rgba(34,197,94,.12); }
+  .check-item.item-low { background: rgba(234,179,8,.06); }
+  .check-item.item-low:hover { background: rgba(234,179,8,.10); }
+  .check-item.item-low .qty-input { border-color: var(--yellow); color: var(--yellow); }
+  .check-item.item-low .qty-expected { color: var(--yellow); background: rgba(234,179,8,.12); }
+
+  /* Expiry input */
+  .med-expiry-input { font-size: 11px; width: 68px; background: rgba(255,255,255,.05); border: 1px solid var(--border); border-radius: 6px; padding: 3px 6px; color: var(--subtext); outline: none; flex-shrink: 0; }
+  .med-expiry-input.exp-red { border-color: var(--red); color: var(--red); background: rgba(239,68,68,.12); }
+  .check-item.exp-red { background: rgba(239,68,68,.07); }
+  .check-item.exp-red:hover { background: rgba(239,68,68,.12); }
+  .check-item.item-ok.exp-red { background: rgba(239,68,68,.07); }
+
+  /* Out of stock */
+  .oos-btn { font-size: 9px; padding: 2px 6px; border-radius: 5px; border: 1px solid rgba(239,68,68,.3); background: transparent; color: var(--muted); cursor: pointer; flex-shrink: 0; white-space: nowrap; font-family: inherit; }
+  .oos-btn:active { opacity: .7; }
+  .check-item.item-oos { background: rgba(239,68,68,.08); }
+  .check-item.item-oos:hover { background: rgba(239,68,68,.13); }
+  .check-item.item-oos .check-label { text-decoration: line-through; color: var(--muted); }
+  .check-item.item-oos .qty-input, .check-item.item-oos .med-expiry-input { opacity: 0.25; pointer-events: none; }
+  .check-item.item-oos .qty-expected { background: rgba(239,68,68,.18); color: var(--red); }
+  .check-item.item-oos .oos-btn { background: rgba(239,68,68,.18); border-color: var(--red); color: var(--red); font-weight: 700; }
+
+  /* UCO checkbox items */
+  .check-item.uco-item { cursor: pointer; }
+  .check-box { width: 19px; height: 19px; min-width: 19px; border: 2px solid rgba(255,255,255,.2); border-radius: 5px; display: flex; align-items: center; justify-content: center; transition: all .12s; }
+  .check-item.checked .check-box { background: var(--green); border-color: var(--green); }
+  .check-item.checked .check-box::after { content: '✓'; color: #000; font-size: 12px; font-weight: 800; }
+  .check-item.checked .check-label { text-decoration: line-through; color: var(--muted); }
+
+  /* Buttons */
+  .btn-row { display: flex; gap: 8px; margin-top: 10px; }
+  .btn { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--accent); background: rgba(59,130,246,.10); color: var(--accent); font-size: 13px; font-weight: 600; cursor: pointer; transition: all .12s; }
+  .btn.active { background: rgba(59,130,246,.25); }
+  .btn:active { opacity: .75; }
+  .btn-danger { border-color: rgba(239,68,68,.4); background: rgba(239,68,68,.07); color: var(--red); }
+  .btn-success { border-color: rgba(34,197,94,.4); background: rgba(34,197,94,.07); color: var(--green); }
+  .btn-fillable { border-color: #0891b2; background: rgba(8,145,178,.10); color: #0891b2; width: 100%; margin-top: 8px; }
+  html[data-theme="light"] .btn-fillable { color: #0369a1; border-color: #0369a1; background: rgba(3,105,161,.08); }
+  .helper-text { font-size: 11px; color: var(--muted); text-align: center; margin-top: 6px; }
+
+  #update-banner { display: none; position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #fff; padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; z-index: 999; box-shadow: 0 4px 20px rgba(59,130,246,.4); }
+
+  @media (max-width: 480px) { .field-grid { grid-template-columns: 1fr; } }
+
+  /* Control buttons — fixed bottom-right FAB */
+  .ctrl-bar { position: fixed; bottom: max(20px, calc(env(safe-area-inset-bottom) + 12px)); right: 16px; display: flex; gap: 8px; z-index: 110; }
+  .ctrl-btn { min-width: 38px; height: 38px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .12s; padding: 0 8px; box-shadow: 0 2px 10px rgba(0,0,0,.35); }
+  .ctrl-btn:active { opacity: .7; transform: scale(.95); }
+
+  /* Light mode */
+  html[data-theme="light"] { --bg: #f1f3f7; --card: #ffffff; --border: rgba(0,0,0,.10); --text: #111827; --subtext: #374151; --muted: #6b7280; }
+  html[data-theme="light"] body { background: var(--bg); color: var(--text); }
+  html[data-theme="light"] .app-header { background: rgba(241,243,247,.94); }
+  html[data-theme="light"] .modal-sheet { background: #fff; }
+  html[data-theme="light"] .recip-item { background: rgba(0,0,0,.03); }
+  html[data-theme="light"] .recip-item:hover { background: rgba(0,0,0,.07); }
+  html[data-theme="light"] .modal-btn.modal-cancel { background: rgba(0,0,0,.07); color: var(--text); }
+  html[data-theme="light"] .field input, html[data-theme="light"] .field textarea { background: rgba(0,0,0,.04); color: var(--text); }
+  html[data-theme="light"] .qty-input { background: rgba(0,0,0,.04); color: var(--subtext); }
+  html[data-theme="light"] .med-expiry-input { background: rgba(0,0,0,.04); color: var(--subtext); }
+  html[data-theme="light"] .section-header { background: rgba(0,0,0,.02); }
+  html[data-theme="light"] .section-header:hover { background: rgba(0,0,0,.05); }
+  html[data-theme="light"] .check-item:hover { background: rgba(0,0,0,.03); }
+  html[data-theme="light"] .check-item.item-ok { background: rgba(34,197,94,.10); }
+  html[data-theme="light"] .check-item.item-ok:hover { background: rgba(34,197,94,.15); }
+  html[data-theme="light"] .check-item.item-low { background: rgba(234,179,8,.10); }
+  html[data-theme="light"] .check-item.item-low:hover { background: rgba(234,179,8,.15); }
+  html[data-theme="light"] .check-item.exp-red { background: rgba(239,68,68,.10); }
+  html[data-theme="light"] .check-box { border-color: rgba(0,0,0,.2); }
+  html[data-theme="light"] .ctrl-btn { background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,.15); }
+  html[data-theme="light"] .role-bar { background: var(--card); }
+  html[data-theme="light"] .btn { background: rgba(59,130,246,.08); }
+  html[data-theme="light"] .btn-danger { background: rgba(239,68,68,.06); }
+  html[data-theme="light"] .btn-success { background: rgba(34,197,94,.06); }
+
+  /* Touch targets */
+  .check-item { min-height: 44px; }
+  .tab-btn { min-height: 40px; }
+
+  /* Text size: large (+2px) */
+  html.text-lg .check-label, html.text-lg .field input, html.text-lg .field textarea,
+  html.text-lg .btn, html.text-lg .tab-btn, html.text-lg .recip-name { font-size: 15px; }
+  html.text-lg .section-title { font-size: 14px; }
+  html.text-lg .qty-input { font-size: 14px; width: 58px; }
+
+  /* Text size: extra large (+4px) */
+  html.text-xl .check-label, html.text-xl .field input, html.text-xl .field textarea,
+  html.text-xl .btn, html.text-xl .tab-btn, html.text-xl .recip-name { font-size: 17px; }
+  html.text-xl .section-title { font-size: 16px; }
+  html.text-xl .qty-input { font-size: 16px; width: 62px; }
+
+  /* Tablet / iPad layout */
+  @media (min-width: 600px) {
+    .content { padding: 16px 20px 80px; }
+    .field-grid { grid-template-columns: 1fr 1fr 1fr; }
+    .check-label { font-size: 14px; }
+    .qty-input { width: 58px; padding: 5px 4px; }
+    .card { padding: 14px 18px; }
+    .btn { padding: 12px; font-size: 14px; }
+    .role-btn { padding: 7px 6px; font-size: 12px; }
+  }
+
+  /* Email modal */
+  .modal-overlay { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); align-items: flex-end; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal-sheet { background: #1a1d27; border: 1px solid var(--border); border-radius: 20px 20px 0 0; padding: 20px 20px 36px; width: 100%; max-width: 540px; animation: slideUp .22s ease; }
+  @keyframes slideUp { from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1} }
+  .modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 16px; }
+  .modal-title { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .modal-sub { font-size: 11px; color: var(--muted); margin-bottom: 16px; }
+  /* ── Recipient list (email modal) ──────────────────── */
+  .recip-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+  .recip-item { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,.04); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; cursor: pointer; transition: background .12s; }
+  .recip-item:hover { background: rgba(255,255,255,.08); }
+  .recip-item.selected { border-color: var(--accent); background: rgba(59,130,246,.10); }
+  .recip-check { width: 20px; height: 20px; min-width: 20px; border-radius: 5px; border: 2px solid rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; transition: all .12s; }
+  .recip-item.selected .recip-check { background: var(--accent); border-color: var(--accent); }
+  .recip-item.selected .recip-check::after { content: '✓'; color: #fff; font-size: 12px; font-weight: 800; }
+  .recip-info { flex: 1; }
+  .recip-name { font-size: 13px; font-weight: 600; }
+  .recip-email { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .recip-note { font-size: 10px; color: var(--yellow); margin-top: 3px; line-height: 1.4; }
+  .recip-tag { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+  .tag-sup { background: rgba(59,130,246,.18); color: var(--aemt-color); }
+  .tag-sms { background: rgba(34,197,94,.18); color: var(--green); }
+  .recip-item.recip-phone { border-color: rgba(34,197,94,.35); }
+  .recip-item.recip-phone:hover { background: rgba(34,197,94,.08); border-color: var(--green); }
+  .recip-item.recip-phone:active { background: rgba(34,197,94,.15); }
+  .recip-phone-icon { font-size: 18px; width: 20px; height: 20px; min-width: 20px; display: flex; align-items: center; justify-content: center; border: none; background: none; }
+  .modal-actions { display: flex; gap: 8px; margin-top: 4px; }
+  .modal-btn { flex: 1; padding: 11px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: opacity .12s; }
+  .modal-btn:active { opacity: .7; }
+  .modal-primary { background: var(--accent); color: #fff; }
+  .modal-cancel { background: rgba(255,255,255,.07); color: var(--muted); border: 1px solid var(--border); }
+  .modal-warn { background: rgba(239,68,68,.15); border: 1px solid rgba(239,68,68,.3); border-radius: 8px; padding: 9px 12px; font-size: 11px; color: var(--red); margin-bottom: 14px; line-height: 1.55; }
+  .modal-warn strong { color: var(--red); }
+
+  /* ── PIN modal ─────────────────────────────────────── */
+  .pin-sub { font-size: 12px; color: var(--muted); text-align: center; margin-bottom: 12px; }
+  .pin-dots { display: flex; gap: 16px; justify-content: center; margin: 14px 0 8px; }
+  .pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--border); background: transparent; transition: all .12s; }
+  .pin-dot.filled { background: var(--accent); border-color: var(--accent); transform: scale(1.2); }
+  .pin-error { color: var(--red); font-size: 11px; text-align: center; min-height: 16px; margin: 6px 0 10px; }
+  .pin-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 230px; margin: 0 auto; }
+  .pin-key { padding: 14px 0; border-radius: 12px; font-size: 22px; font-weight: 600; background: rgba(255,255,255,.07); border: 1px solid var(--border); cursor: pointer; text-align: center; color: var(--text); user-select: none; transition: background .08s, transform .08s; }
+  .pin-key:active { background: rgba(59,130,246,.25); transform: scale(.92); }
+  .pin-del { font-size: 18px; }
+  .pin-blank { background: transparent; border-color: transparent; pointer-events: none; }
+  .pin-hint { font-size: 10px; color: var(--muted); text-align: center; margin-top: 14px; line-height: 1.5; }
+  .pin-change-btn { display: block; text-align: center; font-size: 11px; color: var(--accent); background: none; border: none; cursor: pointer; padding: 8px 0; text-decoration: underline; }
+
+  /* ── Saved Files tab ───────────────────────────────── */
+  .files-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .files-title { font-size: 16px; font-weight: 700; }
+  .files-lock-btn { font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 8px; background: rgba(255,255,255,.06); border: 1px solid var(--border); color: var(--muted); cursor: pointer; }
+  .files-empty { text-align: center; padding: 44px 20px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+  .files-empty-icon { font-size: 42px; margin-bottom: 10px; }
+  .files-loading { text-align: center; padding: 32px; color: var(--muted); font-size: 13px; }
+  .files-search-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .files-search-input { flex: 1; min-width: 0; background: rgba(255,255,255,.06); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; font-size: 13px; color: var(--text); font-family: inherit; outline: none; -webkit-appearance: none; }
+  .files-search-input:focus { border-color: var(--accent); }
+  .files-search-input::placeholder { color: var(--muted); }
+  .files-sort-toggle { display: flex; background: rgba(255,255,255,.05); border-radius: 8px; padding: 2px; gap: 2px; flex-shrink: 0; }
+  .sort-btn { font-size: 11px; font-weight: 600; padding: 5px 9px; border-radius: 6px; border: none; background: transparent; color: var(--muted); cursor: pointer; white-space: nowrap; font-family: inherit; transition: background .15s, color .15s; }
+  .sort-btn.active { background: var(--accent); color: #fff; }
+  .files-config-note { background: rgba(59,130,246,.08); border: 1px dashed rgba(59,130,246,.4); border-radius: 10px; padding: 14px; font-size: 12px; color: var(--muted); line-height: 1.7; margin-bottom: 14px; }
+  .files-config-note strong { color: var(--accent); }
+  .day-group { margin-bottom: 20px; }
+  .day-header { display: flex; align-items: center; justify-content: space-between; padding: 6px 0 8px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
+  .day-label { font-size: 13px; font-weight: 700; }
+  .day-actions { display: flex; gap: 6px; }
+  .day-btn { font-size: 10px; font-weight: 600; padding: 4px 9px; border-radius: 6px; border: 1px solid var(--border); background: rgba(255,255,255,.05); color: var(--muted); cursor: pointer; }
+  .day-btn:active { opacity: .6; }
+  .day-btn.danger { color: var(--red); border-color: rgba(239,68,68,.35); }
+  .file-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; }
+  .file-top { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-bottom: 5px; }
+  .file-unit { font-size: 16px; font-weight: 700; }
+  .file-badge { font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 5px; text-transform: uppercase; letter-spacing: .3px; flex-shrink: 0; }
+  .fb-als  { background: rgba(168,85,247,.2); color: var(--para-color); }
+  .fb-aemt { background: rgba(59,130,246,.2); color: var(--aemt-color); }
+  .fb-bls  { background: rgba(34,197,94,.2); color: var(--green); }
+  .fb-uco  { background: rgba(234,179,8,.2); color: var(--yellow); }
+  .fb-ok   { background: rgba(34,197,94,.15); color: var(--green); }
+  .fb-inc  { background: rgba(239,68,68,.15); color: var(--red); }
+  .file-providers { font-size: 12px; color: var(--subtext); margin-bottom: 3px; }
+  .file-meta { font-size: 10px; color: var(--muted); }
+  .file-actions { display: flex; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.05); }
+  .file-action-btn { flex: 1; padding: 7px 4px; border-radius: 8px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; transition: opacity .12s; }
+  .file-action-btn:active { opacity: .6; }
+  .fa-dl  { background: rgba(59,130,246,.15); color: var(--accent); }
+  .fa-del { background: rgba(239,68,68,.1); color: var(--red); }
+
+  #toast { position: fixed; bottom: 72px; left: 50%; transform: translateX(-50%) translateY(20px); background: #22c55e; color: #000; padding: 9px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; z-index: 998; opacity: 0; transition: opacity .25s, transform .25s; white-space: nowrap; pointer-events: none; }
+
+  /* Thomas Pack group divider */
+  .thomas-pack-divider { display: flex; align-items: center; gap: 10px; margin: 16px 0 8px; }
+  .thomas-pack-divider-line { flex: 1; height: 1px; background: var(--border); }
+  .thomas-pack-divider-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); white-space: nowrap; }
+
+  /* MIN fill button */
+  .min-btn { font-size: 9px; padding: 2px 6px; border-radius: 5px; border: 1px solid rgba(59,130,246,.35); background: transparent; color: var(--accent); cursor: pointer; flex-shrink: 0; white-space: nowrap; font-family: inherit; }
+  .min-btn:active { opacity: .7; }
+  .check-item.item-oos .min-btn { opacity: 0.25; pointer-events: none; }
+
+  /* Section complete state */
+  .section.section-done { border-color: var(--green); }
+  .section.section-done .section-title { color: var(--green); }
+  .section.section-done .section-meta { color: var(--green); font-weight: 700; }
+  .section.section-done .section-header { background: rgba(34,197,94,.08); }
+  .section.section-done .section-arrow { color: var(--green); }
+
+  /* Section incomplete state (has unchecked items) */
+  .section.section-incomplete { border-color: var(--red); }
+  .section.section-incomplete .section-title { color: var(--red); }
+  .section.section-incomplete .section-meta { color: var(--red); }
+  .section.section-incomplete .section-header { background: rgba(239,68,68,.08); }
+  .section.section-incomplete .section-arrow { color: var(--red); }
+
+  /* Yes/No button active states */
+  .btn-yn-yes.active { background: rgba(34,197,94,.35) !important; border-color: var(--green) !important; color: var(--green) !important; font-weight: 800 !important; box-shadow: 0 0 0 2px rgba(34,197,94,.3) !important; }
+  .btn-yn-no.active { background: rgba(239,68,68,.35) !important; border-color: var(--red) !important; color: var(--red) !important; font-weight: 800 !important; box-shadow: 0 0 0 2px rgba(239,68,68,.3) !important; }
+
+  /* Overall progress bar */
+  .equip-progress { margin-bottom: 12px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; }
+  .equip-progress-bar { height: 5px; background: rgba(255,255,255,.08); border-radius: 3px; overflow: hidden; margin-bottom: 5px; }
+  .equip-progress-fill { height: 100%; background: var(--accent); border-radius: 3px; width: 0%; transition: width .35s ease; }
+  .equip-progress-label { font-size: 10px; color: var(--muted); display: flex; justify-content: space-between; }
+  html[data-theme="light"] .equip-progress-bar { background: rgba(0,0,0,.08); }
+
+  @media print {
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    .app-header, .tab-bar, .btn-row, .helper-text, #update-banner, .role-bar { display: none !important; }
+  }
+
+  /* ── Edit Mode ─────────────────────────────────────────────────────────── */
+  .edit-mode-banner { background: rgba(59,130,246,.10); border: 1px solid rgba(59,130,246,.25); border-radius: 10px; padding: 8px 14px; margin-bottom: 10px; font-size: 11px; color: var(--accent); text-align: center; font-weight: 600; letter-spacing: .2px; }
+
+  .edit-section-header { cursor: default !important; background: rgba(59,130,246,.08) !important; border-bottom: 1px solid rgba(59,130,246,.2); gap: 8px; }
+  .edit-section-name { flex: 1; min-width: 0; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; background: transparent; border: none; border-bottom: 1px dashed rgba(59,130,246,.5); color: var(--text); font-family: inherit; outline: none; padding: 2px 0; }
+  .edit-del-section { font-size: 13px; padding: 2px 7px; border-radius: 5px; border: 1px solid rgba(239,68,68,.35); background: transparent; color: var(--red); cursor: pointer; flex-shrink: 0; font-family: inherit; }
+  .edit-del-section:active { opacity: .6; }
+
+  .edit-item { gap: 6px; flex-wrap: wrap; min-height: 44px; }
+  .edit-name { flex: 1; min-width: 120px; font-size: 13px; background: rgba(255,255,255,.05); border: 1px solid var(--border); border-radius: 7px; padding: 5px 9px; color: var(--text); font-family: inherit; outline: none; transition: border-color .15s; }
+  .edit-name:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,.18); }
+  html[data-theme="light"] .edit-name { background: rgba(0,0,0,.04); }
+
+  .edit-item-meta { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+  .edit-x-label { font-size: 10px; color: var(--muted); }
+  .edit-qty { width: 46px; font-size: 12px; text-align: center; background: rgba(255,255,255,.05); border: 1px solid var(--border); border-radius: 6px; padding: 4px 3px; color: var(--text); outline: none; -moz-appearance: textfield; font-family: inherit; }
+  .edit-qty::-webkit-inner-spin-button, .edit-qty::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .edit-qty:focus { border-color: var(--accent); }
+  html[data-theme="light"] .edit-qty { background: rgba(0,0,0,.04); }
+
+  .edit-exp-btn { font-size: 9px; padding: 3px 6px; border-radius: 5px; border: 1px solid rgba(255,255,255,.15); background: transparent; color: var(--muted); cursor: pointer; font-family: inherit; white-space: nowrap; }
+  .edit-exp-btn.exp-on { background: rgba(234,179,8,.18); border-color: var(--yellow); color: var(--yellow); font-weight: 700; }
+  .edit-exp-btn:active { opacity: .7; }
+
+  .edit-del-item { width: 26px; height: 26px; border-radius: 6px; border: 1px solid rgba(239,68,68,.35); background: transparent; color: var(--red); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; font-family: inherit; flex-shrink: 0; }
+  .edit-del-item:active { opacity: .6; }
+
+  .edit-add-item-row { padding: 6px 12px; border-top: 1px dashed rgba(59,130,246,.22); }
+  .edit-add-item-btn { width: 100%; padding: 6px; border-radius: 7px; border: 1px dashed rgba(59,130,246,.45); background: rgba(59,130,246,.05); color: var(--accent); font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .edit-add-item-btn:active { opacity: .7; }
+
+  .edit-footer { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .edit-add-section-btn { width: 100%; padding: 11px; border-radius: 10px; border: 1px dashed rgba(59,130,246,.5); background: rgba(59,130,246,.06); color: var(--accent); font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .edit-add-section-btn:active { opacity: .7; }
+  .edit-reset-btn { width: 100%; padding: 9px; border-radius: 10px; border: 1px solid rgba(239,68,68,.25); background: rgba(239,68,68,.04); color: var(--red); font-size: 12px; cursor: pointer; font-family: inherit; }
+  .edit-reset-btn:active { opacity: .7; }
+
+  .ctrl-btn.edit-active { background: rgba(59,130,246,.2); border-color: var(--accent); color: var(--accent); }
+
+  /* Auth gate */
+  #auth-gate { position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px; }
+  .auth-spinner { width:36px;height:36px;border:3px solid rgba(255,255,255,.1);border-top-color:#5eead4;border-radius:50%;animation:spin .8s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div id="auth-gate"><div class="auth-spinner"></div><div style="color:var(--muted);font-size:13px">Verifying access…</div></div>
+
+<div id="update-banner" onclick="applyUpdate()">🔄 Update available — tap to reload</div>
+
+<!-- PIN MODAL -->
+<div class="modal-overlay" id="pin-modal" onclick="if(event.target===this)closePinModal()">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="pin-modal-title" style="text-align:center">Saved Files</div>
+    <div class="pin-sub" id="pin-label">Enter PIN to access saved check-offs</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-error" id="pin-error"></div>
+    <div class="pin-keypad">
+      <button class="pin-key" onclick="pinInput('1')">1</button>
+      <button class="pin-key" onclick="pinInput('2')">2</button>
+      <button class="pin-key" onclick="pinInput('3')">3</button>
+      <button class="pin-key" onclick="pinInput('4')">4</button>
+      <button class="pin-key" onclick="pinInput('5')">5</button>
+      <button class="pin-key" onclick="pinInput('6')">6</button>
+      <button class="pin-key" onclick="pinInput('7')">7</button>
+      <button class="pin-key" onclick="pinInput('8')">8</button>
+      <button class="pin-key" onclick="pinInput('9')">9</button>
+      <button class="pin-key pin-blank"></button>
+      <button class="pin-key" onclick="pinInput('0')">0</button>
+      <button class="pin-key pin-del" onclick="pinBackspace()">⌫</button>
+    </div>
+    <div class="pin-hint" id="pin-hint"></div>
+    <div class="modal-actions" style="margin-top:16px">
+      <button class="modal-btn modal-cancel" onclick="closePinModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- FLOATING CONTROLS -->
+<div class="ctrl-bar">
+  <button class="ctrl-btn" id="edit-btn" onclick="toggleEditMode()" title="Edit sections" style="display:none">✏</button>
+  <button class="ctrl-btn" id="notif-btn" onclick="toggleNotifications()" title="Enable push notifications">🔕</button>
+  <button class="ctrl-btn" id="size-btn" onclick="cycleSize()" title="Text size">A</button>
+  <button class="ctrl-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle light/dark">&#9728;</button>
+</div>
+
+<!-- APP SHELL -->
+<div class="app-header">
+  <div class="header-top">
+    <div style="display:flex;align-items:center;gap:12px">
+      <a href="dashboard.html" style="color:var(--muted);text-decoration:none;font-size:13px;display:flex;align-items:center;gap:4px;">&#8592; Home</a>
+      <div>
+        <div class="app-title">Unit Check</div>
+        <div class="app-subtitle">Ambulance Check Off Assistant</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+      <div class="net-status">
+        <div class="net-dot" id="net-dot"></div>
+        <span id="net-label">Online</span>
+      </div>
+      <div class="save-status" id="save-status"></div>
+    </div>
+  </div>
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('equip',this)">Equipment Check</button>
+    <button class="tab-btn" onclick="switchTab('uco',this)">Unit Check Off</button>
+    <button class="tab-btn" onclick="openSavedFilesTab(this)">📁 Saved</button>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- EQUIPMENT CHECK TAB -->
+  <div id="tab-equip" class="tab-panel active">
+    <div class="card">
+      <div class="card-title">Shift Info</div>
+      <div class="field-grid">
+        <div class="field"><label>Unit #</label><input id="eq-unit" type="text" placeholder="e.g. M-12"></div>
+        <div class="field"><label>Date</label><input id="eq-date" type="text" placeholder="MM-DD-YY" inputmode="numeric" maxlength="8"></div>
+        <div class="field" id="eq-paramedic-field"><label id="eq-paramedic-label">Paramedic</label><input id="eq-paramedic" type="text" placeholder="Name"></div>
+        <div class="field"><label id="eq-emt-label">EMT</label><input id="eq-emt" type="text" placeholder="Name"></div>
+        <div class="field"><label>Main O₂ (PSI)</label><input id="eq-maino2" type="text" placeholder="PSI"></div>
+        <div class="field"><label>Portable O₂ (PSI)</label><input id="eq-porto2" type="text" placeholder="PSI"></div>
+        <div class="field" id="eq-sealnum-field" style="grid-column:1/-1"><label>Narcotic Seal #</label><input id="eq-sealnum" type="text" placeholder="Seal #"></div>
+      </div>
+    </div>
+
+    <div class="role-bar">
+      <span class="role-label">Unit Type</span>
+      <div class="role-seg">
+        <button class="role-btn active" data-unit="als-para" onclick="setUnit('als-para')">ALS-PARAMEDIC</button>
+        <button class="role-btn" data-unit="als-aemt" onclick="setUnit('als-aemt')">ALS-AEMT</button>
+        <button class="role-btn" data-unit="bls-emt" onclick="setUnit('bls-emt')">BLS-EMT</button>
+      </div>
+    </div>
+    <button class="btn btn-fillable" onclick="downloadFillable('equip')">🖨 Print Fillable</button>
+
+    <div id="equip-progress" class="equip-progress" style="display:none">
+      <div class="equip-progress-bar"><div id="equip-progress-fill" class="equip-progress-fill"></div></div>
+      <div class="equip-progress-label"><span id="equip-progress-count">0 / 0 items</span><span id="equip-progress-pct">0%</span></div>
+    </div>
+    <div id="equip-sections"></div>
+
+    <div class="btn-row">
+      <button class="btn btn-danger" onclick="resetEquip()">🗑 Reset</button>
+      <button class="btn" onclick="downloadReport('equip')">Download</button>
+      <button class="btn btn-success" onclick="saveToCloud('equip')">☁ Save</button>
+    </div>
+    <p class="helper-text">×N = required qty · Enter actual count · EXP = MM-YY · Red = expired · OOS = out of stock</p>
+  </div>
+
+  <!-- UNIT CHECK OFF TAB -->
+  <div id="tab-uco" class="tab-panel">
+    <div class="card">
+      <div class="card-title">Unit Info</div>
+      <div class="field-grid">
+        <div class="field"><label>Unit #</label><input id="uco-unit" type="text" placeholder="e.g. M-12"></div>
+        <div class="field"><label>Date</label><input id="uco-date" type="text" placeholder="MM-DD-YY" inputmode="numeric" maxlength="8"></div>
+        <div class="field"><label>Mileage</label><input id="uco-mileage" type="text" placeholder="Odometer"></div>
+        <div class="field"><label>EMT</label><input id="uco-name" type="text" placeholder="Name"></div>
+        <div class="field"><label>Radio #</label><input id="uco-radio" type="text" placeholder="Radio #"></div>
+      </div>
+    </div>
+    <button class="btn btn-fillable" onclick="downloadFillable('uco')">🖨 Print Fillable</button>
+
+    <div id="uco-sections"></div>
+
+    <div class="card" style="margin-top:8px">
+      <div class="card-title">Closing</div>
+      <div class="field" style="margin-bottom:8px">
+        <label>Repairs Needed / New Body Damage</label>
+        <textarea id="uco-repairs" placeholder="Describe any repairs or body damage…"></textarea>
+      </div>
+      <div class="field-grid">
+        <div class="field">
+          <label>Fuel Card?</label>
+          <div style="display:flex;gap:6px;margin-top:4px">
+            <button id="fuelcard-yes" class="btn btn-yn-yes" style="flex:1;padding:6px;font-size:12px" onclick="setFuelCard('yes')">YES</button>
+            <button id="fuelcard-no" class="btn btn-yn-no" style="flex:1;padding:6px;font-size:12px" onclick="setFuelCard('no')">NO</button>
+          </div>
+        </div>
+        <div class="field"><label>Fire Extinguisher</label><input id="uco-extinguisher" type="text" placeholder="PSI / Status"></div>
+      </div>
+      <div style="margin-top:10px">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">Maintenance Request Turned In?</div>
+        <div style="display:flex;gap:8px">
+          <button id="maint-yes" class="btn btn-yn-yes" style="flex:1;padding:8px" onclick="setMaintRequest('yes')">YES</button>
+          <button id="maint-no" class="btn btn-yn-no" style="flex:1;padding:8px" onclick="setMaintRequest('no')">NO</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-danger" onclick="resetUCO()">🗑 Reset</button>
+      <button class="btn" onclick="downloadReport('uco')">Download</button>
+      <button class="btn btn-success" onclick="saveToCloud('uco')">☁ Save</button>
+    </div>
+    <p class="helper-text">Fillable = blank form to print &amp; fill by hand · Download = completed report</p>
+  </div>
+
+  <!-- SAVED FILES TAB -->
+  <div id="tab-saved" class="tab-panel">
+    <div class="files-header">
+      <div class="files-title">Saved Check-Offs</div>
+      <button class="files-lock-btn" onclick="lockSavedFiles()">🔒 Lock</button>
+    </div>
+    <div class="files-search-row">
+      <input id="files-search" class="files-search-input" type="search" placeholder="Search unit # or provider…" oninput="renderSavedFiles()" autocomplete="off" autocorrect="off" spellcheck="false">
+      <div class="files-sort-toggle">
+        <button id="sort-date-btn" class="sort-btn active" onclick="setSavedSort('date')">By Date</button>
+        <button id="sort-unit-btn" class="sort-btn" onclick="setSavedSort('unit')">By Unit</button>
+      </div>
+    </div>
+    <div id="files-body"><div class="files-loading">Loading…</div></div>
+  </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script>
+// Pairamedic auth gate
+(function(){
+  const PM_APP = firebase.initializeApp({
+    apiKey:"AIzaSyAcnp4uXeOgzuzIHpO5UL6Eq9fvhVHFs7Y",
+    authDomain:"emsprotocolapp.firebaseapp.com",
+    projectId:"emsprotocolapp",
+    storageBucket:"emsprotocolapp.firebasestorage.app",
+    messagingSenderId:"498482397906",
+    appId:"1:498482397906:web:5517abc5d83cf6cf15e30b"
+  }, "pm-auth");
+  firebase.auth(PM_APP).onAuthStateChanged(function(user){
+    if(!user){
+      window.location.href = 'index.html?returnTo=checkoff.html';
+    } else {
+      document.getElementById('auth-gate').style.display = 'none';
+    }
+  });
+})();
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+
+<script>
+// ─── FIREBASE CONFIG ─────────────────────────────────────────────────────────
+const LOGO_B64 = 'data:image/webp;base64,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';
+
+// Paste your project's config from:
+// Firebase console → Project Settings → Your apps → SDK setup → Config
+const FIREBASE_CONFIG = {
+  apiKey:            'AIzaSyCtWsLp050aRdYeKmI5U66LqeGdRl2IPGw',
+  authDomain:        'emscheck-d3891.firebaseapp.com',
+  projectId:         'emscheck-d3891',
+  storageBucket:     'emscheck-d3891.firebasestorage.app',
+  messagingSenderId: '957341847178',
+  appId:             '1:957341847178:web:228486316e5ac87206a773',
+};
+
+// ─── ALS-PARAMEDIC SECTIONS ───────────────────────────────────────────────────
+
+const ALS_PARA_SECTIONS = [
+  {
+    title: 'Soft Goods & Wound Care',
+    items: [
+      { label: '4×4 Pads', qty: 6 },
+      { label: 'ABD Pads', qty: 2 },
+      { label: 'Roller Gauze', qty: 6 },
+      { label: 'Triangular Bandages', qty: 6 },
+      { label: 'Tape 1"', qty: 2 },
+      { label: 'Tape 2"', qty: 2 },
+      { label: 'Commercial Tourniquet', qty: 1 },
+      { label: 'OB Kit', qty: 2 },
+    ]
+  },
+  {
+    title: 'Airway Supplies',
+    items: [
+      { label: 'OPA Set (Adult / Child / Infant)', qty: 1 },
+      { label: 'NPA Set', qty: 1 },
+      { label: 'Adult BVM (>1000mL)', qty: 2 },
+      { label: 'Pedi BVM (450–750mL)', qty: 1 },
+      { label: 'Infant BVM (150–300mL)', qty: 1 },
+      { label: 'Magill Forceps — Adult', qty: 1 },
+      { label: 'Magill Forceps — Pedi', qty: 1 },
+      { label: 'Nebulizer', qty: 2 },
+      { label: 'Sterile Saline (for Nebulizer)', qty: 2 },
+      { label: 'CPAP', qty: 2 },
+    ]
+  },
+  {
+    title: 'Suction Supplies',
+    items: [
+      { label: 'Portable Suction Unit', qty: 1 },
+      { label: 'On-Board Suction Unit', qty: 1 },
+      { label: 'Suction Tubing', qty: 2 },
+      { label: 'Catheter 8fr / 10fr', qty: 1 },
+      { label: 'Catheter 12fr', qty: 1 },
+      { label: 'Catheter 14fr / 18fr', qty: 1 },
+      { label: 'Rigid Suction Tip', qty: 1 },
+    ]
+  },
+  {
+    title: 'Supraglottic / Adv. Airway',
+    items: [
+      { label: 'Air-Q Size 0', qty: 1 },
+      { label: 'Air-Q Size 1', qty: 1 },
+      { label: 'Air-Q Size 1.5', qty: 1 },
+      { label: 'Air-Q Size 2', qty: 1 },
+      { label: 'Air-Q Size 2.5', qty: 1 },
+      { label: 'Air-Q Size 3.5', qty: 1 },
+      { label: 'Air-Q Size 4.5', qty: 1 },
+      { label: 'Tube Holder', qty: 1 },
+      { label: 'Air-Q Stylet', qty: 2 },
+      { label: 'KY Jelly', qty: 3 },
+    ]
+  },
+  {
+    title: 'O₂ Supplies',
+    items: [
+      { label: 'Main O₂ Cylinder', qty: 1 },
+      { label: 'O₂ Regulator / Flowmeter', qty: 1 },
+      { label: 'Nasal Cannula — Adult', qty: 4 },
+      { label: 'Nasal Cannula — Pedi', qty: 4 },
+      { label: 'NRB Mask — Adult', qty: 4 },
+      { label: 'NRB Mask — Pedi', qty: 2 },
+      { label: 'NRB Mask — Infant', qty: 2 },
+    ]
+  },
+  {
+    title: 'Portable O₂',
+    items: [
+      { label: 'Portable O₂ Cylinder', qty: 1 },
+      { label: 'O₂ Regulator', qty: 1 },
+      { label: 'Nasal Cannula — Adult', qty: 2 },
+      { label: 'NRB Mask — Adult', qty: 2 },
+    ]
+  },
+  {
+    title: 'Cardiac Monitor',
+    items: [
+      { label: 'Monitor Unit', qty: 1 },
+      { label: '12-Lead Electrodes', qty: 1 },
+      { label: 'Defib Pads — Adult', qty: 2 },
+      { label: 'Defib Pads — Pedi', qty: 1 },
+      { label: 'SpO₂ Probe — Adult', qty: 1 },
+      { label: 'SpO₂ Probe — Pedi', qty: 1 },
+      { label: 'ETCO₂ Cable + Filterline', qty: 1 },
+      { label: 'NC EtCO₂', qty: 1 },
+      { label: '4-Lead Cable', qty: 1 },
+      { label: '12-Lead Cable', qty: 1 },
+      { label: 'Electrodes — Adult (Packs)', qty: 20 },
+      { label: 'Electrodes — Pedi', qty: 5 },
+      { label: 'EKG Paper Roll', qty: 1 },
+      { label: 'BP Cuff — Lg. Adult', qty: 1 },
+      { label: 'BP Cuff — Adult', qty: 1 },
+      { label: 'BP Cuff — Child', qty: 1 },
+      { label: 'BP Cuff — Infant', qty: 1 },
+      { label: 'BP Cuff — Thigh (Black)', qty: 1 },
+      { label: 'Stethoscope', qty: 1 },
+    ]
+  },
+  {
+    title: 'Assessment & Monitoring',
+    items: [
+      { label: 'Thermometer', qty: 1 },
+      { label: 'Glucometer', qty: 1 },
+      { label: 'Glucometer Strips (Bottle)', qty: 1, expiry: true },
+      { label: 'Lancets', qty: 20 },
+      { label: 'Pen Light', qty: 1 },
+    ]
+  },
+  {
+    title: 'IV Supplies',
+    items: [
+      { label: 'NS 1000mL', qty: 2, expiry: true },
+      { label: 'LR 1000mL', qty: 4, expiry: true },
+      { label: '10gtt Set', qty: 4 },
+      { label: 'Saline Lock', qty: 4, expiry: true },
+      { label: 'Saline Flush', qty: 4, expiry: true },
+      { label: '14G IV Cath', qty: 2 },
+      { label: '16G IV Cath', qty: 2 },
+      { label: '18G IV Cath', qty: 4 },
+      { label: '20G IV Cath', qty: 4 },
+      { label: '22G IV Cath', qty: 4 },
+      { label: '24G IV Cath', qty: 2 },
+      { label: 'Tourniquet', qty: 3 },
+      { label: 'Alcohol Preps', qty: 8 },
+      { label: 'Non-Sterile 4×4', qty: 8 },
+      { label: '1" Clear Tape', qty: 2 },
+    ]
+  },
+  {
+    title: 'IO Bag',
+    items: [
+      { label: 'IO Drill (EZ-IO)', qty: 1 },
+      { label: 'IO Needle 15mm (Pink)', qty: 2 },
+      { label: 'IO Needle 25mm (Blue)', qty: 2 },
+      { label: 'IO Needle 45mm (Yellow)', qty: 1 },
+      { label: 'IO Stabilizer', qty: 2 },
+      { label: 'Extension Set', qty: 2 },
+      { label: 'NS 1000mL (IO Flush)', qty: 1, expiry: true },
+      { label: '60mL Syringe', qty: 2 },
+    ]
+  },
+  {
+    title: 'BSI Supplies',
+    items: [
+      { label: 'Exam Gloves (1 Box)', qty: 1 },
+      { label: 'Isolation Kits', qty: 2 },
+      { label: 'N95 / N100 Respirator', qty: 1 },
+      { label: 'Eye Protection (Goggles)', qty: 2 },
+      { label: 'Antiseptic Hand Cleaner', qty: 1 },
+      { label: 'Biohazard Bags', qty: 1 },
+    ]
+  },
+  {
+    title: 'Immobilization',
+    items: [
+      { label: 'KED or Equivalent', qty: 1 },
+      { label: 'Spine Board + Straps', qty: 2 },
+      { label: 'Pediatric Restraint System', qty: 1 },
+      { label: 'Head Immobilization Device', qty: 1 },
+      { label: 'Cervical Collar — Adult', qty: 3 },
+      { label: 'Cervical Collar — Pediatric', qty: 2 },
+      { label: 'Cervical Collar — Infant', qty: 1 },
+    ]
+  },
+  {
+    title: 'Splints & Transport',
+    items: [
+      { label: 'Padded Extremity Splints (set)', qty: 1 },
+      { label: 'Traction Splint', qty: 1 },
+      { label: 'Elevating Stretcher', qty: 1 },
+      { label: 'Stair Chair / Scoop Stretcher', qty: 1 },
+    ]
+  },
+  {
+    title: 'Trauma',
+    items: [
+      { label: 'Trauma Dressing', qty: 4 },
+      { label: 'Occlusive Dressing', qty: 4 },
+      { label: 'Vaseline Gauze', qty: 2 },
+      { label: 'Hemostatic Agent', qty: 1 },
+      { label: 'Commercial Tourniquet (CAT)', qty: 2 },
+      { label: 'TXA', qty: 2, expiry: true },
+    ]
+  },
+  {
+    title: 'Miscellaneous',
+    items: [
+      { label: 'Fire Extinguisher', qty: 1 },
+      { label: 'HAZ-MAT Reference Guide', qty: 1 },
+      { label: 'Reflective Safety Wear', qty: 1 },
+      { label: 'Flashlight + Batteries', qty: 1 },
+      { label: 'Blankets', qty: 2 },
+      { label: 'Sheets', qty: 2 },
+      { label: 'Towels', qty: 2 },
+      { label: 'Emesis Basin', qty: 1 },
+      { label: 'Sharps Container', qty: 1 },
+      { label: 'EMT Shears', qty: 1 },
+      { label: 'Hemostat', qty: 1 },
+      { label: 'Lubricating Jelly', qty: 1 },
+      { label: 'Window Punch', qty: 1 },
+      { label: 'Disinfectant Solution', qty: 1 },
+      { label: 'Betadine Solution', qty: 1 },
+      { label: 'Pediatric Drug Reference', qty: 1 },
+      { label: 'Sterile Water', qty: 1 },
+      { label: 'Car Seat or Pedi-Mate', qty: 1 },
+    ]
+  },
+  {
+    title: 'Medication Supplies',
+    items: [
+      { label: '18g Needles', qty: 8 },
+      { label: '20g Needles', qty: 8 },
+      { label: '21g Needles', qty: 4 },
+      { label: '20mL Syringe', qty: 2 },
+      { label: '10mL Syringe', qty: 8 },
+      { label: '3mL Syringe', qty: 6 },
+      { label: '1mL Syringe', qty: 1 },
+      { label: '60mL Syringe', qty: 1 },
+      { label: 'MAD Device (Mucosal Atomizer)', qty: 1 },
+      { label: 'Roll of Med Labels', qty: 1 },
+      { label: 'Tape', qty: 4 },
+    ]
+  },
+  {
+    title: 'Medications',
+    items: [
+      { label: 'Albuterol', qty: 6, expiry: true },
+      { label: 'Atrovent', qty: 4, expiry: true },
+      { label: 'Atropine', qty: 3, expiry: true },
+      { label: 'Epi 1:1', qty: 1, expiry: true },
+      { label: 'Epi 1:10', qty: 2, expiry: true },
+      { label: 'Lidocaine', qty: 2, expiry: true },
+      { label: 'Lidocaine Drip', qty: 1, expiry: true },
+      { label: 'Dopamine Drip', qty: 2, expiry: true },
+      { label: 'Narcan', qty: 4, expiry: true },
+      { label: 'Magnesium', qty: 1, expiry: true },
+      { label: 'Calcium', qty: 1, expiry: true },
+      { label: 'Hydralazine', qty: 2, expiry: true },
+      { label: 'Sodium Bicarb', qty: 2, expiry: true },
+      { label: 'D10', qty: 3, expiry: true },
+      { label: 'Lasix', qty: 2, expiry: true },
+      { label: 'Adenosine', qty: 3, expiry: true },
+      { label: 'Zofran', qty: 4, expiry: true },
+      { label: 'Labetalol', qty: 2, expiry: true },
+      { label: 'Thiamine', qty: 1, expiry: true },
+      { label: 'Nitro', qty: 2, expiry: true },
+      { label: 'Benadryl', qty: 2, expiry: true },
+      { label: 'Aspirin Bottle', qty: 1, expiry: true },
+      { label: 'Verapamil', qty: 3, expiry: true },
+      { label: 'Oral Glucose', qty: 1, expiry: true },
+      { label: 'Solu-Medrol', qty: 2, expiry: true },
+      { label: 'Bacteriostatic Water', qty: 2, expiry: true },
+      { label: 'Amiodarone', qty: 2, expiry: true },
+      { label: 'Glucagon', qty: 1, expiry: true },
+      { label: 'Diltiazem', qty: 2, expiry: true },
+    ]
+  },
+  {
+    title: 'Thomas Pack — IV Pouch 1',
+    items: [
+      { label: 'NS 1000mL', qty: 1, expiry: true },
+      { label: '10gtt Set', qty: 1 },
+      { label: 'Tourniquet', qty: 1 },
+      { label: 'Saline Lock', qty: 1, expiry: true },
+      { label: 'Saline Flush', qty: 1, expiry: true },
+      { label: '14G IV Cath', qty: 2 },
+      { label: '16G IV Cath', qty: 2 },
+      { label: '18G IV Cath', qty: 3 },
+      { label: '20G IV Cath', qty: 2 },
+      { label: '22G IV Cath', qty: 3 },
+      { label: '24G IV Cath', qty: 3 },
+      { label: 'Alcohol Preps', qty: 4 },
+      { label: 'Non-Sterile 4×4', qty: 4 },
+      { label: '1" Clear Tape', qty: 1 },
+    ]
+  },
+  {
+    title: 'Thomas Pack — IV Pouch 2',
+    items: [
+      { label: 'NS 1000mL', qty: 1, expiry: true },
+      { label: '10gtt Set', qty: 1 },
+      { label: 'Tourniquet', qty: 1 },
+      { label: 'Saline Lock', qty: 1, expiry: true },
+      { label: 'Saline Flush', qty: 1, expiry: true },
+      { label: '14G IV Cath', qty: 2 },
+      { label: '16G IV Cath', qty: 2 },
+      { label: '18G IV Cath', qty: 2 },
+      { label: '20G IV Cath', qty: 2 },
+      { label: '22G IV Cath', qty: 3 },
+      { label: '24G IV Cath', qty: 3 },
+      { label: 'Alcohol Preps', qty: 4 },
+      { label: 'Non-Sterile 4×4', qty: 4 },
+      { label: '1" Clear Tape', qty: 1 },
+    ]
+  },
+  {
+    title: 'Thomas Pack — Center Pouch',
+    items: [
+      { label: 'Nitro', qty: 1, expiry: true },
+      { label: 'Epi 1:10', qty: 1, expiry: true },
+      { label: 'Atropine', qty: 1, expiry: true },
+      { label: 'D10 w/ 10gtt Set', qty: 1, expiry: true },
+      { label: 'Amiodarone', qty: 1, expiry: true },
+      { label: 'Portable Sharps Container', qty: 1 },
+    ]
+  },
+  {
+    title: 'Thomas Pack — Top Outside Pocket',
+    items: [
+      { label: 'Trauma Dressing', qty: 2 },
+      { label: 'Adult BP Cuff', qty: 1 },
+      { label: 'Stethoscope', qty: 1 },
+    ]
+  },
+  {
+    title: 'Thomas Pack — Inside Upper Pouch',
+    items: [
+      { label: 'Adult BVM', qty: 1 },
+      { label: 'Adult Tube Turner', qty: 1 },
+      { label: '10mL Syringe', qty: 1 },
+      { label: 'Magill Forceps Adult', qty: 1 },
+      { label: 'Magill Forceps Pediatric', qty: 1 },
+      { label: '6.0 ETT', qty: 1 },
+      { label: '7.0 ETT', qty: 1 },
+      { label: '8.0 ETT', qty: 1 },
+      { label: '9.0 ETT', qty: 1 },
+    ]
+  },
+  {
+    title: 'Thomas Pack — Right Outside Pocket',
+    items: [
+      { label: 'Laryngoscope Handle', qty: 1 },
+      { label: 'Mac 2 Blade', qty: 1 },
+      { label: 'Mac 3 Blade', qty: 1 },
+      { label: 'Mac 4 Blade', qty: 1 },
+      { label: 'Miller 1 Blade', qty: 1 },
+      { label: 'Miller 2 Blade', qty: 1 },
+      { label: 'Miller 3 Blade', qty: 1 },
+      { label: 'Miller 4 Blade', qty: 1 },
+    ]
+  },
+  {
+    title: 'Thomas Pack — Front Outside Pocket',
+    items: [
+      { label: 'Non-Sterile 4×4', qty: 20 },
+      { label: '2" Silk Tape', qty: 1 },
+      { label: 'ABD Pads', qty: 2 },
+      { label: 'Vaseline Gauze', qty: 2 },
+      { label: 'Sheers', qty: 1 },
+      { label: 'Kling', qty: 4 },
+      { label: 'Hemostats', qty: 1 },
+      { label: 'CAT Tourniquet', qty: 1 },
+    ]
+  },
+  {
+    title: 'Time Critical Dx Bands',
+    items: [
+      { label: 'Trauma Bands', qty: 10 },
+      { label: 'Stroke Bands', qty: 10 },
+    ]
+  },
+];
+// ─── BLS-EMT SECTIONS ────────────────────────────────────────────────────────
+
+const BLS_EMT_SECTIONS = [
+  {
+    title: 'Soft Goods & Wound Care',
+    items: [
+      { label: '4×4 Pads', qty: 6 },
+      { label: 'ABD Pads', qty: 2 },
+      { label: 'Trauma Dressing', qty: 2 },
+      { label: 'Roller Gauze', qty: 6 },
+      { label: 'Triangular Bandages', qty: 2 },
+      { label: 'Isolation Kits', qty: 2 },
+      { label: 'Occlusive Dressing', qty: 2 },
+      { label: 'Tape 1"', qty: 2 },
+      { label: 'Tape 2"', qty: 2 },
+      { label: 'Commercial Tourniquet', qty: 1 },
+      { label: 'OB Kit', qty: 2 },
+    ]
+  },
+  {
+    title: 'Assessment & Monitoring',
+    items: [
+      { label: 'Stethoscope', qty: 1 },
+      { label: 'BP Cuff — Lg. Adult', qty: 1 },
+      { label: 'BP Cuff — Adult', qty: 1 },
+      { label: 'BP Cuff — Child', qty: 1 },
+      { label: 'BP Cuff — Infant', qty: 1 },
+      { label: 'Pulse Oximeter', qty: 1 },
+      { label: 'Pulse Ox Probe — Adult', qty: 1 },
+      { label: 'Pulse Ox Probe — Pedi', qty: 1 },
+      { label: 'Thermometer', qty: 1 },
+      { label: 'Glucometer + Strips', qty: 1 },
+      { label: 'Pen Light', qty: 1 },
+      { label: 'Pediatric Drug Reference', qty: 1 },
+    ]
+  },
+  {
+    title: 'AED',
+    items: [
+      { label: 'AED Unit', qty: 1 },
+      { label: 'Adult Pads', qty: 2 },
+      { label: 'Pediatric Pads', qty: 2 },
+    ]
+  },
+  {
+    title: 'Airway',
+    items: [
+      { label: 'OPA Set (Adult / Child / Infant)', qty: 1 },
+      { label: 'NPA Set', qty: 1 },
+      { label: 'Nasal Cannula — Adult', qty: 4 },
+      { label: 'Nasal Cannula — Pedi', qty: 4 },
+      { label: 'NRB Mask — Adult', qty: 4 },
+      { label: 'NRB Mask — Pedi', qty: 2 },
+      { label: 'NRB Mask — Infant', qty: 2 },
+      { label: 'Adult BVM (>1000mL)', qty: 2 },
+      { label: 'Pedi BVM (450–750mL)', qty: 1 },
+      { label: 'Infant BVM (150–300mL)', qty: 1 },
+      { label: 'Magill Forceps — Adult', qty: 1 },
+      { label: 'Magill Forceps — Pedi', qty: 1 },
+    ]
+  },
+  {
+    title: 'Suction Supplies',
+    items: [
+      { label: 'Portable Suction Unit', qty: 1 },
+      { label: 'On-Board Suction Unit', qty: 1 },
+      { label: 'Suction Tubing', qty: 2 },
+      { label: 'Catheter 8fr / 10fr', qty: 1 },
+      { label: 'Catheter 12fr', qty: 1 },
+      { label: 'Catheter 14fr / 18fr', qty: 1 },
+      { label: 'Rigid Suction Tip', qty: 1 },
+    ]
+  },
+  {
+    title: 'Immobilization',
+    items: [
+      { label: 'KED or Equivalent', qty: 1 },
+      { label: 'Spine Board + Straps', qty: 2 },
+      { label: 'Pediatric Restraint System', qty: 1 },
+      { label: 'Head Immobilization Device', qty: 1 },
+      { label: 'Cervical Collar — Adult', qty: 3 },
+      { label: 'Cervical Collar — Pediatric', qty: 2 },
+      { label: 'Cervical Collar — Infant', qty: 1 },
+    ]
+  },
+  {
+    title: 'Splints & Transport',
+    items: [
+      { label: 'Padded Extremity Splints (set)', qty: 1 },
+      { label: 'Traction Splint', qty: 1 },
+      { label: 'Elevating Stretcher', qty: 1 },
+      { label: 'Stair Chair / Scoop Stretcher', qty: 1 },
+    ]
+  },
+  {
+    title: 'Miscellaneous',
+    items: [
+      { label: 'Fire Extinguisher', qty: 1 },
+      { label: 'HAZ-MAT Reference Guide', qty: 1 },
+      { label: 'Reflective Safety Wear', qty: 1 },
+      { label: 'Flashlight + Batteries', qty: 1 },
+      { label: 'N95 / N100 Respirator', qty: 1 },
+      { label: 'Blankets', qty: 2 },
+      { label: 'Sheets', qty: 2 },
+      { label: 'Towels', qty: 2 },
+      { label: 'Exam Gloves (1 Box)', qty: 1 },
+      { label: 'Antiseptic Hand Cleaner', qty: 1 },
+      { label: 'Betadine Solution', qty: 1 },
+      { label: 'Emesis Basin', qty: 1 },
+      { label: 'Sharps Container', qty: 1 },
+      { label: 'EMT Shears', qty: 1 },
+      { label: 'Hemostat', qty: 1 },
+      { label: 'Lubricating Jelly', qty: 1 },
+      { label: 'Window Punch', qty: 1 },
+      { label: 'Biohazard Bags', qty: 1 },
+      { label: 'Disinfectant Solution', qty: 1 },
+    ]
+  },
+  {
+    title: 'EMT Medications',
+    items: [
+      { label: 'Oral Glucose', qty: 1, expiry: true },
+      { label: 'Activated Charcoal', qty: 1, expiry: true },
+      { label: 'Aspirin Bottle', qty: 1, expiry: true },
+      { label: 'Albuterol (Unit Dose)', qty: 4, expiry: true },
+      { label: 'Epi Auto-Injector Adult', qty: 2, expiry: true },
+      { label: 'Epi Auto-Injector Pedi', qty: 1, expiry: true },
+      { label: 'Naloxone (Narcan) Nasal', qty: 4, expiry: true },
+      { label: 'MAD Device (Mucosal Atomizer)', qty: 1 },
+    ]
+  },
+];
+
+// ─── ALS-AEMT SECTIONS ────────────────────────────────────────────────────────
+
+const ALS_AEMT_SECTIONS = [
+  {
+    title: 'Assessment & Monitoring',
+    items: [
+      { label: 'Stethoscope', qty: 1 },
+      { label: 'BP Cuff — Lg. Adult', qty: 1 },
+      { label: 'BP Cuff — Adult', qty: 1 },
+      { label: 'BP Cuff — Child', qty: 1 },
+      { label: 'BP Cuff — Infant', qty: 1 },
+      { label: 'Pulse Oximeter', qty: 1 },
+      { label: 'Pulse Ox Probe — Adult', qty: 1 },
+      { label: 'Pulse Ox Probe — Pedi', qty: 1 },
+      { label: 'Thermometer', qty: 1 },
+      { label: 'Glucometer', qty: 1 },
+      { label: 'Glucometer Strips (Bottle)', qty: 1 },
+      { label: 'Lancets', qty: 20 },
+      { label: 'Pen Light', qty: 1 },
+      { label: 'Pediatric Drug Reference', qty: 1 },
+    ]
+  },
+  {
+    title: 'AED  (Required if No Cardiac Monitor Present)',
+    items: [
+      { label: 'AED Unit', qty: 1 },
+      { label: 'Adult Pads', qty: 2 },
+      { label: 'Pediatric Pads', qty: 2 },
+    ]
+  },
+  {
+    title: 'Cardiac Monitor  (If Available)',
+    items: [
+      { label: 'Electrodes — Adult (Packs)', qty: 20 },
+      { label: 'Electrodes — Pedi', qty: 5 },
+      { label: 'EKG Paper Roll', qty: 1 },
+      { label: 'BP Cuff — Sm. Adult', qty: 1 },
+      { label: 'BP Cuff — Adult (Navy)', qty: 1 },
+      { label: 'BP Cuff — Lg. Adult (Burgundy)', qty: 1 },
+      { label: 'BP Cuff — Thigh (Black)', qty: 1 },
+      { label: 'Pedi Pulse Ox', qty: 2 },
+      { label: 'ETT EtCO2', qty: 2 },
+      { label: 'NC EtCO2', qty: 1 },
+      { label: '4-Lead Cable', qty: 1 },
+      { label: '12-Lead Cable (Acquire/Tx Only)', qty: 1 },
+    ]
+  },
+  {
+    title: 'BSI Supplies',
+    items: [
+      { label: 'Exam Gloves (1 Box)', qty: 1 },
+      { label: 'Isolation Kits', qty: 2 },
+      { label: 'N95/N100 Respirator', qty: 1 },
+      { label: 'Eye Protection (Goggles)', qty: 2 },
+      { label: 'Antiseptic Hand Cleaner', qty: 1 },
+    ]
+  },
+  {
+    title: 'Soft Goods & Wound Care',
+    items: [
+      { label: '4×4 Pads', qty: 6 },
+      { label: 'Roller Gauze', qty: 6 },
+      { label: 'Tape 1"', qty: 2 },
+      { label: 'Tape 2"', qty: 2 },
+      { label: 'Triangular Bandages', qty: 6 },
+      { label: 'OB Kit', qty: 2 },
+    ]
+  },
+  {
+    title: 'Trauma',
+    items: [
+      { label: 'Trauma Dressing', qty: 4 },
+      { label: 'ABD Pads', qty: 12 },
+      { label: 'Sterile 4×4', qty: 10 },
+      { label: 'Non-Sterile 4×4', qty: 40 },
+      { label: 'Occlusive Dressing', qty: 2 },
+      { label: 'Vaseline Gauze', qty: 4 },
+      { label: 'Hemostatic Agent', qty: 1 },
+      { label: 'Kling', qty: 10 },
+      { label: 'Silk Tape 2 inch', qty: 2 },
+      { label: 'Silk Tape 1 inch', qty: 2 },
+      { label: 'Betadine (Bottle)', qty: 1 },
+      { label: 'Cold Pack', qty: 4 },
+      { label: 'Box of Bandaids', qty: 1 },
+      { label: 'SAM Splints', qty: 2 },
+      { label: 'Triangular Bandages', qty: 1 },
+      { label: 'CAT Tourniquet', qty: 1 },
+      { label: 'Sterile Water', qty: 2 },
+      { label: 'Comm. Tourniquet (CAT)', qty: 2 },
+      { label: 'TXA (Trauma)', qty: 2, expiry: true },
+    ]
+  },
+  {
+    title: 'Airway',
+    items: [
+      { label: 'OPA Set (Adult / Child / Infant)', qty: 1 },
+      { label: 'NPA Set', qty: 1 },
+      { label: 'Nasal Cannula — Adult', qty: 8 },
+      { label: 'Nasal Cannula — Pedi', qty: 8 },
+      { label: 'NRB Mask — Adult', qty: 4 },
+      { label: 'NRB Mask — Pedi', qty: 2 },
+      { label: 'NRB Mask — Infant', qty: 2 },
+      { label: 'Adult BVM (>1000mL)', qty: 2 },
+      { label: 'Pedi BVM (450–750mL)', qty: 1 },
+      { label: 'Infant BVM (150–300mL)', qty: 1 },
+      { label: 'Magill Forceps — Adult', qty: 1 },
+      { label: 'Magill Forceps — Pedi', qty: 1 },
+      { label: 'Nebulizer', qty: 1 },
+      { label: 'Sterile Saline (Neb.)', qty: 1 },
+      { label: 'EtCO2 Nasal Cannula', qty: 2 },
+      { label: 'CPAP', qty: 2 },
+    ]
+  },
+  {
+    title: 'Suction Supplies',
+    items: [
+      { label: 'Portable Suction Unit', qty: 1 },
+      { label: 'On-Board Suction Unit', qty: 1 },
+      { label: 'Suction Tubing', qty: 2 },
+      { label: 'Catheter 8fr / 10fr', qty: 1 },
+      { label: 'Catheter 12fr', qty: 1 },
+      { label: 'Catheter 14fr / 18fr', qty: 1 },
+      { label: 'Rigid Suction Tip', qty: 1 },
+    ]
+  },
+  {
+    title: 'Supraglottic / Adv. Airway',
+    items: [
+      { label: 'Air-Q Size 0', qty: 1 },
+      { label: 'Air-Q Size 0.5', qty: 1 },
+      { label: 'Air-Q Size 1.0', qty: 1 },
+      { label: 'Air-Q Size 1.5', qty: 1 },
+      { label: 'Air-Q Size 2.0', qty: 1 },
+      { label: 'Air-Q Size 2.5', qty: 1 },
+      { label: 'Air-Q Size 3.0', qty: 1 },
+      { label: 'Air-Q Size 3.5', qty: 1 },
+      { label: 'Air-Q Size 4.0', qty: 1 },
+      { label: 'Air-Q Size 4.5', qty: 1 },
+      { label: 'Air-Q Size 5 or Combitube', qty: 1 },
+      { label: 'NPA — Assorted Sizes', qty: 1 },
+      { label: 'OPA — Assorted Sizes', qty: 1 },
+      { label: 'ETT CO2 Detector', qty: 2 },
+      { label: 'Scalpel', qty: 1 },
+      { label: 'KY Jelly', qty: 3 },
+    ]
+  },
+  {
+    title: 'Immobilization',
+    items: [
+      { label: 'KED or Equivalent', qty: 1 },
+      { label: 'Spine Board + Straps', qty: 2 },
+      { label: 'Pedi Restraint System', qty: 1 },
+      { label: 'Head Immob. Device', qty: 1 },
+      { label: 'Cervical Collar — Adult', qty: 3 },
+      { label: 'Cervical Collar — Pedi', qty: 2 },
+      { label: 'Cervical Collar — Infant', qty: 1 },
+    ]
+  },
+  {
+    title: 'Splints & Transport',
+    items: [
+      { label: 'Padded Extremity Splints', qty: 1 },
+      { label: 'Traction Splint', qty: 1 },
+      { label: 'Elevating Stretcher', qty: 1 },
+      { label: 'Stair Chair / Scoop', qty: 1 },
+    ]
+  },
+  {
+    title: 'IO Bag',
+    items: [
+      { label: 'IO Drill (EZ-IO)', qty: 1 },
+      { label: 'IO Needle 15mm (Pink)', qty: 2 },
+      { label: 'IO Needle 25mm (Blue)', qty: 2 },
+      { label: 'IO Needle 45mm (Yellow)', qty: 1 },
+      { label: 'IO Stabilizer', qty: 2 },
+      { label: 'Extension Set', qty: 2 },
+    ]
+  },
+  {
+    title: 'AEMT Medications',
+    items: [
+      { label: 'Oral Glucose', qty: 1, expiry: true },
+      { label: 'Aspirin Bottle', qty: 1, expiry: true },
+      { label: 'Albuterol (Unit Dose)', qty: 4, expiry: true },
+      { label: 'Epi Auto-Injector Adult', qty: 2, expiry: true },
+      { label: 'Epi 1:10,000 (Injectable)', qty: 2, expiry: true },
+      { label: 'Epi 1:1,000 (Injectable)', qty: 2, expiry: true },
+      { label: 'Naloxone (Narcan) Nasal', qty: 4, expiry: true },
+      { label: 'MAD Device (Atomizer)', qty: 1 },
+      { label: 'D10', qty: 2, expiry: true },
+      { label: 'Atrovent', qty: 4, expiry: true },
+      { label: 'Benadryl (Diphenhydramine)', qty: 2, expiry: true },
+      { label: 'Zofran (Ondansetron)', qty: 2, expiry: true },
+      { label: 'Tylenol (Acetaminophen)', qty: 2, expiry: true },
+      { label: 'TXA (Tranexamic Acid)', qty: 2, expiry: true },
+    ]
+  },
+  {
+    title: 'Medication Supplies',
+    items: [
+      { label: '18g Needles', qty: 8 },
+      { label: '20g Needles', qty: 8 },
+      { label: '21g Needles', qty: 4 },
+      { label: '20mL Syringe', qty: 2 },
+      { label: '10mL Syringe', qty: 8 },
+      { label: '3mL Syringe', qty: 6 },
+      { label: '1mL Syringe', qty: 1 },
+      { label: 'Roll of Med Labels', qty: 1 },
+      { label: 'Med Labels / Tape', qty: 4 },
+    ]
+  },
+  {
+    title: 'IV Supplies',
+    items: [
+      { label: 'NS 1000mL', qty: 2, expiry: true },
+      { label: 'LR 1000mL', qty: 4, expiry: true },
+      { label: 'Dial-a-Flow', qty: 2 },
+      { label: '10 gtts Set', qty: 4 },
+      { label: 'Saline Lock', qty: 4, expiry: true },
+      { label: 'Saline Flush', qty: 4, expiry: true },
+      { label: '14g Catheter (Angiocath)', qty: 2 },
+      { label: '16g Catheter (Angiocath)', qty: 2 },
+      { label: '18g Catheter (Angiocath)', qty: 4 },
+      { label: '20g Catheter (Angiocath)', qty: 4 },
+      { label: '22g Catheter (Angiocath)', qty: 4 },
+      { label: '24g Catheter (Angiocath)', qty: 2 },
+      { label: 'Alcohol Preps', qty: 8 },
+      { label: '1" Clear Tape', qty: 2 },
+    ]
+  },
+  {
+    title: 'Miscellaneous',
+    items: [
+      { label: 'Fire Extinguisher', qty: 1 },
+      { label: 'HAZ-MAT Reference Guide', qty: 1 },
+      { label: 'Reflective Vests', qty: 3 },
+      { label: 'Flashlight + Batteries', qty: 1 },
+      { label: 'Linens / Blankets / Towels', qty: 6 },
+      { label: 'Gloves — Small (box)', qty: 1 },
+      { label: 'Gloves — Medium (box)', qty: 1 },
+      { label: 'Gloves — Large (box)', qty: 1 },
+      { label: 'Gloves — XL (box)', qty: 1 },
+      { label: 'Emesis Basin', qty: 1 },
+      { label: 'Sharps Container', qty: 1 },
+      { label: 'EMT Shears', qty: 1 },
+      { label: 'Hemostat', qty: 1 },
+      { label: 'Lubricating Jelly', qty: 1 },
+      { label: 'Window Punch', qty: 1 },
+      { label: 'Disinfectant Spray / Wipes', qty: 1 },
+      { label: 'Thermometer w/ Covers', qty: 1 },
+      { label: 'Biohazard Bags', qty: 5 },
+      { label: 'Heater or Ice Chest (Seasonal)', qty: 1 },
+      { label: 'Heating Pad (Seasonal)', qty: 1 },
+      { label: 'START Triage Bag', qty: 1 },
+      { label: 'Mega Mover', qty: 2 },
+      { label: 'Car Seat or Pedi-Mate', qty: 1 },
+    ]
+  },
+];
+
+// ─── UNIT CHECK OFF DATA ─────────────────────────────────────────────────────
+
+const UCO_SECTIONS = [
+  { title: 'Fluids & Engine', items: ['Fuel Level','Oil Level','Radiator Water Level','P/S Fluid Level','Windshield Fluid Level','Trans Fluid Level','Belts / Hose / Wires'] },
+  { title: 'Cab & Controls', items: ['Vehicle Horn','Batteries – Left','Batteries – Right','Wipers','Windshield','Front Dome Light','Driver and Passenger Seatbelt','High Idle','Brakes','Test Emergency Brake','Bottle of Cleaner'] },
+  { title: 'Communications', items: ['F-3 Radio (EASI NET)','F-2 (High Band)','Hospital Radio','Sirens','Portable Radio','iPad / Tablet'] },
+  { title: 'Emergency Lighting', items: ['Light Bar','Wig Wags','Strobes'] },
+  { title: 'Exterior Lights', items: ['Head Lights – Low Beam','Head Lights – High Beam','Tail Lights','Back Up Lights','Scene Lights – Left','Scene Lights – Right','Scene Lights – Rear','Turn Signal – Left','Turn Signal – Right','Parking Lights','Clearance Lights','Air Horn'] },
+  { title: 'Patient Compartment', items: ['Patient Compartment Lights','Patient Compartment Seatbelts / Stretcher'] },
+  { title: 'Tire Inspection', items: ['Pressure','Wear and Cuts','Rims / Simulators'] },
+];
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+
+const STORE_KEY = 'easi-checkoff-v2';
+const CUSTOM_KEY = 'easi-custom-sections-v1';
+let state = {};
+let currentUnit = 'als-para';
+let editMode = false;
+let customSections = {};
+let _db = null;
+let _storage = null;
+
+function loadState() {
+  try { state = JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch { state = {}; }
+  currentUnit = state.unitType || 'als-para';
+  try { customSections = JSON.parse(localStorage.getItem(CUSTOM_KEY)) || {}; } catch { customSections = {}; }
+}
+
+function saveState() {
+  state.unitType = currentUnit;
+  localStorage.setItem(STORE_KEY, JSON.stringify(state));
+  const el = document.getElementById('save-status');
+  if (el) el.textContent = 'Saved ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function todayStr() { return new Date().toISOString().split('T')[0]; }
+function isExpiredMMYY(val) {
+  if (!val) return false;
+  const m = val.match(/^(\d{1,2})-(\d{2})$/);
+  if (!m) return false;
+  const today = new Date();
+  return (2000 + parseInt(m[2], 10)) * 100 + parseInt(m[1], 10) < today.getFullYear() * 100 + today.getMonth() + 1;
+}
+function todayMDY() { const d=new Date(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0'),y=String(d.getFullYear()).slice(-2); return `${m}-${dd}-${y}`; }
+
+function getActiveSections() {
+  if (customSections[currentUnit] && customSections[currentUnit].length) return customSections[currentUnit];
+  if (currentUnit === 'als-para') return ALS_PARA_SECTIONS;
+  if (currentUnit === 'als-aemt') return ALS_AEMT_SECTIONS;
+  if (currentUnit === 'bls-emt') return BLS_EMT_SECTIONS;
+  return [];
+}
+
+function getDefaultSections(unit) {
+  if (unit === 'als-para') return ALS_PARA_SECTIONS;
+  if (unit === 'als-aemt') return ALS_AEMT_SECTIONS;
+  if (unit === 'bls-emt') return BLS_EMT_SECTIONS;
+  return [];
+}
+
+function getActiveUCOSections() {
+  return (customSections['uco'] && customSections['uco'].length) ? customSections['uco'] : UCO_SECTIONS;
+}
+
+// ─── TABS ────────────────────────────────────────────────────────────────────
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  else document.querySelector(`.tab-btn[onclick*="'${id}'"]`)?.classList.add('active');
+}
+
+// ─── UNIT TYPE ────────────────────────────────────────────────────────────────
+
+function setUnit(unit) {
+  currentUnit = unit;
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.toggle('active', b.dataset.unit === unit));
+  buildEquip();
+  saveState();
+}
+
+// ─── EQUIPMENT CHECK ──────────────────────────────────────────────────────────
+
+function buildEquip() {
+  const s = state.equip || {};
+  document.getElementById('eq-unit').value = s.unit || '';
+  document.getElementById('eq-date').value = s.date || todayMDY();
+  document.getElementById('eq-paramedic').value = s.paramedic || '';
+  document.getElementById('eq-emt').value = s.emt || '';
+  document.getElementById('eq-maino2').value = s.maino2 || '';
+  document.getElementById('eq-porto2').value = s.porto2 || '';
+  document.getElementById('eq-sealnum').value = s.sealnum || '';
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.toggle('active', b.dataset.unit === currentUnit));
+
+  // Update header field labels and Narcotic Seal visibility per unit type
+  document.getElementById('eq-paramedic-label').textContent =
+    currentUnit === 'als-para' ? 'Paramedic' : currentUnit === 'als-aemt' ? 'AEMT' : 'EMT 1';
+  document.getElementById('eq-emt-label').textContent =
+    currentUnit === 'bls-emt' ? 'EMT 2' : 'EMT';
+  document.getElementById('eq-sealnum-field').style.display =
+    currentUnit === 'als-para' ? '' : 'none';
+
+  const container = document.getElementById('equip-sections');
+  container.innerHTML = '';
+
+  if (editMode) { buildEquipEditMode(container); return; }
+
+  const sections = getActiveSections();
+
+  if (!sections.length) {
+    container.innerHTML = `<div class="card" style="text-align:center;padding:28px 16px">
+      <div style="font-size:28px;margin-bottom:10px">🚧</div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:6px">Unavailable</div>
+      <div style="font-size:12px;color:var(--muted)">Check-off sheet for this unit type has not been configured yet.</div>
+    </div>`;
+    return;
+  }
+
+  const counts = s.counts || {};
+  const expDates = s.expDates || {};
+  const outOfStock = s.outOfStock || {};
+
+  let _tpDividerDone = false;
+  sections.forEach((sec, si) => {
+    if (!_tpDividerDone && sec.title.startsWith('Thomas Pack')) {
+      _tpDividerDone = true;
+      const divider = document.createElement('div');
+      divider.className = 'thomas-pack-divider';
+      divider.innerHTML = '<div class="thomas-pack-divider-line"></div><span class="thomas-pack-divider-label">Thomas Pack</span><div class="thomas-pack-divider-line"></div>';
+      container.appendChild(divider);
+    }
+    const div = document.createElement('div');
+    div.className = 'section';
+
+    const itemsHTML = sec.items.map((item, ii) => {
+      const key = 'eq_' + si + '_' + ii;
+      const countVal = counts[key] !== undefined ? counts[key] : '';
+      const act = countVal !== '' ? parseInt(countVal, 10) : null;
+      const isOk = act !== null && !isNaN(act) && act >= item.qty;
+      const isLow = act !== null && !isNaN(act) && act > 0 && act < item.qty;
+      const expDate = item.expiry ? (expDates[key] || '') : '';
+      const isExpired = isExpiredMMYY(expDate);
+      const isOOS = outOfStock[key] || false;
+
+      let cls = 'check-item';
+      if (isOOS) cls += ' item-oos';
+      else if (isOk) cls += ' item-ok';
+      else if (isLow) cls += ' item-low';
+      if (isExpired && !isOOS) cls += ' exp-red';
+
+      const expInput = item.expiry
+        ? `<input type="text" class="med-expiry-input${isExpired && !isOOS ? ' exp-red' : ''}" value="${expDate}"
+            placeholder="MM-YY" maxlength="5" inputmode="numeric"
+            onclick="event.stopPropagation()"
+            oninput="handleExpiryInput(this)"
+            onchange="setMedExpiry('${key}',this.value,this.closest('.check-item'))">`
+        : '';
+
+      return `<div class="${cls}" data-key="${key}" data-qty="${item.qty}">
+        <span class="qty-expected">×${item.qty}</span>
+        <span class="check-label">${item.label}</span>
+        <input type="number" class="qty-input" min="0" step="1" placeholder="qty" value="${countVal}"
+          onclick="event.stopPropagation()"
+          oninput="handleQtyInput('${key}',this)">
+        ${expInput}
+        <button class="min-btn" onclick="event.stopPropagation();fillMin('${key}',this.closest('.check-item'))">MIN</button>
+        <button class="oos-btn" onclick="event.stopPropagation();toggleOOS('${key}',this.closest('.check-item'))">OOS</button>
+      </div>`;
+    }).join('');
+
+    div.innerHTML = `
+      <div class="section-header" onclick="this.closest('.section').classList.toggle('open')">
+        <span class="section-title">${sec.title}</span>
+        <span style="display:flex;align-items:center;gap:6px">
+          <span class="section-meta">0/0</span>
+          <span class="section-arrow">▼</span>
+        </span>
+      </div>
+      <div class="section-body">${itemsHTML}</div>`;
+    container.appendChild(div);
+    updateSectionCount(div, 'equip');
+  });
+  updateOverallProgress();
+  document.getElementById('equip-progress').style.display = '';
+}
+
+function handleQtyInput(key, inputEl) {
+  const val = inputEl.value;
+  if (!state.equip) state.equip = {};
+  if (!state.equip.counts) state.equip.counts = {};
+  state.equip.counts[key] = val;
+
+  const itemEl = inputEl.closest('.check-item');
+  const expectedQty = parseInt(itemEl.dataset.qty, 10);
+  const act = val !== '' ? parseInt(val, 10) : null;
+
+  itemEl.classList.remove('item-ok', 'item-low');
+  if (act !== null && !isNaN(act)) {
+    if (act >= expectedQty) itemEl.classList.add('item-ok');
+    else if (act > 0) itemEl.classList.add('item-low');
+  }
+
+  updateSectionCount(itemEl.closest('.section'), 'equip');
+  saveState();
+}
+
+function fillMin(key, itemEl) {
+  const expectedQty = parseInt(itemEl.dataset.qty, 10);
+  const input = itemEl.querySelector('.qty-input');
+  if (input) { input.value = expectedQty; handleQtyInput(key, input); }
+}
+
+function handleExpiryInput(input) {
+  const digits = input.value.replace(/\D/g, '');
+  if (digits.length >= 4) {
+    input.value = digits.slice(0, 2) + '-' + digits.slice(2, 4);
+  } else {
+    input.value = digits;
+  }
+}
+
+function toggleOOS(key, itemEl) {
+  if (!state.equip) state.equip = {};
+  if (!state.equip.outOfStock) state.equip.outOfStock = {};
+  const isOOS = !state.equip.outOfStock[key];
+  state.equip.outOfStock[key] = isOOS;
+  itemEl.classList.toggle('item-oos', isOOS);
+  if (isOOS) itemEl.classList.remove('item-ok', 'item-low', 'exp-red');
+  updateSectionCount(itemEl.closest('.section'), 'equip');
+  saveState();
+}
+
+function setMedExpiry(key, val, itemEl) {
+  // Auto-format 4 digits (e.g. "0722") → "07-22"
+  const digits = val.replace(/\D/g, '');
+  if (digits.length >= 4 && !val.includes('-')) {
+    val = digits.slice(0, 2) + '-' + digits.slice(2, 4);
+    const input = itemEl.querySelector('.med-expiry-input');
+    if (input) input.value = val;
+  }
+  if (!state.equip) state.equip = {};
+  if (!state.equip.expDates) state.equip.expDates = {};
+  state.equip.expDates[key] = val;
+  const isExpired = isExpiredMMYY(val);
+  itemEl.classList.toggle('exp-red', isExpired);
+  const input = itemEl.querySelector('.med-expiry-input');
+  if (input) input.classList.toggle('exp-red', isExpired);
+  saveState();
+}
+
+function updateSectionCount(secEl, formKey) {
+  const items = secEl.querySelectorAll('.check-item');
+  let done = 0;
+  if (formKey === 'equip') {
+    const counts = (state.equip && state.equip.counts) || {};
+    const oosMap = (state.equip && state.equip.outOfStock) || {};
+    items.forEach(el => {
+      if (oosMap[el.dataset.key]) return;
+      const act = parseInt(counts[el.dataset.key] || '', 10);
+      if (!isNaN(act) && act >= parseInt(el.dataset.qty || '1', 10)) done++;
+    });
+  } else {
+    const checks = (state.uco && state.uco.checks) || {};
+    items.forEach(el => { if (checks[el.dataset.key]) done++; });
+  }
+  const meta = secEl.querySelector('.section-meta');
+  if (meta) meta.textContent = done + '/' + items.length;
+  const oosCount = formKey === 'equip'
+    ? [...items].filter(el => ((state.equip && state.equip.outOfStock) || {})[el.dataset.key]).length
+    : 0;
+  const allDone = items.length > 0 && done === items.length - oosCount;
+  secEl.classList.toggle('section-done', allDone);
+  secEl.classList.toggle('section-incomplete', items.length > 0 && !allDone);
+  if (formKey === 'equip') updateOverallProgress();
+}
+
+function updateOverallProgress() {
+  const sections = document.querySelectorAll('#equip-sections .section');
+  let total = 0, done = 0;
+  const counts = (state.equip && state.equip.counts) || {};
+  const oosMap = (state.equip && state.equip.outOfStock) || {};
+  sections.forEach(secEl => {
+    secEl.querySelectorAll('.check-item').forEach(el => {
+      if (oosMap[el.dataset.key]) return;
+      total++;
+      const act = parseInt(counts[el.dataset.key] || '', 10);
+      if (!isNaN(act) && act >= parseInt(el.dataset.qty || '1', 10)) done++;
+    });
+  });
+  const pct = total > 0 ? Math.round(done / total * 100) : 0;
+  const fill = document.getElementById('equip-progress-fill');
+  const countEl = document.getElementById('equip-progress-count');
+  const pctEl = document.getElementById('equip-progress-pct');
+  if (fill) { fill.style.width = pct + '%'; fill.style.background = pct === 100 ? 'var(--green)' : 'var(--accent)'; }
+  if (countEl) countEl.textContent = done + ' / ' + total + ' items';
+  if (pctEl) pctEl.textContent = pct + '%';
+}
+
+function bindEquipFields() {
+  [['eq-unit','unit'],['eq-date','date'],['eq-paramedic','paramedic'],
+   ['eq-emt','emt'],['eq-maino2','maino2'],['eq-porto2','porto2'],['eq-sealnum','sealnum']].forEach(([id, key]) => {
+    document.getElementById(id).addEventListener('input', e => {
+      if (!state.equip) state.equip = {};
+      state.equip[key] = e.target.value;
+      saveState();
+    });
+  });
+}
+
+function resetEquip() {
+  if (!confirm('⚠️ Reset Equipment Check?\n\nThis will permanently clear ALL entered quantities, expiration dates, and saved field data. This cannot be undone.\n\nContinue?')) return;
+  state.equip = {};
+  buildEquip();
+  saveState();
+}
+
+
+// ─── UNIT CHECK OFF ───────────────────────────────────────────────────────────
+
+function buildUCO() {
+  const s = state.uco || {};
+  document.getElementById('uco-unit').value = s.unit || '';
+  document.getElementById('uco-date').value = s.date || todayMDY();
+  document.getElementById('uco-mileage').value = s.mileage || '';
+  document.getElementById('uco-name').value = s.name || '';
+  document.getElementById('uco-radio').value = s.radio || '';
+  document.getElementById('uco-repairs').value = s.repairs || '';
+  setFuelCard(s.fuelcard || null, true);
+  document.getElementById('uco-extinguisher').value = s.extinguisher || '';
+  setMaintRequest(s.maint || null, true);
+
+  const container = document.getElementById('uco-sections');
+  container.innerHTML = '';
+
+  if (editMode) { buildUCOEditMode(container); return; }
+
+  const checks = s.checks || {};
+
+  getActiveUCOSections().forEach((sec, si) => {
+    const div = document.createElement('div');
+    div.className = 'section';
+    const itemsHTML = sec.items.map((item, ii) => {
+      const key = 'uco_' + si + '_' + ii;
+      const done = checks[key] || false;
+      return `<div class="check-item uco-item${done ? ' checked' : ''}" data-key="${key}" onclick="toggleUCOItem('${key}',this)">
+        <div class="check-box"></div>
+        <span class="check-label">${item}</span>
+      </div>`;
+    }).join('');
+    div.innerHTML = `
+      <div class="section-header" onclick="this.closest('.section').classList.toggle('open')">
+        <span class="section-title">${sec.title}</span>
+        <span style="display:flex;align-items:center;gap:6px">
+          <span class="section-meta">0/0</span>
+          <span class="section-arrow">▼</span>
+        </span>
+      </div>
+      <div class="section-body">${itemsHTML}</div>`;
+    container.appendChild(div);
+    updateSectionCount(div, 'uco');
+  });
+}
+
+function toggleUCOItem(key, el) {
+  if (!state.uco) state.uco = {};
+  if (!state.uco.checks) state.uco.checks = {};
+  state.uco.checks[key] = !state.uco.checks[key];
+  el.classList.toggle('checked', state.uco.checks[key]);
+  updateSectionCount(el.closest('.section'), 'uco');
+  saveState();
+}
+
+function setFuelCard(val, silent) {
+  if (!silent) {
+    if (!state.uco) state.uco = {};
+    state.uco.fuelcard = val;
+    saveState();
+    showToast('Fuel Card: ' + val.toUpperCase() + ' ✓');
+  }
+  document.getElementById('fuelcard-yes').classList.toggle('active', val === 'yes');
+  document.getElementById('fuelcard-no').classList.toggle('active', val === 'no');
+}
+
+function setMaintRequest(val, silent) {
+  if (!silent) {
+    if (!state.uco) state.uco = {};
+    state.uco.maint = val;
+    saveState();
+    showToast('Maintenance Request: ' + val.toUpperCase() + ' ✓');
+  }
+  document.getElementById('maint-yes').classList.toggle('active', val === 'yes');
+  document.getElementById('maint-no').classList.toggle('active', val === 'no');
+}
+
+function bindUCOFields() {
+  [['uco-unit','unit'],['uco-date','date'],['uco-mileage','mileage'],
+   ['uco-name','name'],['uco-radio','radio'],
+   ['uco-repairs','repairs'],['uco-extinguisher','extinguisher']].forEach(([id, key]) => {
+    document.getElementById(id).addEventListener('input', e => {
+      if (!state.uco) state.uco = {};
+      state.uco[key] = e.target.value;
+      saveState();
+    });
+  });
+}
+
+function resetUCO() {
+  if (!confirm('⚠️ Reset Unit Check Off?\n\nThis will permanently clear ALL checked items and saved field data. This cannot be undone.\n\nContinue?')) return;
+  state.uco = {};
+  buildUCO();
+  saveState();
+}
+
+// ─── CLOUD SAVE ──────────────────────────────────────────────────────────────
+
+function getSaveFilename(form) {
+  const s = form === 'equip' ? (state.equip || {}) : (state.uco || {});
+  const unit = (s.unit || 'Unit').replace(/[^a-zA-Z0-9\-]/g, '').trim() || 'Unit';
+  const typeCode = form === 'equip'
+    ? (currentUnit === 'als-para' ? 'ALS' : currentUnit === 'als-aemt' ? 'AEMT' : 'BLS')
+    : 'UCO';
+  const p1 = (s.paramedic || s.name || '').split(' ').slice(-1)[0].replace(/[^a-zA-Z]/g, '') || '';
+  const p2 = (s.emt || '').split(' ').slice(-1)[0].replace(/[^a-zA-Z]/g, '') || '';
+  const names = [p1, p2].filter(Boolean).join('_') || 'Unknown';
+  const status = getIncompleteCount(form) === 0 ? 'complete' : 'incomplete';
+  return `${unit}-${typeCode}-${names}-${status}-${Date.now()}.html`;
+}
+
+function getProviderNames(form) {
+  const s = form === 'equip' ? (state.equip || {}) : (state.uco || {});
+  if (form === 'equip') return [s.paramedic, s.emt].filter(Boolean).join(' / ') || 'Unknown';
+  return s.name || 'Unknown';
+}
+
+function getTypeLabel(form) {
+  if (form === 'uco') return 'Unit Check Off';
+  return currentUnit === 'als-para' ? 'ALS-Paramedic' : currentUnit === 'als-aemt' ? 'ALS-AEMT' : 'BLS-EMT';
+}
+
+function getTypeBadge(form) {
+  if (form === 'uco') return 'uco';
+  return currentUnit === 'als-para' ? 'als' : currentUnit === 'als-aemt' ? 'aemt' : 'bls';
+}
+
+async function saveToCloud(form) {
+  if (!_db || !_storage) {
+    alert('Firebase is not configured yet.\n\nPaste your Firebase config into FIREBASE_CONFIG in the source code.\nFirebase Console → Project Settings → Your Apps → SDK setup → Config');
+    return;
+  }
+  const html = form === 'equip' ? getEquipReportHTML() : getUCOReportHTML();
+  if (!html) { showToast('Fill in the form first'); return; }
+
+  const s = form === 'equip' ? (state.equip || {}) : (state.uco || {});
+  const unit = (s.unit || 'N/A').trim();
+  const dateStr = (s.date || todayStr()).trim();
+  const incomplete = getIncompleteCount(form);
+  const total = form === 'equip'
+    ? getActiveSections().reduce((n, sec) => n + sec.items.length, 0)
+    : getActiveUCOSections().reduce((n, sec) => n + sec.items.length, 0);
+  const status = incomplete === 0 ? 'complete' : 'incomplete';
+
+  let dateISO = new Date().toISOString().slice(0, 10);
+  if (dateStr && dateStr.includes('-')) {
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      const year = parseInt(parts[2]) + 2000;
+      dateISO = `${year}-${parts[0].padStart(2,'0')}-${parts[1].padStart(2,'0')}`;
+    }
+  }
+
+  const filename = getSaveFilename(form);
+  const storagePath = `checkoffs/${dateISO}/${filename}`;
+
+  showToast('Saving…');
+  try {
+    const ref = _storage.ref(storagePath);
+    await ref.putString(html, 'raw', { contentType: 'text/html' });
+
+    const now = firebase.firestore.Timestamp.now();
+    const expiresAt = firebase.firestore.Timestamp.fromMillis(Date.now() + 15 * 24 * 60 * 60 * 1000);
+
+    await _db.collection('checkoff-records').add({
+      unit, date: dateStr, dateISO,
+      type: form === 'equip' ? (currentUnit || 'als-para') : 'uco',
+      typeLabel: getTypeLabel(form),
+      typeBadge: getTypeBadge(form),
+      providers: getProviderNames(form),
+      status, incompleteCount: incomplete, totalItems: total,
+      storagePath, filename,
+      uploadedAt: now, expiresAt,
+    });
+
+    showToast('Saved to cloud ✓');
+  } catch (e) {
+    console.error('Save to cloud failed:', e);
+    showToast('Save failed — check Firebase config');
+  }
+}
+
+// ─── PIN MODAL ────────────────────────────────────────────────────────────────
+
+let _pinBuffer = '';
+let _pinMode = 'verify';
+let _pinSavedFilesUnlocked = false;
+let _savedFilesTabBtn = null;
+
+async function sha256(text) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function openSavedFilesTab(btn) {
+  _savedFilesTabBtn = btn;
+  if (_pinSavedFilesUnlocked) { activateSavedFilesTab(); return; }
+  if (!_db) {
+    alert('Firebase is not configured yet.\n\nPaste your Firebase config into FIREBASE_CONFIG in the source code.');
+    return;
+  }
+  _openPinModal();
+}
+
+function activateSavedFilesTab() {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-saved').classList.add('active');
+  if (_savedFilesTabBtn) _savedFilesTabBtn.classList.add('active');
+  loadSavedFiles();
+}
+
+async function _openPinModal() {
+  _pinBuffer = '';
+  document.getElementById('pin-error').textContent = '';
+  updatePinDots();
+  try {
+    const doc = await _db.collection('easi-admin').doc('config').get();
+    if (doc.exists && doc.data().pinHash) {
+      _pinMode = 'verify';
+      document.getElementById('pin-modal-title').textContent = 'Saved Files';
+      document.getElementById('pin-label').textContent = 'Enter PIN to access saved check-offs';
+      document.getElementById('pin-hint').textContent = '';
+    } else {
+      _pinMode = 'setup';
+      document.getElementById('pin-modal-title').textContent = 'Create PIN';
+      document.getElementById('pin-label').textContent = 'Create a 4-digit PIN to protect saved check-offs';
+      document.getElementById('pin-hint').textContent = 'You\'ll need this PIN each time you open Saved Files. Store it somewhere safe — it cannot be recovered.';
+    }
+  } catch { /* no connection — default to setup check */ }
+  document.getElementById('pin-modal').classList.add('open');
+}
+
+function closePinModal() {
+  document.getElementById('pin-modal').classList.remove('open');
+  _pinBuffer = '';
+  updatePinDots();
+}
+
+function pinInput(digit) {
+  if (_pinBuffer.length >= 4) return;
+  _pinBuffer += digit;
+  updatePinDots();
+  document.getElementById('pin-error').textContent = '';
+  if (_pinBuffer.length === 4) setTimeout(submitPin, 120);
+}
+
+function pinBackspace() {
+  if (!_pinBuffer.length) return;
+  _pinBuffer = _pinBuffer.slice(0, -1);
+  updatePinDots();
+}
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++)
+    document.getElementById('pd' + i).classList.toggle('filled', i < _pinBuffer.length);
+}
+
+async function submitPin() {
+  const hash = await sha256(_pinBuffer);
+  _pinBuffer = '';
+  updatePinDots();
+
+  if (_pinMode === 'setup') {
+    try {
+      await _db.collection('easi-admin').doc('config').set({ pinHash: hash }, { merge: true });
+      closePinModal();
+      _pinSavedFilesUnlocked = true;
+      activateSavedFilesTab();
+    } catch (e) {
+      document.getElementById('pin-error').textContent = 'Failed to save PIN — check Firebase connection.';
+    }
+  } else {
+    try {
+      const doc = await _db.collection('easi-admin').doc('config').get();
+      const storedHash = doc.exists ? doc.data().pinHash : null;
+      if (storedHash && storedHash === hash) {
+        closePinModal();
+        _pinSavedFilesUnlocked = true;
+        activateSavedFilesTab();
+      } else {
+        document.getElementById('pin-error').textContent = 'Incorrect PIN — try again';
+      }
+    } catch (e) {
+      document.getElementById('pin-error').textContent = 'Could not verify PIN — check connection.';
+    }
+  }
+}
+
+function lockSavedFiles() {
+  _pinSavedFilesUnlocked = false;
+  switchTab('equip', document.querySelector('.tab-btn'));
+  showToast('Saved Files locked 🔒');
+}
+
+// Admin: change PIN — callable from admin mode
+async function changePinAdmin() {
+  if (!_db) return;
+  _pinMode = 'setup';
+  _pinBuffer = '';
+  document.getElementById('pin-modal-title').textContent = 'Change PIN';
+  document.getElementById('pin-label').textContent = 'Enter a new 4-digit PIN';
+  document.getElementById('pin-hint').textContent = 'This will replace the existing PIN immediately.';
+  document.getElementById('pin-error').textContent = '';
+  updatePinDots();
+  document.getElementById('pin-modal').classList.add('open');
+}
+
+// ─── SAVED FILES ──────────────────────────────────────────────────────────────
+
+let _savedRecords = [];
+let _savedSort = 'date'; // 'date' | 'unit'
+
+function setSavedSort(mode) {
+  _savedSort = mode;
+  document.getElementById('sort-date-btn').classList.toggle('active', mode === 'date');
+  document.getElementById('sort-unit-btn').classList.toggle('active', mode === 'unit');
+  renderSavedFiles();
+}
+
+async function loadSavedFiles() {
+  if (!_db) return;
+  const body = document.getElementById('files-body');
+  body.innerHTML = '<div class="files-loading">Loading…</div>';
+  try {
+    // Expire records older than 15 days
+    const now = firebase.firestore.Timestamp.now();
+    const expiredSnap = await _db.collection('checkoff-records').where('expiresAt', '<=', now).get();
+    if (!expiredSnap.empty) {
+      const batch = _db.batch();
+      expiredSnap.forEach(doc => {
+        batch.delete(doc.ref);
+        if (_storage && doc.data().storagePath)
+          _storage.ref(doc.data().storagePath).delete().catch(() => {});
+      });
+      await batch.commit();
+    }
+
+    const snap = await _db.collection('checkoff-records').orderBy('uploadedAt', 'desc').get();
+    _savedRecords = [];
+    snap.forEach(doc => _savedRecords.push({ id: doc.id, ...doc.data() }));
+    renderSavedFiles();
+  } catch (e) {
+    console.error('Load saved files:', e);
+    body.innerHTML = '<div class="files-empty">Failed to load — check Firebase config and Firestore rules.</div>';
+  }
+}
+
+function renderSavedFiles() {
+  const body = document.getElementById('files-body');
+  const q = (document.getElementById('files-search')?.value || '').trim().toLowerCase();
+
+  let records = _savedRecords;
+  if (q) {
+    records = records.filter(r =>
+      (r.unit || '').toLowerCase().includes(q) ||
+      (r.providers || '').toLowerCase().includes(q)
+    );
+  }
+
+  if (!records.length) {
+    body.innerHTML = q
+      ? `<div class="files-empty"><div class="files-empty-icon">🔍</div>No results for "<strong>${esc(q)}</strong>"</div>`
+      : '<div class="files-empty"><div class="files-empty-icon">📂</div>No saved check-offs yet.<br>Complete a check-off and tap ☁ Save.</div>';
+    return;
+  }
+
+  const groups = {};
+  records.forEach(r => {
+    const key = _savedSort === 'unit'
+      ? (r.unit || 'Unknown').trim()
+      : (r.dateISO || 'unknown');
+    (groups[key] = groups[key] || []).push(r);
+  });
+
+  const sortedKeys = Object.keys(groups).sort(_savedSort === 'unit'
+    ? (a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+    : (a, b) => b.localeCompare(a)
+  );
+
+  let html = '';
+  sortedKeys.forEach(key => {
+    const recs = groups[key];
+    const label = _savedSort === 'unit' ? `Unit ${esc(key)}` : fmtDate(key);
+    const safeKey = esc(key);
+    html += `<div class="day-group">
+      <div class="day-header">
+        <div class="day-label">${label}</div>
+        <div class="day-actions">
+          <button class="day-btn" onclick="downloadGroup('${safeKey}')">⬇ All</button>
+          <button class="day-btn danger" onclick="deleteGroup('${safeKey}')">🗑 All</button>
+        </div>
+      </div>`;
+    recs.forEach(r => {
+      const tc = 'fb-' + (r.typeBadge || 'als');
+      const sc = r.status === 'complete' ? 'fb-ok' : 'fb-inc';
+      const sl = r.status === 'complete' ? 'Complete' : `Incomplete (${r.incompleteCount || '?'} missing)`;
+      const ts = r.uploadedAt ? fmtTime(r.uploadedAt.toDate ? r.uploadedAt.toDate() : new Date(r.uploadedAt)) : '';
+      const exp = daysLeft(r.expiresAt);
+      const dateSubline = _savedSort === 'unit' ? `${fmtDate(r.dateISO || '')} · ` : '';
+      html += `<div class="file-card">
+        <div class="file-top">
+          <span class="file-unit">${esc(r.unit||'N/A')}</span>
+          <span class="file-badge ${tc}">${esc(r.typeLabel||r.type||'')}</span>
+          <span class="file-badge ${sc}">${sl}</span>
+        </div>
+        <div class="file-providers">${esc(r.providers||'Unknown')}</div>
+        <div class="file-meta">${dateSubline}Saved ${ts} · Auto-deletes in ${exp} day${exp!==1?'s':''}</div>
+        <div class="file-actions">
+          <button class="file-action-btn fa-dl" onclick="downloadSavedFile('${esc(r.storagePath)}','${esc(r.filename)}')">⬇ Download</button>
+          <button class="file-action-btn fa-del" onclick="deleteSavedFile('${r.id}','${esc(r.storagePath)}')">🗑 Delete</button>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  body.innerHTML = html;
+}
+
+function fmtDate(iso) {
+  try { return new Date(iso+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}); }
+  catch { return iso; }
+}
+function fmtTime(d) {
+  try { return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true}); }
+  catch { return ''; }
+}
+function daysLeft(expiresAt) {
+  try {
+    const exp = expiresAt.toDate ? expiresAt.toDate() : new Date(expiresAt);
+    return Math.max(0, Math.ceil((exp - Date.now()) / 86400000));
+  } catch { return '?'; }
+}
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+async function downloadSavedFile(storagePath, filename) {
+  if (!_storage) return;
+  try {
+    const url = await _storage.ref(storagePath).getDownloadURL();
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.target = '_blank';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  } catch { alert('Download failed — file may have been removed.'); }
+}
+
+async function deleteSavedFile(docId, storagePath) {
+  if (!confirm('Delete this check-off?\n\nThis cannot be undone.')) return;
+  try {
+    if (_storage && storagePath) await _storage.ref(storagePath).delete().catch(() => {});
+    await _db.collection('checkoff-records').doc(docId).delete();
+    _savedRecords = _savedRecords.filter(r => r.id !== docId);
+    renderSavedFiles();
+    showToast('Deleted ✓');
+  } catch (e) { alert('Delete failed: ' + e.message); }
+}
+
+function _getGroupRecs(key) {
+  const q = (document.getElementById('files-search')?.value || '').trim().toLowerCase();
+  let recs = q
+    ? _savedRecords.filter(r => (r.unit||'').toLowerCase().includes(q) || (r.providers||'').toLowerCase().includes(q))
+    : _savedRecords;
+  return _savedSort === 'unit'
+    ? recs.filter(r => (r.unit || 'Unknown').trim() === key)
+    : recs.filter(r => (r.dateISO || 'unknown') === key);
+}
+
+async function downloadGroup(key) {
+  const recs = _getGroupRecs(key);
+  if (!recs.length) return;
+  showToast(`Downloading ${recs.length} file(s)…`);
+  for (let i = 0; i < recs.length; i++) {
+    await new Promise(r => setTimeout(r, i * 700));
+    await downloadSavedFile(recs[i].storagePath, recs[i].filename);
+  }
+}
+
+async function deleteGroup(key) {
+  const recs = _getGroupRecs(key);
+  if (!recs.length) return;
+  const groupLabel = _savedSort === 'unit' ? `Unit ${key}` : fmtDate(key);
+  if (!confirm(`Delete ALL ${recs.length} check-off(s) for ${groupLabel}?\n\nThis cannot be undone.`)) return;
+  try {
+    const batch = _db.batch();
+    recs.forEach(r => batch.delete(_db.collection('checkoff-records').doc(r.id)));
+    await batch.commit();
+    if (_storage) await Promise.all(recs.map(r => r.storagePath ? _storage.ref(r.storagePath).delete().catch(()=>{}) : Promise.resolve()));
+    const ids = new Set(recs.map(r => r.id));
+    _savedRecords = _savedRecords.filter(r => !ids.has(r.id));
+    renderSavedFiles();
+    showToast(`Deleted ${recs.length} records ✓`);
+  } catch (e) { alert('Delete failed: ' + e.message); }
+}
+
+async function downloadAllForDay(dateISO) {
+  const recs = _savedRecords.filter(r => r.dateISO === dateISO);
+  if (!recs.length) return;
+  showToast(`Downloading ${recs.length} file(s)…`);
+  for (let i = 0; i < recs.length; i++) {
+    await new Promise(r => setTimeout(r, i * 700));
+    await downloadSavedFile(recs[i].storagePath, recs[i].filename);
+  }
+}
+
+async function deleteAllForDay(dateISO) {
+  const recs = _savedRecords.filter(r => r.dateISO === dateISO);
+  if (!recs.length) return;
+  if (!confirm(`Delete ALL ${recs.length} check-off(s) from ${fmtDate(dateISO)}?\n\nThis cannot be undone.`)) return;
+  try {
+    const batch = _db.batch();
+    recs.forEach(r => batch.delete(_db.collection('checkoff-records').doc(r.id)));
+    await batch.commit();
+    if (_storage) await Promise.all(recs.map(r => r.storagePath ? _storage.ref(r.storagePath).delete().catch(()=>{}) : Promise.resolve()));
+    _savedRecords = _savedRecords.filter(r => r.dateISO !== dateISO);
+    renderSavedFiles();
+    showToast(`Deleted ${recs.length} records ✓`);
+  } catch (e) { alert('Delete failed: ' + e.message); }
+}
+
+// ─── PUSH NOTIFICATIONS ──────────────────────────────────────────────────────
+// To enable: add your VAPID public key from Firebase Console
+// Firebase Console > Project Settings > Cloud Messaging > Web Push certificates
+const VAPID_PUBLIC_KEY = ''; // REPLACE WITH YOUR VAPID PUBLIC KEY
+
+function urlBase64ToUint8Array(b64) {
+  const pad = '='.repeat((4 - b64.length % 4) % 4);
+  const base64 = (b64 + pad).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+}
+
+async function subscribePush() {
+  if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+    alert('Push notifications are not supported in this browser.');
+    return;
+  }
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') { showToast('Notification permission denied'); return; }
+  if (!VAPID_PUBLIC_KEY) { showToast('Notifications not configured — contact admin'); return; }
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+    });
+    localStorage.setItem('push-sub', JSON.stringify(sub));
+    showToast('Notifications enabled');
+    updateNotifBtn();
+  } catch (e) {
+    console.error('Push subscribe error:', e);
+    showToast('Failed to enable notifications');
+  }
+}
+
+async function unsubscribePush() {
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    if (sub) await sub.unsubscribe();
+    localStorage.removeItem('push-sub');
+    showToast('Notifications disabled');
+    updateNotifBtn();
+  } catch (e) {
+    showToast('Failed to disable notifications');
+  }
+}
+
+function updateNotifBtn() {
+  const btn = document.getElementById('notif-btn');
+  if (!btn || !('Notification' in window)) return;
+  if (Notification.permission !== 'granted') { btn.textContent = '🔕'; return; }
+  navigator.serviceWorker.ready.then(reg =>
+    reg.pushManager.getSubscription().then(sub => {
+      btn.textContent = sub ? '🔔' : '🔕';
+      btn.title = sub ? 'Notifications on — tap to disable' : 'Tap to enable notifications';
+    })
+  );
+}
+
+async function toggleNotifications() {
+  if (!('Notification' in window)) { alert('Notifications not supported in this browser.'); return; }
+  if (Notification.permission === 'denied') {
+    alert('Notifications are blocked. Please enable them in your browser or device settings, then try again.');
+    return;
+  }
+  const reg = await navigator.serviceWorker.ready;
+  const sub = await reg.pushManager.getSubscription();
+  if (sub) await unsubscribePush(); else await subscribePush();
+}
+
+// ─── DOWNLOAD / EXPORT ───────────────────────────────────────────────────────
+
+
+function getDriveFilename(form) {
+  const s = form === 'equip' ? (state.equip || {}) : (state.uco || {});
+  const unit = (s.unit || 'Unit').trim();
+  const date = (s.date || todayMDY()).trim();
+  const type = currentUnit === 'als-para' ? 'ALS' : currentUnit === 'als-aemt' ? 'ALS-AEMT' : 'BLS';
+  if (form === 'equip') {
+    return `${unit}-${type} Equipment Check - ${date}.html`;
+  } else {
+    return `${unit}-${type} Unit Check - ${date}.html`;
+  }
+}
+
+function getIncompleteCount(form) {
+  if (form === 'equip') {
+    const sections = getActiveSections();
+    const counts = (state.equip && state.equip.counts) || {};
+    const oosMap = (state.equip && state.equip.outOfStock) || {};
+    let n = 0;
+    sections.forEach((sec, si) => sec.items.forEach((item, ii) => {
+      const key = 'eq_' + si + '_' + ii;
+      if (oosMap[key]) return;
+      const act = parseInt(counts[key] || '', 10);
+      if (isNaN(act) || act < item.qty) n++;
+    }));
+    return n;
+  } else {
+    const checks = (state.uco && state.uco.checks) || {};
+    let n = 0;
+    UCO_SECTIONS.forEach((sec, si) => sec.items.forEach((_, ii) => {
+      if (!checks['uco_' + si + '_' + ii]) n++;
+    }));
+    return n;
+  }
+}
+
+function downloadReport(form) {
+  const reportData = form === 'equip' ? getEquipReportData() : getUCOReportData();
+  if (!reportData) { alert('Fill in the form first.'); return; }
+  const missing = getIncompleteCount(form);
+  if (missing > 0 && !confirm(`⚠️ ${missing} item${missing > 1 ? 's are' : ' is'} not yet complete.\n\nDownload anyway?`)) return;
+  const reportHTML = buildPrintHTML(reportData);
+  const win = window.open('', '_blank');
+  if (win) {
+    win.document.write(reportHTML);
+    win.document.close();
+    win.focus();
+    setTimeout(() => { win.print(); }, 500);
+    showToast('Print / Save as PDF');
+  } else {
+    // Fallback: direct HTML download if pop-ups are blocked
+    const blob = new Blob([reportHTML], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = getDriveFilename(form);
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    showToast('Downloaded ✓');
+  }
+}
+
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) { t = document.createElement('div'); t.id = 'toast'; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(20px)';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    t.style.opacity = '1'; t.style.transform = 'translateX(-50%) translateY(0)';
+  }));
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => {
+    t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(20px)';
+  }, 2800);
+}
+
+// ─── PRINT / EXPORT ──────────────────────────────────────────────────────────
+
+function getEquipReportData() {
+  const s = state.equip || {};
+  const counts = s.counts || {};
+  const expDates = s.expDates || {};
+  const sections = getActiveSections();
+  const today = todayStr();
+  if (!sections.length) return null;
+  const outOfStock = s.outOfStock || {};
+  const sectionData = sections.map((sec, si) => {
+    let done = 0;
+    const items = sec.items.map((item, ii) => {
+      const key = 'eq_' + si + '_' + ii;
+      const isOOS = outOfStock[key] || false;
+      const act = counts[key] !== undefined ? counts[key] : '';
+      const actNum = act !== '' ? parseInt(act, 10) : null;
+      const ok = !isOOS && actNum !== null && !isNaN(actNum) && actNum >= item.qty;
+      const isLow = !isOOS && actNum !== null && !isNaN(actNum) && actNum > 0 && actNum < item.qty;
+      const isBlank = !isOOS && (actNum === null || isNaN(actNum));
+      if (ok) done++;
+      let expStr = '';
+      if (!isOOS && item.expiry) {
+        const exp = expDates[key] || '';
+        expStr = exp ? ` [Exp:${exp}${isExpiredMMYY(exp) ? ' ⚠EXPIRED' : ''}]` : ' [Exp:—]';
+      }
+      const label = isOOS
+        ? `${item.label} ×${item.qty}`
+        : `${item.label} ×${item.qty}  Act:${act || '—'}${expStr}`;
+      return { label, done: ok, low: isLow, blank: isBlank, oos: isOOS };
+    });
+    return { title: sec.title, items, done, total: sec.items.length };
+  });
+  const unitNum = (s.unit || 'Unit').trim();
+  const dateStr = (s.date || todayMDY()).trim();
+  const typeLabel = currentUnit === 'als-para' ? 'ALS' : currentUnit === 'als-aemt' ? 'ALS-AEMT' : 'BLS';
+  const rptTitle = `${unitNum}-${typeLabel} Equipment Check - ${dateStr}`;
+  const providerLabel = currentUnit === 'als-para' ? 'Paramedic' : currentUnit === 'als-aemt' ? 'AEMT' : 'EMT 1';
+  const crewLabel     = currentUnit === 'bls-emt' ? 'EMT 2' : 'EMT';
+  const rptSigs = currentUnit === 'als-para'  ? ['Paramedic Signature', 'EMT Signature']
+                : currentUnit === 'als-aemt' ? ['AEMT Signature', 'EMT Signature']
+                : ['EMT 1 Signature', 'EMT 2 Signature'];
+  const rptMeta = [
+    { label: 'Unit #', value: s.unit || '' },
+    { label: 'Date',   value: s.date || '' },
+    { label: providerLabel, value: s.paramedic || '' },
+    { label: crewLabel,     value: s.emt || '' },
+    { label: 'Main O₂ PSI',     value: s.maino2 || '' },
+    { label: 'Portable O₂ PSI', value: s.porto2 || '' },
+    ...(currentUnit === 'als-para' ? [{ label: 'Narcotic Seal #', value: s.sealnum || '' }] : []),
+  ];
+  return {
+    title: rptTitle,
+    meta: rptMeta,
+    sections: sectionData,
+    sigs: rptSigs,
+  };
+}
+
+function getEquipReportHTML() {
+  const data = getEquipReportData();
+  return data ? buildPrintHTML(data) : null;
+}
+
+function getUCOReportData() {
+  const s = state.uco || {};
+  const checks = s.checks || {};
+  const sections = UCO_SECTIONS.map((sec, si) => ({
+    title: sec.title,
+    items: sec.items.map((item, ii) => ({ label: item, done: checks['uco_'+si+'_'+ii] || false })),
+    done: sec.items.filter((_, ii) => checks['uco_'+si+'_'+ii]).length,
+    total: sec.items.length
+  }));
+  const ucoUnit = (s.unit || 'Unit').trim();
+  const ucoDate = (s.date || todayMDY()).trim();
+  return {
+    title: `${ucoUnit}-ALS Unit Check - ${ucoDate}`,
+    meta: [
+      { label: 'Unit #', value: s.unit || '' },
+      { label: 'Date', value: s.date || '' },
+      { label: 'Mileage', value: s.mileage || '' },
+      { label: 'EMT', value: s.name || '' },
+      { label: 'Radio #', value: s.radio || '' },
+    ],
+    sections,
+    sigs: ['EMT Signature', 'Supervisor'],
+    closing: { repairs: s.repairs||'', fuelcard: s.fuelcard||'', extinguisher: s.extinguisher||'', maint: s.maint||null }
+  };
+}
+
+function getUCOReportHTML() {
+  return buildPrintHTML(getUCOReportData());
+}
+
+function buildPrintHTML({ title, meta, sections, sigs, closing }) {
+  const badgeColor = currentUnit === 'als-para' ? '#a855f7' : currentUnit === 'als-aemt' ? '#3b82f6' : currentUnit === 'bls-emt' ? '#22c55e' : '#3b82f6';
+  const badgeLabel = currentUnit === 'als-para' ? 'ALS — Paramedic' : currentUnit === 'als-aemt' ? 'ALS — AEMT' : currentUnit === 'bls-emt' ? 'BLS — EMT' : 'Unit Check';
+
+  const metaHTML = meta.map(m =>
+    `<div style="flex:1;min-width:80px;padding:4px 8px;border-right:1px solid #e5e7eb">
+      <div style="font-size:7px;text-transform:uppercase;letter-spacing:.5px;color:#6b7280">${m.label}</div>
+      <div style="font-size:10px;font-weight:700;border-bottom:1px solid #111;min-height:14px;margin-top:1px;padding-bottom:1px">${m.value || ''}</div>
+    </div>`).join('');
+
+  const sectionsHTML = sections.map(sec => {
+    if (!sec.items.length) return '';
+    const itemsHTML = sec.items.map(item => {
+      if (item.oos) {
+        return `<tr style="background:#fff3f3">
+          <td style="padding:2px 4px;width:14px;text-align:center;color:#b91c1c;font-weight:700;font-size:10px">✗</td>
+          <td style="padding:2px 4px;font-size:9px;text-decoration:line-through;color:#9ca3af">${item.label}</td>
+          <td style="padding:2px 4px;font-size:8px;font-weight:700;color:#b91c1c;white-space:nowrap">OOS</td>
+        </tr>`;
+      }
+      if (item.done) {
+        return `<tr>
+          <td style="padding:2px 4px;width:14px;text-align:center;color:#166534;font-size:12px">☑</td>
+          <td style="padding:2px 4px;font-size:9px" colspan="2">${item.label}</td>
+        </tr>`;
+      }
+      if (item.low) {
+        return `<tr style="background:#fffbeb">
+          <td style="padding:2px 4px;width:14px;text-align:center;color:#92400e;font-size:10px">⚠</td>
+          <td style="padding:2px 4px;font-size:9px">${item.label}</td>
+          <td style="padding:2px 4px;font-size:8px;font-weight:700;color:#b45309;background:#fef3c7;border-radius:2px;white-space:nowrap">LOW</td>
+        </tr>`;
+      }
+      if (item.blank !== undefined) {
+        return `<tr>
+          <td style="padding:2px 4px;width:14px;text-align:center;color:#d1d5db;font-size:10px">—</td>
+          <td style="padding:2px 4px;font-size:9px;color:#9ca3af" colspan="2">${item.label}</td>
+        </tr>`;
+      }
+      return `<tr>
+        <td style="padding:2px 4px;width:14px;text-align:center;font-size:12px">${item.done ? '☑' : '☐'}</td>
+        <td style="padding:2px 4px;font-size:9px" colspan="2">${item.label}</td>
+      </tr>`;
+    }).join('');
+    return `<div style="break-inside:avoid;margin-bottom:6px;border:1px solid #d1d5db;border-radius:4px;overflow:hidden">
+      <div style="background:#1e2230;color:#fff;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:3px 6px;display:flex;justify-content:space-between;align-items:center">
+        <span>${sec.title}</span><span style="opacity:.6;font-weight:400">${sec.done}/${sec.total}</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse">${itemsHTML}</table>
+    </div>`;
+  }).join('');
+
+  const sigsHTML = (sigs || []).map(s =>
+    `<div style="flex:1;border-top:1px solid #111;padding-top:3px;font-size:9px;color:#6b7280">${s}</div>`).join('');
+
+  const closingHTML = closing ? `
+    <div style="border:1px solid #d1d5db;border-radius:4px;padding:6px 8px;margin-top:8px">
+      <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">Repairs Needed / New Body Damage</div>
+      <div style="min-height:22px;border-bottom:1px solid #9ca3af;padding-bottom:2px">${closing.repairs || ''}</div>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:6px">
+      <div style="flex:1;border:1px solid #d1d5db;border-radius:4px;padding:4px 6px;font-size:9px"><b>Fuel Card:</b> ${closing.fuelcard ? closing.fuelcard.toUpperCase() : '☐ YES  ☐ NO'}</div>
+      <div style="flex:1;border:1px solid #d1d5db;border-radius:4px;padding:4px 6px;font-size:9px"><b>Fire Ext.:</b> ${closing.extinguisher || ''}</div>
+      <div style="flex:1;border:1px solid #d1d5db;border-radius:4px;padding:4px 6px;font-size:9px"><b>Maint. Req.?</b> ${closing.maint ? closing.maint.toUpperCase() : '☐ YES  ☐ NO'}</div>
+    </div>` : '';
+
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${title}</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:Arial,Helvetica,sans-serif;font-size:10px;color:#111827;margin:0;padding:0;width:100%}
+  .sections{columns:2;column-gap:10px;width:100%}
+  .sigs{display:flex;gap:24px;margin-top:16px}
+  .sigs-block{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid}
+  table{width:100%;border-collapse:collapse}
+  table tr{border-bottom:1px solid #f3f4f6}
+  table tr:last-child{border-bottom:none}
+  @page{size:letter portrait;margin:8mm}
+</style>
+</head><body>
+<div style="border:2px solid #1e2230;border-radius:6px;overflow:hidden;margin-bottom:8px">
+  <div style="background:#1e2230;color:#fff;padding:7px 10px;display:flex;align-items:center;justify-content:space-between">
+    <div style="display:flex;align-items:center;gap:8px">
+      <img src="${LOGO_B64}" style="height:34px;width:34px;object-fit:contain;flex-shrink:0">
+      <div>
+        <div style="font-size:14px;font-weight:700;letter-spacing:-.2px">Emergency Ambulance Service, Inc.</div>
+        <div style="font-size:9px;opacity:.6;margin-top:1px">Ambulance Equipment Check-Off</div>
+      </div>
+    </div>
+    <div style="background:${badgeColor};color:#fff;font-size:9px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.3px">${badgeLabel}</div>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;border-top:1px solid #e5e7eb">${metaHTML}</div>
+</div>
+<div class="sections">${sectionsHTML}</div>
+${closingHTML}
+<div class="sigs-block">
+  <div class="sigs" style="margin-top:${closing?'12px':'16px'}">${sigsHTML}</div>
+  <div style="font-size:7px;color:#9ca3af;text-align:right;margin-top:8px;border-top:1px solid #f3f4f6;padding-top:4px">EMS Check &nbsp;·&nbsp; Generated ${new Date().toLocaleString()}</div>
+</div>
+</body></html>`;
+}
+
+// ─── FILLABLE FORM ───────────────────────────────────────────────────────────
+
+function downloadFillable(form) {
+  let html;
+  if (form === 'equip') {
+    const sections = getActiveSections();
+    if (!sections || !sections.length) { alert('No sections configured for this unit type.'); return; }
+    const s = state.equip || {};
+    const badgeLabel = currentUnit === 'als-para' ? 'ALS — Paramedic' : currentUnit === 'als-aemt' ? 'ALS — AEMT' : 'BLS — EMT';
+    const badgeColor = currentUnit === 'als-para' ? '#a855f7' : currentUnit === 'als-aemt' ? '#3b82f6' : '#22c55e';
+    const providerLabel = currentUnit === 'als-para' ? 'Paramedic' : currentUnit === 'als-aemt' ? 'AEMT' : 'EMT 1';
+    const crewLabel = currentUnit === 'bls-emt' ? 'EMT 2' : 'EMT';
+    const sigs = currentUnit === 'als-para' ? ['Paramedic Signature', 'EMT Signature']
+               : currentUnit === 'als-aemt' ? ['AEMT Signature', 'EMT Signature']
+               : ['EMT 1 Signature', 'EMT 2 Signature'];
+    const meta = [
+      { label: 'Unit #',           value: s.unit      || '' },
+      { label: 'Date',             value: s.date      || '' },
+      { label: providerLabel,      value: s.paramedic || '' },
+      { label: crewLabel,          value: s.emt       || '' },
+      { label: 'Main O₂ (PSI)',    value: s.maino2    || '' },
+      { label: 'Portable O₂ (PSI)',value: s.porto2    || '' },
+      ...(currentUnit === 'als-para' ? [{ label: 'Narcotic Seal #', value: s.sealnum || '' }] : []),
+    ];
+    html = buildFillableHTML({ title: badgeLabel + ' Equipment Check-Off', badgeLabel, badgeColor, meta, sections, sigs, isUCO: false });
+  } else {
+    const s = state.uco || {};
+    const meta = [
+      { label: 'Unit #',   value: s.unit    || '' },
+      { label: 'Date',     value: s.date    || '' },
+      { label: 'Mileage',  value: s.mileage || '' },
+      { label: 'EMT',      value: s.name    || '' },
+      { label: 'Radio #',  value: s.radio   || '' },
+    ];
+    html = buildFillableHTML({ title: 'Unit Check-Off', badgeLabel: 'Unit Check', badgeColor: '#3b82f6', meta, sections: UCO_SECTIONS, sigs: ['EMT Signature', 'Supervisor'], isUCO: true });
+  }
+  const win = window.open('', '_blank');
+  if (win) {
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    setTimeout(() => win.print(), 500);
+    showToast('Print Fillable ✓');
+  } else {
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = getDriveFilename(form).replace('.html', '-fillable.html');
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    showToast('Fillable Downloaded ✓');
+  }
+}
+
+function buildFillableHTML({ title, badgeLabel, badgeColor, meta, sections, sigs, isUCO }) {
+  const metaHTML = meta.map(m =>
+    `<div style="flex:1;min-width:80px;padding:4px 8px;border-right:1px solid #d1d5db">
+      <div style="font-size:6px;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:2px">${m.label}</div>
+      <div style="border-bottom:1px solid #111;min-height:14px;padding-bottom:1px">${m.value || ''}</div>
+    </div>`).join('');
+
+  const sectionsHTML = sections.map((sec, si) => {
+    if (isUCO) {
+      const rows = sec.items.map((item, ii) =>
+        `<tr style="background:${ii%2===1?'#f9fafb':'#fff'}">
+          <td style="padding:2px 3px;width:14px;vertical-align:middle">
+            <div style="width:9px;height:9px;border:1px solid #111;margin:auto"></div>
+          </td>
+          <td style="padding:2px 4px;font-size:8px;line-height:1.3">${item}</td>
+        </tr>`
+      ).join('');
+      return `<div style="break-inside:avoid;margin-bottom:5px;border:1px solid #d1d5db;overflow:hidden">
+        <div style="background:#1e2230;color:#fff;font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:2px 6px">${sec.title}</div>
+        <table style="width:100%;border-collapse:collapse">${rows}</table>
+      </div>`;
+    }
+    // Equipment — Item | Min | Actual | Exp (conditional) | OOS
+    const hasExp = sec.items.some(i => i.expiry);
+    const colHdr = `<tr style="background:#f9fafb;border-bottom:1px solid #d1d5db">
+      <td style="padding:1px 4px;font-size:6px;text-transform:uppercase;color:#6b7280;letter-spacing:.3px">Item</td>
+      <td style="padding:1px 4px;font-size:6px;text-transform:uppercase;color:#6b7280;letter-spacing:.3px;text-align:center;width:26px">Min</td>
+      <td style="padding:1px 4px;font-size:6px;text-transform:uppercase;color:#6b7280;letter-spacing:.3px;text-align:center;width:34px">Actual</td>
+      ${hasExp ? '<td style="padding:1px 4px;font-size:6px;text-transform:uppercase;color:#6b7280;letter-spacing:.3px;text-align:center;width:32px">Exp</td>' : ''}
+      <td style="padding:1px 4px;font-size:6px;text-transform:uppercase;color:#6b7280;letter-spacing:.3px;text-align:center;width:22px">OOS</td>
+    </tr>`;
+    const rows = sec.items.map((item, ii) =>
+      `<tr style="border-bottom:1px solid #f0f0f0;background:${ii%2===1?'#f9fafb':'#fff'}">
+        <td style="padding:2px 4px;font-size:8px;line-height:1.3">${item.label}</td>
+        <td style="padding:2px 4px;font-size:8px;text-align:center;color:#374151;font-weight:700">×${item.qty}</td>
+        <td style="padding:3px 6px"><div style="border-bottom:1px solid #374151;min-height:12px"></div></td>
+        ${hasExp ? `<td style="padding:3px 5px">${item.expiry ? '<div style="border-bottom:1px solid #374151;min-height:12px"></div>' : ''}</td>` : ''}
+        <td style="padding:2px 4px;text-align:center;vertical-align:middle">
+          <div style="width:9px;height:9px;border:1px solid #111;margin:auto"></div>
+        </td>
+      </tr>`
+    ).join('');
+    return `<div style="break-inside:avoid;margin-bottom:5px;border:1px solid #d1d5db;overflow:hidden">
+      <div style="background:#1e2230;color:#fff;font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:2px 6px">${sec.title}</div>
+      <table style="width:100%;border-collapse:collapse">${colHdr}${rows}</table>
+    </div>`;
+  }).join('');
+
+  const sigsHTML = (sigs || []).map(s =>
+    `<div style="flex:1;padding:0 4px">
+      <div style="border-bottom:1px solid #111;min-height:22px"></div>
+      <div style="font-size:7px;color:#6b7280;margin-top:2px">${s}</div>
+    </div>`).join('');
+
+  const ucoClosingHTML = isUCO ? `
+    <div style="border:1px solid #d1d5db;overflow:hidden;margin-top:6px">
+      <div style="background:#1e2230;color:#fff;font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:2px 6px">Repairs Needed / New Body Damage</div>
+      <div style="padding:5px 8px">
+        <div style="border-bottom:1px solid #374151;min-height:16px;margin-bottom:5px"></div>
+        <div style="border-bottom:1px solid #374151;min-height:16px"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:5px;margin-top:5px">
+      <div style="flex:1;border:1px solid #d1d5db;padding:4px 6px">
+        <div style="font-size:6px;text-transform:uppercase;color:#6b7280;margin-bottom:3px">Fuel Card</div>
+        <div style="display:flex;gap:8px;font-size:8px;align-items:center">
+          <span style="display:flex;align-items:center;gap:3px"><div style="width:9px;height:9px;border:1px solid #111;flex-shrink:0"></div> YES</span>
+          <span style="display:flex;align-items:center;gap:3px"><div style="width:9px;height:9px;border:1px solid #111;flex-shrink:0"></div> NO</span>
+        </div>
+      </div>
+      <div style="flex:2;border:1px solid #d1d5db;padding:4px 6px">
+        <div style="font-size:6px;text-transform:uppercase;color:#6b7280;margin-bottom:3px">Fire Extinguisher PSI / Status</div>
+        <div style="border-bottom:1px solid #374151;min-height:13px"></div>
+      </div>
+      <div style="flex:1;border:1px solid #d1d5db;padding:4px 6px">
+        <div style="font-size:6px;text-transform:uppercase;color:#6b7280;margin-bottom:3px">Maint. Request Turned In</div>
+        <div style="display:flex;gap:8px;font-size:8px;align-items:center">
+          <span style="display:flex;align-items:center;gap:3px"><div style="width:9px;height:9px;border:1px solid #111;flex-shrink:0"></div> YES</span>
+          <span style="display:flex;align-items:center;gap:3px"><div style="width:9px;height:9px;border:1px solid #111;flex-shrink:0"></div> NO</span>
+        </div>
+      </div>
+    </div>` : '';
+
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>EASI — ${title}</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:Arial,Helvetica,sans-serif;font-size:8px;color:#111827;margin:0;padding:0;width:100%}
+  .sections{columns:2;column-gap:8px;width:100%}
+  .sigs-block{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid}
+  table{width:100%;border-collapse:collapse}
+  table tr:last-child td{border-bottom:none}
+  @page{size:letter portrait;margin:8mm}
+</style>
+</head><body>
+<div style="border:1.5px solid #1e2230;overflow:hidden;margin-bottom:7px">
+  <div style="background:#1e2230;color:#fff;padding:6px 10px;display:flex;align-items:center;justify-content:space-between">
+    <div style="display:flex;align-items:center;gap:8px">
+      <img src="${LOGO_B64}" style="height:30px;width:30px;object-fit:contain;flex-shrink:0">
+      <div style="font-size:12px;font-weight:700;letter-spacing:-.2px">Emergency Ambulance Service, Inc.</div>
+    </div>
+    <div style="background:${badgeColor};color:#fff;font-size:8px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.3px">${badgeLabel}</div>
+  </div>
+  <div style="background:#2d3347;padding:2px 10px">
+    <div style="font-size:7px;color:#aaaaaa">${isUCO ? 'Unit Check-Off' : 'Ambulance Equipment Check-Off'}</div>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;border-top:1px solid #d1d5db">${metaHTML}</div>
+</div>
+<div class="sections">${sectionsHTML}</div>
+${ucoClosingHTML}
+${!isUCO ? `<div style="font-size:7px;color:#6b7280;margin-top:5px"><b style="color:#374151">OOS</b> = Out of Stock — check the OOS box if the item is unavailable.</div>` : ''}
+<div class="sigs-block">
+  <div style="display:flex;gap:20px;margin-top:${isUCO ? '10px' : '14px'}">${sigsHTML}</div>
+  <div style="font-size:6px;color:#9ca3af;text-align:right;margin-top:6px;border-top:1px solid #f3f4f6;padding-top:3px">EMS Check &nbsp;·&nbsp; Printed ${new Date().toLocaleString()}</div>
+</div>
+</body></html>`;
+}
+
+
+
+// ─── EDIT MODE ───────────────────────────────────────────────────────────────
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function toggleEditMode() {
+  editMode = !editMode;
+  document.getElementById('edit-btn').classList.toggle('edit-active', editMode);
+  if (!editMode) {
+    persistCustomSections();
+    showToast('Sections saved ✓');
+  } else {
+    showToast('Edit mode — tap ✏ again to save & exit');
+  }
+  buildEquip();
+  buildUCO();
+}
+
+function persistCustomSections() {
+  localStorage.setItem(CUSTOM_KEY, JSON.stringify(customSections));
+  saveToFirestore();
+}
+
+// ── Equipment edit mode ──────────────────────────────────────────────────────
+
+function _ensureCustomEquip() {
+  if (!customSections[currentUnit] || !customSections[currentUnit].length) {
+    customSections[currentUnit] = JSON.parse(JSON.stringify(getDefaultSections(currentUnit)));
+  }
+}
+
+function buildEquipEditMode(container) {
+  const banner = document.createElement('div');
+  banner.className = 'edit-mode-banner';
+  banner.textContent = '✏ Edit Mode — Customize sections & items. Tap ✏ to save & exit.';
+  container.appendChild(banner);
+
+  const sections = getActiveSections();
+
+  sections.forEach((sec, si) => {
+    const div = document.createElement('div');
+    div.className = 'section open';
+    const itemsHTML = sec.items.map((item, ii) => `
+      <div class="check-item edit-item">
+        <input class="edit-name" type="text" value="${escHtml(item.label)}" placeholder="Item name"
+          oninput="updateItemLabel(${si},${ii},this.value)">
+        <span style="font-size:11px;color:var(--muted);flex-shrink:0">×</span>
+        <input class="edit-qty" type="number" min="1" value="${item.qty}"
+          oninput="updateItemQty(${si},${ii},this.value)">
+        <button class="edit-exp-btn${item.expiry?' exp-on':''}" title="Requires expiry date"
+          onclick="toggleItemExpiry(${si},${ii},this)">EXP</button>
+        <button class="edit-del-item" onclick="deleteItem(${si},${ii})" title="Delete item">✕</button>
+      </div>`).join('');
+    div.innerHTML = `
+      <div class="section-header edit-section-header">
+        <input class="edit-section-name" type="text" value="${escHtml(sec.title)}" placeholder="Section name"
+          oninput="updateSectionTitle(${si},this.value)">
+        <button class="edit-del-section" onclick="deleteSection(${si})" title="Delete section">✕</button>
+      </div>
+      <div class="section-body">
+        ${itemsHTML}
+        <div class="edit-add-item-row">
+          <button class="edit-add-item-btn" onclick="addItem(${si})">＋ Add Item</button>
+        </div>
+      </div>`;
+    container.appendChild(div);
+  });
+
+  const footer = document.createElement('div');
+  footer.className = 'edit-footer';
+  footer.innerHTML = `
+    <button class="edit-add-section-btn" onclick="addSection()">＋ Add Section</button>
+    <button class="edit-reset-btn" onclick="resetSectionsToDefault()">↺ Reset to Default</button>`;
+  container.appendChild(footer);
+}
+
+function addSection() {
+  _ensureCustomEquip();
+  customSections[currentUnit].push({ title: 'New Section', items: [] });
+  buildEquip();
+}
+
+function deleteSection(si) {
+  _ensureCustomEquip();
+  if (!confirm('Delete this section and all its items?')) return;
+  customSections[currentUnit].splice(si, 1);
+  buildEquip();
+}
+
+function updateSectionTitle(si, val) {
+  _ensureCustomEquip();
+  customSections[currentUnit][si].title = val;
+}
+
+function addItem(si) {
+  _ensureCustomEquip();
+  customSections[currentUnit][si].items.push({ label: '', qty: 1, expiry: false });
+  buildEquip();
+}
+
+function deleteItem(si, ii) {
+  _ensureCustomEquip();
+  customSections[currentUnit][si].items.splice(ii, 1);
+  buildEquip();
+}
+
+function updateItemLabel(si, ii, val) {
+  _ensureCustomEquip();
+  customSections[currentUnit][si].items[ii].label = val;
+}
+
+function updateItemQty(si, ii, val) {
+  _ensureCustomEquip();
+  const n = parseInt(val, 10);
+  customSections[currentUnit][si].items[ii].qty = isNaN(n) || n < 1 ? 1 : n;
+}
+
+function toggleItemExpiry(si, ii, btn) {
+  _ensureCustomEquip();
+  const item = customSections[currentUnit][si].items[ii];
+  item.expiry = !item.expiry;
+  btn.classList.toggle('exp-on', item.expiry);
+}
+
+function resetSectionsToDefault() {
+  if (!confirm('Reset to default sections? All custom changes for this unit type will be lost.')) return;
+  delete customSections[currentUnit];
+  persistCustomSections();
+  buildEquip();
+}
+
+// ── UCO edit mode ─────────────────────────────────────────────────────────────
+
+function _ensureCustomUCO() {
+  if (!customSections['uco'] || !customSections['uco'].length) {
+    customSections['uco'] = JSON.parse(JSON.stringify(UCO_SECTIONS));
+  }
+}
+
+function buildUCOEditMode(container) {
+  const banner = document.createElement('div');
+  banner.className = 'edit-mode-banner';
+  banner.textContent = '✏ Edit Mode — Customize UCO sections & items. Tap ✏ to save & exit.';
+  container.appendChild(banner);
+
+  const sections = getActiveUCOSections();
+
+  sections.forEach((sec, si) => {
+    const div = document.createElement('div');
+    div.className = 'section open';
+    const itemsHTML = sec.items.map((item, ii) => `
+      <div class="check-item edit-item">
+        <input class="edit-name" type="text" value="${escHtml(item)}" placeholder="Item name"
+          oninput="updateUCOItemLabel(${si},${ii},this.value)" style="flex:1">
+        <button class="edit-del-item" onclick="deleteUCOItem(${si},${ii})" title="Delete item">✕</button>
+      </div>`).join('');
+    div.innerHTML = `
+      <div class="section-header edit-section-header">
+        <input class="edit-section-name" type="text" value="${escHtml(sec.title)}" placeholder="Section name"
+          oninput="updateUCOSectionTitle(${si},this.value)">
+        <button class="edit-del-section" onclick="deleteUCOSection(${si})" title="Delete section">✕</button>
+      </div>
+      <div class="section-body">
+        ${itemsHTML}
+        <div class="edit-add-item-row">
+          <button class="edit-add-item-btn" onclick="addUCOItem(${si})">＋ Add Item</button>
+        </div>
+      </div>`;
+    container.appendChild(div);
+  });
+
+  const footer = document.createElement('div');
+  footer.className = 'edit-footer';
+  footer.innerHTML = `
+    <button class="edit-add-section-btn" onclick="addUCOSection()">＋ Add Section</button>
+    <button class="edit-reset-btn" onclick="resetUCOSectionsToDefault()">↺ Reset to Default</button>`;
+  container.appendChild(footer);
+}
+
+function addUCOSection() {
+  _ensureCustomUCO();
+  customSections['uco'].push({ title: 'New Section', items: [] });
+  buildUCO();
+}
+
+function deleteUCOSection(si) {
+  _ensureCustomUCO();
+  if (!confirm('Delete this UCO section and all its items?')) return;
+  customSections['uco'].splice(si, 1);
+  buildUCO();
+}
+
+function updateUCOSectionTitle(si, val) {
+  _ensureCustomUCO();
+  customSections['uco'][si].title = val;
+}
+
+function addUCOItem(si) {
+  _ensureCustomUCO();
+  customSections['uco'][si].items.push('');
+  buildUCO();
+}
+
+function deleteUCOItem(si, ii) {
+  _ensureCustomUCO();
+  customSections['uco'][si].items.splice(ii, 1);
+  buildUCO();
+}
+
+function updateUCOItemLabel(si, ii, val) {
+  _ensureCustomUCO();
+  customSections['uco'][si].items[ii] = val;
+}
+
+function resetUCOSectionsToDefault() {
+  if (!confirm('Reset UCO to default sections? All custom changes will be lost.')) return;
+  delete customSections['uco'];
+  persistCustomSections();
+  buildUCO();
+}
+
+// ── Firebase ──────────────────────────────────────────────────────────────────
+
+function initFirebase() {
+  if (!FIREBASE_CONFIG.apiKey) return;
+  try {
+    const app = firebase.apps.find(a=>a.name==='checkoff') || firebase.initializeApp(FIREBASE_CONFIG, 'checkoff');
+    _db = firebase.firestore(app);
+    _storage = firebase.storage(app);
+    loadFromFirestore();
+  } catch(e) {
+    console.warn('Firebase init failed:', e);
+  }
+}
+
+function saveToFirestore() {
+  if (!_db) return;
+  _db.collection('easi-checkoff').doc('custom-sections').set({
+    data: customSections,
+    updatedAt: new Date().toISOString(),
+  }).catch(e => console.warn('Firestore save failed:', e));
+}
+
+function loadFromFirestore() {
+  if (!_db) return;
+  _db.collection('easi-checkoff').doc('custom-sections').get().then(doc => {
+    if (doc.exists) {
+      const remote = doc.data().data || {};
+      customSections = Object.assign({}, customSections, remote);
+      localStorage.setItem(CUSTOM_KEY, JSON.stringify(customSections));
+      buildEquip();
+      buildUCO();
+    }
+  }).catch(e => console.warn('Firestore load failed:', e));
+}
+
+// ─── NETWORK STATUS ──────────────────────────────────────────────────────────
+
+function updateNetStatus() {
+  const online = navigator.onLine;
+  const dot = document.getElementById('net-dot');
+  const label = document.getElementById('net-label');
+  if (!dot) return;
+  dot.classList.toggle('offline', !online);
+  label.textContent = online ? 'Online' : 'Offline';
+}
+window.addEventListener('online', updateNetStatus);
+window.addEventListener('offline', updateNetStatus);
+
+function applyUpdate() {
+  if (navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+  window.location.reload();
+}
+
+// ─── TEXT SIZE ────────────────────────────────────────────────────────────────
+
+const SIZES = ['', 'text-lg', 'text-xl'];
+const SIZE_LABELS = ['A', 'A+', 'A++'];
+
+function cycleSize() {
+  const h = document.documentElement;
+  const cur = SIZES.findIndex(c => c && h.classList.contains(c));
+  const curIdx = cur === -1 ? 0 : cur;
+  const next = (curIdx + 1) % SIZES.length;
+  SIZES.slice(1).forEach(c => h.classList.remove(c));
+  if (SIZES[next]) h.classList.add(SIZES[next]);
+  localStorage.setItem('easi-textsize', SIZES[next] || '');
+  document.getElementById('size-btn').textContent = SIZE_LABELS[next];
+}
+
+// ─── THEME ────────────────────────────────────────────────────────────────────
+
+function toggleTheme() {
+  const h = document.documentElement;
+  const light = h.dataset.theme === 'light';
+  if (light) {
+    delete h.dataset.theme;
+    localStorage.setItem('easi-theme', 'dark');
+    document.getElementById('theme-color-meta').content = '#0f1117';
+    document.getElementById('theme-btn').textContent = '☀'; // ☀
+  } else {
+    h.dataset.theme = 'light';
+    localStorage.setItem('easi-theme', 'light');
+    document.getElementById('theme-color-meta').content = '#f1f3f7';
+    document.getElementById('theme-btn').textContent = '☽'; // ☽
+  }
+}
+
+function applyPrefs() {
+  const s = localStorage.getItem('easi-textsize') || '';
+  const sIdx = Math.max(0, SIZES.indexOf(s));
+  const sBtn = document.getElementById('size-btn');
+  if (sBtn) sBtn.textContent = SIZE_LABELS[sIdx];
+  const isLight = document.documentElement.dataset.theme === 'light';
+  const tBtn = document.getElementById('theme-btn');
+  if (tBtn) tBtn.textContent = isLight ? '☽' : '☀';
+  if (isLight) {
+    const m = document.getElementById('theme-color-meta');
+    if (m) m.content = '#f1f3f7';
+  }
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+
+loadState();
+initFirebase();
+buildEquip();
+bindEquipFields();
+buildUCO();
+bindUCOFields();
+updateNetStatus();
+applyPrefs();
+updateNotifBtn();
+
+// Handle PWA shortcuts — override unit/tab based on launch URL
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const admin = params.get('admin');
+  const shortcut = params.get('shortcut');
+  if (admin === '1') document.getElementById('edit-btn').style.display = '';
+  if (shortcut === 'als-para' || shortcut === 'als-aemt' || shortcut === 'bls-emt') {
+    setUnit(shortcut);
+  } else if (shortcut === 'uco') {
+    switchTab('uco', null);
+  }
+})();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').then(reg => {
+    reg.addEventListener('updatefound', () => {
+      const w = reg.installing;
+      w.addEventListener('statechange', () => {
+        if (w.state === 'installed' && navigator.serviceWorker.controller)
+          document.getElementById('update-banner').style.display = 'block';
+      });
+    });
+  });
+}
+</script>
+</body>
+</html>
