@@ -4642,7 +4642,7 @@
 
 
 // Pump mL/hr → Manual gtts/min
-document.querySelector('#pump-calc').addEventListener('click', ()=>{
+if(document.querySelector('#pump-calc')) document.querySelector('#pump-calc').addEventListener('click', ()=>{
   const rate = parseFloat(document.querySelector('#pump-rate').value || '0');      // mL/hr
   const drip = parseFloat(document.querySelector('#pump-dripset').value || '0');   // gtt/mL
   if(!(rate && drip)){
@@ -4658,7 +4658,7 @@ document.querySelector('#pump-calc').addEventListener('click', ()=>{
     `<div style="color:var(--accent);font-weight:600">Count <b>${Math.round(per10)}</b> drops every 10 seconds to confirm your rate.</div>`;
 });
 
-document.querySelector('#pump-reset').addEventListener('click', ()=>{
+if(document.querySelector('#pump-reset')) document.querySelector('#pump-reset').addEventListener('click', ()=>{
   document.querySelector('#pump-rate').value = '';
   document.querySelector('#pump-dripset').value = '';
   document.querySelector('#pump-result').innerHTML = '';
