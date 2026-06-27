@@ -53,6 +53,20 @@
     /* auth loading */
     #auth-loading{display:flex;align-items:center;justify-content:center;min-height:100vh;font-size:15px;color:var(--muted)}
     #app{display:none;flex-direction:column;min-height:100vh}
+    /* setup mode */
+    #view-setup{display:none;justify-content:center;align-items:flex-start;padding:32px 16px}
+    #setup-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 24px;width:100%;max-width:460px}
+    #setup-card h2{margin:0 0 6px;font-size:20px;font-weight:700}
+    #setup-card .setup-sub{font-size:13px;color:var(--muted);margin-bottom:22px;line-height:1.55}
+    .disclaimer-box{background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.06);border-radius:9px;padding:11px 13px;font-size:12px;color:var(--muted);line-height:1.6;max-height:200px;overflow-y:auto;margin-bottom:14px}
+    :root.light .disclaimer-box{background:rgba(0,0,0,.04)}
+    .disclaimer-box p{margin:0 0 8px}
+    .disclaimer-box p:last-child{margin-bottom:0}
+    #setup-tos-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:18px;cursor:pointer}
+    #setup-tos-row input[type="checkbox"]{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex:none;margin-top:2px}
+    #setup-tos-row span{font-size:13px;color:var(--text);line-height:1.5}
+    .back-dashboard-link{font-size:13px;color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:4px;padding:4px 0;transition:color .15s}
+    .back-dashboard-link:hover{color:var(--text)}
   </style>
 </head>
 <body>
@@ -63,15 +77,51 @@
       <div class="wrap">
         <div class="header-row">
           <button class="back-btn" id="btn-back" title="Back to Home">‹</button>
-          <div>
+          <div style="flex:1">
             <div class="page-title" id="page-title">👤 My Account</div>
             <div class="page-subtitle" id="page-subtitle">Profile &amp; Settings</div>
           </div>
+          <a href="dashboard.html" class="back-dashboard-link" id="back-dashboard-link">← Dashboard</a>
         </div>
       </div>
     </header>
 
     <main>
+
+      <!-- Setup / first-run mode -->
+      <div id="view-setup">
+        <div id="setup-card">
+          <h2>Welcome to PAIRAMEDIC</h2>
+          <p class="setup-sub">Before you can continue, please complete your profile and review the platform terms.</p>
+
+          <div class="fg">
+            <label>First Name <span style="color:#f87171">*</span></label>
+            <input type="text" id="setup-first" placeholder="e.g. John" autocomplete="given-name" />
+          </div>
+          <div class="fg">
+            <label>Last Name <span style="color:#f87171">*</span></label>
+            <input type="text" id="setup-last" placeholder="e.g. Smith" autocomplete="family-name" />
+          </div>
+
+          <div class="disclaimer-box">
+            <p>By checking this box, I acknowledge and agree to the following:</p>
+            <p>• PAIRAMEDIC is a clinical reference tool intended for authorized EMS personnel only. It is NOT a replacement for formal training, issued protocols, or direct medical oversight.</p>
+            <p>• This platform is NOT HIPAA-compliant. No Protected Health Information (PHI) — including patient names, dates of birth, addresses, or any other individually identifiable health information — may be entered, stored, or transmitted through this platform. Doing so is a violation of these Terms of Service and may result in immediate account suspension.</p>
+            <p>• All protocol information, drug dosages, and clinical guidelines contained within are provided for reference purposes only and are subject to change. Always defer to your agency's current issued protocols and your medical director's guidance.</p>
+            <p>• I understand that clinical decisions must never be based solely on this application. PAIRAMEDIC is a supplemental reference only.</p>
+            <p>• By using this platform, I accept full responsibility for compliance with my agency's policies and applicable laws.</p>
+          </div>
+
+          <label id="setup-tos-row">
+            <input type="checkbox" id="setup-tos-cb" />
+            <span>I have read and agree to the terms above.</span>
+          </label>
+
+          <button class="btn primary" id="btn-setup-continue" style="width:100%" disabled>Continue to PAIRAMEDIC</button>
+          <div id="setup-status" style="display:none"></div>
+        </div>
+      </div>
+
       <div class="wrap">
 
         <!-- Non-admin: Self-profile editing -->
@@ -133,7 +183,7 @@
           </div>
         </div>
 
-      </div>
+      </div><!-- /.wrap -->
     </main>
   </div>
 
@@ -303,6 +353,7 @@
       }
 
       const isAdmin = user.email === ADMIN_EMAIL;
+      const isSetup = new URLSearchParams(window.location.search).get('setup') === '1';
 
       // Load user profile data
       let profileData = {};
@@ -313,6 +364,61 @@
 
       document.getElementById('auth-loading').style.display = 'none';
       document.getElementById('app').style.display = 'flex';
+
+      // ── Setup / first-run mode ──
+      if (isSetup) {
+        // Hide header back button and dashboard link; hide normal content
+        document.getElementById('btn-back').style.display = 'none';
+        document.getElementById('back-dashboard-link').style.display = 'none';
+        document.getElementById('page-title').textContent = '⚙️ Account Setup';
+        document.getElementById('page-subtitle').textContent = 'Complete your profile to continue';
+        document.getElementById('view-profile').classList.add('hidden');
+        document.getElementById('view-admin').classList.add('hidden');
+
+        const setupView = document.getElementById('view-setup');
+        setupView.style.display = 'flex';
+
+        const firstEl = document.getElementById('setup-first');
+        const lastEl = document.getElementById('setup-last');
+        const tosCb = document.getElementById('setup-tos-cb');
+        const continueBtn = document.getElementById('btn-setup-continue');
+        const statusEl = document.getElementById('setup-status');
+
+        // Pre-fill if already set
+        firstEl.value = profileData.firstName || '';
+        lastEl.value = profileData.lastName || '';
+
+        function updateContinueBtn() {
+          const ready = firstEl.value.trim() !== '' && lastEl.value.trim() !== '' && tosCb.checked;
+          continueBtn.disabled = !ready;
+        }
+
+        firstEl.addEventListener('input', updateContinueBtn);
+        lastEl.addEventListener('input', updateContinueBtn);
+        tosCb.addEventListener('change', updateContinueBtn);
+
+        continueBtn.addEventListener('click', async function() {
+          const firstName = firstEl.value.trim();
+          const lastName = lastEl.value.trim();
+          if (!firstName || !lastName || !tosCb.checked) return;
+
+          continueBtn.disabled = true;
+          continueBtn.textContent = 'Saving…';
+          try {
+            await fbDb.collection('users').doc(user.uid).set(
+              { firstName, lastName, tosAccepted: true, tosAcceptedAt: Date.now() },
+              { merge: true }
+            );
+            window.location.replace('dashboard.html');
+          } catch (e) {
+            showStatus(statusEl, 'Error: ' + e.message, 'err');
+            continueBtn.disabled = false;
+            continueBtn.textContent = 'Continue to PAIRAMEDIC';
+          }
+        });
+
+        return; // Skip normal profile setup below
+      }
 
       if (isAdmin) {
         // Show admin view

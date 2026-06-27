@@ -782,7 +782,7 @@
         </div>
       </div>
       <div class="hdr-btns">
-        <button id="btn-new-run" class="hdr-btn accent">+ New Run</button>
+        <button id="btn-new-incident" class="hdr-btn accent">+ New Incident</button>
         <button id="btn-end-run" class="hdr-btn danger hidden">End Run</button>
       </div>
     </div>
@@ -797,108 +797,6 @@
 
   <!-- ── Tab Content ── -->
   <div class="tab-content" id="main-scroll">
-
-    <!-- TAB: Patient -->
-    <div class="tab-panel active" id="tab-patient">
-      <div class="tab-inner">
-
-        <!-- Patient Info -->
-        <div class="card">
-          <div class="card-hdr"><span class="card-title">Patient Info</span></div>
-          <div class="card-body">
-            <div class="field">
-              <label for="rpt-cc">Chief Complaint</label>
-              <input type="text" id="rpt-cc" placeholder="e.g. Chest pain, difficulty breathing..." autocomplete="off" />
-            </div>
-            <div class="field">
-              <label>Patient Weight</label>
-              <div class="weight-row">
-                <input type="number" id="rpt-weight" placeholder="0" min="0" step="0.1" />
-                <div class="unit-toggle">
-                  <button class="unit-btn active" data-unit="kg">kg</button>
-                  <button class="unit-btn" data-unit="lb">lb</button>
-                </div>
-              </div>
-            </div>
-            <div class="field">
-              <label for="rpt-allergies">Allergies</label>
-              <input type="text" id="rpt-allergies" placeholder="NKDA or list allergies" autocomplete="off" />
-            </div>
-            <div class="field">
-              <label for="rpt-hx">Pertinent Hx</label>
-              <textarea id="rpt-hx" rows="3" placeholder="Brief past medical / surgical history, current medications, relevant history..."></textarea>
-            </div>
-          </div>
-        </div>
-
-        <!-- Current Status -->
-        <div class="card">
-          <div class="card-hdr"><span class="card-title">Current Status</span></div>
-          <div class="card-body">
-            <div class="status-grid">
-              <div class="field">
-                <label for="st-hr">HR (bpm)</label>
-                <input type="number" id="st-hr" placeholder="72" />
-              </div>
-              <div class="field">
-                <label for="st-spo2">SpO&#8322; (%)</label>
-                <input type="number" id="st-spo2" min="0" max="100" placeholder="98" />
-              </div>
-              <div class="field">
-                <label for="st-bps">BP Systolic</label>
-                <input type="number" id="st-bps" placeholder="120" />
-              </div>
-              <div class="field">
-                <label for="st-bpd">BP Diastolic</label>
-                <input type="number" id="st-bpd" placeholder="80" />
-              </div>
-              <div class="field">
-                <label for="st-etco2">EtCO&#8322; (mmHg)</label>
-                <input type="number" id="st-etco2" placeholder="38" />
-              </div>
-              <div class="field">
-                <label for="st-rr">RR (/min)</label>
-                <input type="number" id="st-rr" placeholder="16" />
-              </div>
-              <div class="field">
-                <label for="st-temp">Temp (°F)</label>
-                <input type="number" id="st-temp" step="0.1" placeholder="98.6" />
-              </div>
-              <div class="field">
-                <label for="st-bgl">BGL (mg/dL)</label>
-                <input type="number" id="st-bgl" placeholder="100" />
-              </div>
-              <div class="field">
-                <label for="st-gcs">GCS</label>
-                <input type="number" id="st-gcs" min="3" max="15" placeholder="15" />
-              </div>
-            </div>
-            <div class="field" style="margin-top:8px">
-              <label>Airway</label>
-              <input type="hidden" id="st-airway" value="" />
-              <div class="opt-group" id="st-airway-grp">
-                <button type="button" class="opt-btn" data-val="Patent — room air">Patent — room air</button>
-                <button type="button" class="opt-btn" data-val="NPA">NPA</button>
-                <button type="button" class="opt-btn" data-val="OPA">OPA</button>
-                <button type="button" class="opt-btn" data-val="BVM">BVM</button>
-                <button type="button" class="opt-btn" data-val="King LT">King LT</button>
-                <button type="button" class="opt-btn" data-val="i-gel">i-gel</button>
-                <button type="button" class="opt-btn" data-val="Intubated-OTI">Intubated — OTI</button>
-                <button type="button" class="opt-btn" data-val="Surgical cric">Surgical cric</button>
-                <button type="button" class="opt-btn" data-val="CPAP">CPAP</button>
-                <button type="button" class="opt-btn" data-val="High-flow NC">High-flow NC</button>
-                <button type="button" class="opt-btn" data-val="Other">Other</button>
-              </div>
-            </div>
-            <div class="field hidden" id="vent-mode-field">
-              <label for="st-vent">Vent Mode / Settings</label>
-              <input type="text" id="st-vent" placeholder="AC/VC: TV 450, RR 14, PEEP 5, FiO2 40%" autocomplete="off" />
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
 
     <!-- TAB: Meds -->
     <div class="tab-panel" id="tab-meds">
@@ -940,8 +838,8 @@
       </div>
     </div>
 
-    <!-- TAB: Timeline -->
-    <div class="tab-panel" id="tab-timeline">
+    <!-- TAB: Call Log -->
+    <div class="tab-panel active" id="tab-timeline">
       <div class="tab-inner">
 
         <div class="timeline-export-row">
@@ -993,17 +891,13 @@
 
   <!-- ── Bottom Nav ── -->
   <nav class="bottom-nav">
-    <button class="nav-btn active" data-tab="patient">
-      <span class="nav-pill"><span class="nav-icon">🧑</span></span>
-      <span>Patient</span>
-    </button>
     <button class="nav-btn" data-tab="meds">
       <span class="nav-pill"><span class="nav-icon">💊</span></span>
-      <span>Meds</span>
+      <span>RX</span>
     </button>
-    <button class="nav-btn" data-tab="timeline">
+    <button class="nav-btn active" data-tab="timeline">
       <span class="nav-pill"><span class="nav-icon">🕐</span></span>
-      <span>Timeline</span>
+      <span>CALL LOG</span>
     </button>
     <button class="nav-btn" data-tab="timers">
       <span class="nav-pill"><span class="nav-icon">⏱</span></span>
@@ -1075,8 +969,9 @@
 var DEFAULT_STATE = {
   runActive: false,
   runStart: null,
+  incidentNumber: '',
+  chiefComplaint: '',
   report: {
-    chiefComplaint: '',
     weight: '', weightUnit: 'kg', allergies: '',
     pertinentHx: '',
     currentStatus: {}
@@ -1253,7 +1148,7 @@ function updateRunUI() {
     var m = Math.floor(dur / 60000);
     var h = Math.floor(m / 60);
     var label = h > 0 ? (h + 'h ' + (m % 60) + 'm active') : (m + ' min active');
-    var cc = STATE.report.chiefComplaint || 'Active run';
+    var cc = STATE.chiefComplaint || STATE.incidentNumber || 'Active run';
     statusEl.textContent = cc + ' · ' + label;
     btnEnd.classList.remove('hidden');
   } else {
@@ -1262,28 +1157,93 @@ function updateRunUI() {
   }
 }
 
-$('btn-new-run').addEventListener('click', function() {
-  var doStart = function() {
+$('btn-new-incident').addEventListener('click', function() {
+  function openNewIncidentSheet() {
+    var frag = document.createDocumentFragment();
+
+    // Incident # field
+    var incField = mkField('Incident # / Call # *', 'text', 'new-incident-num', 'e.g. 2026-04-112', '');
+    var incNote = document.createElement('div');
+    incNote.style.cssText = 'font-size:11px;color:var(--muted);margin-top:4px';
+    incNote.textContent = 'No PHI — use unit/call numbers only';
+    incField.appendChild(incNote);
+    frag.appendChild(incField);
+
+    // Chief complaint field
+    frag.appendChild(mkField('Chief Complaint (optional)', 'text', 'new-incident-cc', 'e.g. Chest pain, difficulty breathing', ''));
+
+    // Previous incidents section
+    var history = [];
+    try { history = JSON.parse(localStorage.getItem('chart_incident_history') || '[]'); } catch(e) {}
+    if (history.length > 0) {
+      var prevTitle = document.createElement('div');
+      prevTitle.style.cssText = 'font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 8px';
+      prevTitle.textContent = 'Previous Incidents';
+      frag.appendChild(prevTitle);
+
+      var chipsWrap = document.createElement('div');
+      chipsWrap.className = 'opt-group';
+      history.forEach(function(entry) {
+        var chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'opt-btn';
+        chip.textContent = (entry.incidentNumber ? 'Call #' + entry.incidentNumber : 'No #') + (entry.chiefComplaint ? ' · ' + entry.chiefComplaint : '');
+        chip.addEventListener('click', function() {
+          $('new-incident-num').value = entry.incidentNumber || '';
+          chipsWrap.querySelectorAll('.opt-btn').forEach(function(b) { b.classList.remove('sel'); });
+          chip.classList.add('sel');
+        });
+        chipsWrap.appendChild(chip);
+      });
+      frag.appendChild(chipsWrap);
+    }
+
+    var actions = document.createElement('div');
+    actions.className = 'sheet-actions';
+    var startBtn = document.createElement('button');
+    startBtn.className = 'btn accent';
+    startBtn.textContent = 'Start Incident';
+    startBtn.addEventListener('click', function() {
+      var incNum = $('new-incident-num').value.trim();
+      if (!incNum) { toast('Enter an incident / call number'); return; }
+      var cc = $('new-incident-cc').value.trim();
+      closeSheet();
+      doStart(incNum, cc);
+    });
+    var cancelBtn = document.createElement('button');
+    cancelBtn.className = 'btn';
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.addEventListener('click', closeSheet);
+    actions.appendChild(startBtn);
+    actions.appendChild(cancelBtn);
+    frag.appendChild(actions);
+
+    openSheet('New Incident', frag);
+    setTimeout(function() {
+      var el = $('new-incident-num');
+      if (el) el.focus();
+    }, 300);
+  }
+
+  function doStart(incNum, cc) {
     resetState();
     STATE.runActive = true;
     STATE.runStart = Date.now();
+    STATE.incidentNumber = incNum || '';
+    STATE.chiefComplaint = cc || '';
     saveState();
-    addTimelineEntry('runstart', 'Run Started', {});
+    addTimelineEntry('runstart', 'Incident Started' + (incNum ? ' #' + incNum : ''), {incidentNumber: incNum, chiefComplaint: cc});
     renderAll();
-    switchTab('patient');
-    setTimeout(function() {
-      var el = $('rpt-cc');
-      if (el) el.focus();
-    }, 300);
-    toast('New run started');
-  };
+    switchTab('timeline');
+    toast('Incident started');
+  }
 
   if (STATE.runActive) {
-    showConfirm('Start New Run?', 'This will clear all current run data. This cannot be undone.').then(function(ok) {
-      if (ok) doStart();
+    showConfirm('Start New Incident?', 'This will clear all current run data. This cannot be undone.').then(function(ok) {
+      if (ok) openNewIncidentSheet();
     });
   } else {
-    doStart();
+    openNewIncidentSheet();
   }
 });
 
@@ -1292,98 +1252,19 @@ $('btn-end-run').addEventListener('click', function() {
     if (!ok) return;
     STATE.runActive = false;
     addTimelineEntry('runend', 'Run Ended', {});
+    // Save to incident history
+    try {
+      var history = JSON.parse(localStorage.getItem('chart_incident_history') || '[]');
+      history.unshift({ incidentNumber: STATE.incidentNumber || '', chiefComplaint: STATE.chiefComplaint || '', startTs: STATE.runStart, endTs: Date.now() });
+      if (history.length > 20) history = history.slice(0, 20);
+      localStorage.setItem('chart_incident_history', JSON.stringify(history));
+    } catch(e) {}
     saveState();
     updateRunUI();
     switchTab('timeline');
     openExport();
   });
 });
-
-/* ══════════════════════════════════════
-   PATIENT TAB
-══════════════════════════════════════ */
-
-function bindReportInputs() {
-  var fieldMap = [
-    ['rpt-cc', 'chiefComplaint'],
-    ['rpt-weight', 'weight'],
-    ['rpt-allergies', 'allergies'],
-    ['rpt-hx', 'pertinentHx'],
-  ];
-  fieldMap.forEach(function(pair) {
-    var el = $(pair[0]);
-    var key = pair[1];
-    if (!el) return;
-    el.value = STATE.report[key] || '';
-    el.addEventListener('input', function() {
-      STATE.report[key] = el.value;
-      saveState();
-      updateRunUI();
-    });
-  });
-
-  // Weight unit toggle
-  document.querySelectorAll('.unit-btn').forEach(function(btn) {
-    if (STATE.report.weightUnit === btn.dataset.unit) btn.classList.add('active');
-    else btn.classList.remove('active');
-    btn.addEventListener('click', function() {
-      STATE.report.weightUnit = btn.dataset.unit;
-      document.querySelectorAll('.unit-btn').forEach(function(b) {
-        b.classList.toggle('active', b.dataset.unit === btn.dataset.unit);
-      });
-      saveState();
-    });
-  });
-
-  // Current Status
-  var statusMap = [
-    ['st-hr', 'hr'], ['st-spo2', 'spo2'],
-    ['st-bps', 'bpSys'], ['st-bpd', 'bpDia'],
-    ['st-etco2', 'etco2'], ['st-rr', 'rr'],
-    ['st-temp', 'temp'], ['st-bgl', 'bgl'],
-    ['st-gcs', 'gcs'],
-    ['st-airway', 'airway'], ['st-vent', 'vent']
-  ];
-  if (!STATE.report.currentStatus) STATE.report.currentStatus = {};
-  var cs = STATE.report.currentStatus;
-  statusMap.forEach(function(pair) {
-    var el = $(pair[0]);
-    var key = pair[1];
-    if (!el) return;
-    el.value = cs[key] || '';
-    // sync button group if this field has one (e.g. st-airway)
-    var grp = document.getElementById(pair[0] + '-grp');
-    if (grp) {
-      grp.querySelectorAll('.opt-btn').forEach(function(b) {
-        b.classList.toggle('sel', b.dataset.val === el.value);
-        b.addEventListener('click', function() {
-          grp.querySelectorAll('.opt-btn').forEach(function(x) { x.classList.remove('sel'); });
-          b.classList.add('sel');
-          el.value = b.dataset.val;
-          STATE.report.currentStatus[key] = el.value;
-          saveState();
-          if (pair[0] === 'st-airway') toggleVentField();
-        });
-      });
-    }
-    el.addEventListener('input', function() {
-      STATE.report.currentStatus[key] = el.value;
-      saveState();
-    });
-    el.addEventListener('change', function() {
-      STATE.report.currentStatus[key] = el.value;
-      saveState();
-      if (pair[0] === 'st-airway') toggleVentField();
-    });
-  });
-  toggleVentField();
-}
-
-function toggleVentField() {
-  var airway = $('st-airway').value;
-  var show = airway.indexOf('Intubated') !== -1 || airway.indexOf('Trach') !== -1;
-  $('vent-mode-field').classList.toggle('hidden', !show);
-}
 
 /* ══════════════════════════════════════
    MEDS TAB
@@ -2342,7 +2223,8 @@ function buildExportText() {
   var lines = [];
   lines.push('CHART — EMS Intervention Log');
   lines.push(new Date().toLocaleString('en-US', {dateStyle:'long', timeStyle:'short'}));
-  if (r.chiefComplaint) lines.push('CC: ' + r.chiefComplaint);
+  if (STATE.incidentNumber) lines.push('Incident #: ' + STATE.incidentNumber);
+  if (STATE.chiefComplaint) lines.push('CC: ' + STATE.chiefComplaint);
   if (r.weight) lines.push('Patient Wt: ' + r.weight + ' ' + (r.weightUnit || 'kg'));
   if (r.allergies) lines.push('Allergies: ' + r.allergies);
   if (r.pertinentHx) lines.push('Pertinent Hx: ' + r.pertinentHx);
@@ -2471,14 +2353,71 @@ function renderPresetGrid() {
         if (p.durationMs === null) {
           openCustomTimerSheet();
         } else {
-          requestNotifPermission().then(function() {
-            createTimer(p.label, p.durationMs, p.recurring);
-          });
+          openPresetTimerSheet(p);
         }
       });
     })(preset);
     grid.appendChild(card);
   });
+}
+
+function openPresetTimerSheet(preset) {
+  var frag = document.createDocumentFragment();
+
+  // Label field pre-filled
+  frag.appendChild(mkField('Label', 'text', 'pt-label', preset.label, preset.label));
+
+  // Note / Purpose field
+  frag.appendChild(mkField('Note / Purpose (optional)', 'text', 'pt-note', 'e.g. Readminister Ativan 5mg in 5 min', ''));
+
+  // Duration display (read-only info)
+  var durInfo = document.createElement('div');
+  durInfo.style.cssText = 'font-size:12px;color:var(--muted);margin-bottom:14px';
+  durInfo.textContent = 'Duration: ' + preset.sub;
+  frag.appendChild(durInfo);
+
+  // Recurring checkbox
+  var recurWrap = document.createElement('div');
+  recurWrap.className = 'field';
+  recurWrap.style.marginTop = '8px';
+  var recurLabel = document.createElement('label');
+  recurLabel.style.cssText = 'display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;color:var(--text);font-weight:normal;letter-spacing:0';
+  var recurCheck = document.createElement('input');
+  recurCheck.type = 'checkbox';
+  recurCheck.id = 'pt-recur';
+  recurCheck.checked = preset.recurring;
+  recurCheck.style.cssText = 'width:18px;height:18px;accent-color:var(--accent);flex-shrink:0';
+  var recurText = document.createElement('span');
+  recurText.textContent = 'Recurring (auto-restarts)';
+  recurLabel.appendChild(recurCheck);
+  recurLabel.appendChild(recurText);
+  recurWrap.appendChild(recurLabel);
+  frag.appendChild(recurWrap);
+
+  var actions = document.createElement('div');
+  actions.className = 'sheet-actions';
+  var startBtn = document.createElement('button');
+  startBtn.className = 'btn accent';
+  startBtn.textContent = 'Start Timer';
+  startBtn.addEventListener('click', function() {
+    var label = $('pt-label').value.trim() || preset.label;
+    var note = $('pt-note').value.trim();
+    var finalLabel = label + (note ? ' — ' + note : '');
+    var recur = $('pt-recur').checked;
+    requestNotifPermission().then(function() {
+      createTimer(finalLabel, preset.durationMs, recur);
+      closeSheet();
+    });
+  });
+  var cancelBtn = document.createElement('button');
+  cancelBtn.className = 'btn';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.addEventListener('click', closeSheet);
+  actions.appendChild(startBtn);
+  actions.appendChild(cancelBtn);
+  frag.appendChild(actions);
+
+  openSheet(preset.icon + ' ' + preset.label, frag);
 }
 
 function openCustomTimerSheet() {
@@ -2733,7 +2672,7 @@ $('btn-notif-deny').addEventListener('click', function() {
 
 $('btn-add-med').addEventListener('click', function() {
   if (!STATE.runActive) {
-    toast('Start a run first (+ New Run)');
+    toast('Start an incident first (+ New Incident)');
     return;
   }
   openAddMedSheet(null);
@@ -2741,7 +2680,7 @@ $('btn-add-med').addEventListener('click', function() {
 
 $('btn-add-site').addEventListener('click', function() {
   if (!STATE.runActive) {
-    toast('Start a run first (+ New Run)');
+    toast('Start an incident first (+ New Incident)');
     return;
   }
   openAddSiteSheet();
@@ -2762,7 +2701,6 @@ $('dc-meds-toggle').addEventListener('click', function() {
 
 function renderAll() {
   updateRunUI();
-  bindReportInputs();
   renderIVSites();
   renderMeds();
   renderQuickLogGrid();
