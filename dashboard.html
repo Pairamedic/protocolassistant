@@ -200,9 +200,50 @@
     @media (max-width: 320px) {
       .app-grid { grid-template-columns: 1fr; }
     }
+
+    /* ── Update toast ── */
+    #update-toast {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(120%);
+      background: var(--card); border: 1px solid rgba(94,234,212,.35);
+      border-radius: 14px; padding: 14px 18px;
+      display: flex; align-items: center; gap: 14px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.5);
+      z-index: 9999; min-width: 280px; max-width: calc(100vw - 40px);
+      transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+      will-change: transform;
+    }
+    #update-toast.show { transform: translateX(-50%) translateY(0); }
+    #update-toast-icon { font-size: 22px; flex-shrink: 0; }
+    #update-toast-body { flex: 1; }
+    #update-toast-body strong { display: block; font-size: 14px; color: var(--text); margin-bottom: 2px; }
+    #update-toast-body span { font-size: 12px; color: var(--muted); }
+    #update-toast-btn {
+      background: var(--accent); color: #0b0d10;
+      border: none; border-radius: 8px;
+      padding: 8px 16px; font-size: 13px; font-weight: 700;
+      cursor: pointer; white-space: nowrap; flex-shrink: 0;
+      font-family: inherit;
+    }
+    #update-toast-btn:active { opacity: .8; }
+    #update-toast-dismiss {
+      background: none; border: none; color: var(--muted);
+      font-size: 18px; cursor: pointer; padding: 4px; flex-shrink: 0;
+      line-height: 1;
+    }
   </style>
 </head>
 <body>
+
+  <!-- Update available toast -->
+  <div id="update-toast" role="alert" aria-live="polite">
+    <div id="update-toast-icon">🚑</div>
+    <div id="update-toast-body">
+      <strong>Update Available</strong>
+      <span>A new version of Pairamedic is ready.</span>
+    </div>
+    <button id="update-toast-btn">Update</button>
+    <button id="update-toast-dismiss" aria-label="Dismiss">✕</button>
+  </div>
 
   <!-- Auth loading spinner -->
   <div id="auth-loading">
@@ -404,6 +445,55 @@
     });
 
   </script>
-  <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(function(){});</script>
+  <script>
+  (function(){
+    if (!('serviceWorker' in navigator)) return;
+
+    var toast    = document.getElementById('update-toast');
+    var updateBtn = document.getElementById('update-toast-btn');
+    var dismissBtn = document.getElementById('update-toast-dismiss');
+    var waitingSW = null;
+
+    function showToast() { toast.classList.add('show'); }
+    function hideToast() { toast.classList.remove('show'); }
+
+    function applyUpdate() {
+      if (!waitingSW) { window.location.reload(); return; }
+      // Tell the waiting SW to take control, then reload once it does.
+      navigator.serviceWorker.addEventListener('controllerchange', function() {
+        window.location.reload();
+      });
+      waitingSW.postMessage({ type: 'SKIP_WAITING' });
+    }
+
+    updateBtn.addEventListener('click', applyUpdate);
+    dismissBtn.addEventListener('click', hideToast);
+
+    navigator.serviceWorker.register('./sw.js').then(function(reg) {
+      // A new SW is already waiting (e.g. user had a tab open during a deploy)
+      if (reg.waiting) {
+        waitingSW = reg.waiting;
+        showToast();
+      }
+
+      // A new SW starts installing while the page is open
+      reg.addEventListener('updatefound', function() {
+        var newSW = reg.installing;
+        if (!newSW) return;
+        newSW.addEventListener('statechange', function() {
+          if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+            waitingSW = newSW;
+            showToast();
+          }
+        });
+      });
+    }).catch(function(){});
+
+    // Periodically check for updates (every 60 s while page is visible)
+    setInterval(function() {
+      navigator.serviceWorker.ready.then(function(reg) { reg.update(); });
+    }, 60000);
+  })();
+  </script>
 </body>
 </html>
