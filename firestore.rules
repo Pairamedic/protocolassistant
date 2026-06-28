@@ -2,16 +2,31 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Users can read/write their own profile; admin can read/write all profiles.
+    // ── Role helpers ──
+    // Admins have full management rights (incl. editing other users' access).
+    // Supervisors are a superset-of-crew role with elevated app access; every
+    // admin is also a supervisor.
+    function isAdmin() {
+      return request.auth != null &&
+             request.auth.token.email in [
+               'eliasacaldwellnrp@gmail.com'
+             ];
+    }
+    function isSupervisor() {
+      return request.auth != null &&
+             request.auth.token.email in [
+               'eliasacaldwellnrp@gmail.com',
+               'smcdonel@easimedics.com'
+             ];
+    }
+
+    // Users can read/write their own profile; admins can read/write all
+    // profiles (this is what powers the User Access Management menu).
     // This covers both the top-level doc (email, uid, lastSeen, apps) and
     // any subcollections (e.g. pearls).
     match /users/{userId} {
-      allow read: if request.auth != null &&
-                     (request.auth.uid == userId ||
-                      request.auth.token.email == 'eliasacaldwellnrp@gmail.com');
-      allow write: if request.auth != null &&
-                      (request.auth.uid == userId ||
-                       request.auth.token.email == 'eliasacaldwellnrp@gmail.com');
+      allow read:  if request.auth != null && (request.auth.uid == userId || isAdmin());
+      allow write: if request.auth != null && (request.auth.uid == userId || isAdmin());
     }
 
     // Users can read/write their own pearls subcollection
@@ -23,27 +38,32 @@ service cloud.firestore {
     // only the admin account can write
     match /service_data/{docId} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null &&
-                      request.auth.token.email == 'eliasacaldwellnrp@gmail.com';
+      allow write: if isAdmin();
     }
 
     // ToS acceptance log — user can create/update their own record;
     // only admin can read the full collection
     match /tos_acceptances/{uid} {
       allow create, update: if request.auth != null && request.auth.uid == uid;
-      allow read: if request.auth != null &&
-                     request.auth.token.email == 'eliasacaldwellnrp@gmail.com';
+      allow read: if isAdmin();
     }
 
-    // Shift rosters — any authenticated user can read/write (supervisors share shift data)
+    // Shift rosters — any authenticated user can read/write (crews share shift data).
+    // Both the legacy top-level path and the per-service nested path are covered.
     match /shift_rosters/{date} {
       allow read, write: if request.auth != null;
     }
+    match /services/{serviceId}/shift_rosters/{date} {
+      allow read, write: if request.auth != null;
+    }
 
-    // Custom employees — admin-only (only the supervisor account can manage)
+    // Custom employees — managed from Supervisor Tools, so supervisors (and admins) may manage.
+    // Both the legacy top-level path and the per-service nested path are covered.
     match /custom_employees/{empId} {
-      allow read, write: if request.auth != null &&
-                            request.auth.token.email == 'eliasacaldwellnrp@gmail.com';
+      allow read, write: if isSupervisor();
+    }
+    match /services/{serviceId}/custom_employees/{empId} {
+      allow read, write: if isSupervisor();
     }
   }
 }
