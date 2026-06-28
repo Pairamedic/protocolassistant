@@ -1509,10 +1509,17 @@
           <span class="dash-quick-sub">Administrative item</span>
         </button>
       </div>
-      <button class="dash-generate-btn" id="dash-btn-report-tab" style="margin-bottom:2px">
+      <button class="dash-generate-btn" id="dash-btn-report-tab" style="margin-bottom:8px">
         <div>
           <div class="dash-generate-label">📝 Reports</div>
           <div class="dash-generate-sub">Generate shift report, wrap-up &amp; history</div>
+        </div>
+        <span class="dash-generate-arrow">›</span>
+      </button>
+      <button class="dash-generate-btn" id="dash-btn-stock-tab" style="margin-bottom:2px">
+        <div>
+          <div class="dash-generate-label">📦 Stock</div>
+          <div class="dash-generate-sub">ALS supply inventory &amp; out-of-stock tracking</div>
         </div>
         <span class="dash-generate-arrow">›</span>
       </button>
@@ -5837,6 +5844,7 @@ function initDashboard(){
   updateDashboard();
 
   document.getElementById('dash-btn-report-tab')?.addEventListener('click', () => switchTab('report'));
+  document.getElementById('dash-btn-stock-tab')?.addEventListener('click', () => switchTab('stock'));
 
   // Auto-save every 60 seconds
   setInterval(autoSaveRptData, 60000);
