@@ -742,14 +742,26 @@
       <div class="narr-sec-hd" style="color:rgba(251,146,60,1)">🏥 Transport &amp; Destination</div>
       <div class="narr-sec-body">
         <div class="narr-field">
-          <label class="narr-lbl">Destination Facility</label>
-          <div class="narr-combo-wrap" id="combo-destination">
-            <div class="narr-combo-input-row">
-              <input type="text" class="narr-combo-input" id="nf-destination-input" placeholder="Search hospital…" autocomplete="off">
-            </div>
-            <div class="narr-combo-drop" id="combo-destination-drop"></div>
-            <div class="narr-tag-row" id="nf-destination-tags"></div>
-            <input type="hidden" id="nf-destination" value="">
+          <label class="narr-lbl">Destination Type</label>
+          <input type="hidden" id="nf-destination" value="">
+          <div class="opt-group" id="nf-destination-grp">
+            <button type="button" class="opt-btn" data-val="the Emergency Room">ER</button>
+            <button type="button" class="opt-btn" data-val="the Trauma Center">Trauma Center</button>
+            <button type="button" class="opt-btn" data-val="the Stroke Center">Stroke Center</button>
+            <button type="button" class="opt-btn" data-val="the Cardiac Cath Lab">Cath Lab</button>
+            <button type="button" class="opt-btn" data-val="Labor and Delivery">L&amp;D</button>
+            <button type="button" class="opt-btn" data-val="the Burn Center">Burn Center</button>
+            <button type="button" class="opt-btn" data-val="the Pediatric Emergency Room">Pediatric ER</button>
+            <button type="button" class="opt-btn" data-val="Urgent Care">Urgent Care</button>
+            <button type="button" class="opt-btn" data-val="the Patient's Residence">Residence</button>
+            <button type="button" class="opt-btn" data-val="the Nursing Home / Skilled Nursing Facility">Nursing Home</button>
+            <button type="button" class="opt-btn" data-val="the Assisted Living Facility">Assisted Living</button>
+            <button type="button" class="opt-btn" data-val="the Rehabilitation Facility">Rehab</button>
+            <button type="button" class="opt-btn" data-val="the Dialysis Center">Dialysis Center</button>
+            <button type="button" class="opt-btn" data-val="the Psychiatric Facility">Psych Facility</button>
+            <button type="button" class="opt-btn" data-val="the Correctional Facility">Correctional Facility</button>
+            <button type="button" class="opt-btn" data-val="the Physician's Office">Physician's Office</button>
+            <button type="button" class="opt-btn" data-val="the Receiving EMS Agency">ALS Intercept</button>
           </div>
         </div>
         <div class="narr-row">
@@ -977,45 +989,6 @@ function showToast(msg) {
    PCR NARRATIVE BUILDER — data + logic
    ══════════════════════════════════════════════════════ */
 
-const NARR_HOSPITALS = [
-  {n:'Jefferson Regional Medical Center',c:'Pine Bluff, AR',d:0},
-  {n:'National Park Medical Center',c:'Hot Springs, AR',d:5},
-  {n:'CHI St. Vincent – Pine Bluff',c:'Pine Bluff, AR',d:6},
-  {n:'Southeast Arkansas Medical Center',c:'Pine Bluff, AR',d:7},
-  {n:'Chicot Memorial Medical Center',c:'Lake Village, AR',d:38},
-  {n:'UAMS Medical Center',c:'Little Rock, AR',d:42},
-  {n:'CHI St. Vincent Infirmary',c:'Little Rock, AR',d:43},
-  {n:'Baptist Health Medical Center – Little Rock',c:'Little Rock, AR',d:44},
-  {n:'Arkansas Children\'s Hospital',c:'Little Rock, AR',d:44},
-  {n:'Baptist Health Medical Center – Stuttgart',c:'Stuttgart, AR',d:45},
-  {n:'Baptist Health Medical Center – North Little Rock',c:'North Little Rock, AR',d:48},
-  {n:'Desha County Hospital',c:'McGehee, AR',d:50},
-  {n:'CHI St. Vincent Doctors Hospital',c:'Sherwood, AR',d:52},
-  {n:'Drew Memorial Health System',c:'Monticello, AR',d:55},
-  {n:'Saline Memorial Hospital',c:'Benton, AR',d:58},
-  {n:'Ouachita County Medical Center',c:'Camden, AR',d:60},
-  {n:'Ashley County Medical Center',c:'Crossett, AR',d:72},
-  {n:'National Park Medical Center',c:'Hot Springs, AR',d:76},
-  {n:'CHI St. Vincent – Hot Springs',c:'Hot Springs, AR',d:78},
-  {n:'Conway Regional Medical Center',c:'Conway, AR',d:84},
-  {n:'CHI St. Vincent – Morrilton',c:'Morrilton, AR',d:92},
-  {n:'White County Medical Center',c:'Searcy, AR',d:95},
-  {n:'Delta Regional Medical Center',c:'Greenville, MS',d:98},
-  {n:'St. Bernards Medical Center',c:'Jonesboro, AR',d:108},
-  {n:'NEA Baptist Memorial Hospital',c:'Jonesboro, AR',d:110},
-  {n:'Baptist Memorial Hospital – Memphis',c:'Memphis, TN',d:128},
-  {n:'Regional One Health',c:'Memphis, TN',d:130},
-  {n:'Methodist Le Bonheur Healthcare',c:'Memphis, TN',d:132},
-  {n:'Willis-Knighton Medical Center',c:'Shreveport, LA',d:133},
-  {n:'LSU Health Shreveport',c:'Shreveport, LA',d:135},
-  {n:'Ochsner LSU Health – Shreveport',c:'Shreveport, LA',d:137},
-  {n:'Wadley Regional Medical Center',c:'Texarkana, TX',d:145},
-  {n:'Sparks Regional Medical Center',c:'Fort Smith, AR',d:158},
-  {n:'Mercy Hospital Fort Smith',c:'Fort Smith, AR',d:160},
-  {n:'CHRISTUS Mother Frances Hospital',c:'Tyler, TX',d:188},
-  {n:'Washington Regional Medical Center',c:'Fayetteville, AR',d:192},
-  {n:'UAMS Northwest Regional Campus',c:'Fayetteville, AR',d:193},
-];
 
 // EASI Protocols 2026 — administered medications with default doses
 /** Parse a med's default dose string into {amount, route} for pre-filling */
@@ -1561,7 +1534,7 @@ function buildNarrativePersonal(){
     }
     finalLine=`PATIENT REFUSAL - ${rParts.join('. ')}.`;
   } else {
-    const dest=narrDestination||narrVal('nf-destination-input')||'';
+    const dest=narrDestination;
     const method=narrVal('nf-arrival-method'), area=narrVal('nf-dest-area');
     const careOfName=narrVal('nf-care-of-name');
     const careOfCredEl=document.getElementById('nf-care-of-cred');
@@ -1658,7 +1631,7 @@ function _nd(){
   const txNotes      = narrVal('nf-tx-notes');
   const responseText = narrVal('nf-response-text');
 
-  const dest      = narrDestination || narrVal('nf-destination-input') || '';
+  const dest      = narrDestination;
   const method    = narrVal('nf-arrival-method');
   const area      = narrVal('nf-dest-area');
   const careOfName = narrVal('nf-care-of-name');
@@ -1994,7 +1967,7 @@ function narrClear(){
   renderTags('nf-pmh-tags', narrSelectedPMH, null);
   renderHomeMedTags(); renderTxMedTags(); renderIVTags();
   document.getElementById('nf-complaint-tags').innerHTML='';
-  document.getElementById('nf-destination-tags').innerHTML='';
+  document.getElementById('nf-destination-grp')?.querySelectorAll('.opt-btn').forEach(b=>b.classList.remove('sel'));
   document.getElementById('narr-trauma-findings').innerHTML='';
   buildNarrative();
 }
@@ -2246,17 +2219,19 @@ function initNarrative(){
     document.getElementById('narr-o2-confirm-row').style.display='none';
   });
 
-  // Destination combo
-  initCombo({
-    inputId:'nf-destination-input', dropId:'combo-destination-drop',
-    items: NARR_HOSPITALS.sort((a,b)=>a.d-b.d).map(h=>({label:h.n, sublabel:`${h.c} · ~${h.d} mi`, value:h.n})),
-    multi: false,
-    onSelect: item=>{
-      narrDestination=item.value;
-      document.getElementById('nf-destination').value=item.value;
-      document.getElementById('nf-destination-tags').innerHTML=`<div class="narr-tag"><span>${item.label}</span><button type="button" onclick="narrDestination='';document.getElementById('nf-destination-input').value='';document.getElementById('nf-destination-tags').innerHTML='';buildNarrative()">✕</button></div>`;
-    },
-  });
+  // Destination type buttons
+  (function(){
+    var grp = document.getElementById('nf-destination-grp');
+    if(!grp) return;
+    grp.querySelectorAll('.opt-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        grp.querySelectorAll('.opt-btn').forEach(function(b){ b.classList.remove('sel'); });
+        btn.classList.add('sel');
+        narrDestination = btn.dataset.val;
+        buildNarrative();
+      });
+    });
+  })();
 
   // Monitoring + movement chips (airway now merged into narr-mon-chips)
   initMonChips('narr-mon-chips');
