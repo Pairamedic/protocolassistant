@@ -1441,7 +1441,7 @@
       <button class="tab-btn" data-tab="directory">📞 Directory</button>
       <button class="tab-btn" data-tab="profiles">👤 Profiles</button>
       <button class="tab-btn" data-tab="report">📝 Report</button>
-      <button class="tab-btn" data-tab="stock">📦 Stock</button>
+      <button class="tab-btn" data-tab="stock">📦 Stock List</button>
     </div>
   </div>
 
@@ -1518,8 +1518,8 @@
       </button>
       <button class="dash-generate-btn" id="dash-btn-stock-tab" style="margin-bottom:2px">
         <div>
-          <div class="dash-generate-label">📦 Stock</div>
-          <div class="dash-generate-sub">ALS supply inventory &amp; out-of-stock tracking</div>
+          <div class="dash-generate-label">📦 Stock List</div>
+          <div class="dash-generate-sub">Supply inventory &amp; out-of-stock tracking</div>
         </div>
         <span class="dash-generate-arrow">›</span>
       </button>
@@ -1854,7 +1854,7 @@ Shift Start/End    0600
   <button class="mobile-nav-btn" data-tab="directory"><span class="nav-pill"><span class="nav-icon">📞</span></span><span class="nav-label">Directory</span></button>
   <button class="mobile-nav-btn" data-tab="profiles"><span class="nav-pill"><span class="nav-icon">👤</span></span><span class="nav-label">Profiles</span></button>
   <button class="mobile-nav-btn" data-tab="report"><span class="nav-pill"><span class="nav-icon">📝</span></span><span class="nav-label">Report</span></button>
-  <button class="mobile-nav-btn" data-tab="stock"><span class="nav-pill"><span class="nav-icon">📦</span></span><span class="nav-label">Stock</span></button>
+  <button class="mobile-nav-btn" data-tab="stock"><span class="nav-pill"><span class="nav-icon">📦</span></span><span class="nav-label">Stock List</span></button>
 </nav>
 
 <!-- Form Add/Edit Modal -->
@@ -6759,31 +6759,17 @@ document.addEventListener('click', function(e) {
 const STOCK_KEY = 'pat-stock-v1';
 
 const STOCK_SECTIONS = [
-  { title: 'Soft Goods & Wound Care', items: ['4×4 Pads','ABD Pads','Roller Gauze','Triangular Bandages','Tape 1"','Tape 2"','Commercial Tourniquet','OB Kit'] },
-  { title: 'Airway Supplies', items: ['OPA Set (Adult / Child / Infant)','NPA Set','Adult BVM (>1000mL)','Pedi BVM (450–750mL)','Infant BVM (150–300mL)','Magill Forceps — Adult','Magill Forceps — Pedi','Nebulizer','Sterile Saline (for Nebulizer)','CPAP'] },
-  { title: 'Suction Supplies', items: ['Portable Suction Unit','On-Board Suction Unit','Suction Tubing','Catheter 8fr / 10fr','Catheter 12fr','Catheter 14fr / 18fr','Rigid Suction Tip'] },
-  { title: 'Supraglottic / Adv. Airway', items: ['Air-Q Size 0','Air-Q Size 1','Air-Q Size 1.5','Air-Q Size 2','Air-Q Size 2.5','Air-Q Size 3.5','Air-Q Size 4.5','Tube Holder','Air-Q Stylet','KY Jelly'] },
-  { title: 'O₂ Supplies', items: ['Main O₂ Cylinder','O₂ Regulator / Flowmeter','Nasal Cannula — Adult','Nasal Cannula — Pedi','NRB Mask — Adult','NRB Mask — Pedi','NRB Mask — Infant'] },
-  { title: 'Portable O₂', items: ['Portable O₂ Cylinder','O₂ Regulator','Nasal Cannula — Adult','NRB Mask — Adult'] },
-  { title: 'Cardiac Monitor', items: ['Monitor Unit','12-Lead Electrodes','Defib Pads — Adult','Defib Pads — Pedi','SpO₂ Probe — Adult','SpO₂ Probe — Pedi','ETCO₂ Cable + Filterline','NC EtCO₂','4-Lead Cable','12-Lead Cable','Electrodes — Adult (Packs)','Electrodes — Pedi','EKG Paper Roll','BP Cuff — Lg. Adult','BP Cuff — Adult','BP Cuff — Child','BP Cuff — Infant','BP Cuff — Thigh (Black)','Stethoscope'] },
+  { title: 'Medications', items: ['Albuterol','Atrovent','Atropine','Epi 1:1','Epi 1:10','Lidocaine','Lidocaine Drip','Dopamine Drip','Narcan','Magnesium','Calcium','Hydralazine','Sodium Bicarb','D10','Lasix','Adenosine','Zofran','Labetalol','Thiamine','Nitro','Benadryl','Aspirin Bottle','Verapamil','Oral Glucose','Solu-Medrol','Bacteriostatic Water','Amiodarone','Glucagon','Diltiazem','TXA'] },
+  { title: 'Airway Supplies', items: ['OPA Set (Adult / Child / Infant)','NPA Set','Adult BVM (>1000mL)','Pedi BVM (450–750mL)','Infant BVM (150–300mL)','Magill Forceps — Adult','Magill Forceps — Pedi','Nebulizer','Sterile Saline (for Nebulizer)','CPAP','Air-Q Size 0','Air-Q Size 1','Air-Q Size 1.5','Air-Q Size 2','Air-Q Size 2.5','Air-Q Size 3.5','Air-Q Size 4.5','Tube Holder','Air-Q Stylet','KY Jelly','Laryngoscope Handle','Mac 2 Blade','Mac 3 Blade','Mac 4 Blade','Miller 1 Blade','Miller 2 Blade','Miller 3 Blade','Miller 4 Blade','6.0 ETT','7.0 ETT','8.0 ETT','9.0 ETT','Suction Tubing','Catheter 8fr / 10fr','Catheter 12fr','Catheter 14fr / 18fr','Rigid Suction Tip'] },
+  { title: 'O₂ Supplies', items: ['Main O₂ Cylinder','Portable O₂ Cylinder','O₂ Regulator / Flowmeter','Nasal Cannula — Adult','Nasal Cannula — Pedi','NRB Mask — Adult','NRB Mask — Pedi','NRB Mask — Infant'] },
+  { title: 'IV & Medication Supplies', items: ['NS 1000mL','LR 1000mL','10gtt Set','Saline Lock','Saline Flush','14G IV Cath','16G IV Cath','18G IV Cath','20G IV Cath','22G IV Cath','24G IV Cath','Tourniquet','Alcohol Preps','Non-Sterile 4×4','1" Clear Tape','18g Needles','20g Needles','21g Needles','20mL Syringe','10mL Syringe','3mL Syringe','1mL Syringe','60mL Syringe','MAD Device (Mucosal Atomizer)','Roll of Med Labels'] },
+  { title: 'IO Supplies', items: ['IO Drill (EZ-IO)','IO Needle 15mm (Pink)','IO Needle 25mm (Blue)','IO Needle 45mm (Yellow)','IO Stabilizer','Extension Set'] },
+  { title: 'Trauma Supplies', items: ['Trauma Dressing','Occlusive Dressing','Vaseline Gauze','Hemostatic Agent','Commercial Tourniquet (CAT)','4×4 Pads','ABD Pads','Roller Gauze','Triangular Bandages','Tape 1"','Tape 2"','Kling','Hemostats','OB Kit','Trauma Bands','Stroke Bands'] },
+  { title: 'Cardiac & Monitor Supplies', items: ['12-Lead Electrodes','Defib Pads — Adult','Defib Pads — Pedi','SpO₂ Probe — Adult','SpO₂ Probe — Pedi','ETCO₂ Cable + Filterline','NC EtCO₂','Electrodes — Adult (Packs)','Electrodes — Pedi','EKG Paper Roll','BP Cuff — Lg. Adult','BP Cuff — Adult','BP Cuff — Child','BP Cuff — Infant','BP Cuff — Thigh (Black)','Stethoscope'] },
   { title: 'Assessment & Monitoring', items: ['Thermometer','Glucometer','Glucometer Strips (Bottle)','Lancets','Pen Light'] },
-  { title: 'IV Supplies', items: ['NS 1000mL','LR 1000mL','10gtt Set','Saline Lock','Saline Flush','14G IV Cath','16G IV Cath','18G IV Cath','20G IV Cath','22G IV Cath','24G IV Cath','Tourniquet','Alcohol Preps','Non-Sterile 4×4','1" Clear Tape'] },
-  { title: 'IO Bag', items: ['IO Drill (EZ-IO)','IO Needle 15mm (Pink)','IO Needle 25mm (Blue)','IO Needle 45mm (Yellow)','IO Stabilizer','Extension Set','NS 1000mL (IO Flush)','60mL Syringe'] },
-  { title: 'BSI Supplies', items: ['Exam Gloves (1 Box)','Isolation Kits','N95 / N100 Respirator','Eye Protection (Goggles)','Antiseptic Hand Cleaner','Biohazard Bags'] },
-  { title: 'Immobilization', items: ['KED or Equivalent','Spine Board + Straps','Pediatric Restraint System','Head Immobilization Device','Cervical Collar — Adult','Cervical Collar — Pediatric','Cervical Collar — Infant'] },
-  { title: 'Splints & Transport', items: ['Padded Extremity Splints (set)','Traction Splint','Elevating Stretcher','Stair Chair / Scoop Stretcher'] },
-  { title: 'Trauma', items: ['Trauma Dressing','Occlusive Dressing','Vaseline Gauze','Hemostatic Agent','Commercial Tourniquet (CAT)','TXA'] },
-  { title: 'Miscellaneous', items: ['Fire Extinguisher','HAZ-MAT Reference Guide','Reflective Safety Wear','Flashlight + Batteries','Blankets','Sheets','Towels','Emesis Basin','Sharps Container','EMT Shears','Hemostat','Lubricating Jelly','Window Punch','Disinfectant Solution','Betadine Solution','Pediatric Drug Reference','Sterile Water','Car Seat or Pedi-Mate'] },
-  { title: 'Medication Supplies', items: ['18g Needles','20g Needles','21g Needles','20mL Syringe','10mL Syringe','3mL Syringe','1mL Syringe','60mL Syringe','MAD Device (Mucosal Atomizer)','Roll of Med Labels','Tape'] },
-  { title: 'Medications', items: ['Albuterol','Atrovent','Atropine','Epi 1:1','Epi 1:10','Lidocaine','Lidocaine Drip','Dopamine Drip','Narcan','Magnesium','Calcium','Hydralazine','Sodium Bicarb','D10','Lasix','Adenosine','Zofran','Labetalol','Thiamine','Nitro','Benadryl','Aspirin Bottle','Verapamil','Oral Glucose','Solu-Medrol','Bacteriostatic Water','Amiodarone','Glucagon','Diltiazem'] },
-  { title: 'Thomas Pack — IV Pouch 1', items: ['NS 1000mL','10gtt Set','Tourniquet','Saline Lock','Saline Flush','14G IV Cath','16G IV Cath','18G IV Cath','20G IV Cath','22G IV Cath','24G IV Cath','Alcohol Preps','Non-Sterile 4×4','1" Clear Tape'] },
-  { title: 'Thomas Pack — IV Pouch 2', items: ['NS 1000mL','10gtt Set','Tourniquet','Saline Lock','Saline Flush','14G IV Cath','16G IV Cath','18G IV Cath','20G IV Cath','22G IV Cath','24G IV Cath','Alcohol Preps','Non-Sterile 4×4','1" Clear Tape'] },
-  { title: 'Thomas Pack — Center Pouch', items: ['Nitro','Epi 1:10','Atropine','D10 w/ 10gtt Set','Amiodarone','Portable Sharps Container'] },
-  { title: 'Thomas Pack — Top Outside Pocket', items: ['Trauma Dressing','Adult BP Cuff','Stethoscope'] },
-  { title: 'Thomas Pack — Inside Upper Pouch', items: ['Adult BVM','Adult Tube Turner','10mL Syringe','Magill Forceps Adult','Magill Forceps Pediatric','6.0 ETT','7.0 ETT','8.0 ETT','9.0 ETT'] },
-  { title: 'Thomas Pack — Right Outside Pocket', items: ['Laryngoscope Handle','Mac 2 Blade','Mac 3 Blade','Mac 4 Blade','Miller 1 Blade','Miller 2 Blade','Miller 3 Blade','Miller 4 Blade'] },
-  { title: 'Thomas Pack — Front Outside Pocket', items: ['Non-Sterile 4×4','2" Silk Tape','ABD Pads','Vaseline Gauze','Sheers','Kling','Hemostats','CAT Tourniquet'] },
-  { title: 'Time Critical Dx Bands', items: ['Trauma Bands','Stroke Bands'] },
+  { title: 'Immobilization & Splints', items: ['KED or Equivalent','Spine Board + Straps','Pediatric Restraint System','Head Immobilization Device','Cervical Collar — Adult','Cervical Collar — Pediatric','Cervical Collar — Infant','Padded Extremity Splints (set)','Traction Splint'] },
+  { title: 'BSI / PPE', items: ['Exam Gloves (1 Box)','Isolation Kits','N95 / N100 Respirator','Eye Protection (Goggles)','Antiseptic Hand Cleaner','Biohazard Bags'] },
+  { title: 'General Supplies', items: ['Blankets','Sheets','Towels','Emesis Basin','Sharps Container','EMT Shears','Hemostat','Lubricating Jelly','Disinfectant Solution','Betadine Solution','Sterile Water','Fire Extinguisher','HAZ-MAT Reference Guide','Reflective Safety Wear','Flashlight + Batteries','Window Punch','Pediatric Drug Reference','Car Seat or Pedi-Mate'] },
 ];
 
 let stockRendered = false;
