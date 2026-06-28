@@ -1335,6 +1335,22 @@
     .opt-btn { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 500; padding: 7px 12px; line-height: 1.3; transition: background .15s, border-color .15s, color .15s; -webkit-tap-highlight-color: transparent; }
     .opt-btn.sel { background: rgba(94,234,212,.15); border-color: rgba(94,234,212,.4); color: var(--accent); }
 
+    /* ── Stock Tab ── */
+    .stock-topbar { display:flex; align-items:center; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+    .stock-meta { font-size:11px; color:var(--muted); flex:1; min-width:0; }
+    .stock-action-btn { background:rgba(255,255,255,.07); border:1px solid var(--border); border-radius:8px; color:var(--muted); font-size:12px; font-weight:600; padding:7px 13px; cursor:pointer; font-family:inherit; white-space:nowrap; }
+    .stock-action-btn:active { background:rgba(255,255,255,.12); }
+    .stock-item-row { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid rgba(255,255,255,.04); }
+    .stock-item-row:last-child { border-bottom:none; }
+    .stock-item-label { flex:1; font-size:14px; color:var(--text); line-height:1.3; }
+    .stock-item-label.oos { color:var(--muted); text-decoration:line-through; }
+    .stock-qty-inp { width:68px; background:var(--input-bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:15px; text-align:center; padding:7px 6px; font-family:inherit; -moz-appearance:textfield; }
+    .stock-qty-inp::-webkit-outer-spin-button, .stock-qty-inp::-webkit-inner-spin-button { -webkit-appearance:none; }
+    .stock-qty-inp:focus { outline:none; border-color:var(--accent); }
+    .stock-qty-inp:disabled { opacity:.35; }
+    .stock-oos-btn { background:rgba(255,255,255,.06); border:1px solid var(--border); border-radius:8px; color:var(--muted); font-size:11px; font-weight:700; padding:7px 11px; cursor:pointer; white-space:nowrap; font-family:inherit; transition:all .15s; letter-spacing:.3px; }
+    .stock-oos-btn.active { background:rgba(248,113,113,.15); border-color:rgba(248,113,113,.5); color:#f87171; }
+    .stock-oos-badge { background:rgba(248,113,113,.15); color:#f87171; border-radius:10px; padding:1px 8px; font-size:11px; font-weight:700; display:inline-block; flex-shrink:0; }
   </style>
 </head>
 <body>
@@ -1425,6 +1441,7 @@
       <button class="tab-btn" data-tab="directory">📞 Directory</button>
       <button class="tab-btn" data-tab="profiles">👤 Profiles</button>
       <button class="tab-btn" data-tab="report">📝 Report</button>
+      <button class="tab-btn" data-tab="stock">📦 Stock</button>
     </div>
   </div>
 
@@ -1762,6 +1779,15 @@
       <div id="forms-list"></div>
     </div>
 
+    <div id="tab-stock" class="tab-panel">
+      <div class="stock-topbar">
+        <span class="stock-meta" id="stock-meta">No stock data recorded yet.</span>
+        <button class="stock-action-btn" onclick="clearStock()">Clear All</button>
+        <button class="stock-action-btn" onclick="printStock()">Print</button>
+      </div>
+      <div id="stock-sections"></div>
+    </div>
+
   </div>
 </div>
 
@@ -1821,6 +1847,7 @@ Shift Start/End    0600
   <button class="mobile-nav-btn" data-tab="directory"><span class="nav-pill"><span class="nav-icon">📞</span></span><span class="nav-label">Directory</span></button>
   <button class="mobile-nav-btn" data-tab="profiles"><span class="nav-pill"><span class="nav-icon">👤</span></span><span class="nav-label">Profiles</span></button>
   <button class="mobile-nav-btn" data-tab="report"><span class="nav-pill"><span class="nav-icon">📝</span></span><span class="nav-label">Report</span></button>
+  <button class="mobile-nav-btn" data-tab="stock"><span class="nav-pill"><span class="nav-icon">📦</span></span><span class="nav-label">Stock</span></button>
 </nav>
 
 <!-- Form Add/Edit Modal -->
@@ -3249,6 +3276,7 @@ function switchTab(tabName) {
   document.querySelectorAll('[data-tab="' + tabName + '"]').forEach(b => b.classList.add('active'));
   const panel = document.getElementById('tab-' + tabName);
   if (panel) panel.classList.add('active');
+  if (tabName === 'stock' && !stockRendered) renderStock();
   closeActiveAC();
 }
 
@@ -6704,6 +6732,186 @@ document.addEventListener('click', function(e) {
   prev.dispatchEvent(new Event('change'));
   prev.dispatchEvent(new Event('input'));
 });
+
+// ── STOCK TAB ──────────────────────────────────────────────────────────────
+
+const STOCK_KEY = 'pat-stock-v1';
+
+const STOCK_SECTIONS = [
+  { title: 'Soft Goods & Wound Care', items: ['4×4 Pads','ABD Pads','Roller Gauze','Triangular Bandages','Tape 1"','Tape 2"','Commercial Tourniquet','OB Kit'] },
+  { title: 'Airway Supplies', items: ['OPA Set (Adult / Child / Infant)','NPA Set','Adult BVM (>1000mL)','Pedi BVM (450–750mL)','Infant BVM (150–300mL)','Magill Forceps — Adult','Magill Forceps — Pedi','Nebulizer','Sterile Saline (for Nebulizer)','CPAP'] },
+  { title: 'Suction Supplies', items: ['Portable Suction Unit','On-Board Suction Unit','Suction Tubing','Catheter 8fr / 10fr','Catheter 12fr','Catheter 14fr / 18fr','Rigid Suction Tip'] },
+  { title: 'Supraglottic / Adv. Airway', items: ['Air-Q Size 0','Air-Q Size 1','Air-Q Size 1.5','Air-Q Size 2','Air-Q Size 2.5','Air-Q Size 3.5','Air-Q Size 4.5','Tube Holder','Air-Q Stylet','KY Jelly'] },
+  { title: 'O₂ Supplies', items: ['Main O₂ Cylinder','O₂ Regulator / Flowmeter','Nasal Cannula — Adult','Nasal Cannula — Pedi','NRB Mask — Adult','NRB Mask — Pedi','NRB Mask — Infant'] },
+  { title: 'Portable O₂', items: ['Portable O₂ Cylinder','O₂ Regulator','Nasal Cannula — Adult','NRB Mask — Adult'] },
+  { title: 'Cardiac Monitor', items: ['Monitor Unit','12-Lead Electrodes','Defib Pads — Adult','Defib Pads — Pedi','SpO₂ Probe — Adult','SpO₂ Probe — Pedi','ETCO₂ Cable + Filterline','NC EtCO₂','4-Lead Cable','12-Lead Cable','Electrodes — Adult (Packs)','Electrodes — Pedi','EKG Paper Roll','BP Cuff — Lg. Adult','BP Cuff — Adult','BP Cuff — Child','BP Cuff — Infant','BP Cuff — Thigh (Black)','Stethoscope'] },
+  { title: 'Assessment & Monitoring', items: ['Thermometer','Glucometer','Glucometer Strips (Bottle)','Lancets','Pen Light'] },
+  { title: 'IV Supplies', items: ['NS 1000mL','LR 1000mL','10gtt Set','Saline Lock','Saline Flush','14G IV Cath','16G IV Cath','18G IV Cath','20G IV Cath','22G IV Cath','24G IV Cath','Tourniquet','Alcohol Preps','Non-Sterile 4×4','1" Clear Tape'] },
+  { title: 'IO Bag', items: ['IO Drill (EZ-IO)','IO Needle 15mm (Pink)','IO Needle 25mm (Blue)','IO Needle 45mm (Yellow)','IO Stabilizer','Extension Set','NS 1000mL (IO Flush)','60mL Syringe'] },
+  { title: 'BSI Supplies', items: ['Exam Gloves (1 Box)','Isolation Kits','N95 / N100 Respirator','Eye Protection (Goggles)','Antiseptic Hand Cleaner','Biohazard Bags'] },
+  { title: 'Immobilization', items: ['KED or Equivalent','Spine Board + Straps','Pediatric Restraint System','Head Immobilization Device','Cervical Collar — Adult','Cervical Collar — Pediatric','Cervical Collar — Infant'] },
+  { title: 'Splints & Transport', items: ['Padded Extremity Splints (set)','Traction Splint','Elevating Stretcher','Stair Chair / Scoop Stretcher'] },
+  { title: 'Trauma', items: ['Trauma Dressing','Occlusive Dressing','Vaseline Gauze','Hemostatic Agent','Commercial Tourniquet (CAT)','TXA'] },
+  { title: 'Miscellaneous', items: ['Fire Extinguisher','HAZ-MAT Reference Guide','Reflective Safety Wear','Flashlight + Batteries','Blankets','Sheets','Towels','Emesis Basin','Sharps Container','EMT Shears','Hemostat','Lubricating Jelly','Window Punch','Disinfectant Solution','Betadine Solution','Pediatric Drug Reference','Sterile Water','Car Seat or Pedi-Mate'] },
+  { title: 'Medication Supplies', items: ['18g Needles','20g Needles','21g Needles','20mL Syringe','10mL Syringe','3mL Syringe','1mL Syringe','60mL Syringe','MAD Device (Mucosal Atomizer)','Roll of Med Labels','Tape'] },
+  { title: 'Medications', items: ['Albuterol','Atrovent','Atropine','Epi 1:1','Epi 1:10','Lidocaine','Lidocaine Drip','Dopamine Drip','Narcan','Magnesium','Calcium','Hydralazine','Sodium Bicarb','D10','Lasix','Adenosine','Zofran','Labetalol','Thiamine','Nitro','Benadryl','Aspirin Bottle','Verapamil','Oral Glucose','Solu-Medrol','Bacteriostatic Water','Amiodarone','Glucagon','Diltiazem'] },
+  { title: 'Thomas Pack — IV Pouch 1', items: ['NS 1000mL','10gtt Set','Tourniquet','Saline Lock','Saline Flush','14G IV Cath','16G IV Cath','18G IV Cath','20G IV Cath','22G IV Cath','24G IV Cath','Alcohol Preps','Non-Sterile 4×4','1" Clear Tape'] },
+  { title: 'Thomas Pack — IV Pouch 2', items: ['NS 1000mL','10gtt Set','Tourniquet','Saline Lock','Saline Flush','14G IV Cath','16G IV Cath','18G IV Cath','20G IV Cath','22G IV Cath','24G IV Cath','Alcohol Preps','Non-Sterile 4×4','1" Clear Tape'] },
+  { title: 'Thomas Pack — Center Pouch', items: ['Nitro','Epi 1:10','Atropine','D10 w/ 10gtt Set','Amiodarone','Portable Sharps Container'] },
+  { title: 'Thomas Pack — Top Outside Pocket', items: ['Trauma Dressing','Adult BP Cuff','Stethoscope'] },
+  { title: 'Thomas Pack — Inside Upper Pouch', items: ['Adult BVM','Adult Tube Turner','10mL Syringe','Magill Forceps Adult','Magill Forceps Pediatric','6.0 ETT','7.0 ETT','8.0 ETT','9.0 ETT'] },
+  { title: 'Thomas Pack — Right Outside Pocket', items: ['Laryngoscope Handle','Mac 2 Blade','Mac 3 Blade','Mac 4 Blade','Miller 1 Blade','Miller 2 Blade','Miller 3 Blade','Miller 4 Blade'] },
+  { title: 'Thomas Pack — Front Outside Pocket', items: ['Non-Sterile 4×4','2" Silk Tape','ABD Pads','Vaseline Gauze','Sheers','Kling','Hemostats','CAT Tourniquet'] },
+  { title: 'Time Critical Dx Bands', items: ['Trauma Bands','Stroke Bands'] },
+];
+
+let stockRendered = false;
+
+function loadStock() {
+  try { return JSON.parse(localStorage.getItem(STOCK_KEY) || '{}'); } catch(e) { return {}; }
+}
+function saveStock(data) {
+  localStorage.setItem(STOCK_KEY, JSON.stringify(data));
+}
+
+function stockItemKey(section, label) { return section + '\x00' + label; }
+
+function updateStockMeta(data) {
+  const items = data.items || {};
+  const oosCount = Object.values(items).filter(v => v.oos).length;
+  const ts = data.timestamp ? new Date(data.timestamp).toLocaleString() : null;
+  const meta = document.getElementById('stock-meta');
+  if (!meta) return;
+  meta.textContent = (ts ? 'Last updated: ' + ts + ' · ' : '') + oosCount + ' item' + (oosCount === 1 ? '' : 's') + ' out of stock';
+}
+
+function renderStock() {
+  const container = document.getElementById('stock-sections');
+  if (!container) return;
+  const data = loadStock();
+  const items = data.items || {};
+
+  container.innerHTML = STOCK_SECTIONS.map(sec => {
+    let oosInSec = 0;
+    const rows = sec.items.map(label => {
+      const key = stockItemKey(sec.title, label);
+      const state = items[key] || {};
+      const oos = !!state.oos;
+      const qty = state.qty !== undefined && state.qty !== '' ? state.qty : '';
+      if (oos) oosInSec++;
+      return `<div class="stock-item-row" data-key="${key.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}">` +
+        `<span class="stock-item-label${oos ? ' oos' : ''}">${label.replace(/&/g,'&amp;')}</span>` +
+        `<input type="number" class="stock-qty-inp" min="0" max="9999" placeholder="—" value="${qty}" ${oos ? 'disabled' : ''}>` +
+        `<button type="button" class="stock-oos-btn${oos ? ' active' : ''}">OOS</button>` +
+        `</div>`;
+    }).join('');
+
+    const badge = oosInSec > 0
+      ? `<span class="stock-oos-badge">${oosInSec} OOS</span>`
+      : '';
+
+    return `<div class="rpt-section">` +
+      `<div class="rpt-section-hd" onclick="this.parentElement.classList.toggle('collapsed')">` +
+      `<span class="rpt-section-title">${sec.title.replace(/&/g,'&amp;')}</span>` +
+      badge +
+      `<span class="rpt-section-chevron" style="margin-left:auto">▾</span>` +
+      `</div>` +
+      `<div class="rpt-section-body">${rows}</div>` +
+      `</div>`;
+  }).join('');
+
+  updateStockMeta(data);
+
+  // Bind events — do this once per render, not on every change
+  container.querySelectorAll('.stock-item-row').forEach(function(row) {
+    const key = row.dataset.key;
+    const qtyInp = row.querySelector('.stock-qty-inp');
+    const oosBtn = row.querySelector('.stock-oos-btn');
+    const lbl = row.querySelector('.stock-item-label');
+
+    qtyInp.addEventListener('change', function() {
+      const d = loadStock();
+      if (!d.items) d.items = {};
+      const prev = d.items[key] || {};
+      d.items[key] = { qty: qtyInp.value !== '' ? Number(qtyInp.value) : '', oos: false };
+      d.timestamp = new Date().toISOString();
+      saveStock(d);
+      updateStockMeta(d);
+      // Clear OOS state visually if it was set
+      if (prev.oos) {
+        oosBtn.classList.remove('active');
+        lbl.classList.remove('oos');
+      }
+    });
+
+    oosBtn.addEventListener('click', function() {
+      const isOos = oosBtn.classList.contains('active');
+      const newOos = !isOos;
+      oosBtn.classList.toggle('active', newOos);
+      lbl.classList.toggle('oos', newOos);
+      qtyInp.disabled = newOos;
+      if (newOos) qtyInp.value = '';
+      const d = loadStock();
+      if (!d.items) d.items = {};
+      d.items[key] = { qty: newOos ? '' : (qtyInp.value !== '' ? Number(qtyInp.value) : ''), oos: newOos };
+      d.timestamp = new Date().toISOString();
+      saveStock(d);
+      updateStockMeta(d);
+      // Update section OOS badge without full re-render
+      const secEl = row.closest('.rpt-section');
+      if (secEl) {
+        const secItems = secEl.querySelectorAll('.stock-oos-btn.active');
+        let badge = secEl.querySelector('.stock-oos-badge');
+        if (secItems.length > 0) {
+          if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'stock-oos-badge';
+            secEl.querySelector('.rpt-section-hd .rpt-section-title').after(badge);
+          }
+          badge.textContent = secItems.length + ' OOS';
+        } else if (badge) {
+          badge.remove();
+        }
+      }
+    });
+  });
+
+  stockRendered = true;
+}
+
+function clearStock() {
+  if (!confirm('Clear all stock quantities and OOS flags?')) return;
+  saveStock({ items: {}, timestamp: new Date().toISOString() });
+  stockRendered = false;
+  renderStock();
+  if (typeof showToast === 'function') showToast('Stock cleared.');
+}
+
+function printStock() {
+  const data = loadStock();
+  const items = data.items || {};
+  const ts = data.timestamp ? new Date(data.timestamp).toLocaleString() : 'Not recorded';
+  let html = '<html><head><title>Stock Inventory</title><style>body{font-family:sans-serif;font-size:13px;margin:20px}h2{margin:0 0 4px}p{margin:0 0 16px;color:#666;font-size:11px}h3{margin:14px 0 4px;font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:#333;border-bottom:1px solid #ddd;padding-bottom:3px}table{width:100%;border-collapse:collapse;margin-bottom:8px}td{padding:4px 6px;border-bottom:1px solid #eee;font-size:12px}.oos{color:#c00;font-weight:700}.qty{text-align:center;width:60px;color:#333}.na{color:#aaa}@media print{h2,p,h3,table{page-break-inside:avoid}}</style></head><body>';
+  html += '<h2>ALS Stock Inventory</h2><p>Recorded: ' + ts + '</p>';
+  STOCK_SECTIONS.forEach(function(sec) {
+    html += '<h3>' + sec.title + '</h3><table>';
+    sec.items.forEach(function(label) {
+      const key = stockItemKey(sec.title, label);
+      const state = items[key] || {};
+      const oos = !!state.oos;
+      const qty = state.qty !== undefined && state.qty !== '' ? state.qty : null;
+      html += '<tr><td>' + label + '</td>';
+      if (oos) html += '<td class="oos">OUT OF STOCK</td>';
+      else if (qty !== null) html += '<td class="qty">' + qty + '</td>';
+      else html += '<td class="na">—</td>';
+      html += '</tr>';
+    });
+    html += '</table>';
+  });
+  html += '</body></html>';
+  const w = window.open('', '_blank');
+  if (w) { w.document.write(html); w.document.close(); w.print(); }
+}
 </script>
 </body>
 </html>
