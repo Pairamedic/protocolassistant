@@ -320,7 +320,10 @@
     const fbAuth = firebase.auth();
     const fbDb = firebase.firestore();
 
-    const ADMIN_EMAIL = 'eliasacaldwellnrp@gmail.com';
+    // Admins get full access + Class Manager. Supervisors get full app access
+    // EXCEPT Class Manager (which stays admin-only).
+    const ADMIN_EMAILS = new Set(['eliasacaldwellnrp@gmail.com']);
+    const SUPERVISOR_EMAILS = new Set(['smcdonel@easimedics.com']);
 
     // Render today's date
     (function renderDate() {
@@ -356,10 +359,12 @@
         return;
       }
 
-      const isAdmin = user.email === ADMIN_EMAIL;
+      const isAdmin = ADMIN_EMAILS.has(user.email);
+      const isSupervisor = SUPERVISOR_EMAILS.has(user.email);
+      // Admins and supervisors both get full app access (null = all unlocked).
       let apps = null; // null means all access
 
-      if (!isAdmin) {
+      if (!isAdmin && !isSupervisor) {
         // Read user's granted apps from Firestore
         let doc = null;
         try {

@@ -877,6 +877,7 @@
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script>
 'use strict';
 
@@ -902,14 +903,27 @@ firebase.initializeApp({
 });
 
 const ADMIN_EMAILS = new Set(['eliasacaldwellnrp@gmail.com']);
+const SUPERVISOR_EMAILS = new Set(['smcdonel@easimedics.com']);
+// Admins and supervisors always have access; everyone else is granted Narrative
+// individually by the admin via the User Access Management menu (apps array).
+const NARRATIVE_ALLOWED = new Set([...ADMIN_EMAILS, ...SUPERVISOR_EMAILS]);
 const fbAuth = firebase.auth();
+const fbDb = firebase.firestore();
 
-fbAuth.onAuthStateChanged(user => {
+fbAuth.onAuthStateChanged(async user => {
   if (!user) {
     window.location.replace('index.html?returnTo=narrative.html');
     return;
   }
-  if (!ADMIN_EMAILS.has(user.email)) {
+  let allowed = NARRATIVE_ALLOWED.has(user.email);
+  if (!allowed) {
+    try {
+      const doc = await fbDb.collection('users').doc(user.uid).get();
+      const apps = doc.exists && Array.isArray(doc.data().apps) ? doc.data().apps : [];
+      allowed = apps.includes('narrative');
+    } catch (e) { /* fall through to deny */ }
+  }
+  if (!allowed) {
     window.location.replace('ProtocolAssistant.html');
     return;
   }

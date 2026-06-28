@@ -2023,10 +2023,23 @@ const SUPERVISOR_ALLOWED = new Set([
   'smcdonel@easimedics.com',
 ]);
 
-fbAuth.onAuthStateChanged(user => {
+fbAuth.onAuthStateChanged(async user => {
   if (!user) {
     window.location.replace('index.html?returnTo=supervisor.html');
-  } else if (!SUPERVISOR_ALLOWED.has(user.email)) {
+    return;
+  }
+  // Admins/supervisors always have access; everyone else is granted Supervisor
+  // Tools individually by the admin via the User Access Management menu.
+  let allowed = SUPERVISOR_ALLOWED.has(user.email);
+  if (!allowed) {
+    try {
+      const sdb = firebase.firestore();
+      const doc = await sdb.collection('users').doc(user.uid).get();
+      const apps = doc.exists && Array.isArray(doc.data().apps) ? doc.data().apps : [];
+      allowed = apps.includes('supervisor');
+    } catch (e) { /* fall through to deny */ }
+  }
+  if (!allowed) {
     document.getElementById('auth-loading').innerHTML =
       '<div style="text-align:center;padding:32px;color:#f87171;font-size:15px;max-width:320px">' +
       '<div style="font-size:40px;margin-bottom:16px">🔒</div>' +
@@ -2035,12 +2048,12 @@ fbAuth.onAuthStateChanged(user => {
       '<button onclick="firebase.auth().signOut().then(()=>location.replace(\'index.html\'))" ' +
       'style="background:#5eead4;color:#0b0d10;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Sign Out</button>' +
       '</div>';
-  } else {
-    document.getElementById('auth-loading').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
-    initApp();
-    initShannaMode(user.email);
+    return;
   }
+  document.getElementById('auth-loading').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  initApp();
+  initShannaMode(user.email);
 });
 
 function initShannaMode(email) {
