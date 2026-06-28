@@ -201,6 +201,70 @@
       .app-grid { grid-template-columns: 1fr; }
     }
 
+    /* ── Disclaimer Modal ── */
+    #disclaimer-overlay {
+      position: fixed; inset: 0; z-index: 9000;
+      background: rgba(0,0,0,.82);
+      backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+    }
+    #disclaimer-overlay.hidden { display: none; }
+    #disclaimer-box {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 20px;
+      padding: 28px 24px 24px;
+      width: 100%; max-width: 480px;
+      max-height: 90vh; overflow-y: auto;
+    }
+    #disclaimer-box .disc-icon {
+      text-align: center; font-size: 36px; margin-bottom: 10px;
+    }
+    #disclaimer-box h2 {
+      margin: 0 0 4px; font-size: 18px; font-weight: 700;
+      text-align: center; color: var(--text);
+    }
+    #disclaimer-box .disc-sub {
+      text-align: center; font-size: 12px; color: #f59e0b;
+      font-weight: 700; letter-spacing: .5px; text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+    #disclaimer-body {
+      background: rgba(0,0,0,.28);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 12px;
+      padding: 14px 15px;
+      font-size: 13px; line-height: 1.65; color: var(--muted);
+      max-height: 280px; overflow-y: auto;
+      margin-bottom: 18px;
+    }
+    #disclaimer-body p { margin: 0 0 10px; }
+    #disclaimer-body p:last-child { margin: 0; }
+    #disclaimer-body strong { color: var(--text); }
+    .disc-agree-row {
+      display: flex; align-items: flex-start; gap: 10px;
+      margin-bottom: 16px; cursor: pointer;
+    }
+    .disc-agree-row input[type=checkbox] {
+      width: 16px; height: 16px; flex: none; margin-top: 2px;
+      accent-color: var(--accent); cursor: pointer;
+    }
+    .disc-agree-row span {
+      font-size: 13px; color: var(--text); line-height: 1.45; user-select: none;
+    }
+    #btn-disc-continue {
+      width: 100%; padding: 13px;
+      background: var(--accent); color: #0b0d10;
+      border: none; border-radius: 12px;
+      font-size: 15px; font-weight: 700; font-family: inherit;
+      cursor: pointer; transition: background .15s, opacity .15s;
+    }
+    #btn-disc-continue:disabled {
+      opacity: .35; cursor: not-allowed;
+    }
+    #btn-disc-continue:not(:disabled):hover { background: #4dd4c0; }
+
     /* ── Update toast ── */
     #update-toast {
       position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(120%);
@@ -233,6 +297,27 @@
   </style>
 </head>
 <body>
+
+  <!-- Disclaimer modal — shown once on first sign-in, blocked until agreed -->
+  <div id="disclaimer-overlay" class="hidden" role="dialog" aria-modal="true" aria-labelledby="disc-title">
+    <div id="disclaimer-box">
+      <div class="disc-icon">⚕️</div>
+      <h2 id="disc-title">Before You Continue</h2>
+      <div class="disc-sub">Educational &amp; Reference Use Only</div>
+      <div id="disclaimer-body">
+        <p><strong>This application is a reference and educational tool only.</strong> It is not intended to serve as a source of medical advice, treatment orders, or authorization to perform any clinical intervention.</p>
+        <p><strong>No Treatment Authorization</strong> — Access to this application does not grant scope-of-practice privileges, medical director approval, or permission to perform any patient care procedure. All clinical decisions must be made in accordance with your agency's currently issued protocols, your certifications, and direct medical oversight.</p>
+        <p><strong>Accuracy Not Guaranteed</strong> — Protocol information, medication dosages, and clinical guidelines contained in this app may not reflect your jurisdiction's most current authorized protocols. Always defer to your agency's official documents and medical director guidance.</p>
+        <p><strong>Clinical Judgment Required</strong> — This application does not replace formal EMS education, licensure, certification, continuing education, or clinical judgment. Use it as a supplement to — never a substitute for — proper training and oversight.</p>
+        <p><strong>Proprietary Content</strong> — Content in this application may be proprietary to your organization. Unauthorized reproduction or distribution outside of authorized channels is strictly prohibited.</p>
+      </div>
+      <label class="disc-agree-row">
+        <input type="checkbox" id="disc-agree-check" />
+        <span>I understand that this app is for reference and educational purposes only and does not authorize me to perform any treatment or procedure.</span>
+      </label>
+      <button id="btn-disc-continue" disabled>Continue</button>
+    </div>
+  </div>
 
   <!-- Update available toast -->
   <div id="update-toast" role="alert" aria-live="polite">
@@ -432,6 +517,11 @@
       const app = document.getElementById('app');
       app.style.display = 'flex';
 
+      // Show disclaimer on first-ever access (one-time agreement stored in localStorage)
+      if (!localStorage.getItem('pat_app_disclaimer_v1')) {
+        document.getElementById('disclaimer-overlay').classList.remove('hidden');
+      }
+
       // Set user email safely (textContent only)
       const emailEl = document.getElementById('user-email-display');
       emailEl.textContent = user.email || '';
@@ -448,6 +538,23 @@
     document.getElementById('btn-signout').addEventListener('click', function() {
       fbAuth.signOut();
     });
+
+    // Disclaimer modal logic
+    (function() {
+      const overlay   = document.getElementById('disclaimer-overlay');
+      const checkbox  = document.getElementById('disc-agree-check');
+      const continueBtn = document.getElementById('btn-disc-continue');
+
+      checkbox.addEventListener('change', function() {
+        continueBtn.disabled = !this.checked;
+      });
+
+      continueBtn.addEventListener('click', function() {
+        if (!checkbox.checked) return;
+        localStorage.setItem('pat_app_disclaimer_v1', JSON.stringify({ ts: Date.now() }));
+        overlay.classList.add('hidden');
+      });
+    })();
 
   </script>
   <script>
