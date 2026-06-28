@@ -335,13 +335,6 @@
           </a>
         </div>
 
-        <!-- Class Manager — admin only -->
-        <a id="card-classmanager" href="ClassManager.html" class="app-card" style="display:none">
-          <div class="card-icon">🎓</div>
-          <div class="card-title">Class Manager</div>
-          <div class="card-subtitle">Certifications & Classes</div>
-        </a>
-
       </div>
   </div>
 
@@ -439,10 +432,6 @@
       // Apply locked/unlocked state to cards based on user's granted apps
       applyAccess(apps);
 
-      // Admin-only: show Class Manager card
-      if (isAdmin) {
-        document.getElementById('card-classmanager').style.display = '';
-      }
     });
 
     document.getElementById('btn-signout').addEventListener('click', function() {
