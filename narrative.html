@@ -241,6 +241,17 @@
     .opt-group { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 6px; }
     .opt-btn { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 500; padding: 7px 12px; line-height: 1.3; transition: background .15s, border-color .15s, color .15s; -webkit-tap-highlight-color: transparent; }
     .opt-btn.sel { background: rgba(94,234,212,.15); border-color: rgba(94,234,212,.4); color: var(--accent); }
+    /* ── Format selector bar ── */
+    .narr-format-bar{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+    .narr-format-lbl{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);white-space:nowrap;flex:none}
+    .narr-format-pills{display:flex;gap:4px;flex-wrap:wrap}
+    .narr-fmt-btn{padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+    .narr-fmt-btn.active{border-color:rgba(94,234,212,.5);background:rgba(94,234,212,.12);color:var(--accent)}
+    /* ── Formulary row ── */
+    .narr-formulary-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+    .narr-formulary-lbl{font-size:11px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+    .narr-formulary-sel{background:var(--input-bg);border:1px solid rgba(94,234,212,.35);border-radius:8px;color:var(--accent);font-size:12px;font-weight:600;padding:5px 10px;cursor:pointer;font-family:inherit;outline:none}
+    .narr-formulary-sel:focus{border-color:var(--accent)}
   </style>
 </head>
 <body>
@@ -262,6 +273,18 @@
   </header>
 
   <div class="page-content">
+
+    <!-- Format selector -->
+    <div class="narr-format-bar">
+      <span class="narr-format-lbl">Format</span>
+      <div class="narr-format-pills">
+        <button class="narr-fmt-btn active" data-fmt="personal">Personal</button>
+        <button class="narr-fmt-btn" data-fmt="sbar">SBAR</button>
+        <button class="narr-fmt-btn" data-fmt="drat">DRAT</button>
+        <button class="narr-fmt-btn" data-fmt="chart">CHART</button>
+        <button class="narr-fmt-btn" data-fmt="soap">SOAP</button>
+      </div>
+    </div>
 
     <!-- Topbar: type selector + history -->
     <div class="narr-topbar">
@@ -642,6 +665,12 @@
         </div>
         <!-- Medications -->
         <div class="narr-field">
+          <div class="narr-formulary-row">
+            <span class="narr-formulary-lbl">Formulary</span>
+            <select class="narr-formulary-sel" id="nf-formulary-sel">
+              <option value="EASI">EASI</option>
+            </select>
+          </div>
           <label class="narr-lbl">Medications Administered</label>
           <div class="narr-combo-wrap" id="combo-tx-meds">
             <div class="narr-combo-input-row">
@@ -1111,7 +1140,13 @@ const NARR_RESPONSES = [
   'Pt reported partial improvement following treatment.',
 ];
 
+// Formulary registry — add new formularies here
+const FORMULARIES = { EASI: NARR_TX_MEDS };
+function getActiveMeds(){ return FORMULARIES[narrFormulary] || FORMULARIES.EASI; }
+
 // State
+let narrFormat = 'personal';
+let narrFormulary = 'EASI';
 let narrTxMeds = [];
 let narrHomeMeds = [];
 let narrSelectedSymptoms = new Set();
@@ -1346,7 +1381,7 @@ function initNABtns(){
 }
 
 /* ── Narrative builder ─────────────────────────── */
-function buildNarrative(){
+function buildNarrativePersonal(){
   const type = narrResponseType;
 
   const complaint = narrComplaint || narrVal('nf-complaint-input') || '[COMPLAINT]';
@@ -1547,11 +1582,365 @@ function buildNarrative(){
     txDelayLine = `TRANSPORT DELAY — ${reason ? uc(reason) : 'DELAY NOTED'}${notes ? '. ' + uct(notes) : ''}.`;
   }
 
-  const narrative=[dispatchLine,respDelayLine,transferLines,hpiLine,assessLine,txLine,responseLine,txDelayLine,encounterLine,finalLine].filter(Boolean).join('\n\n').replace(/\u2014/g,' - ').replace(/\.{2,}/g,'.');
-  const el=document.getElementById('narr-preview');
-  if(el) el.textContent=narrative;
+  return [dispatchLine,respDelayLine,transferLines,hpiLine,assessLine,txLine,responseLine,txDelayLine,encounterLine,finalLine].filter(Boolean).join('\n\n').replace(/\u2014/g,' - ').replace(/\.{2,}/g,'.');
+}
 
-  return narrative;
+/* \u2500\u2500 Format dispatcher \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
+function buildNarrative(){
+  let text;
+  switch(narrFormat){
+    case 'sbar':  text = buildNarrativeSBAR();  break;
+    case 'drat':  text = buildNarrativeDRAT();  break;
+    case 'chart': text = buildNarrativeCHART(); break;
+    case 'soap':  text = buildNarrativeSOAP();  break;
+    default:      text = buildNarrativePersonal(); break;
+  }
+  const el = document.getElementById('narr-preview');
+  if(el) el.textContent = text;
+  return text;
+}
+
+/* \u2500\u2500 Shared data extractor \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
+function _nd(){
+  const type = narrResponseType;
+  const complaint = narrComplaint || narrVal('nf-complaint-input') || '[COMPLAINT]';
+  const respVal = narrVal('nf-response') || 'emergent';
+  const respText = {emergent:'emergent with lights and sirens',nonemergent:'non-emergent',staged:'staged'}[respVal]||'emergent';
+
+  const onsetDurNA = document.getElementById('nf-onset-duration')?.disabled;
+  const actNA = document.getElementById('nf-activity')?.disabled;
+  const onset = onsetDurNA ? '' : narrVal('nf-onset-duration');
+  const activity = actNA ? '' : narrVal('nf-activity');
+
+  const pv = narrVal('nf-pain');
+  const painLocNA = document.getElementById('nf-pain-loc-na')?.classList.contains('active');
+  const painLoc = painLocNA ? '' : narrVal('nf-pain-location');
+  const painText = narrPainDenied ? 'Patient denied pain'
+    : narrPainNA ? 'Pain scale not applicable'
+    : pv !== '' ? `Pain rated ${pv}/10${painLoc?' in '+painLoc:''}` : '';
+
+  const symptoms = [...narrSelectedSymptoms];
+  const pmh      = [...narrSelectedPMH];
+  const homeMeds = [...narrHomeMeds];
+  const hpiNotes = narrVal('nf-hpi-notes');
+  const lkwUnk   = document.getElementById('nf-lkw-unknown')?.checked;
+  const lkwTime  = narrVal('nf-lkw-time');
+
+  const airway = narrVal('nf-airway'), lungs = narrVal('nf-lungs');
+  const mental = narrVal('nf-mental'), skin  = narrVal('nf-skin');
+  const assessNotes = narrVal('nf-assessment-notes');
+  const ecg12 = isMonChipActive('12lead');
+  const ecg12Interp = document.getElementById('nf-12lead-interp')?.disabled ? '' : narrVal('nf-12lead-interp');
+  const traumaKeys = Object.keys(narrTraumaRegions);
+
+  const respDelay       = narrChk('nf-resp-delay-chk');
+  const respDelayReason = narrVal('nf-resp-delay-reason');
+  const respDelayNotes  = narrVal('nf-resp-delay-notes');
+  const txDelay         = narrChk('nf-tx-delay-chk');
+  const txDelayReason   = narrVal('nf-tx-delay-reason');
+  const txDelayNotes    = narrVal('nf-tx-delay-notes');
+
+  const pos          = narrVal('nf-position');
+  const txNotes      = narrVal('nf-tx-notes');
+  const responseText = narrVal('nf-response-text');
+
+  const dest      = narrDestination || narrVal('nf-destination-input') || '';
+  const method    = narrVal('nf-arrival-method');
+  const area      = narrVal('nf-dest-area');
+  const careOfName = narrVal('nf-care-of-name');
+  const careOfCredNA = document.getElementById('nf-care-of-cred-na')?.classList.contains('active');
+  const careOfCred = careOfCredNA ? '' : document.getElementById('nf-care-of-cred')?.value || '';
+
+  const sfNA = document.getElementById('nf-sending-fac')?.disabled;
+  const trNA = document.getElementById('nf-transfer-reason')?.disabled;
+  const sendingFac    = sfNA ? '' : narrVal('nf-sending-fac');
+  const transferReason= trNA ? '' : narrVal('nf-transfer-reason');
+
+  const refCompetency  = narrChk('nf-competency');
+  const refRisks       = narrVal('nf-refusal-risks');
+  const refWitnessName = narrVal('nf-witness-name');
+  const refWitnessRole = narrVal('nf-witness-role');
+  const refRetPrec     = narrChk('nf-return-precautions');
+  const refSigned      = narrChk('nf-refusal-signed');
+  const encounterNotes = narrVal('nf-encounter-notes');
+
+  return {
+    type, complaint, respVal, respText, onset, activity, painText,
+    symptoms, pmh, homeMeds, hpiNotes, lkwUnk, lkwTime,
+    airway, lungs, mental, skin, assessNotes, ecg12, ecg12Interp, traumaKeys,
+    respDelay, respDelayReason, respDelayNotes, txDelay, txDelayReason, txDelayNotes,
+    pos, txNotes, responseText, dest, method, area, careOfName, careOfCred,
+    sendingFac, transferReason,
+    refCompetency, refRisks, refWitnessName, refWitnessRole, refRetPrec, refSigned,
+    encounterNotes
+  };
+}
+
+/* \u2500\u2500 Shared treatment parts (sentence case) \u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
+function _txParts(d){
+  const parts = [];
+  if(isMoveActive('ambulate'))    parts.push('Patient assisted to stretcher');
+  if(isMoveActive('draw-sheet'))  parts.push('Patient moved to stretcher via draw sheet');
+  if(isMoveActive('slide-board')) parts.push('Patient moved to stretcher via slide board');
+  if(isMoveActive('carry'))       parts.push('Patient directly carried to stretcher');
+  if(isMoveActive('stair-chair')) parts.push('Patient transported to stretcher via stair chair');
+  if(d.pos) parts.push(`Patient secured in ${d.pos} position`);
+  if(isMonChipActive('backboard')) parts.push('Long backboard / spinal precautions applied');
+  if(isMonChipActive('splint')) parts.push('Splint applied');
+  if(isMonChipActive('tourniquet')) parts.push('Tourniquet applied');
+  if(isMonChipActive('wound-packing')) parts.push('Wound packing performed');
+  if(isMonChipActive('pressure-dressing')) parts.push('Pressure dressing applied');
+  ['suction','opa','npa','bvm'].forEach(v=>{
+    if(isAirActive(v)) parts.push({suction:'Airway suctioning performed',opa:'OPA inserted',npa:'NPA inserted',bvm:'BVM ventilation initiated'}[v]);
+  });
+  if(isAirActive('ett')){
+    const sz=narrVal('nf-ett-size'),etco2=narrChk('nf-ett-etco2');
+    parts.push(`Endotracheal intubation${sz?' with '+sz+'mm ETT':''}${etco2?', confirmed via EtCO2/capnography':''}`);
+  }
+  if(isAirActive('sga')) parts.push('Supraglottic airway inserted');
+  if(isAirActive('cric')) parts.push('Surgical cricothyrotomy performed');
+  narrIVAccesses.forEach(iv=>{
+    const ok=iv.success!==false;
+    if(iv.type==='IO') parts.push(`IO access ${ok?'established':'attempted'}${iv.site?' in '+iv.site:''}${ok?', patent':' \u2014 unsuccessful'}`);
+    else if(ok) parts.push(`${iv.gauge?iv.gauge+'G ':''}IV established with ${iv.fluid}${iv.site?' in '+iv.site:''}, patent, flushed with 10 mL 0.9% NS`);
+    else parts.push(`${iv.gauge?iv.gauge+'G ':''}IV access attempted${iv.site?' in '+iv.site:''} \u2014 unsuccessful`);
+  });
+  if(narrChk('nf-iv-deferred-chk')) parts.push('Peripheral IV access deferred \u2014 unable to identify suitable vein');
+  if(isMonChipActive('hemodynamic-assess')) parts.push('Hemodynamic assessment performed (BP, HR, RR, SpO2)');
+  if(isMonChipActive('hemodynamic')) parts.push('Continuous hemodynamic monitoring (BP, HR, RR, SpO2)');
+  if(isMonChipActive('bga')) parts.push('Blood glucose analysis performed');
+  if(isMonChipActive('c-collar')) parts.push('Cervical collar applied');
+  if(isMonChipActive('c-spine')) parts.push('C-spine clearance performed per protocol');
+  if(isMonChipActive('cardiac-monitor')) parts.push('Continuous cardiac monitoring via 4-lead');
+  if(isMonChipActive('etco2-monitor')) parts.push('End-tidal CO2 monitoring initiated');
+  if(isMonChipActive('12lead-tx')) parts.push('12-lead EKG transmitted');
+  narrTxMeds.forEach(m=>{
+    if(m.name==='Oxygen') parts.push(`Oxygen administered via ${m.dose}`);
+    else parts.push(`${m.name} ${m.dose}${m.indication?' for '+m.indication:''}`);
+  });
+  if(d.txNotes) parts.push(d.txNotes);
+  return parts;
+}
+
+/* \u2500\u2500 Shared refusal text \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
+function _refusalParts(d){
+  const parts = [];
+  if(d.refCompetency) parts.push('Patient A&Ox4, demonstrated decision-making capacity');
+  parts.push('Treatment and transport offered and refused');
+  if(d.refRisks) parts.push(`Risks explained: ${d.refRisks}`);
+  if(d.refWitnessName) parts.push(`Witness: ${d.refWitnessName}${d.refWitnessRole?', '+d.refWitnessRole:''}`);
+  if(d.refRetPrec) parts.push('Return precautions explained \u2014 patient verbalized understanding');
+  if(d.refSigned) parts.push('Refusal form signed');
+  if(narrVoiceRecording==='obtained') parts.push('Voice recording of refusal attached per company policy');
+  else if(narrVoiceRecording==='not-obtained'){
+    const vrMap={unsafe:'unsafe due to scene conditions',refused:'patient refused recording',combative:'patient was combative'};
+    const vrR=narrVoiceRecordingReason?(vrMap[narrVoiceRecordingReason]||narrVoiceRecordingReason):'circumstances prevented recording';
+    const vrOther=narrVal('qp-vr-reason-other');
+    parts.push(`Voice recording unable to obtain \u2014 ${vrOther||vrR}`);
+  }
+  return parts;
+}
+
+/* \u2500\u2500 SBAR \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
+function buildNarrativeSBAR(){
+  const d = _nd();
+
+  let sit = `EMS responded for ${d.type==='transfer'?'interfacility transfer of':'report of'} ${d.complaint.toLowerCase()}. Response: ${d.respText}.`;
+  if(d.respDelay) sit += ` Response delay \u2014 ${d.respDelayReason||'delay noted'}${d.respDelayNotes?': '+d.respDelayNotes:''}.`;
+  if(d.type==='transfer'&&(d.sendingFac||d.transferReason)) sit += ` Transferring facility: ${d.sendingFac||'N/A'}${d.transferReason?'. Reason: '+d.transferReason:''}.`;
+
+  const bgParts = [];
+  if(d.pmh.length) bgParts.push(`PMH: ${d.pmh.join(', ')}`);
+  if(d.homeMeds.length) bgParts.push(`Home medications: ${d.homeMeds.join(', ')}`);
+  if(d.onset) bgParts.push(`Onset/duration: ${d.onset}`);
+  if(d.activity) bgParts.push(`Patient was ${d.activity} at time of onset`);
+  if(d.symptoms.length) bgParts.push(`Associated symptoms: ${d.symptoms.join(', ')}`);
+  if(d.lkwUnk) bgParts.push('Last known well: unknown'); else if(d.lkwTime) bgParts.push(`Last known well: ${d.lkwTime}`);
+  if(d.hpiNotes) bgParts.push(d.hpiNotes);
+
+  const assParts = [];
+  if(d.mental) assParts.push(`Mental status: ${d.mental}`);
+  if(d.airway) assParts.push(`Airway: ${d.airway}`);
+  if(d.lungs) assParts.push(`Lung sounds: ${d.lungs}`);
+  if(d.skin) assParts.push(`Skin: ${d.skin}`);
+  if(d.painText) assParts.push(d.painText);
+  if(d.ecg12) assParts.push(`12-lead EKG obtained${d.ecg12Interp?' \u2014 '+d.ecg12Interp:''}`);
+  if(d.traumaKeys.length) assParts.push(`Trauma: ${d.traumaKeys.map(r=>{const f=narrTraumaRegions[r];return f?r+': '+f:r;}).join('; ')}`);
+  if(d.assessNotes) assParts.push(d.assessNotes);
+  assParts.push('All other assessment findings documented in EHR');
+
+  const recParts = _txParts(d);
+  if(d.responseText) recParts.push(`Response to treatment: ${d.responseText}`);
+  if(d.txDelay) recParts.push(`Transport delay \u2014 ${d.txDelayReason||'delay noted'}${d.txDelayNotes?': '+d.txDelayNotes:''}`);
+
+  let recStr = '';
+  if(d.type==='refusal'){
+    recStr = _refusalParts(d).join('. ')+'.';
+  } else {
+    if(recParts.length) recStr = recParts.join('. ')+'.';
+    if(d.dest){
+      const careOf=d.careOfName?(d.careOfName+(d.careOfCred?', '+d.careOfCred:'')):'';
+      recStr += ` Patient transported to ${d.dest}${d.method?' ('+d.method+')':''}${d.area?', '+d.area:''}${careOf?'. Left in care of '+careOf:''}.`;
+    }
+  }
+  if(d.encounterNotes) recStr += ` ${d.encounterNotes}.`;
+
+  return [
+    `SITUATION \u2014 ${sit}`,
+    `BACKGROUND \u2014 ${bgParts.length?bgParts.join('. ')+'.':'[No background provided]'}`,
+    `ASSESSMENT \u2014 ${assParts.join('. ')}.`,
+    `RECOMMENDATION \u2014 ${recStr||'[No treatment/transport information]'}`,
+  ].join('\n\n');
+}
+
+/* \u2500\u2500 DRAT \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
+function buildNarrativeDRAT(){
+  const d = _nd();
+
+  let desc = d.type==='transfer'
+    ? `EMS requested for interfacility transfer of ${d.complaint.toLowerCase()} patient. Response: ${d.respText}.`
+    : `EMS dispatched for ${d.complaint.toLowerCase()}. Response: ${d.respText}.`;
+  if(d.respDelay) desc += ` Response delay \u2014 ${d.respDelayReason||'delay'}${d.respDelayNotes?': '+d.respDelayNotes:''}.`;
+  if(d.type==='transfer'&&(d.sendingFac||d.transferReason)) desc += ` Transferring from ${d.sendingFac||'N/A'}${d.transferReason?', reason: '+d.transferReason:''}.`;
+
+  const rPts = [`Chief complaint: ${d.complaint}`];
+  if(d.activity) rPts.push(`Patient was ${d.activity} when symptoms began`);
+  if(d.onset) rPts.push(`Onset/duration: ${d.onset}`);
+  if(d.painText) rPts.push(d.painText);
+  if(d.symptoms.length) rPts.push(`Associated symptoms: ${d.symptoms.join(', ')}`);
+  if(d.lkwUnk) rPts.push('Last known well: unknown'); else if(d.lkwTime) rPts.push(`Last known well: ${d.lkwTime}`);
+  if(d.hpiNotes) rPts.push(d.hpiNotes);
+
+  const aPts = [];
+  if(d.mental) aPts.push(`Mental status: ${d.mental}`);
+  if(d.airway) aPts.push(`Airway: ${d.airway}`);
+  if(d.lungs) aPts.push(`Lung sounds: ${d.lungs}`);
+  if(d.skin) aPts.push(`Skin: ${d.skin}`);
+  if(d.ecg12) aPts.push(`12-lead EKG${d.ecg12Interp?': '+d.ecg12Interp:' obtained'}`);
+  if(d.traumaKeys.length) aPts.push(`Trauma: ${d.traumaKeys.map(r=>{const f=narrTraumaRegions[r];return f?r+': '+f:r;}).join('; ')}`);
+  if(d.assessNotes) aPts.push(d.assessNotes);
+  if(d.pmh.length) aPts.push(`PMH: ${d.pmh.join(', ')}`);
+  if(d.homeMeds.length) aPts.push(`Medications: ${d.homeMeds.join(', ')}`);
+  aPts.push('All other findings documented in EHR');
+
+  const tPts = _txParts(d);
+  if(d.responseText) tPts.push(`Response to treatment: ${d.responseText}`);
+  if(d.txDelay) tPts.push(`Transport delay \u2014 ${d.txDelayReason||'delay'}${d.txDelayNotes?': '+d.txDelayNotes:''}`);
+
+  let tx = '';
+  if(d.type==='refusal'){
+    tx = _refusalParts(d).join('. ')+'.';
+  } else {
+    if(tPts.length) tx = tPts.join('. ')+'.';
+    if(d.dest){
+      const careOf=d.careOfName?(d.careOfName+(d.careOfCred?', '+d.careOfCred:'')):'';
+      tx += ` Transported to ${d.dest}${d.method?' ('+d.method+')':''}${d.area?', '+d.area:''}${careOf?'. Left in care of '+careOf:''}.`;
+    }
+  }
+  if(d.encounterNotes) tx += ` ${d.encounterNotes}.`;
+
+  return [
+    `DESCRIPTION \u2014 ${desc}`,
+    `RESPONSE \u2014 ${rPts.join('. ')}.`,
+    `ASSESSMENT \u2014 ${aPts.join('. ')}.`,
+    `TREATMENT \u2014 ${tx||'[No treatment information]'}`,
+  ].join('\n\n');
+}
+
+/* \u2500\u2500 CHART \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
+function buildNarrativeCHART(){
+  const d = _nd();
+
+  const C = `${d.complaint}. Response: ${d.respText}${d.respDelay?' \u2014 delay: '+(d.respDelayReason||'noted')+(d.respDelayNotes?', '+d.respDelayNotes:''):''}.`;
+
+  const hPts = [];
+  if(d.onset) hPts.push(`Onset/duration: ${d.onset}`);
+  if(d.activity) hPts.push(`Activity at onset: ${d.activity}`);
+  if(d.painText) hPts.push(d.painText);
+  if(d.symptoms.length) hPts.push(`Symptoms: ${d.symptoms.join(', ')}`);
+  if(d.lkwUnk) hPts.push('LKW: unknown'); else if(d.lkwTime) hPts.push(`LKW: ${d.lkwTime}`);
+  if(d.pmh.length) hPts.push(`PMH: ${d.pmh.join(', ')}`);
+  if(d.homeMeds.length) hPts.push(`Meds: ${d.homeMeds.join(', ')}`);
+  if(d.hpiNotes) hPts.push(d.hpiNotes);
+  if(d.type==='transfer'&&d.sendingFac) hPts.push(`Transferred from: ${d.sendingFac}${d.transferReason?', reason: '+d.transferReason:''}`);
+
+  const aPts = [];
+  if(d.mental) aPts.push(`Mental: ${d.mental}`);
+  if(d.airway) aPts.push(`Airway: ${d.airway}`);
+  if(d.lungs) aPts.push(`Lungs: ${d.lungs}`);
+  if(d.skin) aPts.push(`Skin: ${d.skin}`);
+  if(d.ecg12) aPts.push(`12-lead${d.ecg12Interp?': '+d.ecg12Interp:' obtained'}`);
+  if(d.traumaKeys.length) aPts.push(`Trauma: ${d.traumaKeys.map(r=>{const f=narrTraumaRegions[r];return f?r+': '+f:r;}).join('; ')}`);
+  if(d.assessNotes) aPts.push(d.assessNotes);
+  aPts.push('Remaining findings documented in EHR');
+
+  const rPts = _txParts(d);
+  if(d.responseText) rPts.push(`Response: ${d.responseText}`);
+
+  let T = '';
+  if(d.type==='refusal'){
+    T = _refusalParts(d).join('. ')+'.';
+  } else {
+    if(d.dest){
+      const careOf=d.careOfName?(d.careOfName+(d.careOfCred?', '+d.careOfCred:'')):'';
+      T = `Transported to ${d.dest}${d.method?' ('+d.method+')':''}${d.area?', '+d.area:''}${careOf?'. Left in care of '+careOf:''}.`;
+    }
+    if(d.txDelay) T += ` Transport delay \u2014 ${d.txDelayReason||'delay'}${d.txDelayNotes?': '+d.txDelayNotes:''}.`;
+    if(d.encounterNotes) T += ` ${d.encounterNotes}.`;
+  }
+
+  return [
+    `C \u2014 CHIEF COMPLAINT: ${C}`,
+    `H \u2014 HISTORY: ${hPts.join('. ')||'[No history provided]'}`,
+    `A \u2014 ASSESSMENT: ${aPts.join('. ')}`,
+    `R \u2014 TREATMENT: ${rPts.join('. ')||'[No treatment documented]'}`,
+    `T \u2014 TRANSPORT: ${T||'[No transport/disposition information]'}`,
+  ].join('\n\n');
+}
+
+/* \u2500\u2500 SOAP \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
+function buildNarrativeSOAP(){
+  const d = _nd();
+
+  const sPts = [`Chief complaint: ${d.complaint}`];
+  if(d.onset) sPts.push(`Onset/duration: ${d.onset}`);
+  if(d.activity) sPts.push(`Patient was ${d.activity} when symptoms began`);
+  if(d.painText) sPts.push(d.painText);
+  if(d.symptoms.length) sPts.push(`Associated symptoms: ${d.symptoms.join(', ')}`);
+  if(d.lkwUnk) sPts.push('Last known well: unknown'); else if(d.lkwTime) sPts.push(`Last known well: ${d.lkwTime}`);
+  if(d.pmh.length) sPts.push(`PMH: ${d.pmh.join(', ')}`);
+  if(d.homeMeds.length) sPts.push(`Home medications: ${d.homeMeds.join(', ')}`);
+  if(d.hpiNotes) sPts.push(d.hpiNotes);
+
+  const oPts = [];
+  if(d.mental) oPts.push(`Mental status: ${d.mental}`);
+  if(d.airway) oPts.push(`Airway: ${d.airway}`);
+  if(d.lungs) oPts.push(`Lung sounds: ${d.lungs}`);
+  if(d.skin) oPts.push(`Skin: ${d.skin}`);
+  if(d.ecg12) oPts.push(`12-lead EKG${d.ecg12Interp?': '+d.ecg12Interp:' obtained'}`);
+  if(d.traumaKeys.length) oPts.push(`Trauma: ${d.traumaKeys.map(r=>{const f=narrTraumaRegions[r];return f?r+': '+f:r;}).join('; ')}`);
+  if(d.assessNotes) oPts.push(d.assessNotes);
+  oPts.push('Remaining objective findings documented in EHR');
+
+  const pPts = _txParts(d);
+  if(d.responseText) pPts.push(`Response to treatment: ${d.responseText}`);
+  if(d.txDelay) pPts.push(`Transport delay \u2014 ${d.txDelayReason||'delay'}${d.txDelayNotes?': '+d.txDelayNotes:''}`);
+
+  let planStr = pPts.length ? pPts.join('. ')+'.' : '';
+  if(d.type==='refusal'){
+    planStr = _refusalParts(d).join('. ')+'.';
+  } else if(d.dest){
+    const careOf=d.careOfName?(d.careOfName+(d.careOfCred?', '+d.careOfCred:'')):'';
+    planStr += ` Patient transported to ${d.dest}${d.method?' ('+d.method+')':''}${d.area?', '+d.area:''}${careOf?'. Left in care of '+careOf:''}.`;
+  }
+  if(d.encounterNotes) planStr += ` ${d.encounterNotes}.`;
+
+  return [
+    `SUBJECTIVE \u2014 ${sPts.join('. ')}.`,
+    `OBJECTIVE \u2014 ${oPts.join('. ')}.`,
+    `ASSESSMENT \u2014 ${d.complaint}${narrChk('nf-trauma-call')?' \u2014 trauma call':''}.`,
+    `PLAN \u2014 ${planStr||'[No plan/treatment documented]'}`,
+  ].join('\n\n');
 }
 
 function narrUpdateTemplate(){
@@ -1662,6 +2051,24 @@ function initNarrative(){
     });
   });
 
+  // Format selector pills
+  document.querySelectorAll('.narr-fmt-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.narr-fmt-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      narrFormat = btn.dataset.fmt;
+      buildNarrative();
+    });
+  });
+
+  // Formulary selector
+  document.getElementById('nf-formulary-sel')?.addEventListener('change',function(){
+    narrFormulary = this.value;
+    const inp = document.getElementById('nf-txmed-input');
+    if(inp) inp.placeholder = `Search ${narrFormulary} meds…`;
+    buildNarrative();
+  });
+
   // Response type segmented
   document.getElementById('narr-response-seg')?.querySelectorAll('.narr-seg-btn').forEach(btn=>{
     btn.addEventListener('click',()=>{
@@ -1755,10 +2162,10 @@ function initNarrative(){
 
   initCombo({
     inputId:'nf-txmed-input', dropId:'combo-tx-meds-drop',
-    items: NARR_TX_MEDS.map(m=>({label:m.n, sublabel:m.d, value:m.n})),
+    items: getActiveMeds().map(m=>({label:m.n, sublabel:m.d, value:m.n})),
     multi: false,
     onSelect: item=>{
-      const med = NARR_TX_MEDS.find(m=>m.n===item.value);
+      const med = getActiveMeds().find(m=>m.n===item.value);
       pendingMedName = item.value;
       if(txMedInp) txMedInp.value='';
       const o2row = document.getElementById('narr-o2-confirm-row');
