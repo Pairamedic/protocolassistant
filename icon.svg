@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="#0f1117"/>
+
+  <!-- Light bar -->
+  <rect x="60" y="155" width="300" height="36" rx="8" fill="#1e3a8a"/>
+  <rect x="68" y="159" width="54" height="28" rx="4" fill="#ef4444"/>
+  <rect x="130" y="159" width="54" height="28" rx="4" fill="#60a5fa"/>
+  <rect x="192" y="159" width="54" height="28" rx="4" fill="#ef4444"/>
+  <rect x="254" y="159" width="54" height="28" rx="4" fill="#60a5fa"/>
+  <rect x="316" y="159" width="36" height="28" rx="4" fill="#ef4444"/>
+
+  <!-- Ambulance body (box) -->
+  <rect x="60" y="188" width="300" height="170" rx="8" fill="#e2e8f0"/>
+
+  <!-- Cab -->
+  <path d="M360 215 L360 358 Q360 366 368 366 L430 366 Q444 366 450 355 L450 265 Q450 250 440 238 L392 215 Q380 208 368 208 Z" fill="#cbd5e1"/>
+
+  <!-- Windshield -->
+  <path d="M368 222 L432 222 Q440 222 442 230 L442 270 Q442 278 434 278 L368 278 Q360 278 360 270 L360 230 Q360 222 368 222 Z" fill="#7dd3fc" opacity="0.85"/>
+
+  <!-- Side window on body -->
+  <rect x="260" y="205" width="85" height="60" rx="5" fill="#7dd3fc" opacity="0.5"/>
+
+  <!-- Red cross on ambulance body -->
+  <rect x="105" y="220" width="110" height="36" rx="6" fill="#ef4444"/>
+  <rect x="138" y="193" width="44" height="90" rx="6" fill="#ef4444"/>
+
+  <!-- "AMBULANCE" stripe -->
+  <rect x="60" y="318" width="300" height="16" rx="0" fill="#1e40af"/>
+
+  <!-- Wheels -->
+  <circle cx="150" cy="376" r="50" fill="#1e293b"/>
+  <circle cx="150" cy="376" r="30" fill="#334155"/>
+  <circle cx="150" cy="376" r="14" fill="#94a3b8"/>
+  <circle cx="370" cy="376" r="50" fill="#1e293b"/>
+  <circle cx="370" cy="376" r="30" fill="#334155"/>
+  <circle cx="370" cy="376" r="14" fill="#94a3b8"/>
+
+  <!-- Wheel wells cut (visually suggest arch) -->
+  <ellipse cx="150" cy="358" rx="52" ry="20" fill="#0f1117"/>
+  <ellipse cx="370" cy="358" rx="52" ry="20" fill="#0f1117"/>
+
+  <!-- Undercarriage -->
+  <rect x="60" y="340" width="392" height="30" rx="4" fill="#94a3b8"/>
+
+  <!-- Red/blue flash on cab roof -->
+  <rect x="362" y="170" width="86" height="20" rx="4" fill="#1e3a8a"/>
+  <rect x="370" y="173" width="30" height="14" rx="3" fill="#ef4444"/>
+  <rect x="410" y="173" width="30" height="14" rx="3" fill="#60a5fa"/>
+</svg>

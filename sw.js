@@ -1,4 +1,4 @@
-const CACHE = 'pat-v9';
+const CACHE = 'pat-v10';
 
 // Assets that rarely change — pre-cached, served cache-first
 const ASSETS = [
@@ -37,8 +37,14 @@ self.addEventListener('install', e => {
             .catch(() => {})
         ),
       ])
-    ).then(() => self.skipWaiting())
+    )
+    // Do NOT call skipWaiting() here — the client will send SKIP_WAITING
+    // after the user confirms the update prompt.
   );
+});
+
+self.addEventListener('message', e => {
+  if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', e => {
