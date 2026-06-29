@@ -2941,13 +2941,23 @@ function updateSectionCounts() {
 /* ════════════════════════════════════════
    COPY PREVIOUS ROSTER
    ════════════════════════════════════════ */
-function copyPreviousRoster() {
+async function copyPreviousRoster() {
   const date = currentDate();
   if (!date) return;
   const d = new Date(date + 'T12:00:00');
   d.setDate(d.getDate() - 1);
   const prevDate = d.toLocaleDateString('en-CA');
-  const saved = localStorage.getItem(rosterKey(prevDate));
+  let saved = localStorage.getItem(rosterKey(prevDate));
+  if (!saved && db) {
+    try {
+      const doc = await db.collection('services').doc(activeServiceId)
+        .collection('shift_rosters').doc(prevDate).get();
+      if (doc.exists) {
+        saved = doc.data().data || null;
+        if (saved) localStorage.setItem(rosterKey(prevDate), saved);
+      }
+    } catch(e) {}
+  }
   if (!saved) { showToast('No saved roster found for ' + formatDateDisplay(prevDate)); return; }
   if (!confirm('Copy ' + formatDateDisplay(prevDate) + ' into today? This overwrites current entries.')) return;
   try {
@@ -3114,7 +3124,20 @@ function loadRoster(date) {
     // Offer carry-forward when today's roster has no saved data but yesterday does
     if(date === todayStr()){
       const d = new Date(date + 'T12:00:00'); d.setDate(d.getDate() - 1);
-      if(localStorage.getItem(rosterKey(d.toISOString().slice(0,10)))) setTimeout(showCarryForwardPrompt, 800);
+      const prevDate = d.toISOString().slice(0,10);
+      if(localStorage.getItem(rosterKey(prevDate))){
+        setTimeout(showCarryForwardPrompt, 800);
+      } else if(db){
+        // Yesterday not in localStorage — check Firestore and cache it so carry-forward works
+        db.collection('services').doc(activeServiceId)
+          .collection('shift_rosters').doc(prevDate).get()
+          .then(doc => {
+            if(doc.exists){
+              try{ localStorage.setItem(rosterKey(prevDate), doc.data().data || '{}'); }catch(e){}
+              showCarryForwardPrompt();
+            }
+          }).catch(()=>{});
+      }
     }
   }
   buildRosterDOM();
@@ -5923,13 +5946,24 @@ function initOfflineIndicator(){
 /* ════════════════════════════════════════
    CARRY FORWARD FROM YESTERDAY
    ════════════════════════════════════════ */
-function carryForwardFromYesterday(){
+async function carryForwardFromYesterday(){
   const date = currentDate() || todayStr();
   const d = new Date(date + 'T12:00:00');
   d.setDate(d.getDate() - 1);
   const prevDate = d.toISOString().slice(0,10);
 
-  const prevRoster  = localStorage.getItem(rosterKey(prevDate));
+  let prevRoster = localStorage.getItem(rosterKey(prevDate));
+  if(!prevRoster && db){
+    try{
+      const doc = await db.collection('services').doc(activeServiceId)
+        .collection('shift_rosters').doc(prevDate).get();
+      if(doc.exists){
+        prevRoster = doc.data().data || null;
+        if(prevRoster) localStorage.setItem(rosterKey(prevDate), prevRoster);
+      }
+    }catch(e){}
+  }
+
   const prevRptRaw  = localStorage.getItem(rptKey(prevDate));
   const prevRpt     = prevRptRaw ? JSON.parse(prevRptRaw) : null;
 
