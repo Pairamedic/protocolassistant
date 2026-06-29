@@ -65,5 +65,10 @@ service cloud.firestore {
     match /services/{serviceId}/custom_employees/{empId} {
       allow read, write: if isSupervisor();
     }
+
+    // Supervisor config (station info, emp profiles) — synced across devices for supervisors.
+    match /services/{serviceId}/config/{doc} {
+      allow read, write: if isSupervisor();
+    }
   }
 }
