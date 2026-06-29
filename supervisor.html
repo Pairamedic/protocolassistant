@@ -2119,6 +2119,7 @@ const EMPLOYEES = [{"last":"Aalseth","first":"Dwayne","station":"Pine Bluff","st
    ROSTER ROWS DEFINITION
    ════════════════════════════════════════ */
 let ROSTER_ROWS = []; // populated from active service in loadServices()
+let rosterUnsubscribe = null; // Firestore real-time listener cleanup handle
 
 /* ════════════════════════════════════════
    SERVICES
@@ -3094,6 +3095,9 @@ function showCarryForwardPrompt(){
 }
 
 function loadRoster(date) {
+  // Detach any existing real-time listener before switching dates
+  if (rosterUnsubscribe) { rosterUnsubscribe(); rosterUnsubscribe = null; }
+
   const saved = localStorage.getItem(rosterKey(date));
   if (saved) {
     try { rowData = JSON.parse(saved); } catch(e) { rowData = {}; }
@@ -3114,23 +3118,24 @@ function loadRoster(date) {
     }
   }
   buildRosterDOM();
-  // Background Firestore sync
+  // Real-time Firestore listener — keeps both devices in sync automatically
   if (db) {
     setSyncStatus('syncing');
-    db.collection('services').doc(activeServiceId).collection('shift_rosters').doc(date).get()
-      .then(doc => {
+    rosterUnsubscribe = db.collection('services').doc(activeServiceId)
+      .collection('shift_rosters').doc(date)
+      .onSnapshot(doc => {
         if (doc.exists) {
           try {
             const cloud = JSON.parse(doc.data().data || '{}');
             rowData = cloud;
+            localStorage.setItem(rosterKey(date), JSON.stringify(rowData));
             buildRosterDOM();
             setSyncStatus('synced');
           } catch(e) { setSyncStatus('local'); }
         } else {
           setSyncStatus('local');
         }
-      })
-      .catch(() => setSyncStatus('local'));
+      }, () => setSyncStatus('local'));
   } else {
     setSyncStatus('local');
   }
