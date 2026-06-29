@@ -2971,6 +2971,10 @@ function ensureEmpProfile(key) {
 
 function saveStationInfo() {
   localStorage.setItem(svcKey('station_info_v1'), JSON.stringify(stationInfo));
+  if (db) {
+    db.collection('services').doc(activeServiceId).collection('config').doc('station_info')
+      .set({ data: JSON.stringify(stationInfo) }).catch(() => {});
+  }
 }
 
 function loadStationInfo() {
@@ -2979,10 +2983,28 @@ function loadStationInfo() {
     if (s) stationInfo = JSON.parse(s);
     else stationInfo = {};
   } catch(e) { stationInfo = {}; }
+  if (db) {
+    db.collection('services').doc(activeServiceId).collection('config').doc('station_info').get()
+      .then(doc => {
+        if (doc.exists) {
+          try {
+            stationInfo = JSON.parse(doc.data().data || '{}');
+            localStorage.setItem(svcKey('station_info_v1'), JSON.stringify(stationInfo));
+            renderStationsPanel();
+            updateStationDropdowns();
+            buildRosterDOM();
+          } catch(e) {}
+        }
+      }).catch(() => {});
+  }
 }
 
 function saveEmpProfiles() {
   localStorage.setItem(svcKey('emp_profiles_v1'), JSON.stringify(empProfiles));
+  if (db) {
+    db.collection('services').doc(activeServiceId).collection('config').doc('emp_profiles')
+      .set({ data: JSON.stringify(empProfiles) }).catch(() => {});
+  }
 }
 
 function loadEmpProfiles() {
@@ -2991,6 +3013,19 @@ function loadEmpProfiles() {
     if (s) empProfiles = JSON.parse(s);
     else empProfiles = {};
   } catch(e) { empProfiles = {}; }
+  if (db) {
+    db.collection('services').doc(activeServiceId).collection('config').doc('emp_profiles').get()
+      .then(doc => {
+        if (doc.exists) {
+          try {
+            empProfiles = JSON.parse(doc.data().data || '{}');
+            localStorage.setItem(svcKey('emp_profiles_v1'), JSON.stringify(empProfiles));
+            renderEmpProfilesPanel();
+            buildRosterDOM();
+          } catch(e) {}
+        }
+      }).catch(() => {});
+  }
 }
 
 function exportProfiles() {
@@ -5037,6 +5072,9 @@ function doImportCsv() {
    APP INIT
    ════════════════════════════════════════ */
 function initApp() {
+  // Firestore must be ready before any load functions that sync with cloud
+  try { db = firebase.firestore(); } catch(e) { db = null; }
+
   // Load services first (sets ROSTER_ROWS and activeServiceId)
   loadServices();
   ROSTER_ROWS = getRosterRows();
@@ -5061,9 +5099,6 @@ function initApp() {
     loadRoster(dateInput.value);
     loadLog(dateInput.value);
   });
-
-  // Firestore
-  try { db = firebase.firestore(); } catch(e) { db = null; }
 
   // Save button
   document.getElementById('btn-save').addEventListener('click', saveRoster);
