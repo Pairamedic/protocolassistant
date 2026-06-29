@@ -32,6 +32,11 @@ service cloud.firestore {
       allow write: if request.auth != null && (request.auth.uid == userId || isAdmin());
     }
 
+    // Per-user app data (favourites, shift checklist, UCO, supply sheet, etc.)
+    match /users/{userId}/appdata/{docId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
     // Users can read/write their own pearls subcollection
     match /users/{userId}/pearls/{pearlId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;

@@ -5643,6 +5643,8 @@ if(document.querySelector('#pump-reset')) document.querySelector('#pump-reset').
       renderAll([]);
       syncFormsService();
       loadFormsFromFirebase();
+      loadUCOFromFirebase();
+      loadSSFromFirebase();
       acquireWakeLock();
     } else {
       window.location.replace('index.html');
@@ -6110,7 +6112,31 @@ if(document.querySelector('#pump-reset')) document.querySelector('#pump-reset').
   ];
 
   function _ucoState(){ try{ const s=localStorage.getItem(UCO_KEY); if(s) return JSON.parse(s); }catch(e){} return {}; }
-  function _saveUCO(s){ try{ localStorage.setItem(UCO_KEY,JSON.stringify(s)); }catch(e){} }
+  let _ucoCloudTimer = null;
+  function _saveUCO(s){
+    try{ localStorage.setItem(UCO_KEY,JSON.stringify(s)); }catch(e){}
+    if(fbAuth.currentUser){
+      clearTimeout(_ucoCloudTimer);
+      _ucoCloudTimer = setTimeout(()=>{
+        fbDb.collection('users').doc(fbAuth.currentUser.uid)
+          .collection('appdata').doc(UCO_KEY)
+          .set({ ...s, savedAt: firebase.firestore.FieldValue.serverTimestamp() })
+          .catch(()=>{});
+      }, 2000);
+    }
+  }
+  async function loadUCOFromFirebase(){
+    if(!fbAuth.currentUser) return;
+    try{
+      const doc = await fbDb.collection('users').doc(fbAuth.currentUser.uid)
+        .collection('appdata').doc(UCO_KEY).get();
+      if(doc.exists){
+        const data = doc.data(); delete data.savedAt;
+        localStorage.setItem(UCO_KEY, JSON.stringify(data));
+        renderUCO();
+      }
+    }catch(e){}
+  }
 
   function renderUCO(){
     const state = _ucoState();
@@ -6273,6 +6299,8 @@ if(document.querySelector('#pump-reset')) document.querySelector('#pump-reset').
   window.resetUCO = function(){
     if(!confirm('Clear all Unit Check Off entries?')) return;
     localStorage.removeItem(UCO_KEY);
+    if(fbAuth.currentUser)
+      fbDb.collection('users').doc(fbAuth.currentUser.uid).collection('appdata').doc(UCO_KEY).delete().catch(()=>{});
     renderUCO();
   };
 
@@ -6404,7 +6432,31 @@ if(document.querySelector('#pump-reset')) document.querySelector('#pump-reset').
   ];
 
   function _ssState(){ try{ const s=localStorage.getItem(SS_KEY); if(s) return JSON.parse(s); }catch(e){} return {}; }
-  function _saveSS(s){ try{ localStorage.setItem(SS_KEY,JSON.stringify(s)); }catch(e){} }
+  let _ssCloudTimer = null;
+  function _saveSS(s){
+    try{ localStorage.setItem(SS_KEY,JSON.stringify(s)); }catch(e){}
+    if(fbAuth.currentUser){
+      clearTimeout(_ssCloudTimer);
+      _ssCloudTimer = setTimeout(()=>{
+        fbDb.collection('users').doc(fbAuth.currentUser.uid)
+          .collection('appdata').doc(SS_KEY)
+          .set({ ...s, savedAt: firebase.firestore.FieldValue.serverTimestamp() })
+          .catch(()=>{});
+      }, 2000);
+    }
+  }
+  async function loadSSFromFirebase(){
+    if(!fbAuth.currentUser) return;
+    try{
+      const doc = await fbDb.collection('users').doc(fbAuth.currentUser.uid)
+        .collection('appdata').doc(SS_KEY).get();
+      if(doc.exists){
+        const data = doc.data(); delete data.savedAt;
+        localStorage.setItem(SS_KEY, JSON.stringify(data));
+        renderStockSheet();
+      }
+    }catch(e){}
+  }
 
   // Returns true if a MM/YYYY, MM/YY, or date string is before the current month
   function _ssIsExpired(str){
@@ -6575,6 +6627,8 @@ if(document.querySelector('#pump-reset')) document.querySelector('#pump-reset').
   window.resetStockSheet = function(){
     if(!confirm('Clear all Stock Sheet entries?')) return;
     localStorage.removeItem(SS_KEY);
+    if(fbAuth.currentUser)
+      fbDb.collection('users').doc(fbAuth.currentUser.uid).collection('appdata').doc(SS_KEY).delete().catch(()=>{});
     renderStockSheet();
   };
 
