@@ -5292,6 +5292,15 @@ function initApp() {
     reader.readAsText(file);
     e.target.value = '';
   });
+
+  // Re-attach Firestore listener when app comes back to foreground (iOS suspends
+  // background tabs, which drops the onSnapshot connection)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      const date = currentDate();
+      if (date) loadRoster(date);
+    }
+  });
 }
 
 /* ════════════════════════════════════════
