@@ -2120,6 +2120,7 @@ const EMPLOYEES = [{"last":"Aalseth","first":"Dwayne","station":"Pine Bluff","st
    ════════════════════════════════════════ */
 let ROSTER_ROWS = []; // populated from active service in loadServices()
 let rosterUnsubscribe = null; // Firestore real-time listener cleanup handle
+let logUnsubscribe = null;    // Firestore real-time listener for activity log
 
 /* ════════════════════════════════════════
    SERVICES
@@ -4302,6 +4303,7 @@ let logFilter = 'All';
 function logKey(date){ return svcKey('activity_log_v1_') + date; }
 
 function loadLog(date){
+  if(logUnsubscribe){ logUnsubscribe(); logUnsubscribe = null; }
   try {
     const s = localStorage.getItem(logKey(date));
     logData = s ? JSON.parse(s) : [];
@@ -4317,12 +4319,32 @@ function loadLog(date){
   } catch(e){ logData = []; }
   renderLog();
   updateDashboard();
+  if(db){
+    logUnsubscribe = db.collection('services').doc(activeServiceId)
+      .collection('activity_log').doc(date)
+      .onSnapshot(doc => {
+        if(doc.exists){
+          try{
+            const cloud = JSON.parse(doc.data().data || '[]');
+            logData = cloud;
+            localStorage.setItem(logKey(date), JSON.stringify(logData));
+            renderLog();
+            updateDashboard();
+          }catch(e){}
+        }
+      }, ()=>{});
+  }
 }
 
 function saveLog(){
   const date = currentDate() || todayStr();
   localStorage.setItem(logKey(date), JSON.stringify(logData));
   updateDashboard();
+  if(db){
+    db.collection('services').doc(activeServiceId)
+      .collection('activity_log').doc(date)
+      .set({ data: JSON.stringify(logData) }).catch(()=>{});
+  }
 }
 
 function renderLog(){
@@ -5298,7 +5320,7 @@ function initApp() {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
       const date = currentDate();
-      if (date) loadRoster(date);
+      if (date) { loadRoster(date); loadLog(date); loadRptData(date); }
     }
   });
 }
@@ -5325,11 +5347,9 @@ function loadRptData(date){
     if(s){
       const saved = JSON.parse(s);
       rptData = Object.assign(makeEmptyRpt(), saved);
-      // migrate old totals→pcrs
       if(!rptData.pcrs.length && saved.totals && saved.totals.length){
         rptData.pcrs = saved.totals.map(t => ({ 'pcr-provider':t['tot-provider']||'', 'pcr-unit':t['tot-unit']||'', 'pcr-count':t['tot-calls']||'' }));
       }
-      // migrate old callouts→callins
       if(!rptData.callins.length && saved.callouts && saved.callouts.length){
         rptData.callins = saved.callouts;
       }
@@ -5338,12 +5358,31 @@ function loadRptData(date){
     }
   } catch(e) { rptData = makeEmptyRpt(); }
   renderRpt();
+  if(db){
+    db.collection('services').doc(activeServiceId)
+      .collection('shift_reports').doc(date).get()
+      .then(doc => {
+        if(doc.exists){
+          try{
+            const cloud = Object.assign(makeEmptyRpt(), JSON.parse(doc.data().data || '{}'));
+            rptData = cloud;
+            localStorage.setItem(rptKey(date), JSON.stringify(rptData));
+            renderRpt();
+          }catch(e){}
+        }
+      }).catch(()=>{});
+  }
 }
 
 function saveRptData(){
   const date = document.getElementById('roster-date').value || todayStr();
   collectRptFromDOM();
   localStorage.setItem(rptKey(date), JSON.stringify(rptData));
+  if(db){
+    db.collection('services').doc(activeServiceId)
+      .collection('shift_reports').doc(date)
+      .set({ data: JSON.stringify(rptData) }).catch(()=>{});
+  }
   renderReportHistory();
   renderMiniCal();
   showToast('Report saved ✓');
@@ -5354,6 +5393,11 @@ function autoSaveRptData(){
     const date = document.getElementById('roster-date')?.value || todayStr();
     collectRptFromDOM();
     localStorage.setItem(rptKey(date), JSON.stringify(rptData));
+    if(db){
+      db.collection('services').doc(activeServiceId)
+        .collection('shift_reports').doc(date)
+        .set({ data: JSON.stringify(rptData) }).catch(()=>{});
+    }
     const el = document.getElementById('autosave-indicator');
     if(el){ const t = new Date().toTimeString().slice(0,5); el.textContent = 'Auto-saved at ' + t; }
     renderReportHistory();
