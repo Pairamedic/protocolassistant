@@ -134,7 +134,7 @@
       const p = new URLSearchParams(window.location.search).get('returnTo');
       const allowed = ['supervisor.html','ProtocolAssistant.html','dashboard.html','relay.html','chart.html','narrative.html','checkoff.html'];
       if(p && allowed.includes(p)) return p;
-      return ADMIN_EMAILS.has(email) ? 'dashboard.html' : 'ProtocolAssistant.html';
+      return 'dashboard.html';
     }
 
     fbAuth.onAuthStateChanged(async user => {
