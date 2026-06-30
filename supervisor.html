@@ -1344,10 +1344,19 @@
     .stock-item-row:last-child { border-bottom:none; }
     .stock-item-label { flex:1; font-size:14px; color:var(--text); line-height:1.3; }
     .stock-item-label.oos { color:var(--muted); text-decoration:line-through; }
-    .stock-qty-inp { width:68px; background:var(--input-bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:15px; text-align:center; padding:7px 6px; font-family:inherit; -moz-appearance:textfield; }
+    .stock-qty-inp { width:58px; background:var(--input-bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:15px; text-align:center; padding:7px 4px; font-family:inherit; -moz-appearance:textfield; }
     .stock-qty-inp::-webkit-outer-spin-button, .stock-qty-inp::-webkit-inner-spin-button { -webkit-appearance:none; }
     .stock-qty-inp:focus { outline:none; border-color:var(--accent); }
     .stock-qty-inp:disabled { opacity:.35; }
+    .stock-qty-inp.low { border-color:rgba(248,113,113,.6); color:#f87171; }
+    .stock-min-inp { width:50px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.12); border-radius:8px; color:var(--muted); font-size:13px; text-align:center; padding:7px 4px; font-family:inherit; -moz-appearance:textfield; }
+    .stock-min-inp::-webkit-outer-spin-button, .stock-min-inp::-webkit-inner-spin-button { -webkit-appearance:none; }
+    .stock-min-inp:focus { outline:none; border-color:var(--accent); color:var(--text); }
+    .stock-col-hd { display:flex; align-items:center; gap:10px; padding:3px 0 5px; border-bottom:1px solid rgba(255,255,255,.08); margin-bottom:2px; }
+    .stock-col-hd-item { flex:1; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
+    .stock-col-hd-min { width:50px; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; text-align:center; }
+    .stock-col-hd-qty { width:58px; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; text-align:center; }
+    .stock-col-hd-oos { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
     .stock-oos-btn { background:rgba(255,255,255,.06); border:1px solid var(--border); border-radius:8px; color:var(--muted); font-size:11px; font-weight:700; padding:7px 11px; cursor:pointer; white-space:nowrap; font-family:inherit; transition:all .15s; letter-spacing:.3px; }
     .stock-oos-btn.active { background:rgba(248,113,113,.15); border-color:rgba(248,113,113,.5); color:#f87171; }
     .stock-oos-badge { background:rgba(248,113,113,.15); color:#f87171; border-radius:10px; padding:1px 8px; font-size:11px; font-weight:700; display:inline-block; flex-shrink:0; }
@@ -6883,20 +6892,101 @@ document.addEventListener('click', function(e) {
 
 // ── STOCK TAB ──────────────────────────────────────────────────────────────
 
-const STOCK_KEY = 'pat-stock-v1';
+const STOCK_KEY = 'pat-stock-v2';
 
 const STOCK_SECTIONS = [
-  { title: 'Medications', items: ['Albuterol','Atrovent','Atropine','Epi 1:1','Epi 1:10','Lidocaine','Lidocaine Drip','Dopamine Drip','Narcan','Magnesium','Calcium','Hydralazine','Sodium Bicarb','D10','Lasix','Adenosine','Zofran','Labetalol','Thiamine','Nitro','Benadryl','Aspirin Bottle','Verapamil','Oral Glucose','Solu-Medrol','Bacteriostatic Water','Amiodarone','Glucagon','Diltiazem','TXA'] },
-  { title: 'Airway Supplies', items: ['OPA Set (Adult / Child / Infant)','NPA Set','Adult BVM (>1000mL)','Pedi BVM (450–750mL)','Infant BVM (150–300mL)','Magill Forceps — Adult','Magill Forceps — Pedi','Nebulizer','Sterile Saline (for Nebulizer)','CPAP','Air-Q Size 0','Air-Q Size 1','Air-Q Size 1.5','Air-Q Size 2','Air-Q Size 2.5','Air-Q Size 3.5','Air-Q Size 4.5','Tube Holder','Air-Q Stylet','KY Jelly','Laryngoscope Handle','Mac 2 Blade','Mac 3 Blade','Mac 4 Blade','Miller 1 Blade','Miller 2 Blade','Miller 3 Blade','Miller 4 Blade','6.0 ETT','7.0 ETT','8.0 ETT','9.0 ETT','Suction Tubing','Catheter 8fr / 10fr','Catheter 12fr','Catheter 14fr / 18fr','Rigid Suction Tip'] },
-  { title: 'O₂ Supplies', items: ['Main O₂ Cylinder','Portable O₂ Cylinder','O₂ Regulator / Flowmeter','Nasal Cannula — Adult','Nasal Cannula — Pedi','NRB Mask — Adult','NRB Mask — Pedi','NRB Mask — Infant'] },
-  { title: 'IV & Medication Supplies', items: ['NS 1000mL','LR 1000mL','10gtt Set','Saline Lock','Saline Flush','14G IV Cath','16G IV Cath','18G IV Cath','20G IV Cath','22G IV Cath','24G IV Cath','Tourniquet','Alcohol Preps','Non-Sterile 4×4','1" Clear Tape','18g Needles','20g Needles','21g Needles','20mL Syringe','10mL Syringe','3mL Syringe','1mL Syringe','60mL Syringe','MAD Device (Mucosal Atomizer)','Roll of Med Labels'] },
-  { title: 'IO Supplies', items: ['IO Drill (EZ-IO)','IO Needle 15mm (Pink)','IO Needle 25mm (Blue)','IO Needle 45mm (Yellow)','IO Stabilizer','Extension Set'] },
-  { title: 'Trauma Supplies', items: ['Trauma Dressing','Occlusive Dressing','Vaseline Gauze','Hemostatic Agent','Commercial Tourniquet (CAT)','4×4 Pads','ABD Pads','Roller Gauze','Triangular Bandages','Tape 1"','Tape 2"','Kling','Hemostats','OB Kit','Trauma Bands','Stroke Bands'] },
-  { title: 'Cardiac & Monitor Supplies', items: ['12-Lead Electrodes','Defib Pads — Adult','Defib Pads — Pedi','SpO₂ Probe — Adult','SpO₂ Probe — Pedi','ETCO₂ Cable + Filterline','NC EtCO₂','Electrodes — Adult (Packs)','Electrodes — Pedi','EKG Paper Roll','BP Cuff — Lg. Adult','BP Cuff — Adult','BP Cuff — Child','BP Cuff — Infant','BP Cuff — Thigh (Black)','Stethoscope'] },
-  { title: 'Assessment & Monitoring', items: ['Thermometer','Glucometer','Glucometer Strips (Bottle)','Lancets','Pen Light'] },
-  { title: 'Immobilization & Splints', items: ['KED or Equivalent','Spine Board + Straps','Pediatric Restraint System','Head Immobilization Device','Cervical Collar — Adult','Cervical Collar — Pediatric','Cervical Collar — Infant','Padded Extremity Splints (set)','Traction Splint'] },
-  { title: 'BSI / PPE', items: ['Exam Gloves (1 Box)','Isolation Kits','N95 / N100 Respirator','Eye Protection (Goggles)','Antiseptic Hand Cleaner','Biohazard Bags'] },
-  { title: 'General Supplies', items: ['Blankets','Sheets','Towels','Emesis Basin','Sharps Container','EMT Shears','Hemostat','Lubricating Jelly','Disinfectant Solution','Betadine Solution','Sterile Water','Fire Extinguisher','HAZ-MAT Reference Guide','Reflective Safety Wear','Flashlight + Batteries','Window Punch','Pediatric Drug Reference','Car Seat or Pedi-Mate'] },
+  { title: 'Medications', items: [
+    { label: 'Albuterol', defaultMin: 2 }, { label: 'Atrovent', defaultMin: 2 }, { label: 'Atropine', defaultMin: 2 },
+    { label: 'Epi 1:1', defaultMin: 2 }, { label: 'Epi 1:10', defaultMin: 2 }, { label: 'Lidocaine', defaultMin: 2 },
+    { label: 'Lidocaine Drip', defaultMin: 1 }, { label: 'Dopamine Drip', defaultMin: 1 }, { label: 'Narcan', defaultMin: 2 },
+    { label: 'Magnesium', defaultMin: 1 }, { label: 'Calcium', defaultMin: 1 }, { label: 'Hydralazine', defaultMin: 2 },
+    { label: 'Sodium Bicarb', defaultMin: 2 }, { label: 'D10', defaultMin: 2 }, { label: 'Lasix', defaultMin: 2 },
+    { label: 'Adenosine', defaultMin: 2 }, { label: 'Zofran', defaultMin: 2 }, { label: 'Labetalol', defaultMin: 2 },
+    { label: 'Thiamine', defaultMin: 1 }, { label: 'Nitro', defaultMin: 2 }, { label: 'Benadryl', defaultMin: 2 },
+    { label: 'Aspirin Bottle', defaultMin: 1 }, { label: 'Verapamil', defaultMin: 2 }, { label: 'Oral Glucose', defaultMin: 1 },
+    { label: 'Solu-Medrol', defaultMin: 2 }, { label: 'Bacteriostatic Water', defaultMin: 2 }, { label: 'Amiodarone', defaultMin: 2 },
+    { label: 'Glucagon', defaultMin: 1 }, { label: 'Diltiazem', defaultMin: 2 }, { label: 'TXA', defaultMin: 1 },
+  ]},
+  { title: 'Airway Supplies', items: [
+    { label: 'OPA Set (Adult / Child / Infant)', defaultMin: 1 }, { label: 'NPA Set', defaultMin: 1 },
+    { label: 'Adult BVM (>1000mL)', defaultMin: 2 }, { label: 'Pedi BVM (450–750mL)', defaultMin: 1 }, { label: 'Infant BVM (150–300mL)', defaultMin: 1 },
+    { label: 'Magill Forceps — Adult', defaultMin: 1 }, { label: 'Magill Forceps — Pedi', defaultMin: 1 },
+    { label: 'Nebulizer', defaultMin: 2 }, { label: 'Sterile Saline (for Nebulizer)', defaultMin: 2 }, { label: 'CPAP', defaultMin: 1 },
+    { label: 'Air-Q Size 0', defaultMin: 1 }, { label: 'Air-Q Size 1', defaultMin: 1 }, { label: 'Air-Q Size 1.5', defaultMin: 1 },
+    { label: 'Air-Q Size 2', defaultMin: 1 }, { label: 'Air-Q Size 2.5', defaultMin: 1 }, { label: 'Air-Q Size 3.5', defaultMin: 1 }, { label: 'Air-Q Size 4.5', defaultMin: 1 },
+    { label: 'Tube Holder', defaultMin: 1 }, { label: 'Air-Q Stylet', defaultMin: 1 }, { label: 'KY Jelly', defaultMin: 2 },
+    { label: 'Laryngoscope Handle', defaultMin: 1 },
+    { label: 'Mac 2 Blade', defaultMin: 1 }, { label: 'Mac 3 Blade', defaultMin: 1 }, { label: 'Mac 4 Blade', defaultMin: 1 },
+    { label: 'Miller 1 Blade', defaultMin: 1 }, { label: 'Miller 2 Blade', defaultMin: 1 }, { label: 'Miller 3 Blade', defaultMin: 1 }, { label: 'Miller 4 Blade', defaultMin: 1 },
+    { label: '6.0 ETT', defaultMin: 1 }, { label: '7.0 ETT', defaultMin: 1 }, { label: '8.0 ETT', defaultMin: 1 }, { label: '9.0 ETT', defaultMin: 1 },
+    { label: 'Suction Tubing', defaultMin: 2 }, { label: 'Catheter 8fr / 10fr', defaultMin: 1 }, { label: 'Catheter 12fr', defaultMin: 1 },
+    { label: 'Catheter 14fr / 18fr', defaultMin: 1 }, { label: 'Rigid Suction Tip', defaultMin: 1 },
+  ]},
+  { title: 'O₂ Supplies', items: [
+    { label: 'Main O₂ Cylinder', defaultMin: 1 }, { label: 'Portable O₂ Cylinder', defaultMin: 1 },
+    { label: 'O₂ Regulator / Flowmeter', defaultMin: 1 },
+    { label: 'Nasal Cannula — Adult', defaultMin: 6 }, { label: 'Nasal Cannula — Pedi', defaultMin: 4 },
+    { label: 'NRB Mask — Adult', defaultMin: 4 }, { label: 'NRB Mask — Pedi', defaultMin: 2 }, { label: 'NRB Mask — Infant', defaultMin: 2 },
+  ]},
+  { title: 'IV & Medication Supplies', items: [
+    { label: 'NS 1000mL', defaultMin: 4 }, { label: 'LR 1000mL', defaultMin: 4 },
+    { label: '10gtt Set', defaultMin: 8 }, { label: 'Saline Lock', defaultMin: 10 }, { label: 'Saline Flush', defaultMin: 10 },
+    { label: '14G IV Cath', defaultMin: 4 }, { label: '16G IV Cath', defaultMin: 4 }, { label: '18G IV Cath', defaultMin: 8 },
+    { label: '20G IV Cath', defaultMin: 8 }, { label: '22G IV Cath', defaultMin: 6 }, { label: '24G IV Cath', defaultMin: 6 },
+    { label: 'Tourniquet', defaultMin: 3 }, { label: 'Alcohol Preps', defaultMin: 8 }, { label: 'Non-Sterile 4×4', defaultMin: 8 },
+    { label: '1" Clear Tape', defaultMin: 2 },
+    { label: '18g Needles', defaultMin: 8 }, { label: '20g Needles', defaultMin: 8 }, { label: '21g Needles', defaultMin: 4 },
+    { label: '20mL Syringe', defaultMin: 2 }, { label: '10mL Syringe', defaultMin: 8 }, { label: '3mL Syringe', defaultMin: 6 },
+    { label: '1mL Syringe', defaultMin: 2 }, { label: '60mL Syringe', defaultMin: 2 },
+    { label: 'MAD Device (Mucosal Atomizer)', defaultMin: 1 }, { label: 'Roll of Med Labels', defaultMin: 1 },
+  ]},
+  { title: 'IO Supplies', items: [
+    { label: 'IO Drill (EZ-IO)', defaultMin: 1 }, { label: 'IO Needle 15mm (Pink)', defaultMin: 2 },
+    { label: 'IO Needle 25mm (Blue)', defaultMin: 2 }, { label: 'IO Needle 45mm (Yellow)', defaultMin: 2 },
+    { label: 'IO Stabilizer', defaultMin: 2 }, { label: 'Extension Set', defaultMin: 2 },
+  ]},
+  { title: 'Trauma Supplies', items: [
+    { label: 'Trauma Dressing', defaultMin: 2 }, { label: 'Occlusive Dressing', defaultMin: 4 },
+    { label: 'Vaseline Gauze', defaultMin: 2 }, { label: 'Hemostatic Agent', defaultMin: 1 },
+    { label: 'Commercial Tourniquet (CAT)', defaultMin: 2 },
+    { label: '4×4 Pads', defaultMin: 10 }, { label: 'ABD Pads', defaultMin: 10 }, { label: 'Roller Gauze', defaultMin: 8 },
+    { label: 'Triangular Bandages', defaultMin: 4 }, { label: 'Tape 1"', defaultMin: 2 }, { label: 'Tape 2"', defaultMin: 2 },
+    { label: 'Kling', defaultMin: 4 }, { label: 'Hemostats', defaultMin: 1 }, { label: 'OB Kit', defaultMin: 2 },
+    { label: 'Trauma Bands', defaultMin: 10 }, { label: 'Stroke Bands', defaultMin: 10 },
+  ]},
+  { title: 'Cardiac & Monitor Supplies', items: [
+    { label: '12-Lead Electrodes', defaultMin: 2 }, { label: 'Defib Pads — Adult', defaultMin: 2 }, { label: 'Defib Pads — Pedi', defaultMin: 1 },
+    { label: 'SpO₂ Probe — Adult', defaultMin: 1 }, { label: 'SpO₂ Probe — Pedi', defaultMin: 1 },
+    { label: 'ETCO₂ Cable + Filterline', defaultMin: 1 }, { label: 'NC EtCO₂', defaultMin: 1 },
+    { label: 'Electrodes — Adult (Packs)', defaultMin: 4 }, { label: 'Electrodes — Pedi', defaultMin: 2 }, { label: 'EKG Paper Roll', defaultMin: 1 },
+    { label: 'BP Cuff — Lg. Adult', defaultMin: 1 }, { label: 'BP Cuff — Adult', defaultMin: 1 },
+    { label: 'BP Cuff — Child', defaultMin: 1 }, { label: 'BP Cuff — Infant', defaultMin: 1 }, { label: 'BP Cuff — Thigh (Black)', defaultMin: 1 },
+    { label: 'Stethoscope', defaultMin: 1 },
+  ]},
+  { title: 'Assessment & Monitoring', items: [
+    { label: 'Thermometer', defaultMin: 1 }, { label: 'Glucometer', defaultMin: 1 },
+    { label: 'Glucometer Strips (Bottle)', defaultMin: 1 }, { label: 'Lancets', defaultMin: 20 }, { label: 'Pen Light', defaultMin: 1 },
+  ]},
+  { title: 'Immobilization & Splints', items: [
+    { label: 'KED or Equivalent', defaultMin: 1 }, { label: 'Spine Board + Straps', defaultMin: 2 },
+    { label: 'Pediatric Restraint System', defaultMin: 1 }, { label: 'Head Immobilization Device', defaultMin: 1 },
+    { label: 'Cervical Collar — Adult', defaultMin: 3 }, { label: 'Cervical Collar — Pediatric', defaultMin: 2 }, { label: 'Cervical Collar — Infant', defaultMin: 1 },
+    { label: 'Padded Extremity Splints (set)', defaultMin: 1 }, { label: 'Traction Splint', defaultMin: 1 },
+  ]},
+  { title: 'BSI / PPE', items: [
+    { label: 'Exam Gloves (1 Box)', defaultMin: 1 }, { label: 'Isolation Kits', defaultMin: 2 },
+    { label: 'N95 / N100 Respirator', defaultMin: 2 }, { label: 'Eye Protection (Goggles)', defaultMin: 2 },
+    { label: 'Antiseptic Hand Cleaner', defaultMin: 1 }, { label: 'Biohazard Bags', defaultMin: 2 },
+  ]},
+  { title: 'General Supplies', items: [
+    { label: 'Blankets', defaultMin: 2 }, { label: 'Sheets', defaultMin: 2 }, { label: 'Towels', defaultMin: 2 },
+    { label: 'Emesis Basin', defaultMin: 2 }, { label: 'Sharps Container', defaultMin: 1 },
+    { label: 'EMT Shears', defaultMin: 1 }, { label: 'Hemostat', defaultMin: 1 }, { label: 'Lubricating Jelly', defaultMin: 1 },
+    { label: 'Disinfectant Solution', defaultMin: 1 }, { label: 'Betadine Solution', defaultMin: 1 }, { label: 'Sterile Water', defaultMin: 1 },
+    { label: 'Fire Extinguisher', defaultMin: 1 }, { label: 'HAZ-MAT Reference Guide', defaultMin: 1 },
+    { label: 'Reflective Safety Wear', defaultMin: 1 }, { label: 'Flashlight + Batteries', defaultMin: 1 },
+    { label: 'Window Punch', defaultMin: 1 }, { label: 'Pediatric Drug Reference', defaultMin: 1 }, { label: 'Car Seat or Pedi-Mate', defaultMin: 1 },
+  ]},
 ];
 
 let stockRendered = false;
@@ -6927,15 +7017,20 @@ function renderStock() {
 
   container.innerHTML = STOCK_SECTIONS.map(sec => {
     let oosInSec = 0;
-    const rows = sec.items.map(label => {
-      const key = stockItemKey(sec.title, label);
+    const rows = sec.items.map(item => {
+      const key = stockItemKey(sec.title, item.label);
       const state = items[key] || {};
       const oos = !!state.oos;
       const qty = state.qty !== undefined && state.qty !== '' ? state.qty : '';
+      const savedMin = state.min !== undefined && state.min !== '' ? state.min : '';
+      const minVal = savedMin !== '' ? savedMin : item.defaultMin;
+      const isLow = !oos && qty !== '' && minVal !== '' && Number(qty) < Number(minVal);
       if (oos) oosInSec++;
-      return `<div class="stock-item-row" data-key="${key.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}">` +
-        `<span class="stock-item-label${oos ? ' oos' : ''}">${label.replace(/&/g,'&amp;')}</span>` +
-        `<input type="number" class="stock-qty-inp" min="0" max="9999" placeholder="—" value="${qty}" ${oos ? 'disabled' : ''}>` +
+      const safeKey = key.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+      return `<div class="stock-item-row" data-key="${safeKey}">` +
+        `<span class="stock-item-label${oos ? ' oos' : ''}">${item.label.replace(/&/g,'&amp;')}</span>` +
+        `<input type="number" class="stock-min-inp" min="0" max="9999" placeholder="Min" value="${minVal}" title="Minimum quantity">` +
+        `<input type="number" class="stock-qty-inp${isLow ? ' low' : ''}" min="0" max="9999" placeholder="—" value="${qty}" ${oos ? 'disabled' : ''}>` +
         `<button type="button" class="stock-oos-btn${oos ? ' active' : ''}">OOS</button>` +
         `</div>`;
     }).join('');
@@ -6944,38 +7039,62 @@ function renderStock() {
       ? `<span class="stock-oos-badge">${oosInSec} OOS</span>`
       : '';
 
+    const colHd = `<div class="stock-col-hd">` +
+      `<span class="stock-col-hd-item">Item</span>` +
+      `<span class="stock-col-hd-min">Min</span>` +
+      `<span class="stock-col-hd-qty">On Hand</span>` +
+      `<span class="stock-col-hd-oos">OOS</span>` +
+      `</div>`;
+
     return `<div class="rpt-section">` +
       `<div class="rpt-section-hd" onclick="this.parentElement.classList.toggle('collapsed')">` +
       `<span class="rpt-section-title">${sec.title.replace(/&/g,'&amp;')}</span>` +
       badge +
       `<span class="rpt-section-chevron" style="margin-left:auto">▾</span>` +
       `</div>` +
-      `<div class="rpt-section-body">${rows}</div>` +
+      `<div class="rpt-section-body">${colHd}${rows}</div>` +
       `</div>`;
   }).join('');
 
   updateStockMeta(data);
 
-  // Bind events — do this once per render, not on every change
   container.querySelectorAll('.stock-item-row').forEach(function(row) {
     const key = row.dataset.key;
+    const minInp = row.querySelector('.stock-min-inp');
     const qtyInp = row.querySelector('.stock-qty-inp');
     const oosBtn = row.querySelector('.stock-oos-btn');
     const lbl = row.querySelector('.stock-item-label');
+
+    function checkLow() {
+      const minV = minInp.value !== '' ? Number(minInp.value) : NaN;
+      const qtyV = qtyInp.value !== '' ? Number(qtyInp.value) : NaN;
+      const low = !isNaN(minV) && !isNaN(qtyV) && qtyV < minV;
+      qtyInp.classList.toggle('low', low);
+    }
+
+    minInp.addEventListener('change', function() {
+      const d = loadStock();
+      if (!d.items) d.items = {};
+      const prev = d.items[key] || {};
+      d.items[key] = { qty: prev.qty !== undefined ? prev.qty : '', oos: !!prev.oos, min: minInp.value !== '' ? Number(minInp.value) : '' };
+      d.timestamp = new Date().toISOString();
+      saveStock(d);
+      checkLow();
+    });
 
     qtyInp.addEventListener('change', function() {
       const d = loadStock();
       if (!d.items) d.items = {};
       const prev = d.items[key] || {};
-      d.items[key] = { qty: qtyInp.value !== '' ? Number(qtyInp.value) : '', oos: false };
-      d.timestamp = new Date().toISOString();
-      saveStock(d);
-      updateStockMeta(d);
-      // Clear OOS state visually if it was set
       if (prev.oos) {
         oosBtn.classList.remove('active');
         lbl.classList.remove('oos');
       }
+      d.items[key] = { qty: qtyInp.value !== '' ? Number(qtyInp.value) : '', oos: false, min: prev.min !== undefined ? prev.min : '' };
+      d.timestamp = new Date().toISOString();
+      saveStock(d);
+      updateStockMeta(d);
+      checkLow();
     });
 
     oosBtn.addEventListener('click', function() {
@@ -6984,25 +7103,26 @@ function renderStock() {
       oosBtn.classList.toggle('active', newOos);
       lbl.classList.toggle('oos', newOos);
       qtyInp.disabled = newOos;
-      if (newOos) qtyInp.value = '';
+      if (newOos) { qtyInp.value = ''; qtyInp.classList.remove('low'); }
       const d = loadStock();
       if (!d.items) d.items = {};
-      d.items[key] = { qty: newOos ? '' : (qtyInp.value !== '' ? Number(qtyInp.value) : ''), oos: newOos };
+      const prev = d.items[key] || {};
+      d.items[key] = { qty: newOos ? '' : (qtyInp.value !== '' ? Number(qtyInp.value) : ''), oos: newOos, min: prev.min !== undefined ? prev.min : '' };
       d.timestamp = new Date().toISOString();
       saveStock(d);
       updateStockMeta(d);
-      // Update section OOS badge without full re-render
+      if (!newOos) checkLow();
       const secEl = row.closest('.rpt-section');
       if (secEl) {
-        const secItems = secEl.querySelectorAll('.stock-oos-btn.active');
+        const secOos = secEl.querySelectorAll('.stock-oos-btn.active');
         let badge = secEl.querySelector('.stock-oos-badge');
-        if (secItems.length > 0) {
+        if (secOos.length > 0) {
           if (!badge) {
             badge = document.createElement('span');
             badge.className = 'stock-oos-badge';
             secEl.querySelector('.rpt-section-hd .rpt-section-title').after(badge);
           }
-          badge.textContent = secItems.length + ' OOS';
+          badge.textContent = secOos.length + ' OOS';
         } else if (badge) {
           badge.remove();
         }
@@ -7014,35 +7134,82 @@ function renderStock() {
 }
 
 function clearStock() {
-  if (!confirm('Clear all stock quantities and OOS flags?')) return;
-  saveStock({ items: {}, timestamp: new Date().toISOString() });
+  if (!confirm('Clear all stock quantities and OOS flags? (Minimum values will be kept)')) return;
+  const data = loadStock();
+  const items = data.items || {};
+  // Preserve min values, clear qty and oos
+  const newItems = {};
+  Object.keys(items).forEach(function(k) {
+    if (items[k].min !== undefined && items[k].min !== '') {
+      newItems[k] = { qty: '', oos: false, min: items[k].min };
+    }
+  });
+  saveStock({ items: newItems, timestamp: new Date().toISOString() });
   stockRendered = false;
   renderStock();
-  if (typeof showToast === 'function') showToast('Stock cleared.');
+  if (typeof showToast === 'function') showToast('Stock cleared. Minimum values preserved.');
 }
 
 function printStock() {
   const data = loadStock();
   const items = data.items || {};
   const ts = data.timestamp ? new Date(data.timestamp).toLocaleString() : 'Not recorded';
-  let html = '<html><head><title>Stock List</title><style>body{font-family:sans-serif;font-size:13px;margin:20px}h2{margin:0 0 4px}p{margin:0 0 8px;color:#666;font-size:11px}h3{margin:14px 0 4px;font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:#333;border-bottom:1px solid #ddd;padding-bottom:3px}table{width:100%;border-collapse:collapse;margin-bottom:8px}td{padding:4px 6px;border-bottom:1px solid #eee;font-size:12px}.oos{color:#c00;font-weight:700}.qty{text-align:center;width:60px;color:#333}.na{color:#aaa}.back-btn{display:inline-block;margin-bottom:14px;padding:8px 16px;background:#0b0d10;color:#5eead4;border:1px solid #5eead4;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;font-family:inherit}@media print{.back-btn{display:none}h2,p,h3,table{page-break-inside:avoid}}</style></head><body>';
+
+  const css = [
+    'body{font-family:Arial,sans-serif;font-size:12px;margin:16px;color:#111}',
+    'h1{font-size:16px;margin:0 0 2px;font-weight:700}',
+    '.subtitle{font-size:11px;color:#555;margin:0 0 12px}',
+    '.sec-title{background:#1a1a2e;color:#fff;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:5px 8px;margin:10px 0 0}',
+    'table{width:100%;border-collapse:collapse;margin-bottom:0}',
+    'th{background:#2c2c4a;color:#fff;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:4px 6px;text-align:left;font-weight:600}',
+    'th.num{text-align:center}',
+    'td{padding:4px 6px;border-bottom:1px solid #ddd;font-size:11px;vertical-align:middle}',
+    'td.num{text-align:center;width:56px}',
+    'td.oos-cell{text-align:center;width:50px}',
+    'tr.oos-row td{color:#999;text-decoration:line-through}',
+    'tr.oos-row td.flag{color:#c00;font-weight:700;text-decoration:none}',
+    'tr.low-row td.onhand{color:#c00;font-weight:700}',
+    '.back-btn{display:inline-block;margin-bottom:12px;padding:7px 14px;background:#1a1a2e;color:#5eead4;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}',
+    '@media print{.back-btn{display:none}}'
+  ].join('');
+
+  let html = '<html><head><title>Supply Inventory</title><style>' + css + '</style></head><body>';
   html += '<button class="back-btn" onclick="window.close()">← Back to App</button>';
-  html += '<h2>Stock List</h2><p>Recorded: ' + ts + '</p>';
+  html += '<h1>EASI Supply Inventory</h1>';
+  html += '<p class="subtitle">Printed: ' + ts + '</p>';
+
   STOCK_SECTIONS.forEach(function(sec) {
-    html += '<h3>' + sec.title + '</h3><table>';
-    sec.items.forEach(function(label) {
-      const key = stockItemKey(sec.title, label);
+    html += '<div class="sec-title">' + sec.title + '</div>';
+    html += '<table><tr><th>Item</th><th class="num">Min</th><th class="num">On Hand</th><th class="num oos-cell">OOS</th></tr>';
+
+    sec.items.forEach(function(item) {
+      const key = stockItemKey(sec.title, item.label);
       const state = items[key] || {};
       const oos = !!state.oos;
-      const qty = state.qty !== undefined && state.qty !== '' ? state.qty : null;
-      html += '<tr><td>' + label + '</td>';
-      if (oos) html += '<td class="oos">OUT OF STOCK</td>';
-      else if (qty !== null) html += '<td class="qty">' + qty + '</td>';
-      else html += '<td class="na">—</td>';
+      const qty = state.qty !== undefined && state.qty !== '' ? Number(state.qty) : null;
+      const minV = state.min !== undefined && state.min !== '' ? Number(state.min) : item.defaultMin;
+      const isLow = !oos && qty !== null && qty < minV;
+
+      let rowClass = '';
+      if (oos) rowClass = 'oos-row';
+      else if (isLow) rowClass = 'low-row';
+
+      html += '<tr' + (rowClass ? ' class="' + rowClass + '"' : '') + '>';
+      html += '<td>' + item.label + '</td>';
+      html += '<td class="num">' + minV + '</td>';
+      if (oos) {
+        html += '<td class="num">—</td>';
+        html += '<td class="num oos-cell flag">OOS</td>';
+      } else {
+        html += '<td class="num onhand">' + (qty !== null ? qty : '___') + '</td>';
+        html += '<td class="num oos-cell">☐</td>';
+      }
       html += '</tr>';
     });
+
     html += '</table>';
   });
+
   html += '</body></html>';
   const w = window.open('', '_blank');
   if (w) { w.document.write(html); w.document.close(); w.print(); }

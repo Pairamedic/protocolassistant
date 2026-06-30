@@ -577,9 +577,9 @@ const ALS_PARA_SECTIONS = [
   {
     title: 'Soft Goods & Wound Care',
     items: [
-      { label: '4×4 Pads', qty: 6 },
-      { label: 'ABD Pads', qty: 2 },
-      { label: 'Roller Gauze', qty: 6 },
+      { label: '4×4 Pads', qty: 10 },
+      { label: 'ABD Pads', qty: 10 },
+      { label: 'Roller Gauze', qty: 8 },
       { label: 'Triangular Bandages', qty: 6 },
       { label: 'Tape 1"', qty: 2 },
       { label: 'Tape 2"', qty: 2 },
@@ -634,7 +634,8 @@ const ALS_PARA_SECTIONS = [
     items: [
       { label: 'Main O₂ Cylinder', qty: 1 },
       { label: 'O₂ Regulator / Flowmeter', qty: 1 },
-      { label: 'Nasal Cannula — Adult', qty: 4 },
+      { label: 'Nasal Cannula — Adult', qty: 6 },
+      { label: 'Nasal Pillow Cannula', qty: 2 },
       { label: 'Nasal Cannula — Pedi', qty: 4 },
       { label: 'NRB Mask — Adult', qty: 4 },
       { label: 'NRB Mask — Pedi', qty: 2 },
@@ -677,11 +678,11 @@ const ALS_PARA_SECTIONS = [
   {
     title: 'Assessment & Monitoring',
     items: [
-      { label: 'Thermometer', qty: 1 },
-      { label: 'Glucometer', qty: 1 },
+      { label: 'Thermometer', qty: 1, expiry: true },
+      { label: 'Glucometer', qty: 1, expiry: true },
       { label: 'Glucometer Strips (Bottle)', qty: 1, expiry: true },
-      { label: 'Lancets', qty: 20 },
-      { label: 'Pen Light', qty: 1 },
+      { label: 'Lancets', qty: 20, expiry: true },
+      { label: 'Pen Light', qty: 1, expiry: true },
     ]
   },
   {
@@ -689,15 +690,15 @@ const ALS_PARA_SECTIONS = [
     items: [
       { label: 'NS 1000mL', qty: 2, expiry: true },
       { label: 'LR 1000mL', qty: 4, expiry: true },
-      { label: '10gtt Set', qty: 4 },
-      { label: 'Saline Lock', qty: 4, expiry: true },
-      { label: 'Saline Flush', qty: 4, expiry: true },
-      { label: '14G IV Cath', qty: 2 },
-      { label: '16G IV Cath', qty: 2 },
-      { label: '18G IV Cath', qty: 4 },
-      { label: '20G IV Cath', qty: 4 },
-      { label: '22G IV Cath', qty: 4 },
-      { label: '24G IV Cath', qty: 2 },
+      { label: '10gtt Set', qty: 8 },
+      { label: 'Saline Lock', qty: 10, expiry: true },
+      { label: 'Saline Flush', qty: 10, expiry: true },
+      { label: '14G IV Cath', qty: 4 },
+      { label: '16G IV Cath', qty: 4 },
+      { label: '18G IV Cath', qty: 8 },
+      { label: '20G IV Cath', qty: 8 },
+      { label: '22G IV Cath', qty: 6 },
+      { label: '24G IV Cath', qty: 6 },
       { label: 'Tourniquet', qty: 3 },
       { label: 'Alcohol Preps', qty: 8 },
       { label: 'Non-Sterile 4×4', qty: 8 },
@@ -710,7 +711,7 @@ const ALS_PARA_SECTIONS = [
       { label: 'IO Drill (EZ-IO)', qty: 1 },
       { label: 'IO Needle 15mm (Pink)', qty: 2 },
       { label: 'IO Needle 25mm (Blue)', qty: 2 },
-      { label: 'IO Needle 45mm (Yellow)', qty: 1 },
+      { label: 'IO Needle 45mm (Yellow)', qty: 2 },
       { label: 'IO Stabilizer', qty: 2 },
       { label: 'Extension Set', qty: 2 },
       { label: 'NS 1000mL (IO Flush)', qty: 1, expiry: true },
@@ -752,7 +753,7 @@ const ALS_PARA_SECTIONS = [
   {
     title: 'Trauma',
     items: [
-      { label: 'Trauma Dressing', qty: 4 },
+      { label: 'Trauma Dressing', qty: 2 },
       { label: 'Occlusive Dressing', qty: 4 },
       { label: 'Vaseline Gauze', qty: 2 },
       { label: 'Hemostatic Agent', qty: 1 },
@@ -805,8 +806,8 @@ const ALS_PARA_SECTIONS = [
       { label: 'Albuterol', qty: 6, expiry: true },
       { label: 'Atrovent', qty: 4, expiry: true },
       { label: 'Atropine', qty: 3, expiry: true },
-      { label: 'Epi 1:1', qty: 1, expiry: true },
-      { label: 'Epi 1:10', qty: 2, expiry: true },
+      { label: 'Epi 1:1', qty: 2, expiry: true },
+      { label: 'Epi 1:10', qty: 10, expiry: true },
       { label: 'Lidocaine', qty: 2, expiry: true },
       { label: 'Lidocaine Drip', qty: 1, expiry: true },
       { label: 'Dopamine Drip', qty: 2, expiry: true },
@@ -822,7 +823,7 @@ const ALS_PARA_SECTIONS = [
       { label: 'Labetalol', qty: 2, expiry: true },
       { label: 'Thiamine', qty: 1, expiry: true },
       { label: 'Nitro', qty: 2, expiry: true },
-      { label: 'Benadryl', qty: 2, expiry: true },
+      { label: 'Benadryl', qty: 4, expiry: true },
       { label: 'Aspirin Bottle', qty: 1, expiry: true },
       { label: 'Verapamil', qty: 3, expiry: true },
       { label: 'Oral Glucose', qty: 1, expiry: true },
@@ -987,7 +988,7 @@ const BLS_EMT_SECTIONS = [
     items: [
       { label: 'OPA Set (Adult / Child / Infant)', qty: 1 },
       { label: 'NPA Set', qty: 1 },
-      { label: 'Nasal Cannula — Adult', qty: 4 },
+      { label: 'Nasal Cannula — Adult', qty: 8 },
       { label: 'Nasal Cannula — Pedi', qty: 4 },
       { label: 'NRB Mask — Adult', qty: 4 },
       { label: 'NRB Mask — Pedi', qty: 2 },
@@ -1059,14 +1060,13 @@ const BLS_EMT_SECTIONS = [
   {
     title: 'EMT Medications',
     items: [
-      { label: 'Oral Glucose', qty: 1, expiry: true },
-      { label: 'Activated Charcoal', qty: 1, expiry: true },
+      { label: 'Oral Glucose', qty: 2, expiry: true },
       { label: 'Aspirin Bottle', qty: 1, expiry: true },
       { label: 'Albuterol (Unit Dose)', qty: 4, expiry: true },
       { label: 'Epi Auto-Injector Adult', qty: 2, expiry: true },
       { label: 'Epi Auto-Injector Pedi', qty: 1, expiry: true },
       { label: 'Naloxone (Narcan) Nasal', qty: 4, expiry: true },
-      { label: 'MAD Device (Mucosal Atomizer)', qty: 1 },
+      { label: 'MAD Device (Mucosal Atomizer)', qty: 2 },
     ]
   },
 ];
