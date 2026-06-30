@@ -766,6 +766,184 @@
       transition: background .12s, border-color .12s;
     }
     .nudge-btn:active { background: rgba(94,234,212,.1); border-color: var(--accent); }
+
+    /* ══ CARDIAC ARREST / CODE ══ */
+
+    /* Start / hero */
+    .code-hero {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px 20px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .code-hero-icon { font-size: 46px; line-height: 1; }
+    .code-hero-title { font-size: 21px; font-weight: 800; color: var(--text); margin-top: 10px; letter-spacing: .3px; }
+    .code-hero-sub { font-size: 13px; color: var(--muted); margin: 8px auto 22px; max-width: 320px; line-height: 1.5; }
+    .code-start-btn {
+      width: 100%;
+      background: var(--danger);
+      color: #fff;
+      border: none;
+      border-radius: 16px;
+      font-size: 20px;
+      font-weight: 800;
+      font-family: inherit;
+      letter-spacing: 1px;
+      padding: 20px 16px;
+      cursor: pointer;
+      min-height: 68px;
+      box-shadow: 0 6px 20px rgba(248,113,113,.35);
+      transition: transform .12s, opacity .12s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .code-start-btn:active { transform: scale(.98); opacity: .9; }
+
+    /* Code clock */
+    .code-clock-card {
+      background: linear-gradient(180deg, rgba(248,113,113,.14), rgba(248,113,113,.05));
+      border: 1px solid rgba(248,113,113,.35);
+      border-radius: 18px;
+      padding: 16px;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+    .code-clock-card.rosc {
+      background: linear-gradient(180deg, rgba(94,234,212,.16), rgba(94,234,212,.04));
+      border-color: rgba(94,234,212,.4);
+    }
+    .code-clock-label {
+      font-size: 12px; font-weight: 800; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--danger);
+    }
+    .code-clock-card.rosc .code-clock-label { color: var(--accent); }
+    .code-clock-time {
+      font-size: 46px; font-weight: 800; color: var(--text);
+      font-variant-numeric: tabular-nums; line-height: 1.1; margin: 4px 0 2px;
+      letter-spacing: 1px;
+    }
+    .code-clock-sub { font-size: 12px; color: var(--muted); }
+
+    /* Countdown tiles */
+    .code-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .code-tile {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px 10px;
+      text-align: center;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background .15s, border-color .15s;
+      -webkit-tap-highlight-color: transparent;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      min-height: 104px; justify-content: center;
+    }
+    .code-tile:active { background: rgba(94,234,212,.06); }
+    .code-tile-label { font-size: 10.5px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; color: var(--muted); }
+    .code-tile-time { font-size: 32px; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; line-height: 1.05; }
+    .code-tile-hint { font-size: 10.5px; color: var(--muted); }
+    .code-tile.soon { border-color: rgba(251,191,36,.5); }
+    .code-tile.soon .code-tile-time { color: var(--warn); }
+    .code-tile.due {
+      border-color: var(--danger);
+      background: rgba(248,113,113,.12);
+      animation: codePulse 1s ease-in-out infinite;
+    }
+    .code-tile.due .code-tile-time { color: var(--danger); }
+    .code-tile.paused .code-tile-time { color: var(--muted); font-size: 20px; }
+    @keyframes codePulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(248,113,113,0); }
+      50% { box-shadow: 0 0 0 4px rgba(248,113,113,.18); }
+    }
+
+    /* Stat chips */
+    .code-stats { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 4px; }
+    .code-stat {
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 12px; font-weight: 600; color: var(--text);
+      display: flex; align-items: center; gap: 5px;
+    }
+    .code-stat b { color: var(--accent); font-weight: 800; }
+
+    /* Action / rhythm / energy rows */
+    .code-chip-row { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 4px; }
+    .code-chip {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px; font-weight: 700;
+      padding: 10px 14px;
+      cursor: pointer;
+      min-height: 44px;
+      transition: background .12s, border-color .12s, color .12s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .code-chip:active { background: rgba(94,234,212,.1); }
+    .code-chip.sel { background: rgba(94,234,212,.16); border-color: rgba(94,234,212,.45); color: var(--accent); }
+
+    .code-shock-btn {
+      width: 100%;
+      background: rgba(251,191,36,.14);
+      border: 1px solid rgba(251,191,36,.45);
+      color: var(--warn);
+      border-radius: 14px;
+      font-family: inherit;
+      font-size: 18px; font-weight: 800; letter-spacing: .5px;
+      padding: 16px;
+      cursor: pointer;
+      min-height: 60px;
+      margin-top: 8px;
+      transition: transform .12s, opacity .12s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .code-shock-btn:active { transform: scale(.98); opacity: .9; }
+    .code-shock-btn span { opacity: .85; font-weight: 700; }
+
+    .code-action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .code-action-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 13px 12px;
+      text-align: left;
+      cursor: pointer;
+      font-family: inherit;
+      display: flex; flex-direction: column; gap: 2px;
+      min-height: 60px; justify-content: center;
+      transition: background .12s, border-color .12s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .code-action-btn:active { background: rgba(94,234,212,.08); border-color: rgba(94,234,212,.25); }
+    .code-action-btn.epi { border-color: rgba(94,234,212,.3); background: rgba(94,234,212,.06); }
+    .code-action-title { font-size: 14px; font-weight: 700; color: var(--text); }
+    .code-action-sub { font-size: 11px; color: var(--muted); }
+
+    /* Code log */
+    .code-log-entry { display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); align-items: baseline; }
+    .code-log-entry:last-child { border-bottom: none; }
+    .code-log-time { font-size: 11px; color: var(--muted); font-weight: 700; white-space: nowrap; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+    .code-log-elapsed { font-size: 10px; color: var(--accent); font-weight: 700; white-space: nowrap; flex-shrink: 0; min-width: 42px; }
+    .code-log-label { font-size: 13px; color: var(--text); flex: 1; min-width: 0; word-break: break-word; }
+
+    /* Ended summary */
+    .code-end-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .code-end-row { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .code-end-row:last-child { border-bottom: none; }
+    .code-end-row .k { color: var(--muted); }
+    .code-end-row .v { color: var(--text); font-weight: 700; text-align: right; }
   </style>
 </head>
 <body>
@@ -838,6 +1016,79 @@
       </div>
     </div>
 
+    <!-- TAB: Cardiac Arrest / Code -->
+    <div class="tab-panel" id="tab-code">
+      <div class="tab-inner">
+
+        <!-- Start view -->
+        <div id="code-start-view">
+          <div class="code-hero">
+            <div class="code-hero-icon">🫀</div>
+            <div class="code-hero-title">Cardiac Arrest</div>
+            <div class="code-hero-sub">One tap starts the code clock and timestamps the arrest. Pulse-check and epinephrine reminders run automatically.</div>
+            <button class="code-start-btn" id="btn-start-code">▶ START CODE</button>
+          </div>
+          <div id="code-last-summary"></div>
+        </div>
+
+        <!-- Active view -->
+        <div id="code-run-view" class="hidden">
+
+          <div class="code-clock-card" id="code-clock-card">
+            <div class="code-clock-label" id="code-clock-status">CODE RUNNING</div>
+            <div class="code-clock-time" id="code-clock-time">0:00</div>
+            <div class="code-clock-sub" id="code-clock-sub">Arrest at —</div>
+          </div>
+
+          <div class="code-tiles">
+            <button class="code-tile" id="tile-pulse">
+              <span class="code-tile-label">Pulse / Rhythm</span>
+              <span class="code-tile-time" id="pulse-countdown">2:00</span>
+              <span class="code-tile-hint" id="pulse-hint">tap when checked</span>
+            </button>
+            <button class="code-tile" id="tile-epi">
+              <span class="code-tile-label">Next Epi</span>
+              <span class="code-tile-time" id="epi-countdown">—</span>
+              <span class="code-tile-hint" id="epi-hint">tap to give epi</span>
+            </button>
+          </div>
+
+          <div class="code-stats" id="code-stats"></div>
+
+          <div class="section-title">Rhythm</div>
+          <div class="code-chip-row" id="code-rhythm-row"></div>
+
+          <div class="section-title">Defibrillation</div>
+          <div class="code-chip-row" id="code-energy-row"></div>
+          <button class="code-shock-btn" id="btn-shock">⚡ SHOCK <span id="shock-energy-lbl">200 J</span></button>
+
+          <div class="section-title">Medications</div>
+          <div class="code-action-grid" id="code-med-grid"></div>
+
+          <div class="section-title">Airway / Access</div>
+          <div class="code-action-grid" id="code-airway-grid"></div>
+
+          <div class="section-title">Outcome</div>
+          <div class="btn-row" style="margin-top:0">
+            <button class="btn" id="btn-pause-cpr">⏸ Pause CPR</button>
+            <button class="btn accent" id="btn-rosc">✓ ROSC</button>
+            <button class="btn danger" id="btn-terminate">Terminate</button>
+          </div>
+
+          <div class="section-title">Code Log</div>
+          <div class="card"><div id="code-log-list" style="padding:0 14px"></div></div>
+
+          <div class="btn-row" style="margin-top:12px">
+            <button class="btn sm" id="btn-code-export">📋 Export Code Summary</button>
+          </div>
+        </div>
+
+        <!-- Ended view -->
+        <div id="code-end-view" class="hidden"></div>
+
+      </div>
+    </div>
+
     <!-- TAB: Call Log -->
     <div class="tab-panel active" id="tab-timeline">
       <div class="tab-inner">
@@ -894,6 +1145,10 @@
     <button class="nav-btn" data-tab="meds">
       <span class="nav-pill"><span class="nav-icon">💊</span></span>
       <span>RX</span>
+    </button>
+    <button class="nav-btn" data-tab="code">
+      <span class="nav-pill"><span class="nav-icon">🫀</span></span>
+      <span>CODE</span>
     </button>
     <button class="nav-btn active" data-tab="timeline">
       <span class="nav-pill"><span class="nav-icon">🕐</span></span>
@@ -966,6 +1221,22 @@
    CHART STATE
 ══════════════════════════════════════ */
 
+function freshCode() {
+  return {
+    active: false,
+    startTs: null,
+    endTs: null,
+    outcome: null,          // 'ROSC' | 'Terminated'
+    cprRunning: true,
+    cprStartTs: null,       // anchor for current CPR/pulse-check cycle
+    epiStartTs: null,       // anchor for current epi-due cycle
+    cprIntervalMs: 2 * 60000,
+    epiIntervalMs: 4 * 60000,
+    shockEnergy: '200',     // remembered defib energy (J)
+    currentRhythm: ''
+  };
+}
+
 var DEFAULT_STATE = {
   runActive: false,
   runStart: null,
@@ -979,7 +1250,8 @@ var DEFAULT_STATE = {
   ivSites: [],
   meds: [],
   timeline: [],
-  timers: []
+  timers: [],
+  code: freshCode()
 };
 
 var STATE = loadState();
@@ -990,7 +1262,11 @@ var _activeTimerHandles = {};
 function loadState() {
   try {
     var s = localStorage.getItem('chart_state');
-    if (s) return JSON.parse(s);
+    if (s) {
+      var parsed = JSON.parse(s);
+      if (!parsed.code) parsed.code = freshCode();
+      return parsed;
+    }
   } catch(e) {}
   return JSON.parse(JSON.stringify(DEFAULT_STATE));
 }
@@ -1034,6 +1310,15 @@ function fmtMMSS(ms) {
   var m = Math.floor(s / 60);
   var sec = s % 60;
   return String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+}
+
+function fmtElapsed(ms) {
+  var s = Math.max(0, Math.floor(ms / 1000));
+  var h = Math.floor(s / 3600);
+  var m = Math.floor((s % 3600) / 60);
+  var sec = s % 60;
+  if (h > 0) return h + ':' + String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+  return m + ':' + String(sec).padStart(2,'0');
 }
 
 function $(id) { return document.getElementById(id); }
@@ -1130,6 +1415,7 @@ function switchTab(tabName) {
   var btn = document.querySelector('.nav-btn[data-tab="' + tabName + '"]');
   if (btn) btn.classList.add('active');
   $('main-scroll').scrollTop = 0;
+  if (tabName === 'code' && STATE.code && STATE.code.active) updateCodeLive();
 }
 
 document.querySelectorAll('.nav-btn').forEach(function(btn) {
@@ -1935,8 +2221,21 @@ var TL_ICONS = {
   airway: '💨', ecg12: '❤️', cardiac: '⚡',
   procedure: '🔧', note: '✏️',
   runstart: '🟢', runend: '🔴', med: '💊', med_dc: '🚫',
-  mark: '⏱'
+  mark: '⏱', code: '🫀'
 };
+
+var CODE_KIND_ICONS = {
+  arrest: '🫀', epi: '💉', shock: '⚡', rhythm: '📈',
+  pulse: '🫀', airway: '🫁', access: '🩸', drug: '💊',
+  rosc: '✅', terminate: '🔴', note: '✏️', cpr: '🔄'
+};
+
+function getTLIcon(entry) {
+  if (entry.type === 'code' && entry.details && CODE_KIND_ICONS[entry.details.kind]) {
+    return CODE_KIND_ICONS[entry.details.kind];
+  }
+  return TL_ICONS[entry.type] || '📌';
+}
 
 function formatTLDetails(entry) {
   var d = entry.details || {};
@@ -1960,6 +2259,7 @@ function formatTLDetails(entry) {
   if (entry.type === 'runstart') return 'Run initiated';
   if (entry.type === 'runend') return 'Run completed';
   if (entry.type === 'mark') return d.note || '';
+  if (entry.type === 'code') return d.note || '';
   // For new event types, the label IS the formatted detail
   return '';
 }
@@ -1989,7 +2289,7 @@ function renderTimeline() {
 
     var icon = document.createElement('div');
     icon.className = 'tl-icon';
-    icon.textContent = TL_ICONS[entry.type] || '📌';
+    icon.textContent = getTLIcon(entry);
 
     // Time column with edit-timestamp button
     var timeWrap = document.createElement('div');
@@ -2269,6 +2569,33 @@ function buildExportText() {
       if (m.dcTime) s += ' · DC\'d ' + fmtTimeShort(m.dcTime);
       lines.push(s);
     });
+    lines.push('');
+  }
+
+  if (STATE.code && STATE.code.startTs) {
+    var c = STATE.code;
+    var ev = getCodeEvents();
+    lines.push('=== CARDIAC ARREST / CODE SUMMARY ===');
+    lines.push('Arrest time: ' + fmtTime(c.startTs));
+    if (c.endTs) lines.push((c.outcome || 'Ended') + ' time: ' + fmtTime(c.endTs));
+    lines.push('Total downtime: ' + fmtElapsed((c.endTs || Date.now()) - c.startTs));
+    var epis = ev.filter(function(e) { return e.details.kind === 'epi'; });
+    lines.push('Epinephrine: ' + epis.length + ' dose' + (epis.length === 1 ? '' : 's') +
+      (epis.length ? ' — ' + epis.map(function(e) { return fmtTime(e.ts); }).join(', ') : ''));
+    var shocks = ev.filter(function(e) { return e.details.kind === 'shock'; });
+    lines.push('Defibrillations: ' + shocks.length +
+      (shocks.length ? ' — ' + shocks.map(function(e) { return fmtTime(e.ts) + ' ' + (e.details.energy || '?') + 'J'; }).join(', ') : ''));
+    var pc = ev.filter(function(e) { return e.details.kind === 'pulse'; });
+    lines.push('Pulse / rhythm checks: ' + pc.length);
+    var rhy = ev.filter(function(e) { return e.details.kind === 'rhythm'; });
+    if (rhy.length) lines.push('Rhythms: ' + rhy.map(function(e) { return fmtTime(e.ts) + ' ' + e.details.rhythm; }).join(', '));
+    var aw = ev.filter(function(e) { return e.details.kind === 'airway'; });
+    if (aw.length) lines.push('Airway: ' + aw.map(function(e) { return (e.details.detail || e.label) + ' @ ' + fmtTime(e.ts); }).join(', '));
+    var dr = ev.filter(function(e) { return e.details.kind === 'drug'; });
+    if (dr.length) {
+      lines.push('Other meds:');
+      dr.forEach(function(e) { lines.push('  • ' + fmtTime(e.ts) + ' ' + (e.details.drug || '') + (e.details.dose ? ' ' + e.details.dose : '')); });
+    }
     lines.push('');
   }
 
@@ -2599,6 +2926,7 @@ function timerLoop() {
   if (activeTimers.length > 0 && $('tab-timers').classList.contains('active')) {
     renderTimers();
   }
+  codeTick();
   clearTimeout(_timerLoopTimeout);
   _timerLoopTimeout = setTimeout(timerLoop, 500);
 }
@@ -2696,6 +3024,495 @@ $('dc-meds-toggle').addEventListener('click', function() {
 });
 
 /* ══════════════════════════════════════
+   CARDIAC ARREST / CODE
+══════════════════════════════════════ */
+
+var CODE_RHYTHMS = ['VF', 'pVT', 'PEA', 'Asystole', 'Organized'];
+var CODE_ENERGIES = ['120', '150', '200', '300', '360'];
+var CODE_MEDS = [
+  {drug: 'Amiodarone', dose: '300 mg', route: 'IV/IO', sub: 'IV/IO'},
+  {drug: 'Amiodarone', dose: '150 mg', route: 'IV/IO', sub: 'IV/IO'},
+  {drug: 'Lidocaine', dose: '1–1.5 mg/kg', route: 'IV/IO', sub: 'IV/IO'},
+  {drug: 'Sodium Bicarb', dose: '1 mEq/kg', route: 'IV/IO', sub: 'IV/IO'},
+  {drug: 'Calcium', dose: '1 g', route: 'IV/IO', sub: 'IV/IO'},
+  {drug: 'Magnesium', dose: '1–2 g', route: 'IV/IO', sub: 'IV/IO'},
+  {custom: true, drug: 'Other med…', sub: 'log custom'}
+];
+var CODE_AIRWAY = [
+  {title: 'Intubated', sub: 'ETT', detail: 'Intubation (ETT)', kind: 'airway'},
+  {title: 'i-gel / SGA', sub: 'supraglottic', detail: 'Supraglottic airway (i-gel)', kind: 'airway'},
+  {title: 'BVM', sub: 'bag-valve-mask', detail: 'BVM ventilation', kind: 'airway'},
+  {title: 'IV access', sub: 'peripheral', detail: 'IV access', kind: 'access'},
+  {title: 'IO access', sub: 'intraosseous', detail: 'IO access', kind: 'access'},
+  {title: 'Capnography', sub: 'EtCO₂', detail: 'Capnography placed', kind: 'note'}
+];
+
+function getCodeEvents() {
+  var start = (STATE.code && STATE.code.startTs) ? STATE.code.startTs : 0;
+  return STATE.timeline.filter(function(e) { return e.type === 'code' && e.ts >= start; });
+}
+
+function logCodeEvent(kind, label, details) {
+  details = details || {};
+  details.kind = kind;
+  STATE.timeline.push({id: uid(), type: 'code', label: label, ts: Date.now(), details: details});
+  saveState();
+  renderTimeline();
+  if (STATE.code.active) {
+    renderCodeLog($('code-log-list'));
+    updateCodeLive();
+  } else {
+    renderCodeView();
+  }
+}
+
+function startCode() {
+  var now = Date.now();
+  if (!STATE.runActive) {
+    STATE.runActive = true;
+    STATE.runStart = now;
+    if (!STATE.chiefComplaint) STATE.chiefComplaint = 'Cardiac arrest';
+  }
+  var prevEnergy = (STATE.code && STATE.code.shockEnergy) || '200';
+  STATE.code = freshCode();
+  STATE.code.shockEnergy = prevEnergy;
+  STATE.code.active = true;
+  STATE.code.startTs = now;
+  STATE.code.cprStartTs = now;
+  STATE.code.epiStartTs = now;
+  STATE.code.cprRunning = true;
+  saveState();
+  logCodeEvent('arrest', '🫀 Cardiac arrest — CPR started', {});
+  requestNotifPermission();
+  updateRunUI();
+  renderCodeView();
+  switchTab('code');
+  toast('Code started — clock running');
+  if (navigator.vibrate) navigator.vibrate(80);
+}
+
+function giveEpi() {
+  if (!STATE.code.active) return;
+  var n = getCodeEvents().filter(function(e) { return e.details.kind === 'epi'; }).length + 1;
+  STATE.code.epiStartTs = Date.now();
+  saveState();
+  logCodeEvent('epi', '💉 Epinephrine 1 mg (1:10,000) IV/IO — dose #' + n,
+    {drug: 'Epinephrine', dose: '1 mg', conc: '1:10,000', route: 'IV/IO', doseNum: n});
+  toast('Epi #' + n + ' logged');
+  if (navigator.vibrate) navigator.vibrate(40);
+}
+
+function giveShock() {
+  if (!STATE.code.active) return;
+  var e = STATE.code.shockEnergy || '200';
+  var n = getCodeEvents().filter(function(x) { return x.details.kind === 'shock'; }).length + 1;
+  STATE.code.cprStartTs = Date.now(); // resume the 2-min CPR cycle right after the shock
+  saveState();
+  logCodeEvent('shock', '⚡ Defibrillation ' + e + ' J — shock #' + n, {energy: e, shockNum: n});
+  toast('Shock #' + n + ' @ ' + e + ' J');
+  if (navigator.vibrate) navigator.vibrate([60, 40, 60]);
+}
+
+function logPulseCheck() {
+  if (!STATE.code.active) return;
+  STATE.code.cprStartTs = Date.now();
+  if (!STATE.code.cprRunning) {
+    STATE.code.cprRunning = true;
+    $('btn-pause-cpr').textContent = '⏸ Pause CPR';
+  }
+  saveState();
+  logCodeEvent('pulse', '🫀 Pulse / rhythm check — CPR cycle reset', {});
+  toast('Pulse check logged');
+}
+
+function logRhythm(r) {
+  if (!STATE.code.active) return;
+  STATE.code.currentRhythm = r;
+  saveState();
+  logCodeEvent('rhythm', '📈 Rhythm: ' + r, {rhythm: r});
+  var rr = $('code-rhythm-row');
+  if (rr) rr.querySelectorAll('.code-chip').forEach(function(b) { b.classList.toggle('sel', b.dataset.rhythm === r); });
+  toast('Rhythm: ' + r);
+}
+
+function logDrug(m) {
+  logCodeEvent('drug', '💊 ' + m.drug + (m.dose ? ' ' + m.dose : '') + (m.route ? ' ' + m.route : ''),
+    {drug: m.drug, dose: m.dose, route: m.route});
+  toast(m.drug + ' logged');
+  if (navigator.vibrate) navigator.vibrate(40);
+}
+
+function openCustomCodeMed() {
+  var frag = document.createDocumentFragment();
+  frag.appendChild(mkField('Drug', 'text', 'ccm-drug', 'e.g. Naloxone', ''));
+  frag.appendChild(mkField('Dose / route', 'text', 'ccm-dose', 'e.g. 2 mg IV', ''));
+  var actions = document.createElement('div');
+  actions.className = 'sheet-actions';
+  var ok = document.createElement('button');
+  ok.className = 'btn accent';
+  ok.textContent = 'Log';
+  ok.addEventListener('click', function() {
+    var d = $('ccm-drug').value.trim();
+    if (!d) { toast('Enter a drug'); return; }
+    var dose = $('ccm-dose').value.trim();
+    logCodeEvent('drug', '💊 ' + d + (dose ? ' ' + dose : ''), {drug: d, dose: dose});
+    closeSheet();
+    toast(d + ' logged');
+  });
+  var cancel = document.createElement('button');
+  cancel.className = 'btn';
+  cancel.textContent = 'Cancel';
+  cancel.addEventListener('click', closeSheet);
+  actions.appendChild(ok);
+  actions.appendChild(cancel);
+  frag.appendChild(actions);
+  openSheet('Log Medication', frag);
+}
+
+function toggleCpr() {
+  if (!STATE.code.active) return;
+  STATE.code.cprRunning = !STATE.code.cprRunning;
+  if (STATE.code.cprRunning) STATE.code.cprStartTs = Date.now();
+  saveState();
+  logCodeEvent('cpr', STATE.code.cprRunning ? '🔄 CPR resumed' : '⏸ CPR paused', {});
+  $('btn-pause-cpr').textContent = STATE.code.cprRunning ? '⏸ Pause CPR' : '▶ Resume CPR';
+  updateCodeLive();
+}
+
+function endCode(outcome) {
+  STATE.code.active = false;
+  STATE.code.endTs = Date.now();
+  STATE.code.outcome = outcome;
+  saveState();
+  logCodeEvent(outcome === 'ROSC' ? 'rosc' : 'terminate',
+    outcome === 'ROSC' ? '✅ ROSC — return of spontaneous circulation' : '🔴 Resuscitation terminated', {});
+  renderCodeView();
+  toast(outcome === 'ROSC' ? 'ROSC logged' : 'Code ended');
+}
+
+function reArrest() {
+  var now = Date.now();
+  STATE.code.active = true;
+  STATE.code.outcome = null;
+  STATE.code.endTs = null;
+  STATE.code.cprRunning = true;
+  STATE.code.cprStartTs = now;
+  STATE.code.epiStartTs = now;
+  saveState();
+  logCodeEvent('arrest', '🫀 Re-arrest — CPR resumed', {});
+  renderCodeView();
+  switchTab('code');
+  toast('CPR resumed');
+}
+
+function codeAlert(title, body) {
+  if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+    try { new Notification('CHART — ' + title, {body: body, icon: './chart-icon-192.png'}); } catch(e) {}
+  }
+  showAlert(title + (body ? ' — ' + body : ''));
+}
+
+function codeTick() {
+  var c = STATE.code;
+  if (!c || !c.active) return;
+  var now = Date.now();
+  var changed = false;
+  if (c.cprRunning && now >= c.cprStartTs + c.cprIntervalMs) {
+    var pm = Math.floor((now - c.cprStartTs) / c.cprIntervalMs);
+    c.cprStartTs += pm * c.cprIntervalMs;
+    changed = true;
+    codeAlert('🫀 Pulse / rhythm check', 'CPR cycle complete — check pulse and rhythm');
+  }
+  if (now >= c.epiStartTs + c.epiIntervalMs) {
+    var em = Math.floor((now - c.epiStartTs) / c.epiIntervalMs);
+    c.epiStartTs += em * c.epiIntervalMs;
+    changed = true;
+    codeAlert('💉 Epinephrine due', 'Next epinephrine dose is due');
+  }
+  if (changed) saveState();
+  if ($('tab-code') && $('tab-code').classList.contains('active')) updateCodeLive();
+}
+
+var _codeRowsBuilt = false;
+function buildCodeRows() {
+  if (_codeRowsBuilt) return;
+  _codeRowsBuilt = true;
+
+  var rr = $('code-rhythm-row');
+  CODE_RHYTHMS.forEach(function(r) {
+    var b = document.createElement('button');
+    b.className = 'code-chip';
+    b.textContent = r;
+    b.dataset.rhythm = r;
+    b.addEventListener('click', function() { logRhythm(r); });
+    rr.appendChild(b);
+  });
+
+  var er = $('code-energy-row');
+  CODE_ENERGIES.forEach(function(en) {
+    var b = document.createElement('button');
+    b.className = 'code-chip' + (en === String(STATE.code.shockEnergy) ? ' sel' : '');
+    b.textContent = en + ' J';
+    b.dataset.energy = en;
+    b.addEventListener('click', function() {
+      STATE.code.shockEnergy = en;
+      saveState();
+      updateCodeLive();
+    });
+    er.appendChild(b);
+  });
+
+  var mg = $('code-med-grid');
+  CODE_MEDS.forEach(function(m) {
+    var b = document.createElement('button');
+    b.className = 'code-action-btn';
+    var t = document.createElement('span');
+    t.className = 'code-action-title';
+    t.textContent = m.custom ? m.drug : (m.drug + ' ' + m.dose);
+    var s = document.createElement('span');
+    s.className = 'code-action-sub';
+    s.textContent = m.sub || '';
+    b.appendChild(t);
+    b.appendChild(s);
+    b.addEventListener('click', function() { if (m.custom) openCustomCodeMed(); else logDrug(m); });
+    mg.appendChild(b);
+  });
+
+  var ag = $('code-airway-grid');
+  CODE_AIRWAY.forEach(function(a) {
+    var b = document.createElement('button');
+    b.className = 'code-action-btn';
+    var t = document.createElement('span');
+    t.className = 'code-action-title';
+    t.textContent = a.title;
+    var s = document.createElement('span');
+    s.className = 'code-action-sub';
+    s.textContent = a.sub || '';
+    b.appendChild(t);
+    b.appendChild(s);
+    b.addEventListener('click', function() {
+      logCodeEvent(a.kind, (CODE_KIND_ICONS[a.kind] || '•') + ' ' + a.detail, {detail: a.detail});
+      toast(a.title + ' logged');
+      if (navigator.vibrate) navigator.vibrate(40);
+    });
+    ag.appendChild(b);
+  });
+}
+
+function renderCodeStats() {
+  var wrap = $('code-stats');
+  if (!wrap) return;
+  var c = STATE.code, ev = getCodeEvents(), now = Date.now();
+  var epis = ev.filter(function(e) { return e.details.kind === 'epi'; });
+  var shocks = ev.filter(function(e) { return e.details.kind === 'shock'; });
+  wrap.innerHTML = '';
+  function chip(html) {
+    var d = document.createElement('div');
+    d.className = 'code-stat';
+    d.innerHTML = html;
+    wrap.appendChild(d);
+  }
+  chip('💉 Epi <b>×' + epis.length + '</b>' + (epis.length ? ' · ' + fmtMMSS(now - epis[epis.length - 1].ts) + ' ago' : ''));
+  chip('⚡ Shocks <b>×' + shocks.length + '</b>');
+  if (c.currentRhythm) chip('📈 <b>' + c.currentRhythm + '</b>');
+}
+
+function updateCodeLive() {
+  var c = STATE.code;
+  if (!c.active) return;
+  var now = Date.now();
+
+  var clk = $('code-clock-time');
+  if (clk) clk.textContent = fmtElapsed(now - c.startTs);
+  var sub = $('code-clock-sub');
+  if (sub) sub.textContent = 'Arrest at ' + fmtTime(c.startTs);
+  var st = $('code-clock-status');
+  if (st) st.textContent = c.cprRunning ? 'CODE RUNNING' : 'CPR PAUSED';
+
+  var pTile = $('tile-pulse'), pTime = $('pulse-countdown'), pHint = $('pulse-hint');
+  if (pTile) {
+    pTile.classList.remove('soon', 'due', 'paused');
+    if (!c.cprRunning) {
+      pTile.classList.add('paused');
+      pTime.textContent = 'PAUSED';
+      pHint.textContent = 'tap to resume + check';
+    } else {
+      var pRem = c.cprStartTs + c.cprIntervalMs - now;
+      if (pRem <= 0) {
+        pTile.classList.add('due');
+        pTime.textContent = 'CHECK';
+        pHint.textContent = 'pulse check due';
+      } else {
+        if (pRem < 30000) pTile.classList.add('soon');
+        pTime.textContent = fmtMMSS(pRem);
+        pHint.textContent = 'tap when checked';
+      }
+    }
+  }
+
+  var eTile = $('tile-epi'), eTime = $('epi-countdown'), eHint = $('epi-hint');
+  if (eTile) {
+    eTile.classList.remove('soon', 'due');
+    var eRem = c.epiStartTs + c.epiIntervalMs - now;
+    if (eRem <= 0) {
+      eTile.classList.add('due');
+      eTime.textContent = 'DUE';
+      eHint.textContent = 'tap to give epi';
+    } else {
+      if (eRem < 30000) eTile.classList.add('soon');
+      eTime.textContent = fmtMMSS(eRem);
+      eHint.textContent = 'tap to give epi';
+    }
+  }
+
+  renderCodeStats();
+
+  var lbl = $('shock-energy-lbl');
+  if (lbl) lbl.textContent = (c.shockEnergy || '200') + ' J';
+  var er = $('code-energy-row');
+  if (er) er.querySelectorAll('.code-chip').forEach(function(b) { b.classList.toggle('sel', b.dataset.energy === String(c.shockEnergy)); });
+}
+
+function renderCodeLog(target) {
+  var list = target || $('code-log-list');
+  if (!list) return;
+  var ev = getCodeEvents().slice().sort(function(a, b) { return b.ts - a.ts; });
+  list.innerHTML = '';
+  if (!ev.length) {
+    var em = document.createElement('div');
+    em.style.cssText = 'color:var(--muted);font-size:13px;padding:14px 0';
+    em.textContent = 'No code events yet';
+    list.appendChild(em);
+    return;
+  }
+  var start = STATE.code.startTs || ev[ev.length - 1].ts;
+  ev.forEach(function(e) {
+    var row = document.createElement('div');
+    row.className = 'code-log-entry';
+    var t = document.createElement('span');
+    t.className = 'code-log-time';
+    t.textContent = fmtTime(e.ts);
+    var elp = document.createElement('span');
+    elp.className = 'code-log-elapsed';
+    elp.textContent = '+' + fmtMMSS(Math.max(0, e.ts - start));
+    var l = document.createElement('span');
+    l.className = 'code-log-label';
+    l.textContent = e.label;
+    row.appendChild(t);
+    row.appendChild(elp);
+    row.appendChild(l);
+    list.appendChild(row);
+  });
+}
+
+function renderCodeEnded() {
+  var c = STATE.code, ev = getCodeEvents(), now = Date.now();
+  var v = $('code-end-view');
+  if (!v) return;
+  v.innerHTML = '';
+
+  var card = document.createElement('div');
+  card.className = 'code-end-card';
+  var head = document.createElement('div');
+  head.style.cssText = 'text-align:center;margin-bottom:14px';
+  var icon = document.createElement('div');
+  icon.style.cssText = 'font-size:38px;line-height:1';
+  icon.textContent = c.outcome === 'ROSC' ? '✅' : '🔴';
+  var title = document.createElement('div');
+  title.style.cssText = 'font-size:19px;font-weight:800;margin-top:6px;color:' + (c.outcome === 'ROSC' ? 'var(--accent)' : 'var(--danger)');
+  title.textContent = c.outcome === 'ROSC' ? 'ROSC Achieved' : 'Code Ended';
+  head.appendChild(icon);
+  head.appendChild(title);
+  card.appendChild(head);
+
+  function row(k, val) {
+    var r = document.createElement('div');
+    r.className = 'code-end-row';
+    var kk = document.createElement('span');
+    kk.className = 'k';
+    kk.textContent = k;
+    var vv = document.createElement('span');
+    vv.className = 'v';
+    vv.textContent = val;
+    r.appendChild(kk);
+    r.appendChild(vv);
+    card.appendChild(r);
+  }
+  row('Arrest', fmtTime(c.startTs));
+  if (c.endTs) row(c.outcome || 'Ended', fmtTime(c.endTs));
+  row('Total downtime', fmtElapsed((c.endTs || now) - c.startTs));
+  row('Epi doses', String(ev.filter(function(e) { return e.details.kind === 'epi'; }).length));
+  row('Shocks', String(ev.filter(function(e) { return e.details.kind === 'shock'; }).length));
+  row('Pulse checks', String(ev.filter(function(e) { return e.details.kind === 'pulse'; }).length));
+  v.appendChild(card);
+
+  var br = document.createElement('div');
+  br.className = 'btn-row';
+  var reBtn = document.createElement('button');
+  reBtn.className = 'btn danger';
+  reBtn.textContent = '↺ Re-arrest (resume CPR)';
+  reBtn.addEventListener('click', reArrest);
+  var exBtn = document.createElement('button');
+  exBtn.className = 'btn accent';
+  exBtn.textContent = '📋 Export';
+  exBtn.addEventListener('click', openExport);
+  br.appendChild(reBtn);
+  br.appendChild(exBtn);
+  v.appendChild(br);
+
+  var stt = document.createElement('div');
+  stt.className = 'section-title';
+  stt.textContent = 'Code Log';
+  v.appendChild(stt);
+  var logCard = document.createElement('div');
+  logCard.className = 'card';
+  var inner = document.createElement('div');
+  inner.style.cssText = 'padding:0 14px';
+  logCard.appendChild(inner);
+  v.appendChild(logCard);
+  renderCodeLog(inner);
+}
+
+function renderCodeView() {
+  var c = STATE.code;
+  var startV = $('code-start-view'), runV = $('code-run-view'), endV = $('code-end-view');
+  if (!startV) return;
+  if (c.active) {
+    startV.classList.add('hidden');
+    runV.classList.remove('hidden');
+    endV.classList.add('hidden');
+    buildCodeRows();
+    $('btn-pause-cpr').textContent = c.cprRunning ? '⏸ Pause CPR' : '▶ Resume CPR';
+    var rr = $('code-rhythm-row');
+    if (rr) rr.querySelectorAll('.code-chip').forEach(function(b) { b.classList.toggle('sel', b.dataset.rhythm === c.currentRhythm); });
+    renderCodeLog($('code-log-list'));
+    updateCodeLive();
+  } else if (c.startTs) {
+    startV.classList.add('hidden');
+    runV.classList.add('hidden');
+    endV.classList.remove('hidden');
+    renderCodeEnded();
+  } else {
+    startV.classList.remove('hidden');
+    runV.classList.add('hidden');
+    endV.classList.add('hidden');
+  }
+}
+
+$('btn-start-code').addEventListener('click', startCode);
+$('tile-pulse').addEventListener('click', logPulseCheck);
+$('tile-epi').addEventListener('click', giveEpi);
+$('btn-shock').addEventListener('click', giveShock);
+$('btn-pause-cpr').addEventListener('click', toggleCpr);
+$('btn-rosc').addEventListener('click', function() { endCode('ROSC'); });
+$('btn-terminate').addEventListener('click', function() {
+  showConfirm('Terminate Resuscitation?', 'Mark the code ended. Data stays for export.').then(function(ok) {
+    if (ok) endCode('Terminated');
+  });
+});
+$('btn-code-export').addEventListener('click', openExport);
+
+/* ══════════════════════════════════════
    RENDER ALL
 ══════════════════════════════════════ */
 
@@ -2707,6 +3524,7 @@ function renderAll() {
   renderTimeline();
   renderPresetGrid();
   renderTimers();
+  renderCodeView();
 }
 
 /* ══════════════════════════════════════
