@@ -64,6 +64,7 @@
     .pearl-card-summary{font-size:13px;color:var(--muted);line-height:1.4}
     .pearl-card-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
     .pearl-cat-badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--cat,#5eead4);background:var(--cat-bg,rgba(94,234,212,.14));padding:3px 8px;border-radius:20px;border:1px solid var(--cat,#5eead4);white-space:nowrap;opacity:.9}
+    .pearl-personal-badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#5eead4;background:rgba(94,234,212,.14);padding:3px 8px;border-radius:20px;border:1px solid rgba(94,234,212,.55);white-space:nowrap}
     .pearl-card-arrow{color:var(--muted);font-size:18px;line-height:1}
 
     /* ── Pearl page overlay ── */
@@ -399,13 +400,9 @@
       $('#pearl-page-summary').textContent = pearl.summary;
       $('#pearl-page-body').innerHTML = formatPearlBody(pearl.body);
 
-      // My Notes actions
+      // Personal-pearl actions (edit / delete) — shown for any pearl the user created
       const noteActions = $('#pearl-note-actions');
-      if (pearl.cat === 'My Notes') {
-        noteActions.style.display = '';
-      } else {
-        noteActions.style.display = 'none';
-      }
+      noteActions.style.display = pearl.personal ? '' : 'none';
 
       // Slide in
       page.scrollTop = 0;
@@ -455,6 +452,14 @@
       arrow.className = 'pearl-card-arrow';
       arrow.textContent = '›';
 
+      // Mark user-created pearls so they're never confused with official content
+      if (pearl.personal && pearl.cat !== 'My Notes') {
+        const personalBadge = document.createElement('span');
+        personalBadge.className = 'pearl-personal-badge';
+        personalBadge.textContent = '★ Personal';
+        right.appendChild(personalBadge);
+      }
+
       right.appendChild(badge);
       right.appendChild(arrow);
 
@@ -462,8 +467,8 @@
       inner.appendChild(right);
       card.appendChild(inner);
 
-      // For My Notes: show a small "···" options button
-      if (pearl.cat === 'My Notes') {
+      // For personal pearls: show a small "···" options button
+      if (pearl.personal) {
         const moreBtn = document.createElement('button');
         moreBtn.textContent = '···';
         moreBtn.style.cssText = 'position:absolute;top:10px;right:36px;background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:13px;padding:2px 7px;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;z-index:2';
@@ -487,7 +492,11 @@
       const q = (filter || '').toLowerCase().trim();
       const all = PEARLS.concat(_userNotes);
       const items = all.filter(p => {
-        const catMatch = category === 'All' || p.cat === category;
+        // "My Notes" is the catch-all view of every personal pearl, whatever
+        // clinical category it was filed under. Real categories include the
+        // user's own pearls assigned to them alongside the built-in ones.
+        const catMatch = category === 'All'
+          || (category === 'My Notes' ? p.personal === true : p.cat === category);
         if (!catMatch) return false;
         if (!q) return true;
         return p.title.toLowerCase().includes(q) || p.body.toLowerCase().includes(q) || p.summary.toLowerCase().includes(q);
@@ -582,7 +591,7 @@
           _userNotes = [];
           snap.forEach(doc => {
             const d = doc.data();
-            _userNotes.push({ id: doc.id, cat: 'My Notes', title: d.title || 'Untitled', summary: d.summary || '', body: d.body || '' });
+            _userNotes.push({ id: doc.id, cat: d.cat || 'My Notes', personal: true, title: d.title || 'Untitled', summary: d.summary || '', body: d.body || '' });
           });
           if (_pearlsActiveCat === 'My Notes' || _pearlsActiveCat === 'All') {
             renderPearls(_pearlsFilterText, _pearlsActiveCat);
@@ -637,9 +646,32 @@
 
       const { el: titleFg, inp: titleInp } = mkField('Title', 'text', 'e.g. RSI Checklist', isEdit ? existingNote.title : '');
       const { el: summaryFg, inp: summaryInp } = mkField('Summary (one-liner)', 'text', 'Brief description', isEdit ? existingNote.summary : '');
+
+      // Category selector — lets the user file a personal pearl under any
+      // clinical category so it sits alongside the built-in ones (still
+      // private to their account), or keep it in the general "My Notes" bin.
+      const catFg = document.createElement('div');
+      catFg.className = 'fg';
+      const catLbl = document.createElement('label');
+      catLbl.textContent = 'Category';
+      const catSelect = document.createElement('select');
+      catSelect.style.cssText = 'font-family:inherit;font-size:14px';
+      const NOTE_CATS = ['My Notes', 'Airway', 'Cardiac', 'Trauma', 'Neuro', 'OB / Peds', 'Tox'];
+      const currentCat = isEdit ? (existingNote.cat || 'My Notes') : 'My Notes';
+      NOTE_CATS.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = c === 'My Notes' ? 'My Notes (general)' : c;
+        if (c === currentCat) opt.selected = true;
+        catSelect.appendChild(opt);
+      });
+      catFg.appendChild(catLbl);
+      catFg.appendChild(catSelect);
+
       const { el: bodyFg, inp: bodyInp } = mkField('Body', 'textarea', 'Full note content…', isEdit ? existingNote.body : '');
       box.appendChild(titleFg);
       box.appendChild(summaryFg);
+      box.appendChild(catFg);
       box.appendChild(bodyFg);
 
       const rowDiv = document.createElement('div');
@@ -656,7 +688,7 @@
         if (!fbAuth || !fbAuth.currentUser) { alert('You must be signed in to save notes.'); return; }
         const uid = fbAuth.currentUser.uid;
         const col = fbDb.collection('users').doc(uid).collection('pearls');
-        const data = { title, summary, body, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+        const data = { title, summary, body, cat: catSelect.value || 'My Notes', updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
         const op = isEdit
           ? col.doc(existingNote.id).update(data)
           : col.add({ ...data, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
